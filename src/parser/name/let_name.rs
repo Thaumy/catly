@@ -1,4 +1,3 @@
-use std::fmt;
 use crate::parser::char::{parse_char, parse_lower};
 use crate::parser::{get_head_tail};
 
@@ -7,28 +6,25 @@ use crate::parser::{get_head_tail};
 #[derive(PartialEq)]
 enum Pattern {
     Start,
+    End,
+    Err,
+
     Lower(char),
     Char(char),
     LetName(String),
-    End,
-    Err,
 }
 
-impl fmt::Display for Pattern {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?}", self)
-    }
-}
-
-fn go(prev_pat: Pattern, seq: &str, offset: i64) -> Option<(String, i64)> {
+fn go(stack: &Pattern, seq: &str) -> Option<String> {
     let (head, tail) = get_head_tail(seq);
-    let pat = match (&prev_pat, head) {
+
+    let move_in = match (&stack, head) {
         // LetName: [0-9a-zA-Z] -> Char
         (Pattern::LetName(_), Some(c)) if parse_char(&c).is_some() =>
             Pattern::Char(c),
         // Start: [a-z] -> Lower
         (Pattern::Start, Some(c)) if parse_lower(&c).is_some() =>
             Pattern::Lower(c),
+
         // ɛ -> End
         (_, None) => Pattern::End,
         // _ -> Err
@@ -37,28 +33,32 @@ fn go(prev_pat: Pattern, seq: &str, offset: i64) -> Option<(String, i64)> {
             Pattern::Err
         }
     };
-    let this_pat = match (prev_pat, pat) {
+
+    let reduced_stack = match (stack, move_in) {
         // Start Lower -> LetName
         (Pattern::Start, Pattern::Lower(c)) =>
             Pattern::LetName(c.to_string()),
         // LetName Char -> LetName
         (Pattern::LetName(n), Pattern::Char(c)) =>
             Pattern::LetName(format!("{}{}", n, c)),
+
         // Success
-        (Pattern::LetName(n), Pattern::End) => return Some((n, offset)),
+        (Pattern::LetName(n), Pattern::End) => return Some(n.to_string()),
+
         // Can not parse
         (_, Pattern::Err) => return None,
         // Can not reduce
         (a, b) => {
-            println!("Invalid reduce pattern: {}, {}", a, b);
+            println!("Reduction failed: {:?}, {:?}", a, b);
             return None;
         }
     };
-    go(this_pat, tail, offset + 1)
+
+    go(&reduced_stack, tail)
 }
 
-pub fn parse_let_name(seq: &str) -> Option<(String, i64)> {
-    go(Pattern::Start, seq, 0)
+pub fn parse_let_name(seq: &str) -> Option<String> {
+    go(&Pattern::Start, seq)
 }
 
 #[cfg(test)]
@@ -67,17 +67,7 @@ mod tests {
     fn test_parse_let_name() {
         use crate::parser::name::let_name::parse_let_name;
 
-        {
-            let seq = "a1B2C3";
-            let seq_len = seq.len() as i64;
-            assert_eq!(
-                parse_let_name(seq),
-                Some((seq.to_string(), seq_len))
-            );
-        }
-        assert_eq!(
-            parse_let_name("A1b2c3"),
-            None
-        );
+        assert_eq!(parse_let_name("a1B2C3"), Some("a1B2C3".to_string()));
+        assert_eq!(parse_let_name("A1b2c3"), None);
     }
 }

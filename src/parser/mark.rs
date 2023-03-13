@@ -3,6 +3,7 @@
 #[derive(PartialEq)]
 pub enum Mark {
     Underline,
+    Blank,
     Arrow,
     LeftParentheses,
     RightParentheses,
@@ -18,6 +19,11 @@ pub enum Mark {
 #[allow(dead_code)]
 pub fn parse_underline(x: &char) -> bool {
     x == &'_'
+}
+
+#[allow(dead_code)]
+pub fn parse_blank(x: &char) -> bool {
+    x == &' '
 }
 
 #[allow(dead_code)]
@@ -73,6 +79,7 @@ pub fn parse_arrow(x: &[char; 2]) -> bool {
 pub fn parse_mark(x: &str) -> Option<Mark> {
     let r = match x {
         "_" => Mark::Underline,
+        " " => Mark::Blank,
         "(" => Mark::LeftParentheses,
         ")" => Mark::RightParentheses,
         "{" => Mark::LeftCurlyBracket,
@@ -95,6 +102,7 @@ mod tests {
         use crate::parser::mark::{Mark, parse_mark};
 
         assert_eq!(parse_mark("_"), Some(Mark::Underline));
+        assert_eq!(parse_mark(" "), Some(Mark::Blank));
         assert_eq!(parse_mark("("), Some(Mark::LeftParentheses));
         assert_eq!(parse_mark(")"), Some(Mark::RightParentheses));
         assert_eq!(parse_mark("{"), Some(Mark::LeftCurlyBracket));
