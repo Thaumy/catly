@@ -13,8 +13,8 @@ pub enum Expr {
     Int(i64),
     EnvRef(String),
     Apply(Box<Expr>, Box<Expr>),
+    Cond(Box<Expr>, Box<Expr>, Box<Expr>),
     //Closure,
-    //Cond,
     //Struct,
     //Match,
 }
@@ -26,6 +26,8 @@ enum Pat {
     Start,
     End,
     Err,
+
+    Any(char),
 
     LeftParentheses,
     RightParentheses,
@@ -39,10 +41,13 @@ enum Pat {
     CharSeq(String),
     LetName(String),//Expr::EnvRef
 
-    Any(char),
-
     Blank,
     Apply(Box<Pat>, Box<Pat>),
+
+    If,
+    Then,
+    Else,
+    Cond(Box<Pat>, Box<Pat>, Box<Pat>),//Expr::Cond
 }
 
 fn move_in(stack: &Vec<Pat>, head: Option<char>) -> Pat {
@@ -263,7 +268,7 @@ mod tests {
 
     #[test]
     fn test_parse_expr_apply_part1() {
-        // Unit Int
+        // Apply(Unit, Int)
         let r = Some(Expr::Apply(
             Box::new(Expr::Unit),
             Box::new(Expr::Int(123)),
@@ -277,7 +282,7 @@ mod tests {
 
     #[test]
     fn test_parse_expr_apply_part2() {
-        // EnvRef Int
+        // Apply(EnvRef, Int)
         let r = Some(Expr::Apply(
             Box::new(Expr::EnvRef("abc".to_string())),
             Box::new(Expr::Int(123)),
@@ -291,7 +296,7 @@ mod tests {
 
     #[test]
     fn test_parse_expr_apply_part3() {
-        // EnvRef Unit
+        // Apply(EnvRef, Unit)
         let r = Some(Expr::Apply(
             Box::new(Expr::EnvRef("abc".to_string())),
             Box::new(Expr::Unit),
@@ -305,7 +310,7 @@ mod tests {
 
     #[test]
     fn test_parse_expr_apply_part4() {
-        // EnvRef (EnvRef Unit)
+        // Apply(EnvRef, Apply(EnvRef, Unit))
         let r = Some(Expr::Apply(
             Box::new(Expr::EnvRef("abc".to_string())),
             Box::new(Expr::Apply(
@@ -322,7 +327,7 @@ mod tests {
 
     #[test]
     fn test_parse_expr_apply_part5() {
-        // EnvRef (EnvRef (EnvRef Unit))
+        // Apply(EnvRef, Apply(EnvRef, Apply(EnvRef, Unit)))
         let r = Some(Expr::Apply(
             Box::new(Expr::EnvRef("abc".to_string())),
             Box::new(Expr::Apply(
@@ -338,5 +343,86 @@ mod tests {
         assert_eq!(parse_expr("((abc)) (((abc (abc ()))))"), r);
         assert_eq!(parse_expr("(((abc)) (((abc (abc ())))))"), r);
         assert_eq!(parse_expr("((((abc)) (((abc (abc ()))))))"), r);
+    }
+
+    #[test]
+    fn test_parse_expr_cond_part1() {
+        // Cond(EnvRef, Int, Unit)
+        let r = Some(Expr::Cond(
+            Box::new(Expr::EnvRef("abc".to_string())),
+            Box::new(Expr::Int(123)),
+            Box::new(Expr::Unit),
+        ));
+        assert_eq!(parse_expr("if abc then 123 else ()"), r);
+        assert_eq!(parse_expr("if ((abc)) then ((123)) else ((()))"), r);
+        assert_eq!(parse_expr("(if (((abc))) then (((123))) else (((()))))"), r);
+        assert_eq!(parse_expr("(((if (((abc))) then (((123))) else (((()))))))"), r);
+    }
+
+    #[test]
+    fn test_parse_expr_cond_part2() {
+        // Cond(a, a, a)
+        // while: a = Cond(EnvRef, Apply(Int, Unit), Int)
+        let e = Expr::Cond(
+            Box::new(Expr::EnvRef("abc".to_string())),
+            Box::new(Expr::Apply(
+                Box::new(Expr::Int(123)),
+                Box::new(Expr::Unit))
+            ),
+            Box::new(Expr::Int(456)),
+        );
+        let r = Some(Expr::Cond(
+            Box::new(e.clone()),
+            Box::new(e.clone()),
+            Box::new(e.clone()),
+        ));
+
+        let e = "if abc then 123 () else 456";
+        let seq = &format!("if {} then {} else {}", e, e, e);
+        assert_eq!(parse_expr(seq), r);
+        let e = "if abc then (123 ()) else 456";
+        let seq = &format!("if {} then {} else {}", e, e, e);
+        assert_eq!(parse_expr(seq), r);
+        let e = "(((if ((abc)) then ((123 ())) else ((456)))))";
+        let seq = &format!("if {} then {} else {}", e, e, e);
+        assert_eq!(parse_expr(seq), r);
+    }
+
+    #[test]
+    fn test_parse_expr_cond_part3() {
+        // Cond(b, b, b)
+        // while: a = Cond(Apply(Int, Unit), Int, EnvRef)
+        // while: b = Cond(a, a, a)
+        let a = Expr::Cond(
+            Box::new(Expr::Apply(
+                Box::new(Expr::Int(123)),
+                Box::new(Expr::Unit),
+            )),
+            Box::new(Expr::Int(123)),
+            Box::new(Expr::EnvRef("abc".to_string())),
+        );
+        let b = Expr::Cond(
+            Box::new(a.clone()),
+            Box::new(a.clone()),
+            Box::new(a.clone()),
+        );
+        let r = Some(Expr::Cond(
+            Box::new(b.clone()),
+            Box::new(b.clone()),
+            Box::new(b.clone()),
+        ));
+
+        let a = "if 123 () then 123 else abc";
+        let b = &format!("if {} then {} else {}", a, a, a);
+        let seq = &format!("if {} then {} else {}", b, b, b);
+        assert_eq!(parse_expr(seq), r);
+        let a = "(((if (((123 ()))) then (((123))) else (((abc))))))";
+        let b = &format!("(((if {} then {} else {})))", a, a, a);
+        let seq = &format!("if {} then {} else {}", b, b, b);
+        assert_eq!(parse_expr(seq), r);
+        let a = "(((if (((123 ()))) then (((123))) else (((abc))))))";
+        let b = &format!("(((if ((({}))) then ((({}))) else {})))", a, a, a);
+        let seq = &format!("(((if ((({}))) then {} else ((({}))))))", b, b, b);
+        assert_eq!(parse_expr(seq), r);
     }
 }
