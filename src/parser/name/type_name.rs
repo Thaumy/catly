@@ -4,7 +4,7 @@ use crate::parser::{get_head_tail};
 #[derive(Debug)]
 #[derive(Clone)]
 #[derive(PartialEq)]
-enum Pattern {
+enum Pat {
     Start,
     End,
     Err,
@@ -14,39 +14,39 @@ enum Pattern {
     TypeName(String),
 }
 
-fn go(stack: &Pattern, seq: &str) -> Option<String> {
+fn go(stack: &Pat, seq: &str) -> Option<String> {
     let (head, tail) = get_head_tail(seq);
 
     let move_in = match (stack, head) {
         // TypeName: [0-9a-zA-Z] -> Char
-        (Pattern::TypeName(_), Some(c)) if parse_char(&c).is_some() =>
-            Pattern::Char(c),
+        (Pat::TypeName(_), Some(c)) if parse_char(&c).is_some() =>
+            Pat::Char(c),
         // Start: [A-Z] -> Upper
-        (Pattern::Start, Some(c)) if parse_upper(&c).is_some() =>
-            Pattern::Upper(c),
+        (Pat::Start, Some(c)) if parse_upper(&c).is_some() =>
+            Pat::Upper(c),
 
         // ɛ -> End
-        (_, None) => Pattern::End,
+        (_, None) => Pat::End,
         // _ -> Err
         (_, Some(c)) => {
-            println!("Invalid head pattern: {}", c);
-            Pattern::Err
+            println!("Invalid head Pat: {}", c);
+            Pat::Err
         }
     };
 
     let reduced_stack = match (stack, move_in) {
         // Start Upper -> TypeName
-        (Pattern::Start, Pattern::Upper(c)) =>
-            Pattern::TypeName(c.to_string()),
+        (Pat::Start, Pat::Upper(c)) =>
+            Pat::TypeName(c.to_string()),
         // TypeName Char -> TypeName
-        (Pattern::TypeName(n), Pattern::Char(c)) =>
-            Pattern::TypeName(format!("{}{}", n, c)),
+        (Pat::TypeName(n), Pat::Char(c)) =>
+            Pat::TypeName(format!("{}{}", n, c)),
 
         // Success
-        (Pattern::TypeName(n), Pattern::End) => return Some(n.to_string()),
+        (Pat::TypeName(n), Pat::End) => return Some(n.to_string()),
 
         // Can not parse
-        (_, Pattern::Err) => return None,
+        (_, Pat::Err) => return None,
         // Can not reduce
         (a, b) => {
             println!("Reduction failed: {:?}, {:?}", a, b);
@@ -58,7 +58,7 @@ fn go(stack: &Pattern, seq: &str) -> Option<String> {
 }
 
 pub fn parse_type_name(seq: &str) -> Option<String> {
-    go(&Pattern::Start, seq)
+    go(&Pat::Start, seq)
 }
 
 #[cfg(test)]

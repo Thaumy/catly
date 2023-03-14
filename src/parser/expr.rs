@@ -1,11 +1,12 @@
 use std::{vec};
-use crate::parser::char::{parse_char, parse_digit, parse_lower};
-use crate::parser::get_head_tail_follow;
-use crate::parser::mark::{parse_blank, parse_l_parentheses, parse_r_parentheses};
+use crate::parser::char::{parse_char, parse_digit};
+use crate::parser::{Ext, get_head_tail_follow};
+use crate::parser::mark::{parse_l_parentheses, parse_r_parentheses};
 use crate::parser::name::let_name::parse_let_name;
 use crate::parser::value::int::parse_int;
 
 #[derive(Debug)]
+#[derive(Clone)]
 #[derive(PartialEq)]
 pub enum Expr {
     Unit,
@@ -21,152 +22,215 @@ pub enum Expr {
 #[derive(Debug)]
 #[derive(Clone)]
 #[derive(PartialEq)]
-enum Pattern {
+enum Pat {
     Start,
     End,
     Err,
 
     LeftParentheses,
     RightParentheses,
-    Unit,
+    Unit,//Expr::Unit
 
     Digit(char),
     DigitSeq(String),
-    Int(i64),
+    Int(i64),//Expr::Int
 
-    Lower(char),
     Char(char),
     CharSeq(String),
-    LetName(String),
+    LetName(String),//Expr::EnvRef
 
     Any(char),
-    AnySeq(String),
 
     Blank,
-    //Lhs(String),
-    //Rhs(String),
+    Apply(Box<Pat>, Box<Pat>),
 }
 
-fn go(stack: &Vec<Pattern>, seq: &str) -> Option<Expr> {
-    let (head, tail, follow) = get_head_tail_follow(seq);
+fn move_in(stack: &Vec<Pat>, head: Option<char>) -> Pat {
+    match (&stack[..], head) {
 
-    let follow = match follow {
-        None => Pattern::End,
-        Some(' ') => Pattern::Blank,
-        Some(c) => Pattern::Any(c),
-    };
-
-    let move_in = match (&stack[..], head, &follow) {
-        // Start: '(' -> `(`
-        ([Pattern::Start], Some(c), _) if parse_l_parentheses(&c) =>
-            Pattern::LeftParentheses,
-        // Start: [0-9] -> Digit
-        ([Pattern::Start], Some(c), _) if parse_digit(&c).is_some() =>
-            Pattern::Digit(c),
-        // Start: [a-z] -> Lower
-        ([Pattern::Start], Some(c), _) if parse_lower(&c).is_some() =>
-            Pattern::Lower(c),
-
-        // ' ' -> End
-        (_, Some(c), _) if parse_blank(&c) =>
-            Pattern::End,
-        // AnySeq: _ :!End -> Any
-        ([Pattern::AnySeq(_)], Some(c), np) if np != &Pattern::End =>
-            Pattern::Any(c),
-        // Lower: [0-9a-zA-Z] -> Char
-        ([Pattern::Lower(_)], Some(c), _) if parse_char(&c).is_some() =>
-            Pattern::Char(c),
-        // CharSeq: [0-9a-zA-Z] -> Char
-        ([Pattern::CharSeq(_)], Some(c), _) if parse_char(&c).is_some() =>
-            Pattern::Char(c),
         // DigitSeq: [0-9] -> Digit
-        ([Pattern::DigitSeq(_)], Some(c), _) if parse_digit(&c).is_some() =>
-            Pattern::Digit(c),
+        ([.., Pat::DigitSeq(_)], Some(c)) if parse_digit(&c).is_some() =>
+            Pat::Digit(c),
+        // [0-9] -> Digit
+        (_, Some(c)) if parse_digit(&c).is_some() =>
+            Pat::Digit(c),
+
+        // CharSeq: [0-9a-zA-Z] -> Char
+        ([.., Pat::CharSeq(_)], Some(c)) if parse_char(&c).is_some() =>
+            Pat::Char(c),
+        // [0-9a-zA-Z] -> Char
+        (_, Some(c)) if parse_char(&c).is_some() =>
+            Pat::Char(c),
+
+        // ' ' -> Blank
+        (_, Some(' ')) => Pat::Blank,
+        // '(' -> `(`
+        (_, Some(c)) if parse_l_parentheses(&c) =>
+            Pat::LeftParentheses,
         // ')' -> `)`
-        (_, Some(c), _) if parse_r_parentheses(&c) =>
-            Pattern::RightParentheses,
-        // `(`: _ -> Any
-        ([Pattern::LeftParentheses], Some(c), _) =>
-            Pattern::Any(c),
+        (_, Some(c)) if parse_r_parentheses(&c) =>
+            Pat::RightParentheses,
 
         // ɛ -> End
-        (_, None, _) => Pattern::End,
+        (_, None) => Pat::End,
         // _ -> Err
-        (_, Some(c), _) => {
-            println!("Invalid head pattern: {}", c);
-            Pattern::Err
+        (_, Some(c)) => {
+            println!("Invalid head Pat: {}", c);
+            Pat::Err
         }
-    };
+    }
+}
 
-    let reduced_stack = match (&stack[..], move_in, follow) {
+fn reduce_stack(stack: &Vec<Pat>, follow_pat: &Pat) -> Vec<Pat> {
+    let reduced_stack = match (&stack[..], follow_pat) {
         // Success with Unit
-        ([Pattern::Unit], Pattern::End, _) => return Some(Expr::Unit),
+        ([Pat::Start, Pat::Unit, Pat::End], _) => return vec![Pat::Unit],
         // Success with Int
-        ([Pattern::Int(i)], Pattern::End, _) => return Some(Expr::Int(*i)),
+        ([Pat::Start, Pat::Int(i), Pat::End], _) => return vec![Pat::Int(*i)],
         // Success with EnvRef
-        ([Pattern::LetName(n)], Pattern::End, _) =>
-            return Some(Expr::EnvRef(n.to_string())),
+        ([Pat::Start, Pat::LetName(n), Pat::End], _) =>
+            return vec![Pat::LetName(n.to_string())],
+        // Success with Apply
+        ([Pat::Start, Pat::Apply(lhs, rhs), Pat::End], _) =>
+            return vec![Pat::Apply(
+                lhs.clone(),
+                rhs.clone(),
+            )],
 
         // `(` `)` -> Unit
-        ([Pattern::LeftParentheses], Pattern::RightParentheses, _) =>
-            vec![Pattern::Unit],
+        ([.., Pat::LeftParentheses, Pat::RightParentheses], _) =>
+            stack.reduce_to_new(2, Pat::Unit),
 
-        // Start Digit -> DigitSeq
-        ([Pattern::Start], Pattern::Digit(d), _) =>
-            vec![Pattern::DigitSeq(d.to_string())],
+        // `(` _ `)` -> _
+        ([.., Pat::LeftParentheses, p, Pat::RightParentheses], _) =>
+            stack.reduce_to_new(3, p.clone()),
+
         // DigitSeq Digit -> DigitSeq
-        ([Pattern::DigitSeq(a)], Pattern::Digit(b), _) =>
-            vec![Pattern::DigitSeq(format!("{}{}", a, b))],
-        // DigitSeq End -> Int/Err
-        ([Pattern::DigitSeq(ds)], Pattern::End, _) =>
-            match parse_int(&ds) {
-                Some(i) => vec![Pattern::Int(i)],
-                None => vec![Pattern::Err]
-            },
+        ([.., Pat::DigitSeq(ds), Pat::Digit(d)], _) =>
+            stack.reduce_to_new(2, Pat::DigitSeq(format!("{}{}", ds, d))),
+        // DigitSeq :Digit -> DigitSeq
+        ([.., Pat::DigitSeq(_)], Pat::Digit(_)) =>
+            return stack.clone(),
+        // DigitSeq :!Digit -> Int|Err
+        ([.., Pat::DigitSeq(ds)], _) => {
+            let top = match parse_int(ds) {
+                Some(i) => Pat::Int(i),
+                None => Pat::Err
+            };
+            stack.reduce_to_new(1, top)
+        }
+        // Digit :Digit -> DigitSeq
+        ([.., Pat::Digit(d)], Pat::Digit(_)) =>
+            stack.reduce_to_new(1, Pat::DigitSeq(d.to_string())),
+        // Digit :!Digit -> Int|Err
+        ([.., Pat::Digit(d)], _) => {
+            let top = match parse_int(&d.to_string()) {
+                Some(i) => Pat::Int(i),
+                None => Pat::Err
+            };
+            stack.reduce_to_new(1, top)
+        }
 
-        // Lower Char -> CharSeq
-        ([Pattern::Lower(a)], Pattern::Char(b), _) =>
-            vec![Pattern::CharSeq(format!("{}{}", a, b))],
         // CharSeq Char -> CharSeq
-        ([Pattern::CharSeq(a)], Pattern::Char(b), _) =>
-            vec![Pattern::CharSeq(format!("{}{}", a, b))],
-        // CharSeq End -> LetName/Err
-        ([Pattern::CharSeq(cs)], Pattern::End, _) =>
-            match parse_let_name(&cs) {
-                Some(n) => vec![Pattern::LetName(n)],
-                None => vec![Pattern::Err]
-            },
+        ([.., Pat::CharSeq(cs), Pat::Char(c)], _) =>
+            stack.reduce_to_new(2, Pat::CharSeq(format!("{}{}", cs, c))),
+        // CharSeq :Char -> CharSeq
+        ([.., Pat::CharSeq(_)], Pat::Char(_)) =>
+            return stack.clone(),
+        // CharSeq :!Char-> LetName|Err
+        ([.., Pat::CharSeq(cs)], _) => {
+            let top = match parse_let_name(cs) {
+                Some(n) => Pat::LetName(n),
+                None => Pat::Err
+            };
+            stack.reduce_to_new(1, top)
+        }
+        // Char :Char -> CharSeq
+        ([.., Pat::Char(c)], Pat::Char(_) | Pat::Digit(_)) =>
+            stack.reduce_to_new(1, Pat::CharSeq(c.to_string())),
+        // Char :!Char -> LetName|Err
+        ([.., Pat::Char(c)], _) => {
+            let top = match parse_let_name(&c.to_string()) {
+                Some(n) => Pat::LetName(n),
+                None => Pat::Err
+            };
+            stack.reduce_to_new(1, top)
+        }
 
-        // `(` Any -> AnySeq
-        ([Pattern::LeftParentheses], Pattern::Any(c), _) =>
-            vec![Pattern::AnySeq(c.to_string())],
-        // AnySeq Any -> AnySeq
-        ([Pattern::AnySeq(a)], Pattern::Any(b), _) =>
-            vec![Pattern::AnySeq(format!("{}{}", a, b))],
-        // AnySeq `)` -> AnySeq
-        ([Pattern::AnySeq(a)], Pattern::RightParentheses, _) =>
-            vec![Pattern::AnySeq(a.to_string())],
-        // AnySeq End -> Expr
-        ([Pattern::AnySeq(seq)], Pattern::End, _) =>
-            return go(&vec![Pattern::Start], &seq),
-
-        // Start: _ -> _
-        ([Pattern::Start], p, _) => vec![p],
+        // _ Blank Expr -> Apply
+        ([.., lhs, Pat::Blank, rhs], _)
+        if match rhs {
+            Pat::Unit | Pat::Int(_) | Pat::LetName(_) | Pat::Apply(_, _) => true,
+            _ => false
+        } => {
+            let top = Pat::Apply(
+                Box::new(lhs.clone()),
+                Box::new(rhs.clone()),
+            );
+            stack.reduce_to_new(3, top)
+        }
 
         // Can not parse
-        (_, Pattern::Err, _) => return None,
+        ([.., Pat::Err], _) => return vec![Pat::Err],
         // Can not reduce
-        (_, b, _) => {
-            println!("Invalid reduce pattern: {:?}, {:?}", stack, b);
-            return None;
+        ([.., Pat::End], _) => {
+            println!("Reduction failed: {:?}", stack);
+            return vec![Pat::Err];
         }
+        // keep move in
+        _ => return stack.clone()
     };
 
-    go(&reduced_stack, tail)
+    println!("Reduce to: {:?}", reduced_stack);
+
+    reduce_stack(&reduced_stack, follow_pat)
+}
+
+fn go(stack: &Vec<Pat>, seq: &str) -> Pat {
+    let (head, tail, follow) = get_head_tail_follow(seq);
+
+    let follow_pat = match follow {
+        None => Pat::End,
+        Some(' ') => Pat::Blank,
+        Some(c) if parse_digit(&c).is_some() => Pat::Digit(c),
+        Some(c) if parse_char(&c).is_some() => Pat::Char(c),
+        Some(c) => Pat::Any(c),
+    };
+
+    let stack = stack.push_to_new(move_in(stack, head));
+    println!("Move in result: {:?} follow: {:?}", stack, follow_pat);
+
+    let reduced_stack = reduce_stack(&stack, &follow_pat);
+
+    match (&reduced_stack[..], follow_pat) {
+        ([p], Pat::End) => {
+            let r = p.clone();
+            println!("Success with: {:?}", r);
+            return r;
+        }
+        _ => go(&reduced_stack, tail)
+    }
 }
 
 pub fn parse_expr(seq: &str) -> Option<Expr> {
-    go(&vec![Pattern::Start], seq)
+    fn case(pat: Pat) -> Option<Expr> {
+        let r = match pat {
+            Pat::Unit => Expr::Unit,
+            Pat::Int(i) => Expr::Int(i),
+            Pat::LetName(n) => Expr::EnvRef(n),
+            Pat::Apply(l, r) =>
+                match (case(*l), case(*r)) {
+                    (Some(l), Some(r)) =>
+                        Expr::Apply(Box::new(l), Box::new(r)),
+                    _ => return None
+                }
+            _ => return None
+        };
+        Some(r)
+    }
+
+    println!("\nParsing seq: {:?}", seq);
+    case(go(&vec![Pat::Start], seq))
 }
 
 #[cfg(test)]
@@ -198,7 +262,7 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_expr_apply() {
+    fn test_parse_expr_apply_part1() {
         // Unit Int
         let r = Some(Expr::Apply(
             Box::new(Expr::Unit),
@@ -209,49 +273,70 @@ mod tests {
         assert_eq!(parse_expr("((())) ((123))"), r);
         assert_eq!(parse_expr("(((())) ((123)))"), r);
         assert_eq!(parse_expr("((((())) ((123))))"), r);
+    }
 
-        //// EnvRef Int
-        //let r = Some(Expr::Apply(
-        //    Box::new(Expr::EnvRef("abc".to_string())),
-        //    Box::new(Expr::Int(123)),
-        //));
-        //assert_eq!(parse_expr("abc 123"), r);
-        //assert_eq!(parse_expr("(abc) (123)"), r);
-        //assert_eq!(parse_expr("((abc)) ((123))"), r);
-        //assert_eq!(parse_expr("(((abc)) ((123)))"), r);
-        //assert_eq!(parse_expr("((((abc)) ((123))))"), r);
+    #[test]
+    fn test_parse_expr_apply_part2() {
+        // EnvRef Int
+        let r = Some(Expr::Apply(
+            Box::new(Expr::EnvRef("abc".to_string())),
+            Box::new(Expr::Int(123)),
+        ));
+        assert_eq!(parse_expr("abc 123"), r);
+        assert_eq!(parse_expr("(abc) (123)"), r);
+        assert_eq!(parse_expr("((abc)) ((123))"), r);
+        assert_eq!(parse_expr("(((abc)) ((123)))"), r);
+        assert_eq!(parse_expr("((((abc)) ((123))))"), r);
+    }
 
-        //// EnvRef Unit
-        //let r = Some(Expr::Apply(
-        //    Box::new(Expr::EnvRef("abc".to_string())),
-        //    Box::new(Expr::Unit),
-        //));
-        //assert_eq!(parse_expr("abc ()"), r);
-        //assert_eq!(parse_expr("(abc) (())"), r);
-        //assert_eq!(parse_expr("((abc)) ((()))"), r);
-        //assert_eq!(parse_expr("(((abc)) ((())))"), r);
-        //assert_eq!(parse_expr("((((abc)) ((()))))"), r);
+    #[test]
+    fn test_parse_expr_apply_part3() {
+        // EnvRef Unit
+        let r = Some(Expr::Apply(
+            Box::new(Expr::EnvRef("abc".to_string())),
+            Box::new(Expr::Unit),
+        ));
+        assert_eq!(parse_expr("abc ()"), r);
+        assert_eq!(parse_expr("(abc) (())"), r);
+        assert_eq!(parse_expr("((abc)) ((()))"), r);
+        assert_eq!(parse_expr("(((abc)) ((())))"), r);
+        assert_eq!(parse_expr("((((abc)) ((()))))"), r);
+    }
 
-        //// EnvRef (EnvRef Unit)
-        //let r = Some(Expr::Apply(
-        //    Box::new(Expr::EnvRef("abc".to_string())),
-        //    Box::new(r.unwrap()),
-        //));
-        //assert_eq!(parse_expr("abc (abc ())"), r);
-        //assert_eq!(parse_expr("(abc) ((abc ()))"), r);
-        //assert_eq!(parse_expr("((abc)) (((abc ())))"), r);
-        //assert_eq!(parse_expr("(((abc)) (((abc ()))))"), r);
-        //assert_eq!(parse_expr("((((abc)) (((abc ())))))"), r);
+    #[test]
+    fn test_parse_expr_apply_part4() {
+        // EnvRef (EnvRef Unit)
+        let r = Some(Expr::Apply(
+            Box::new(Expr::EnvRef("abc".to_string())),
+            Box::new(Expr::Apply(
+                Box::new(Expr::EnvRef("abc".to_string())),
+                Box::new(Expr::Unit),
+            )),
+        ));
+        assert_eq!(parse_expr("abc (abc ())"), r);
+        assert_eq!(parse_expr("(abc) ((abc ()))"), r);
+        assert_eq!(parse_expr("((abc)) (((abc ())))"), r);
+        assert_eq!(parse_expr("(((abc)) (((abc ()))))"), r);
+        assert_eq!(parse_expr("((((abc)) (((abc ())))))"), r);
+    }
 
-        //// EnvRef (EnvRef (EnvRef Unit))
-        //let r = Some(Expr::Apply(
-        //    Box::new(Expr::EnvRef("abc".to_string())),
-        //    Box::new(r.unwrap()),
-        //));
-        //assert_eq!(parse_expr("abc (abc (abc ()))"), r);
-        //assert_eq!(parse_expr("(abc) ((abc (abc ())))"), r);
-        //assert_eq!(parse_expr("((abc)) (((abc (abc ()))))"), r);
-        //assert_eq!(parse_expr("(((abc)) (((abc (abc ())))))"), r);
-        //assert_eq!(parse_expr("((((abc)) (((abc (abc ()))))))"), r);
+    #[test]
+    fn test_parse_expr_apply_part5() {
+        // EnvRef (EnvRef (EnvRef Unit))
+        let r = Some(Expr::Apply(
+            Box::new(Expr::EnvRef("abc".to_string())),
+            Box::new(Expr::Apply(
+                Box::new(Expr::EnvRef("abc".to_string())),
+                Box::new(Expr::Apply(
+                    Box::new(Expr::EnvRef("abc".to_string())),
+                    Box::new(Expr::Unit),
+                )),
+            )),
+        ));
+        assert_eq!(parse_expr("abc (abc (abc ()))"), r);
+        assert_eq!(parse_expr("(abc) ((abc (abc ())))"), r);
+        assert_eq!(parse_expr("((abc)) (((abc (abc ()))))"), r);
+        assert_eq!(parse_expr("(((abc)) (((abc (abc ())))))"), r);
+        assert_eq!(parse_expr("((((abc)) (((abc (abc ()))))))"), r);
     }
 }

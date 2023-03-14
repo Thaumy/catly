@@ -17,3 +17,24 @@ pub fn get_head_tail_follow(seq: &str) -> (Option<char>, &str, Option<char>) {
     let (follow, _) = get_head_tail(tail);
     (head, tail, follow)
 }
+
+pub trait Ext<T> {
+    fn reduce_to_new(&self, cost: u8, item: T) -> Vec<T>;
+    fn push_to_new(&self, item: T) -> Vec<T>;
+}
+
+impl<T> Ext<T> for Vec<T> where T: Clone {
+    fn reduce_to_new(&self, cost: u8, item: T) -> Vec<T> {
+        let mut b = self.clone();
+        for _ in 0..cost {
+            b.pop();
+        }
+        b.push(item);
+        b
+    }
+    fn push_to_new(&self, item: T) -> Vec<T> {
+        let mut b = self.clone();
+        b.push(item);
+        b
+    }
+}

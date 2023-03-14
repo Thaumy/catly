@@ -4,7 +4,7 @@ use crate::parser::{get_head_tail};
 #[derive(Debug)]
 #[derive(Clone)]
 #[derive(PartialEq)]
-enum Pattern {
+enum Pat {
     Start,
     End,
     Err,
@@ -14,39 +14,39 @@ enum Pattern {
     LetName(String),
 }
 
-fn go(stack: &Pattern, seq: &str) -> Option<String> {
+fn go(stack: &Pat, seq: &str) -> Option<String> {
     let (head, tail) = get_head_tail(seq);
 
     let move_in = match (&stack, head) {
         // LetName: [0-9a-zA-Z] -> Char
-        (Pattern::LetName(_), Some(c)) if parse_char(&c).is_some() =>
-            Pattern::Char(c),
+        (Pat::LetName(_), Some(c)) if parse_char(&c).is_some() =>
+            Pat::Char(c),
         // Start: [a-z] -> Lower
-        (Pattern::Start, Some(c)) if parse_lower(&c).is_some() =>
-            Pattern::Lower(c),
+        (Pat::Start, Some(c)) if parse_lower(&c).is_some() =>
+            Pat::Lower(c),
 
         // ɛ -> End
-        (_, None) => Pattern::End,
+        (_, None) => Pat::End,
         // _ -> Err
         (_, Some(c)) => {
-            println!("Invalid head pattern: {}", c);
-            Pattern::Err
+            println!("Invalid head Pat: {}", c);
+            Pat::Err
         }
     };
 
     let reduced_stack = match (stack, move_in) {
         // Start Lower -> LetName
-        (Pattern::Start, Pattern::Lower(c)) =>
-            Pattern::LetName(c.to_string()),
+        (Pat::Start, Pat::Lower(c)) =>
+            Pat::LetName(c.to_string()),
         // LetName Char -> LetName
-        (Pattern::LetName(n), Pattern::Char(c)) =>
-            Pattern::LetName(format!("{}{}", n, c)),
+        (Pat::LetName(n), Pat::Char(c)) =>
+            Pat::LetName(format!("{}{}", n, c)),
 
         // Success
-        (Pattern::LetName(n), Pattern::End) => return Some(n.to_string()),
+        (Pat::LetName(n), Pat::End) => return Some(n.to_string()),
 
         // Can not parse
-        (_, Pattern::Err) => return None,
+        (_, Pat::Err) => return None,
         // Can not reduce
         (a, b) => {
             println!("Reduction failed: {:?}, {:?}", a, b);
@@ -58,7 +58,7 @@ fn go(stack: &Pattern, seq: &str) -> Option<String> {
 }
 
 pub fn parse_let_name(seq: &str) -> Option<String> {
-    go(&Pattern::Start, seq)
+    go(&Pat::Start, seq)
 }
 
 #[cfg(test)]

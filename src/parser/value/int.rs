@@ -5,7 +5,7 @@ use crate::parser::{get_head_tail};
 #[derive(Debug)]
 #[derive(Clone)]
 #[derive(PartialEq)]
-enum Pattern {
+enum Pat {
     Start,
     End,
     Err,
@@ -14,47 +14,47 @@ enum Pattern {
     Digit(u8),
 }
 
-impl fmt::Display for Pattern {
+impl fmt::Display for Pat {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{:?}", self)
     }
 }
 
 //TODO: handle int overflow
-fn go(stack: Vec<Pattern>, seq: &str) -> Option<i64> {
+fn go(stack: Vec<Pat>, seq: &str) -> Option<i64> {
     let (head, tail) = get_head_tail(seq);
 
     let move_in = match head {
-        // _ -> Digit/Err
+        // _ -> Digit|Err
         Some(c) =>
             match crate::parser::char::parse_digit(&c) {
                 // [0-9] -> Digit
-                Some(d) => Pattern::Digit(d),
+                Some(d) => Pat::Digit(d),
                 // ɛ -> Err
                 None => {
-                    println!("Invalid head pattern: {}", c);
-                    Pattern::Err
+                    println!("Invalid head Pat: {}", c);
+                    Pat::Err
                 }
             },
         // ɛ -> End
-        None => Pattern::End
+        None => Pat::End
     };
 
     let reduced_stack = match (&stack[..], move_in) {
         // Start Digit -> Int
-        ([Pattern::Start], Pattern::Digit(a)) => vec![Pattern::Int(a as i64)],
+        ([Pat::Start], Pat::Digit(a)) => vec![Pat::Int(a as i64)],
         // Int Digit -> Int
-        ([Pattern::Int(a)], Pattern::Digit(b)) =>
-            vec![Pattern::Int(a * 10 + (b as i64))],
+        ([Pat::Int(a)], Pat::Digit(b)) =>
+            vec![Pat::Int(a * 10 + (b as i64))],
 
         // Success
-        ([Pattern::Int(a)], Pattern::End) => return Some(*a),
+        ([Pat::Int(a)], Pat::End) => return Some(*a),
 
         // Can not parse
-        (_, Pattern::Err) => return None,
+        (_, Pat::Err) => return None,
         // Can not reduce
         (_, b) => {
-            println!("Invalid reduce pattern: {:?}, {}", stack, b);
+            println!("Reduction failed: {:?}, {}", stack, b);
             return None;
         }
     };
@@ -63,7 +63,7 @@ fn go(stack: Vec<Pattern>, seq: &str) -> Option<i64> {
 }
 
 pub fn parse_int(x: &str) -> Option<i64> {
-    go(vec![Pattern::Start], x)
+    go(vec![Pat::Start], x)
 }
 
 #[cfg(test)]
