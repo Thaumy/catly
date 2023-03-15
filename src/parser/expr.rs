@@ -2,7 +2,7 @@ use std::{vec};
 use crate::parser::char::{parse_char, parse_digit};
 use crate::parser::{Ext, get_head_tail_follow};
 use crate::parser::keyword::{parse_else, parse_if, parse_then};
-use crate::parser::mark::{parse_l_parentheses, parse_r_parentheses};
+use crate::parser::mark::{parse_dash, parse_l_par, parse_r_angle_bracket, parse_r_par};
 use crate::parser::name::let_name::parse_let_name;
 use crate::parser::value::int::parse_int;
 
@@ -15,7 +15,7 @@ pub enum Expr {
     EnvRef(String),
     Apply(Box<Expr>, Box<Expr>),
     Cond(Box<Expr>, Box<Expr>, Box<Expr>),
-    //Closure,
+    Closure(String, Box<Expr>),
     //Struct,
     //Match,
 }
@@ -30,8 +30,8 @@ enum Pat {
 
     Any(char),
 
-    LeftParentheses,
-    RightParentheses,
+    LeftPar,
+    RightPar,
     Unit,//Expr::Unit
 
     Digit(char),
@@ -43,12 +43,37 @@ enum Pat {
     LetName(String),//Expr::EnvRef
 
     Blank,
-    Apply(Box<Pat>, Box<Pat>),
+    Apply(Box<Pat>, Box<Pat>),//Expr::Apply
 
     If,
     Then,
     Else,
     Cond(Box<Pat>, Box<Pat>, Box<Pat>),//Expr::Cond
+
+    Dash,
+    RightAngleBracket,
+    Arrow,
+    Closure(String, Box<Pat>),//Expr::Closure
+}
+
+fn is_expr_pat(pat: &Pat) -> bool {
+    match pat {
+        Pat::Unit => true,
+        Pat::Int(_) => true,
+        Pat::LetName(_) => true,
+        Pat::Apply(_, _) => true,
+        Pat::Cond(_, _, _) => true,
+        Pat::Closure(_, _) => true,
+        _ => false,
+    }
+}
+
+fn is_char_pat(pat: &Pat) -> bool {
+    match pat {
+        Pat::Digit(_) => true,
+        Pat::Char(_) => true,
+        _ => false,
+    }
 }
 
 fn move_in(stack: &Vec<Pat>, head: Option<char>) -> Pat {
@@ -71,11 +96,18 @@ fn move_in(stack: &Vec<Pat>, head: Option<char>) -> Pat {
         // ' ' -> Blank
         (_, Some(' ')) => Pat::Blank,
         // '(' -> `(`
-        (_, Some(c)) if parse_l_parentheses(&c) =>
-            Pat::LeftParentheses,
+        (_, Some(c)) if parse_l_par(&c) =>
+            Pat::LeftPar,
         // ')' -> `)`
-        (_, Some(c)) if parse_r_parentheses(&c) =>
-            Pat::RightParentheses,
+        (_, Some(c)) if parse_r_par(&c) =>
+            Pat::RightPar,
+
+        // '-' -> `-`
+        (_, Some(c)) if parse_dash(&c) =>
+            Pat::Dash,
+        // '>' -> `>`
+        (_, Some(c)) if parse_r_angle_bracket(&c) =>
+            Pat::RightAngleBracket,
 
         // ɛ -> End
         (_, None) => Pat::End,
@@ -109,6 +141,24 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &Pat) -> Vec<Pat> {
                 b.clone(),
                 c.clone(),
             )],
+        // Success with Closure
+        ([Pat::Start, Pat::Closure(a, b), Pat::End], _) =>
+            return vec![Pat::Closure(
+                a.clone(),
+                b.clone(),
+            )],
+
+        // `(` `)` -> Unit
+        ([.., Pat::LeftPar, Pat::RightPar], _) =>
+            stack.reduce_to_new(2, Pat::Unit),
+
+        // `(` _ `)` -> _
+        ([.., Pat::LeftPar, p, Pat::RightPar], _) =>
+            stack.reduce_to_new(3, p.clone()),
+
+        // `-` `>` -> Arrow
+        ([.., Pat::Dash, Pat::RightAngleBracket], _) =>
+            stack.reduce_to_new(2, Pat::Arrow),
 
         // CharSeq("if") :Blank -> If
         ([.., Pat::CharSeq(cs)], Pat::Blank) if parse_if(cs) =>
@@ -125,26 +175,12 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &Pat) -> Vec<Pat> {
         Pat::Then, Pat::Blank, b, Pat::Blank,
         Pat::Else, Pat::Blank, c
         ], _)
-        if match (a, b, c) {
-            (Pat::Unit | Pat::Int(_) | Pat::LetName(_) | Pat::Apply(_, _) | Pat::Cond(_, _, _),
-                Pat::Unit | Pat::Int(_) | Pat::LetName(_) | Pat::Apply(_, _) | Pat::Cond(_, _, _),
-                Pat::Unit | Pat::Int(_) | Pat::LetName(_) | Pat::Apply(_, _) | Pat::Cond(_, _, _),
-            ) => true,
-            _ => false
-        } =>
+        if is_expr_pat(a) && is_expr_pat(b) && is_expr_pat(c) =>
             stack.reduce_to_new(11, Pat::Cond(
                 Box::new(a.clone()),
                 Box::new(b.clone()),
                 Box::new(c.clone()),
             )),
-
-        // `(` `)` -> Unit
-        ([.., Pat::LeftParentheses, Pat::RightParentheses], _) =>
-            stack.reduce_to_new(2, Pat::Unit),
-
-        // `(` _ `)` -> _
-        ([.., Pat::LeftParentheses, p, Pat::RightParentheses], _) =>
-            stack.reduce_to_new(3, p.clone()),
 
         // DigitSeq Digit -> DigitSeq
         ([.., Pat::DigitSeq(ds), Pat::Digit(d)], _) =>
@@ -187,7 +223,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &Pat) -> Vec<Pat> {
             stack.reduce_to_new(1, top)
         }
         // Char :Char -> CharSeq
-        ([.., Pat::Char(c)], Pat::Char(_) | Pat::Digit(_)) =>
+        ([.., Pat::Char(c)], p) if is_char_pat(p) =>
             stack.reduce_to_new(1, Pat::CharSeq(c.to_string())),
         // Char :!Char -> LetName|Err
         ([.., Pat::Char(c)], _) => {
@@ -198,20 +234,28 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &Pat) -> Vec<Pat> {
             stack.reduce_to_new(1, top)
         }
 
-        // _ Blank Expr -> Apply
+        // Expr Blank Expr -> Apply
         ([.., lhs, Pat::Blank, rhs], _)
-        if match (lhs, rhs) {
-            (
-                Pat::Unit | Pat::Int(_) | Pat::LetName(_) | Pat::Apply(_, _) | Pat::Cond(_, _, _),
-                Pat::Unit | Pat::Int(_) | Pat::LetName(_) | Pat::Apply(_, _) | Pat::Cond(_, _, _)
-            ) => true,
-            _ => false
-        } => {
+        if is_expr_pat(lhs) && is_expr_pat(rhs) => {
             let top = Pat::Apply(
                 Box::new(lhs.clone()),
                 Box::new(rhs.clone()),
             );
             stack.reduce_to_new(3, top)
+        }
+
+        // LetName Blank Arrow Blank Expr :!Blank -> Closure
+        ([.., Pat::LetName(n), Pat::Blank, Pat::Arrow, Pat::Blank, p], follow_pat)
+        if match (is_expr_pat(p), follow_pat) {
+            (_, Pat::Blank) => false,
+            (true, _) => true,
+            _ => false
+        } => {
+            let top = Pat::Closure(
+                n.to_string(),
+                Box::new(p.clone()),
+            );
+            stack.reduce_to_new(5, top)
         }
 
         // Can not parse
@@ -279,6 +323,11 @@ pub fn parse_expr(seq: &str) -> Option<Expr> {
                             Box::new(b),
                             Box::new(c),
                         ),
+                    _ => return None
+                }
+            Pat::Closure(a, b) =>
+                match case(*b) {
+                    Some(b) => Expr::Closure(a, Box::new(b)),
                     _ => return None
                 }
             _ => return None
@@ -398,6 +447,48 @@ mod tests {
     }
 
     #[test]
+    fn test_parse_expr_apply_part6() {
+        // Apply(EnvRef, Apply(EnvRef, Unit))
+        let r = Some(Expr::Apply(
+            Box::new(Expr::Apply(
+                Box::new(Expr::EnvRef("abc".to_string())),
+                Box::new(Expr::Int(123)),
+            )),
+            Box::new(Expr::Apply(
+                Box::new(Expr::Apply(
+                    Box::new(Expr::EnvRef("add".to_string())),
+                    Box::new(Expr::Int(123)),
+                )),
+                Box::new(Expr::Int(456)),
+            )
+            )));
+        assert_eq!(parse_expr("abc 123 (add 123 456)"), r);
+        assert_eq!(parse_expr("abc ((123)) (((add 123 456)))"), r);
+        assert_eq!(parse_expr("(((abc (((123))) (((add (((123))) (((456)))))))))"), r);
+    }
+
+    #[test]
+    fn test_parse_expr_apply_part7() {
+        // Apply(EnvRef, Apply(EnvRef, Unit))
+        let r = Some(Expr::Apply(
+            Box::new(Expr::Apply(
+                Box::new(Expr::EnvRef("abc".to_string())),
+                Box::new(Expr::Apply(
+                    Box::new(Expr::Apply(
+                        Box::new(Expr::EnvRef("add".to_string())),
+                        Box::new(Expr::Int(123)),
+                    )),
+                    Box::new(Expr::Int(456)),
+                )
+                ))),
+            Box::new(Expr::Int(123)),
+        ));
+        assert_eq!(parse_expr("abc (add 123 456) 123"), r);
+        assert_eq!(parse_expr("abc (((add 123 456))) ((123))"), r);
+        assert_eq!(parse_expr("(((abc (((add (((123))) (((456)))))) (((123))))))"), r);
+    }
+
+    #[test]
     fn test_parse_expr_cond_part1() {
         // Cond(EnvRef, Int, Unit)
         let r = Some(Expr::Cond(
@@ -501,6 +592,90 @@ mod tests {
         let a = "(((if (((123 ()))) then (((123))) else (((abc))))))";
         let b = &format!("(((if ((({}))) then ((({}))) else {})))", a, a, a);
         let seq = &format!("(((if ((({}))) then {} else ((({}))))))", b, b, b);
+        assert_eq!(parse_expr(seq), r);
+    }
+
+    #[test]
+    fn test_parse_closure_part1() {
+        let r = Some(Expr::Closure(
+            "a".to_string(),
+            Box::new(Expr::Apply(
+                Box::new(Expr::Apply(
+                    Box::new(Expr::EnvRef("add".to_string())),
+                    Box::new(Expr::Int(123)),
+                )),
+                Box::new(Expr::Unit),
+            ),
+            )));
+        let seq = "a -> add 123 ()";
+        assert_eq!(parse_expr(seq), r);
+        let seq = "(a -> (add (123) (())))";
+        assert_eq!(parse_expr(seq), r);
+        let seq = "(((a -> ((((add 123)) ((())))))))";
+        assert_eq!(parse_expr(seq), r);
+    }
+
+    #[test]
+    fn test_parse_closure_part2() {
+        let r = Some(Expr::Closure(
+            "a".to_string(),
+            Box::new(Expr::Closure(
+                "b".to_string(),
+                Box::new(Expr::Closure(
+                    "c".to_string(),
+                    Box::new(Expr::Apply(
+                        Box::new(Expr::Apply(
+                            Box::new(Expr::EnvRef("add".to_string())),
+                            Box::new(Expr::Apply(
+                                Box::new(Expr::Apply(
+                                    Box::new(Expr::EnvRef("add".to_string())),
+                                    Box::new(Expr::EnvRef("a".to_string())),
+                                )),
+                                Box::new(Expr::EnvRef("b".to_string())),
+                            )),
+                        )),
+                        Box::new(Expr::EnvRef("c".to_string())),
+                    )),
+                ),
+                )),
+            )));
+        let seq = "a -> b -> c -> add (add a b) c";
+        assert_eq!(parse_expr(seq), r);
+        let seq = "((a -> ((b -> ((c -> ((add (((add (a) (b)))) (c)))))))))";
+        assert_eq!(parse_expr(seq), r);
+        let seq = "((((((a))) -> (((b -> (((c))) -> (((add))) (add a b) c))))))";
+        assert_eq!(parse_expr(seq), r);
+    }
+
+    #[test]
+    fn test_parse_closure_part3() {
+        let r = Some(Expr::Closure(
+            "aaa".to_string(),
+            Box::new(Expr::Closure(
+                "bbb".to_string(),
+                Box::new(Expr::Closure(
+                    "ccc".to_string(),
+                    Box::new(Expr::Apply(
+                        Box::new(Expr::Apply(
+                            Box::new(Expr::EnvRef("add".to_string())),
+                            Box::new(Expr::Apply(
+                                Box::new(Expr::Apply(
+                                    Box::new(Expr::EnvRef("add".to_string())),
+                                    Box::new(Expr::EnvRef("aaa".to_string())),
+                                )),
+                                Box::new(Expr::Int(123)),
+                            )),
+                        )),
+                        Box::new(Expr::EnvRef("ccc".to_string())),
+                    )),
+                ),
+                )),
+            )));
+        let seq = "aaa -> bbb -> ccc -> add (add aaa 123) ccc";
+        assert_eq!(parse_expr(seq), r);
+        let seq = "(((aaa -> ((bbb -> (ccc -> ((((((add (add aaa 123)))) ccc)))))))))";
+        assert_eq!(parse_expr(seq), r);
+        let seq = "(((aaa -> (((((bbb))) -> (((ccc)) -> ((((((add (add (((aaa))) 123)))) ccc)))))))))";
         assert_eq!(parse_expr(seq), r);
     }
 }

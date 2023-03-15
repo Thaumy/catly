@@ -4,9 +4,11 @@
 pub enum Mark {
     Underline,
     Blank,
+    Dash,
+    RightAngleBracket,
     Arrow,
-    LeftParentheses,
-    RightParentheses,
+    LeftPar,
+    RightPar,
     LeftCurlyBracket,
     RightCurlyBracket,
     Colon,
@@ -27,12 +29,12 @@ pub fn parse_blank(x: &char) -> bool {
 }
 
 #[allow(dead_code)]
-pub fn parse_l_parentheses(x: &char) -> bool {
+pub fn parse_l_par(x: &char) -> bool {
     x == &'('
 }
 
 #[allow(dead_code)]
-pub fn parse_r_parentheses(x: &char) -> bool {
+pub fn parse_r_par(x: &char) -> bool {
     x == &')'
 }
 
@@ -72,16 +74,27 @@ pub fn parse_equal(x: &char) -> bool {
 }
 
 #[allow(dead_code)]
+pub fn parse_dash(x: &char) -> bool {
+    x == &'-'
+}
+
+#[allow(dead_code)]
+pub fn parse_r_angle_bracket(x: &char) -> bool {
+    x == &'>'
+}
+
+#[allow(dead_code)]
 pub fn parse_arrow(x: &[char; 2]) -> bool {
     x == &['-', '>']
 }
+
 
 pub fn parse_mark(x: &str) -> Option<Mark> {
     let r = match x {
         "_" => Mark::Underline,
         " " => Mark::Blank,
-        "(" => Mark::LeftParentheses,
-        ")" => Mark::RightParentheses,
+        "(" => Mark::LeftPar,
+        ")" => Mark::RightPar,
         "{" => Mark::LeftCurlyBracket,
         "}" => Mark::RightCurlyBracket,
         ":" => Mark::Colon,
@@ -89,6 +102,8 @@ pub fn parse_mark(x: &str) -> Option<Mark> {
         "," => Mark::Comma,
         "|" => Mark::VerticalBar,
         "=" => Mark::Equal,
+        "-" => Mark::Dash,
+        ">" => Mark::RightAngleBracket,
         "->" => Mark::Arrow,
         _ => return None
     };
@@ -103,14 +118,16 @@ mod tests {
 
         assert_eq!(parse_mark("_"), Some(Mark::Underline));
         assert_eq!(parse_mark(" "), Some(Mark::Blank));
-        assert_eq!(parse_mark("("), Some(Mark::LeftParentheses));
-        assert_eq!(parse_mark(")"), Some(Mark::RightParentheses));
+        assert_eq!(parse_mark("("), Some(Mark::LeftPar));
+        assert_eq!(parse_mark(")"), Some(Mark::RightPar));
         assert_eq!(parse_mark("{"), Some(Mark::LeftCurlyBracket));
         assert_eq!(parse_mark("}"), Some(Mark::RightCurlyBracket));
         assert_eq!(parse_mark(":"), Some(Mark::Colon));
         assert_eq!(parse_mark(","), Some(Mark::Comma));
         assert_eq!(parse_mark("|"), Some(Mark::VerticalBar));
         assert_eq!(parse_mark("="), Some(Mark::Equal));
+        assert_eq!(parse_mark("-"), Some(Mark::Dash));
+        assert_eq!(parse_mark(">"), Some(Mark::RightAngleBracket));
         assert_eq!(parse_mark("->"), Some(Mark::Arrow));
 
         assert_eq!(parse_mark("a"), None);
