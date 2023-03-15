@@ -20,7 +20,7 @@ pub enum Expr {
     //Match,
 }
 
-#[derive(Debug)
+#[derive(Debug)]
 #[derive(Clone)]
 #[derive(PartialEq)]
 enum Pat {
