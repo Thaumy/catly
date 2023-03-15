@@ -1,6 +1,7 @@
 use std::{vec};
 use crate::parser::char::{parse_char, parse_digit};
 use crate::parser::{Ext, get_head_tail_follow};
+use crate::parser::keyword::{parse_else, parse_if, parse_then};
 use crate::parser::mark::{parse_l_parentheses, parse_r_parentheses};
 use crate::parser::name::let_name::parse_let_name;
 use crate::parser::value::int::parse_int;
@@ -19,7 +20,7 @@ pub enum Expr {
     //Match,
 }
 
-#[derive(Debug)]
+#[derive(Debug)
 #[derive(Clone)]
 #[derive(PartialEq)]
 enum Pat {
@@ -101,6 +102,41 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &Pat) -> Vec<Pat> {
                 lhs.clone(),
                 rhs.clone(),
             )],
+        // Success with Cond
+        ([Pat::Start, Pat::Cond(a, b, c), Pat::End], _) =>
+            return vec![Pat::Cond(
+                a.clone(),
+                b.clone(),
+                c.clone(),
+            )],
+
+        // CharSeq("if") :Blank -> If
+        ([.., Pat::CharSeq(cs)], Pat::Blank) if parse_if(cs) =>
+            stack.reduce_to_new(1, Pat::If),
+        // CharSeq("then") :Blank -> Then
+        ([.., Pat::CharSeq(cs)], Pat::Blank) if parse_then(cs) =>
+            stack.reduce_to_new(1, Pat::Then),
+        // CharSeq("else") :Blank -> Else
+        ([.., Pat::CharSeq(cs) ], Pat::Blank) if parse_else(cs) =>
+            stack.reduce_to_new(1, Pat::Else),
+        // If Blank Expr Blank Then Blank Expr Blank Else Blank Expr -> Cond
+        ([..,
+        Pat::If, Pat::Blank, a, Pat::Blank,
+        Pat::Then, Pat::Blank, b, Pat::Blank,
+        Pat::Else, Pat::Blank, c
+        ], _)
+        if match (a, b, c) {
+            (Pat::Unit | Pat::Int(_) | Pat::LetName(_) | Pat::Apply(_, _) | Pat::Cond(_, _, _),
+                Pat::Unit | Pat::Int(_) | Pat::LetName(_) | Pat::Apply(_, _) | Pat::Cond(_, _, _),
+                Pat::Unit | Pat::Int(_) | Pat::LetName(_) | Pat::Apply(_, _) | Pat::Cond(_, _, _),
+            ) => true,
+            _ => false
+        } =>
+            stack.reduce_to_new(11, Pat::Cond(
+                Box::new(a.clone()),
+                Box::new(b.clone()),
+                Box::new(c.clone()),
+            )),
 
         // `(` `)` -> Unit
         ([.., Pat::LeftParentheses, Pat::RightParentheses], _) =>
@@ -164,8 +200,11 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &Pat) -> Vec<Pat> {
 
         // _ Blank Expr -> Apply
         ([.., lhs, Pat::Blank, rhs], _)
-        if match rhs {
-            Pat::Unit | Pat::Int(_) | Pat::LetName(_) | Pat::Apply(_, _) => true,
+        if match (lhs, rhs) {
+            (
+                Pat::Unit | Pat::Int(_) | Pat::LetName(_) | Pat::Apply(_, _) | Pat::Cond(_, _, _),
+                Pat::Unit | Pat::Int(_) | Pat::LetName(_) | Pat::Apply(_, _) | Pat::Cond(_, _, _)
+            ) => true,
             _ => false
         } => {
             let top = Pat::Apply(
@@ -226,7 +265,20 @@ pub fn parse_expr(seq: &str) -> Option<Expr> {
             Pat::Apply(l, r) =>
                 match (case(*l), case(*r)) {
                     (Some(l), Some(r)) =>
-                        Expr::Apply(Box::new(l), Box::new(r)),
+                        Expr::Apply(
+                            Box::new(l),
+                            Box::new(r),
+                        ),
+                    _ => return None
+                }
+            Pat::Cond(a, b, c) =>
+                match (case(*a), case(*b), case(*c)) {
+                    (Some(a), Some(b), Some(c)) =>
+                        Expr::Cond(
+                            Box::new(a),
+                            Box::new(b),
+                            Box::new(c),
+                        ),
                     _ => return None
                 }
             _ => return None
@@ -420,6 +472,32 @@ mod tests {
         let b = &format!("(((if {} then {} else {})))", a, a, a);
         let seq = &format!("if {} then {} else {}", b, b, b);
         assert_eq!(parse_expr(seq), r);
+    }
+
+    #[test]
+    fn test_parse_expr_cond_part4() {
+        // Cond(b, b, b)
+        // while: a = Cond(Apply(Int, Unit), Int, EnvRef)
+        // while: b = Cond(a, a, a)
+        let a = Expr::Cond(
+            Box::new(Expr::Apply(
+                Box::new(Expr::Int(123)),
+                Box::new(Expr::Unit),
+            )),
+            Box::new(Expr::Int(123)),
+            Box::new(Expr::EnvRef("abc".to_string())),
+        );
+        let b = Expr::Cond(
+            Box::new(a.clone()),
+            Box::new(a.clone()),
+            Box::new(a.clone()),
+        );
+        let r = Some(Expr::Cond(
+            Box::new(b.clone()),
+            Box::new(b.clone()),
+            Box::new(b.clone()),
+        ));
+
         let a = "(((if (((123 ()))) then (((123))) else (((abc))))))";
         let b = &format!("(((if ((({}))) then ((({}))) else {})))", a, a, a);
         let seq = &format!("(((if ((({}))) then {} else ((({}))))))", b, b, b);
