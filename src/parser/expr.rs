@@ -16,7 +16,7 @@ pub enum Expr {
     Apply(Box<Expr>, Box<Expr>),
     Cond(Box<Expr>, Box<Expr>, Box<Expr>),
     Closure(String, Box<Expr>),
-    //Struct,
+    Struct(Vec<(String, Expr)>),
     //Match,
 }
 
@@ -53,7 +53,16 @@ enum Pat {
     Dash,
     RightAngleBracket,
     Arrow,
+    ClosurePara(String),
     Closure(String, Box<Pat>),//Expr::Closure
+
+    Comma,
+    Equal,
+    LeftCurlyBracket,
+    RightCurlyBracket,
+    Assign(String, Box<Pat>),
+    AssignSeq(Vec<(String, Pat)>),
+    Struct(Vec<(String, Pat)>),//Expr::Struct
 }
 
 fn is_expr_pat(pat: &Pat) -> bool {
@@ -64,6 +73,7 @@ fn is_expr_pat(pat: &Pat) -> bool {
         Pat::Apply(_, _) => true,
         Pat::Cond(_, _, _) => true,
         Pat::Closure(_, _) => true,
+        Pat::Struct(_) => true,
         _ => false,
     }
 }
@@ -96,18 +106,23 @@ fn move_in(stack: &Vec<Pat>, head: Option<char>) -> Pat {
         // ' ' -> Blank
         (_, Some(' ')) => Pat::Blank,
         // '(' -> `(`
-        (_, Some(c)) if parse_l_par(&c) =>
-            Pat::LeftPar,
+        (_, Some('(')) => Pat::LeftPar,
         // ')' -> `)`
-        (_, Some(c)) if parse_r_par(&c) =>
-            Pat::RightPar,
+        (_, Some(')')) => Pat::RightPar,
+
+        // '{' -> `{`
+        (_, Some('{')) => Pat::LeftCurlyBracket,
+        // '}' -> `}`
+        (_, Some('}')) => Pat::RightCurlyBracket,
+        // '=' -> `=`
+        (_, Some('=')) => Pat::Equal,
+        // ',' -> `,`
+        (_, Some(',')) => Pat::Comma,
 
         // '-' -> `-`
-        (_, Some(c)) if parse_dash(&c) =>
-            Pat::Dash,
+        (_, Some('-')) => Pat::Dash,
         // '>' -> `>`
-        (_, Some(c)) if parse_r_angle_bracket(&c) =>
-            Pat::RightAngleBracket,
+        (_, Some('>')) => Pat::RightAngleBracket,
 
         // ɛ -> End
         (_, None) => Pat::End,
@@ -147,6 +162,9 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &Pat) -> Vec<Pat> {
                 a.clone(),
                 b.clone(),
             )],
+        // Success with Struct
+        ([Pat::Start, Pat::Struct(vec), Pat::End], _) =>
+            return vec![Pat::Struct(vec.clone())],
 
         // `(` `)` -> Unit
         ([.., Pat::LeftPar, Pat::RightPar], _) =>
@@ -155,10 +173,6 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &Pat) -> Vec<Pat> {
         // `(` _ `)` -> _
         ([.., Pat::LeftPar, p, Pat::RightPar], _) =>
             stack.reduce_to_new(3, p.clone()),
-
-        // `-` `>` -> Arrow
-        ([.., Pat::Dash, Pat::RightAngleBracket], _) =>
-            stack.reduce_to_new(2, Pat::Arrow),
 
         // CharSeq("if") :Blank -> If
         ([.., Pat::CharSeq(cs)], Pat::Blank) if parse_if(cs) =>
@@ -244,8 +258,21 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &Pat) -> Vec<Pat> {
             stack.reduce_to_new(3, top)
         }
 
-        // LetName Blank Arrow Blank Expr :!Blank -> Closure
-        ([.., Pat::LetName(n), Pat::Blank, Pat::Arrow, Pat::Blank, p], follow_pat)
+        // `-` `>` -> Arrow
+        ([.., Pat::Dash, Pat::RightAngleBracket], _) =>
+            stack.reduce_to_new(2, Pat::Arrow),
+        // LetName Blank Arrow Blank -> ClosurePara
+        ([.., Pat::LetName(n), Pat::Blank, Pat::Arrow, Pat::Blank], _) => {
+            let top = Pat::ClosurePara(n.to_string());
+            stack.reduce_to_new(4, top)
+        }
+        // ClosurePara Expr :!Blank -> Closure
+        /* TODO: 此产生式要求当 Closure 具备如下形式时:
+                 x -> y -> z }
+                 Closure 必须被括号环绕:
+                 (x -> y -> z) }
+                 否则将无法归约 */
+        ([.., Pat::ClosurePara(n), p], follow_pat)
         if match (is_expr_pat(p), follow_pat) {
             (_, Pat::Blank) => false,
             (true, _) => true,
@@ -255,7 +282,65 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &Pat) -> Vec<Pat> {
                 n.to_string(),
                 Box::new(p.clone()),
             );
-            stack.reduce_to_new(5, top)
+            stack.reduce_to_new(2, top)
+        }
+
+        // Blank LetName Blank `=` Blank Expr `,` -> Assign
+        ([.., Pat::Blank,
+        Pat::LetName(cs), Pat::Blank, Pat::Equal, Pat::Blank,
+        p, Pat::Comma], _
+        )
+        if is_expr_pat(p) => {
+            let top = Pat::Assign(cs.clone(), Box::new(p.clone()));
+            stack.reduce_to_new(7, top)
+        }
+        // Blank LetName Blank `=` Blank Expr Blank :`}`-> Assign
+        ([.., Pat::Blank,
+        Pat::LetName(cs), Pat::Blank, Pat::Equal, Pat::Blank,
+        p, Pat::Blank], Pat::Any('}')
+        )
+        if is_expr_pat(p) => {
+            let top = Pat::Assign(cs.clone(), Box::new(p.clone()));
+            stack.reduce_to_new(7, top)
+        }
+        // Assign Assign -> AssignSeq
+        ([..,
+        Pat::Assign(a_n, a_v),
+        Pat::Assign(b_n, b_v)], _
+        ) => {
+            let top = Pat::AssignSeq(vec![
+                (a_n.to_string(), *a_v.clone()),
+                (b_n.to_string(), *b_v.clone()),
+            ]);
+            stack.reduce_to_new(2, top)
+        }
+        // AssignSeq Assign -> AssignSeq
+        ([..,
+        Pat::AssignSeq(a_seq),
+        Pat::Assign(n, v)], _
+        ) => {
+            let top = Pat::AssignSeq(
+                a_seq.push_to_new((n.clone(), *v.clone()))
+            );
+            stack.reduce_to_new(2, top)
+        }
+        // `{` AssignSeq `}` -> Struct
+        ([..,
+        Pat::LeftCurlyBracket,
+        Pat::AssignSeq(a_seq),
+        Pat::RightCurlyBracket], _
+        ) => {
+            let top = Pat::Struct(a_seq.clone());
+            stack.reduce_to_new(3, top)
+        }
+        // `{` Assign `}` -> Struct
+        ([..,
+        Pat::LeftCurlyBracket,
+        Pat::Assign(n, v),
+        Pat::RightCurlyBracket], _
+        ) => {
+            let top = Pat::Struct(vec![(n.to_string(), *v.clone())]);
+            stack.reduce_to_new(3, top)
         }
 
         // Can not parse
@@ -330,7 +415,22 @@ pub fn parse_expr(seq: &str) -> Option<Expr> {
                     Some(b) => Expr::Closure(a, Box::new(b)),
                     _ => return None
                 }
-            _ => return None
+            Pat::Struct(vec) => {
+                type Assign = (String, Expr);
+                type F = fn(Option<Vec<Assign>>, &(String, Pat)) -> Option<Vec<Assign>>;
+                let f: F = |acc, (n, p)|
+                    match (acc, case(p.clone())) {
+                        (Some(vec), Some(e)) =>
+                            Some(vec.push_to_new((n.to_string(), e))),
+                        _ => None,
+                    };
+                let r = vec.iter().fold(Some(vec![]), f);
+                match r {
+                    Some(vec) => Expr::Struct(vec),
+                    _ => return None,
+                }
+            }
+            _ => return None,
         };
         Some(r)
     }
@@ -676,6 +776,76 @@ mod tests {
         let seq = "(((aaa -> ((bbb -> (ccc -> ((((((add (add aaa 123)))) ccc)))))))))";
         assert_eq!(parse_expr(seq), r);
         let seq = "(((aaa -> (((((bbb))) -> (((ccc)) -> ((((((add (add (((aaa))) 123)))) ccc)))))))))";
+        assert_eq!(parse_expr(seq), r);
+    }
+
+    #[test]
+    fn test_parse_struct_part1() {
+        let r = Some(Expr::Struct(vec![
+            ("a".to_string(), Expr::Int(123)),
+            ("ab".to_string(), Expr::EnvRef("ref".to_string())),
+            ("abc".to_string(), Expr::Unit),
+        ]));
+        let seq = "{ a = 123, ab = ref, abc = () }";
+        assert_eq!(parse_expr(seq), r);
+        let seq = "(({ a = (((123))), ab = (((ref))), abc = ((())) }))";
+        assert_eq!(parse_expr(seq), r);
+    }
+
+    #[test]
+    fn test_parse_struct_part2() {
+        let a = Expr::Struct(vec![
+            ("abc".to_string(),
+             Expr::Struct(vec![
+                 ("efg".to_string(), Expr::Cond(
+                     Box::new(Expr::Int(123)),
+                     Box::new(Expr::Unit),
+                     Box::new(Expr::Int(0)),
+                 ))
+             ])),
+            ("x".to_string(), Expr::Int(1)),
+        ]);
+        let f = Expr::Closure(
+            "x".to_string(),
+            Box::new(Expr::Closure(
+                "y".to_string(),
+                Box::new(Expr::Apply(
+                    Box::new(Expr::Apply(
+                        Box::new(Expr::EnvRef("add".to_string())),
+                        Box::new(Expr::EnvRef("x".to_string())),
+                    )),
+                    Box::new(Expr::EnvRef("y".to_string())),
+                )),
+            )),
+        );
+        let r = Some(Expr::Struct(vec![
+            ("a".to_string(), a),
+            ("ab".to_string(), Expr::Apply(
+                Box::new(Expr::EnvRef("neg".to_string())),
+                Box::new(Expr::Int(1)),
+            )),
+            ("f".to_string(), f),
+        ]));
+        let seq =
+            "{ \
+               a = { abc = { efg = if 123 then () else 0 }, x = 1 }, \
+               ab = neg 1, \
+               f = (x -> y -> add x y) \
+             }";
+        assert_eq!(parse_expr(seq), r);
+        let seq =
+            "((({ \
+                  a = ((({ abc = { efg = if 123 then ((())) else 0 }, x = 1 }))), \
+                  ab = (((neg))) 1, \
+                  f = (x -> y -> add x y) \
+            })))";
+        assert_eq!(parse_expr(seq), r);
+        let seq =
+            "((({ \
+                  (((a))) = ((({ abc = { efg = if (((123))) then ((())) else 0 }, x = (((1))) }))), \
+                  (((ab))) = ((((((neg))) (((1)))))), \
+                  (((f))) = (x -> (((y -> add x y)))) \
+            })))";
         assert_eq!(parse_expr(seq), r);
     }
 }
