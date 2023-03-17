@@ -7,8 +7,8 @@ pub enum KeyWord {
     If,
     Then,
     Else,
-    Case,
-    Of,
+    Match,
+    With,
 }
 
 pub fn parse_let(x: &str) -> bool {
@@ -31,12 +31,12 @@ pub fn parse_else(x: &str) -> bool {
     x == "else"
 }
 
-pub fn parse_case(x: &str) -> bool {
-    x == "case"
+pub fn parse_match(x: &str) -> bool {
+    x == "match"
 }
 
-pub fn parse_of(x: &str) -> bool {
-    x == "of"
+pub fn parse_with(x: &str) -> bool {
+    x == "with"
 }
 
 pub fn parse_keyword(x: &str) -> Option<KeyWord> {
@@ -46,8 +46,8 @@ pub fn parse_keyword(x: &str) -> Option<KeyWord> {
         (parse_if, KeyWord::If),
         (parse_then, KeyWord::Then),
         (parse_else, KeyWord::Else),
-        (parse_case, KeyWord::Case),
-        (parse_of, KeyWord::Of),
+        (parse_match, KeyWord::Match),
+        (parse_with, KeyWord::With),
     ];
     map.iter()
         .find(|kv| kv.0(x))
@@ -65,8 +65,8 @@ mod tests {
         assert_eq!(parse_keyword("if"), Some(KeyWord::If));
         assert_eq!(parse_keyword("then"), Some(KeyWord::Then));
         assert_eq!(parse_keyword("else"), Some(KeyWord::Else));
-        assert_eq!(parse_keyword("case"), Some(KeyWord::Case));
-        assert_eq!(parse_keyword("of"), Some(KeyWord::Of));
+        assert_eq!(parse_keyword("match"), Some(KeyWord::Match));
+        assert_eq!(parse_keyword("with"), Some(KeyWord::With));
 
         assert_eq!(parse_keyword("abc"), None);
     }
