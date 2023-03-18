@@ -1,8 +1,12 @@
+mod follow_pat;
+mod pat;
+
 use std::{vec};
 use crate::parser::char::{parse_char, parse_digit};
 use crate::parser::{Ext, get_head_tail_follow};
+use crate::parser::expr::follow_pat::{FollowPat, parse_follow_pat};
+use crate::parser::expr::pat::Pat;
 use crate::parser::keyword::{parse_else, parse_if, parse_match, parse_then, parse_with};
-use crate::parser::mark::{parse_dash, parse_l_par, parse_r_angle_bracket, parse_r_par};
 use crate::parser::name::let_name::parse_let_name;
 use crate::parser::value::int::parse_int;
 
@@ -21,106 +25,8 @@ pub enum Expr {
     Match(Box<Expr>, Vec<(Expr, Expr)>),
 }
 
-#[derive(Debug)]
-#[derive(Clone)]
-#[derive(PartialEq)]
-enum FollowPat {
-    Blank,
-    Digit(char),
-    Letter(char),
-    Any(char),
-}
-
-#[derive(Debug)]
-#[derive(Clone)]
-#[derive(PartialEq)]
-enum Pat {
-    Start,
-    End,
-    Err,
-
-    Any(char),
-
-    LeftPar,
-    RightPar,
-    Unit,//Expr::Unit
-
-    Digit(char),
-    DigitSeq(String),
-    Int(i64),//Expr::Int
-
-    Char(char),
-    CharSeq(String),
-    LetName(String),//Expr::EnvRef
-
-    Blank,
-    Apply(Box<Pat>, Box<Pat>),//Expr::Apply
-
-    KwIf,
-    KwThen,
-    KwElse,
-    Cond(Box<Pat>, Box<Pat>, Box<Pat>),//Expr::Cond
-
-    Dash,
-    RightAngleBracket,
-    Arrow,
-    ClosurePara(String),
-    Closure(String, Box<Pat>),//Expr::Closure
-
-    Comma,
-    Equal,
-    LeftCurlyBracket,
-    RightCurlyBracket,
-    Assign(String, Box<Pat>),
-    AssignSeq(Vec<(String, Pat)>),
-    Struct(Vec<(String, Pat)>),
-    //Expr::Struct
-
-    KwMatch,
-    KwWith,
-    VerticalBar,
-    Discard,
-    MatchHead(Box<Pat>),
-    CaseHead(Box<Pat>),
-    Case(Box<Pat>, Box<Pat>),
-    CaseSeq(Vec<(Pat, Pat)>),
-    Match(Box<Pat>, Vec<(Pat, Pat)>),//Expr::Match
-}
-
-fn is_expr_pat(pat: &Pat) -> bool {
-    match pat {
-        Pat::Unit |
-        Pat::Int(_) |
-        Pat::LetName(_) |
-        Pat::Apply(_, _) |
-        Pat::Cond(_, _, _) |
-        Pat::Closure(_, _) |
-        Pat::Struct(_) |
-        Pat::Discard |
-        Pat::Match(_, _)
-        => true,
-        _ => false,
-    }
-}
-
-fn not_blank_pat(pat: &Pat) -> bool {
-    match pat {
-        Pat::Blank => false,
-        _ => true
-    }
-}
-
-fn is_char_pat(pat: &Pat) -> bool {
-    match pat {
-        Pat::Digit(_) => true,
-        Pat::Char(_) => true,
-        _ => false,
-    }
-}
-
 fn move_in(stack: &Vec<Pat>, head: Option<char>) -> Pat {
     match (&stack[..], head) {
-
         // DigitSeq: [0-9] -> Digit
         ([.., Pat::DigitSeq(_)], Some(c)) if parse_digit(&c).is_some() =>
             Pat::Digit(c),
@@ -138,26 +44,27 @@ fn move_in(stack: &Vec<Pat>, head: Option<char>) -> Pat {
         // ' ' -> Blank
         (_, Some(' ')) => Pat::Blank,
         // '(' -> `(`
-        (_, Some('(')) => Pat::LeftPar,
+        (_, Some('(')) => Pat::Mark('('),
         // ')' -> `)`
-        (_, Some(')')) => Pat::RightPar,
+        (_, Some(')')) => Pat::Mark(')'),
 
         // '-' -> `-`
-        (_, Some('-')) => Pat::Dash,
+        (_, Some('-')) => Pat::Mark('-'),
         // '>' -> `>`
-        (_, Some('>')) => Pat::RightAngleBracket,
+        (_, Some('>')) => Pat::Mark('>'),
 
         // '{' -> `{`
-        (_, Some('{')) => Pat::LeftCurlyBracket,
+        (_, Some('{')) => Pat::Mark('{'),
         // '}' -> `}`
-        (_, Some('}')) => Pat::RightCurlyBracket,
+        (_, Some('}')) => Pat::Mark('}'),
         // '=' -> `=`
-        (_, Some('=')) => Pat::Equal,
+        (_, Some('=')) => Pat::Mark('='),
         // ',' -> `,`
-        (_, Some(',')) => Pat::Comma,
+        (_, Some(',')) => Pat::Mark(','),
 
+        // '|' -> `|`
+        (_, Some('|')) => Pat::Mark('|'),
         // '_' -> Discard
-        (_, Some('|')) => Pat::VerticalBar,
         (_, Some('_')) => Pat::Discard,
 
         // ɛ -> End
@@ -170,12 +77,14 @@ fn move_in(stack: &Vec<Pat>, head: Option<char>) -> Pat {
     }
 }
 
-fn reduce_stack(stack: &Vec<Pat>, follow_pat: &Pat) -> Vec<Pat> {
+fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
     let reduced_stack = match (&stack[..], follow_pat) {
         // Success with Unit
-        ([Pat::Start, Pat::Unit, Pat::End], _) => return vec![Pat::Unit],
+        ([Pat::Start, Pat::Unit, Pat::End], _) =>
+            return vec![Pat::Unit],
         // Success with Int
-        ([Pat::Start, Pat::Int(i), Pat::End], _) => return vec![Pat::Int(*i)],
+        ([Pat::Start, Pat::Int(i), Pat::End], _) =>
+            return vec![Pat::Int(*i)],
         // Success with EnvRef
         ([Pat::Start, Pat::LetName(n), Pat::End], _) =>
             return vec![Pat::LetName(n.to_string())],
@@ -206,29 +115,29 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &Pat) -> Vec<Pat> {
             return vec![Pat::Match(e.clone(), vec.clone())],
 
         // `(` `)` -> Unit
-        ([.., Pat::LeftPar, Pat::RightPar], _) =>
+        ([.., Pat::Mark('('), Pat::Mark(')')], _) =>
             stack.reduce_to_new(2, Pat::Unit),
 
         // `(` _ `)` -> _
-        ([.., Pat::LeftPar, p, Pat::RightPar], _) =>
+        ([.., Pat::Mark('('), p, Pat::Mark(')')], _) =>
             stack.reduce_to_new(3, p.clone()),
 
         // CharSeq("if") :Blank -> KwIf
-        ([.., Pat::CharSeq(cs)], Pat::Blank) if parse_if(cs) =>
+        ([.., Pat::CharSeq(cs)], FollowPat::Blank) if parse_if(cs) =>
             stack.reduce_to_new(1, Pat::KwIf),
         // CharSeq("then") :Blank -> KwThen
-        ([.., Pat::CharSeq(cs)], Pat::Blank) if parse_then(cs) =>
+        ([.., Pat::CharSeq(cs)], FollowPat::Blank) if parse_then(cs) =>
             stack.reduce_to_new(1, Pat::KwThen),
         // CharSeq("else") :Blank -> KwElse
-        ([.., Pat::CharSeq(cs) ], Pat::Blank) if parse_else(cs) =>
+        ([.., Pat::CharSeq(cs) ], FollowPat::Blank) if parse_else(cs) =>
             stack.reduce_to_new(1, Pat::KwElse),
         // CharSeq("match") :Blank -> KwMatch
-        ([.., Pat::CharSeq(cs)], Pat::Blank) if parse_match(cs) => {
+        ([.., Pat::CharSeq(cs)], FollowPat::Blank) if parse_match(cs) => {
             let top = Pat::KwMatch;
             stack.reduce_to_new(1, top)
         }
         // CharSeq("with") :'|' -> KwWith
-        ([.., Pat::CharSeq(cs)], Pat::Any('|')) if parse_with(cs) => {
+        ([.., Pat::CharSeq(cs)], FollowPat::Mark('|')) if parse_with(cs) => {
             let top = Pat::KwWith;
             stack.reduce_to_new(1, top)
         }
@@ -239,7 +148,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &Pat) -> Vec<Pat> {
         Pat::KwThen, Pat::Blank, b, Pat::Blank,
         Pat::KwElse, Pat::Blank, c
         ], _)
-        if is_expr_pat(a) && is_expr_pat(b) && is_expr_pat(c) =>
+        if a.is_expr() && b.is_expr() && c.is_expr() =>
             stack.reduce_to_new(11, Pat::Cond(
                 Box::new(a.clone()),
                 Box::new(b.clone()),
@@ -250,7 +159,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &Pat) -> Vec<Pat> {
         ([.., Pat::DigitSeq(ds), Pat::Digit(d)], _) =>
             stack.reduce_to_new(2, Pat::DigitSeq(format!("{}{}", ds, d))),
         // DigitSeq :Digit -> DigitSeq
-        ([.., Pat::DigitSeq(_)], Pat::Digit(_)) =>
+        ([.., Pat::DigitSeq(_)], FollowPat::Digit(_)) =>
             return stack.clone(),
         // DigitSeq :!Digit -> Int|Err
         ([.., Pat::DigitSeq(ds)], _) => {
@@ -261,7 +170,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &Pat) -> Vec<Pat> {
             stack.reduce_to_new(1, top)
         }
         // Digit :Digit -> DigitSeq
-        ([.., Pat::Digit(d)], Pat::Digit(_)) =>
+        ([.., Pat::Digit(d)], FollowPat::Digit(_)) =>
             stack.reduce_to_new(1, Pat::DigitSeq(d.to_string())),
         // Digit :!Digit -> Int|Err
         ([.., Pat::Digit(d)], _) => {
@@ -276,7 +185,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &Pat) -> Vec<Pat> {
         ([.., Pat::CharSeq(cs), Pat::Char(c)], _) =>
             stack.reduce_to_new(2, Pat::CharSeq(format!("{}{}", cs, c))),
         // CharSeq :Char -> CharSeq
-        ([.., Pat::CharSeq(_)], Pat::Char(_)) =>
+        ([.., Pat::CharSeq(_)], FollowPat::Letter(_) | FollowPat::Digit(_)) =>
             return stack.clone(),
         // CharSeq :!Char-> LetName|Err
         ([.., Pat::CharSeq(cs)], _) => {
@@ -287,7 +196,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &Pat) -> Vec<Pat> {
             stack.reduce_to_new(1, top)
         }
         // Char :Char -> CharSeq
-        ([.., Pat::Char(c)], p) if is_char_pat(p) =>
+        ([.., Pat::Char(c)], FollowPat::Letter(_) | FollowPat::Digit(_)) =>
             stack.reduce_to_new(1, Pat::CharSeq(c.to_string())),
         // Char :!Char -> LetName|Err
         ([.., Pat::Char(c)], _) => {
@@ -299,7 +208,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &Pat) -> Vec<Pat> {
         }
 
         // `-` `>` -> Arrow
-        ([.., Pat::Dash, Pat::RightAngleBracket], _) =>
+        ([.., Pat::Mark('-'), Pat::Mark('>')], _) =>
             stack.reduce_to_new(2, Pat::Arrow),
         // LetName Blank Arrow Blank -> ClosurePara
         ([.., Pat::LetName(n), Pat::Blank, Pat::Arrow, Pat::Blank], _) => {
@@ -313,7 +222,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &Pat) -> Vec<Pat> {
                  (x -> y -> z) }
                  否则将无法归约 */
         ([.., Pat::ClosurePara(n), p], follow_pat)
-        if is_expr_pat(p) && not_blank_pat(follow_pat) => {
+        if p.is_expr() && follow_pat.not_blank() => {
             let top = Pat::Closure(
                 n.to_string(),
                 Box::new(p.clone()),
@@ -323,19 +232,19 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &Pat) -> Vec<Pat> {
 
         // Blank LetName Blank `=` Blank Expr `,` -> Assign
         ([.., Pat::Blank,
-        Pat::LetName(cs), Pat::Blank, Pat::Equal, Pat::Blank,
-        p, Pat::Comma], _
+        Pat::LetName(cs), Pat::Blank, Pat::Mark('='), Pat::Blank,
+        p, Pat::Mark(',')], _
         )
-        if is_expr_pat(p) => {
+        if p.is_expr() => {
             let top = Pat::Assign(cs.clone(), Box::new(p.clone()));
             stack.reduce_to_new(7, top)
         }
         // Blank LetName Blank `=` Blank Expr Blank :`}`-> Assign
         ([.., Pat::Blank,
-        Pat::LetName(cs), Pat::Blank, Pat::Equal, Pat::Blank,
-        p, Pat::Blank], Pat::Any('}')
+        Pat::LetName(cs), Pat::Blank, Pat::Mark('='), Pat::Blank,
+        p, Pat::Blank], FollowPat::Mark('}')
         )
-        if is_expr_pat(p) => {
+        if p.is_expr() => {
             let top = Pat::Assign(cs.clone(), Box::new(p.clone()));
             stack.reduce_to_new(7, top)
         }
@@ -362,18 +271,18 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &Pat) -> Vec<Pat> {
         }
         // `{` AssignSeq `}` -> Struct
         ([..,
-        Pat::LeftCurlyBracket,
+        Pat::Mark('{'),
         Pat::AssignSeq(a_seq),
-        Pat::RightCurlyBracket], _
+        Pat::Mark('}')], _
         ) => {
             let top = Pat::Struct(a_seq.clone());
             stack.reduce_to_new(3, top)
         }
         // `{` Assign `}` -> Struct
         ([..,
-        Pat::LeftCurlyBracket,
+        Pat::Mark('{'),
         Pat::Assign(n, v),
-        Pat::RightCurlyBracket], _
+        Pat::Mark('}')], _
         ) => {
             let top = Pat::Struct(vec![(n.to_string(), *v.clone())]);
             stack.reduce_to_new(3, top)
@@ -381,25 +290,25 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &Pat) -> Vec<Pat> {
 
         // KwMatch Blank Expr Blank KwWith -> MatchHead
         ([.., Pat::KwMatch, Pat::Blank, p, Pat::Blank, Pat::KwWith], _)
-        if is_expr_pat(p) => {
+        if p.is_expr() => {
             let top = Pat::MatchHead(Box::new(p.clone()));
             stack.reduce_to_new(5, top)
         }
         // `|` Blank Expr Blank Arrow -> CaseHead
         ([..,
-        Pat::VerticalBar, Pat::Blank,
+        Pat::Mark('|'), Pat::Blank,
         p, Pat::Blank, Pat::Arrow], _
         )
-        if is_expr_pat(p) => {
+        if p.is_expr() => {
             let top = Pat::CaseHead(Box::new(p.clone()));
             stack.reduce_to_new(5, top)
         }
         // CaseHead Blank Expr Blank :VerticalBar -> Case
         ([..,
         Pat::CaseHead(e), Pat::Blank,
-        p, Pat::Blank ], Pat::VerticalBar
+        p, Pat::Blank ], FollowPat::Mark('|')
         )
-        if is_expr_pat(p) => {
+        if p.is_expr() => {
             let top = Pat::Case(
                 e.clone(),
                 Box::new(p.clone()),
@@ -411,7 +320,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &Pat) -> Vec<Pat> {
         Pat::CaseHead(e), Pat::Blank,
         p  ], follow_pat
         )
-        if is_expr_pat(p) && not_blank_pat(follow_pat) => {
+        if p.is_expr() && follow_pat.not_blank() => {
             let top = Pat::Case(
                 e.clone(),
                 Box::new(p.clone()),
@@ -445,7 +354,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &Pat) -> Vec<Pat> {
         Pat::Case(case, then) ], follow_pat
         )
         if match follow_pat {
-            Pat::Blank | Pat::Any('|') => false,
+            FollowPat::Blank | FollowPat::Mark('|') => false,
             _ => true
         } => {
             let top = Pat::Match(
@@ -460,7 +369,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &Pat) -> Vec<Pat> {
         Pat::CaseSeq(vec) ], follow_pat
         )
         if match follow_pat {
-            Pat::Blank | Pat::Any('|') => false,
+            FollowPat::Blank | FollowPat::Mark('|') => false,
             _ => true
         } => {
             let top = Pat::Match(
@@ -472,7 +381,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &Pat) -> Vec<Pat> {
 
         // Expr Blank Expr -> Apply
         ([.., lhs, Pat::Blank, rhs], _)
-        if is_expr_pat(lhs) && is_expr_pat(rhs) => {
+        if lhs.is_expr() && rhs.is_expr() => {
             let top = Pat::Apply(
                 Box::new(lhs.clone()),
                 Box::new(rhs.clone()),
@@ -499,13 +408,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &Pat) -> Vec<Pat> {
 fn go(stack: &Vec<Pat>, seq: &str) -> Pat {
     let (head, tail, follow) = get_head_tail_follow(seq);
 
-    let follow_pat = match follow {
-        None => Pat::End,
-        Some(' ') => Pat::Blank,
-        Some(c) if parse_digit(&c).is_some() => Pat::Digit(c),
-        Some(c) if parse_char(&c).is_some() => Pat::Char(c),
-        Some(c) => Pat::Any(c),
-    };
+    let follow_pat = parse_follow_pat(follow);
 
     let stack = stack.push_to_new(move_in(stack, head));
     println!("Move in result: {:?} follow: {:?}", stack, follow_pat);
@@ -513,7 +416,7 @@ fn go(stack: &Vec<Pat>, seq: &str) -> Pat {
     let reduced_stack = reduce_stack(&stack, &follow_pat);
 
     match (&reduced_stack[..], follow_pat) {
-        ([p], Pat::End) => {
+        ([p], FollowPat::End) => {
             let r = p.clone();
             println!("Success with: {:?}", r);
             return r;
@@ -523,80 +426,8 @@ fn go(stack: &Vec<Pat>, seq: &str) -> Pat {
 }
 
 pub fn parse_expr(seq: &str) -> Option<Expr> {
-    fn case(pat: Pat) -> Option<Expr> {
-        let r = match pat {
-            Pat::Discard => Expr::Discard,
-            Pat::Unit => Expr::Unit,
-            Pat::Int(i) => Expr::Int(i),
-            Pat::LetName(n) => Expr::EnvRef(n),
-            Pat::Apply(l, r) =>
-                match (case(*l), case(*r)) {
-                    (Some(l), Some(r)) =>
-                        Expr::Apply(
-                            Box::new(l),
-                            Box::new(r),
-                        ),
-                    _ => return None
-                }
-            Pat::Cond(a, b, c) =>
-                match (case(*a), case(*b), case(*c)) {
-                    (Some(a), Some(b), Some(c)) =>
-                        Expr::Cond(
-                            Box::new(a),
-                            Box::new(b),
-                            Box::new(c),
-                        ),
-                    _ => return None
-                }
-            Pat::Closure(a, b) =>
-                match case(*b) {
-                    Some(b) => Expr::Closure(a, Box::new(b)),
-                    _ => return None
-                }
-            Pat::Struct(vec) => {
-                type Assign = (String, Expr);
-                type F = fn(Option<Vec<Assign>>, &(String, Pat)) -> Option<Vec<Assign>>;
-                let f: F = |acc, (n, p)|
-                    match (acc, case(p.clone())) {
-                        (Some(vec), Some(e)) =>
-                            Some(vec.push_to_new((n.to_string(), e))),
-                        _ => None,
-                    };
-                let vec = vec.iter().fold(Some(vec![]), f);
-
-                match vec {
-                    Some(vec) => Expr::Struct(vec),
-                    _ => return None,
-                }
-            }
-            Pat::Match(p, vec) => {
-                type Case = (Expr, Expr);
-                type F = fn(Option<Vec<Case>>, &(Pat, Pat)) -> Option<Vec<Case>>;
-                let f: F = |acc, (case_p, then_p)|
-                    match (acc, case(case_p.clone()), case(then_p.clone())) {
-                        (Some(vec), Some(case_e), Some(then_e)) =>
-                            Some(vec.push_to_new((case_e, then_e))),
-                        _ => None,
-                    };
-                let vec = vec.iter().fold(Some(vec![]), f);
-
-                match (case(*p), vec) {
-                    (Some(p), Some(vec)) =>
-                        Expr::Match(
-                            Box::new(p),
-                            vec,
-                        ),
-                    _ => Expr::Unit
-                }
-            }
-
-            _ => return None,
-        };
-        Some(r)
-    }
-
     println!("\nParsing seq: {:?}", seq);
-    case(go(&vec![Pat::Start], seq))
+    Option::<Expr>::from(go(&vec![Pat::Start], seq))
 }
 
 #[cfg(test)]

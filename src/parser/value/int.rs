@@ -1,4 +1,3 @@
-use std::{fmt, vec};
 use crate::parser::{get_head_tail};
 
 #[derive(Copy)]
@@ -12,12 +11,6 @@ enum Pat {
 
     Int(i64),
     Digit(u8),
-}
-
-impl fmt::Display for Pat {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?}", self)
-    }
 }
 
 //TODO: handle int overflow
@@ -54,7 +47,7 @@ fn go(stack: Vec<Pat>, seq: &str) -> Option<i64> {
         (_, Pat::Err) => return None,
         // Can not reduce
         (_, b) => {
-            println!("Reduction failed: {:?}, {}", stack, b);
+            println!("Reduction failed: {:?}, {:?}", stack, b);
             return None;
         }
     };

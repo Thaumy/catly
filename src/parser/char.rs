@@ -40,14 +40,22 @@ pub fn parse_upper(x: &char) -> Option<char> {
     map.iter().find(|c| c == &x).copied()
 }
 
-pub fn parse_char(x: &char) -> Option<Char> {
-    use crate::parser::char::Char::{Digit, Lower, Upper};
+pub fn parse_letter(x: &char) -> Option<Char> {
+    use crate::parser::char::Char::{Lower, Upper};
 
     let f1 = || parse_upper(x).and_then(|c| Some(Upper(c)));
     let f2 = || parse_lower(x).and_then(|c| Some(Lower(c)));
-    let f3 = || parse_digit(x).and_then(|d| Some(Digit(d)));
 
-    f1().or_else(f2).or_else(f3)
+    f1().or_else(f2)
+}
+
+pub fn parse_char(x: &char) -> Option<Char> {
+    use crate::parser::char::Char::{Digit};
+
+    let f1 = || parse_letter(x);
+    let f2 = || parse_digit(x).and_then(|d| Some(Digit(d)));
+
+    f1().or_else(f2)
 }
 
 #[cfg(test)]
