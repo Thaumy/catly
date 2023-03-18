@@ -1,9 +1,28 @@
+use std::slice::Iter;
+
 mod char;
 mod keyword;
 mod mark;
 mod value;
 mod name;
 mod expr;
+mod preprocess;
+
+pub fn vec_get_head_tail<T>(vec: Vec<T>) -> (Option<T>, Vec<T>)
+    where T: Clone
+{
+    let mut iter = vec.iter();
+    let head = iter.next().cloned();
+    (head, iter.map(|x| x.clone()).collect())
+}
+
+pub fn vec_get_head_tail_follow<T>(vec: Vec<T>) -> (Option<T>, Vec<T>, Option<T>)
+    where T: Clone
+{
+    let (head, tail) = vec_get_head_tail(vec);
+    let (follow, _) = vec_get_head_tail(tail.clone());
+    (head, tail, follow)
+}
 
 pub fn get_head_tail(seq: &str) -> (Option<char>, &str) {
     let mut chars = seq.chars();

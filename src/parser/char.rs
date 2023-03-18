@@ -49,6 +49,7 @@ pub fn parse_letter(x: &char) -> Option<Char> {
     f1().or_else(f2)
 }
 
+// letter or digit
 pub fn parse_char(x: &char) -> Option<Char> {
     use crate::parser::char::Char::{Digit};
 

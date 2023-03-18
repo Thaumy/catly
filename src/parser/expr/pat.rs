@@ -1,5 +1,6 @@
 use crate::parser::expr::Expr;
 use crate::parser::Ext;
+use crate::parser::keyword::KeyWord;
 
 #[derive(Debug)]
 #[derive(Clone)]
@@ -45,6 +46,9 @@ pub enum Pat {
     Case(Box<Pat>, Box<Pat>),
     CaseSeq(Vec<(Pat, Pat)>),
     Match(Box<Pat>, Vec<(Pat, Pat)>),//Expr::Match
+
+    KwLet,
+    KwIn,
 }
 
 impl Pat {
@@ -61,6 +65,21 @@ impl Pat {
             Pat::Match(_, _)
             => true,
             _ => false,
+        }
+    }
+}
+
+impl From<KeyWord> for Pat {
+    fn from(kw: KeyWord) -> Self {
+        match kw {
+            KeyWord::Let => Pat::KwLet,
+            KeyWord::In => Pat::KwIn,
+            KeyWord::Type => todo!(),
+            KeyWord::If => Pat::KwIf,
+            KeyWord::Then => Pat::KwThen,
+            KeyWord::Else => Pat::KwElse,
+            KeyWord::Match => Pat::KwMatch,
+            KeyWord::With => Pat::KwWith,
         }
     }
 }

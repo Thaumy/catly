@@ -2,12 +2,14 @@ mod follow_pat;
 mod pat;
 
 use std::{vec};
+use std::slice::Iter;
 use crate::parser::char::{parse_char, parse_digit};
-use crate::parser::{Ext, get_head_tail_follow};
+use crate::parser::{Ext, get_head_tail, get_head_tail_follow, vec_get_head_tail_follow};
 use crate::parser::expr::follow_pat::{FollowPat, parse_follow_pat};
 use crate::parser::expr::pat::Pat;
-use crate::parser::keyword::{parse_else, parse_if, parse_match, parse_then, parse_with};
+use crate::parser::keyword::{KeyWord, parse_else, parse_if, parse_match, parse_then, parse_with};
 use crate::parser::name::let_name::parse_let_name;
+use crate::parser::preprocess::keyword::{Either, preprocess_keyword};
 use crate::parser::value::int::parse_int;
 
 #[derive(Debug)]
@@ -25,55 +27,60 @@ pub enum Expr {
     Match(Box<Expr>, Vec<(Expr, Expr)>),
 }
 
-fn move_in(stack: &Vec<Pat>, head: Option<char>) -> Pat {
-    match (&stack[..], head) {
-        // DigitSeq: [0-9] -> Digit
-        ([.., Pat::DigitSeq(_)], Some(c)) if parse_digit(&c).is_some() =>
-            Pat::Digit(c),
-        // [0-9] -> Digit
-        (_, Some(c)) if parse_digit(&c).is_some() =>
-            Pat::Digit(c),
+fn move_in(stack: &Vec<Pat>, head: Option<Either<char, KeyWord>>) -> Pat {
+    match head {
+        Some(Either::L(o)) => match (&stack[..], o) {
+            // DigitSeq: [0-9] -> Digit
+            ([.., Pat::DigitSeq(_)], c) if parse_digit(&c).is_some() =>
+                Pat::Digit(c),
+            // [0-9] -> Digit
+            (_, c) if parse_digit(&c).is_some() =>
+                Pat::Digit(c),
 
-        // CharSeq: [0-9a-zA-Z] -> Char
-        ([.., Pat::CharSeq(_)], Some(c)) if parse_char(&c).is_some() =>
-            Pat::Char(c),
-        // [0-9a-zA-Z] -> Char
-        (_, Some(c)) if parse_char(&c).is_some() =>
-            Pat::Char(c),
+            // CharSeq: [0-9a-zA-Z] -> Char
+            ([.., Pat::CharSeq(_)], c) if parse_char(&c).is_some() =>
+                Pat::Char(c),
+            // [0-9a-zA-Z] -> Char
+            (_, c) if parse_char(&c).is_some() =>
+                Pat::Char(c),
 
-        // ' ' -> Blank
-        (_, Some(' ')) => Pat::Blank,
-        // '(' -> `(`
-        (_, Some('(')) => Pat::Mark('('),
-        // ')' -> `)`
-        (_, Some(')')) => Pat::Mark(')'),
+            // ' ' -> Blank
+            (_, ' ') => Pat::Blank,
+            // '(' -> `(`
+            (_, '(') => Pat::Mark('('),
+            // ')' -> `)`
+            (_, ')') => Pat::Mark(')'),
 
-        // '-' -> `-`
-        (_, Some('-')) => Pat::Mark('-'),
-        // '>' -> `>`
-        (_, Some('>')) => Pat::Mark('>'),
+            // '-' -> `-`
+            (_, '-') => Pat::Mark('-'),
+            // '>' -> `>`
+            (_, '>') => Pat::Mark('>'),
 
-        // '{' -> `{`
-        (_, Some('{')) => Pat::Mark('{'),
-        // '}' -> `}`
-        (_, Some('}')) => Pat::Mark('}'),
-        // '=' -> `=`
-        (_, Some('=')) => Pat::Mark('='),
-        // ',' -> `,`
-        (_, Some(',')) => Pat::Mark(','),
+            // '{' -> `{`
+            (_, '{') => Pat::Mark('{'),
+            // '}' -> `}`
+            (_, '}') => Pat::Mark('}'),
+            // '=' -> `=`
+            (_, '=') => Pat::Mark('='),
+            // ',' -> `,`
+            (_, ',') => Pat::Mark(','),
 
-        // '|' -> `|`
-        (_, Some('|')) => Pat::Mark('|'),
-        // '_' -> Discard
-        (_, Some('_')) => Pat::Discard,
+            // '|' -> `|`
+            (_, '|') => Pat::Mark('|'),
+            // '_' -> Discard
+            (_, '_') => Pat::Discard,
+
+            // _ -> Err
+            (_, c) => {
+                println!("Invalid head Pat: {}", c);
+                Pat::Err
+            }
+        }
+
+        Some(Either::R(kw)) => kw.into(),
 
         // ɛ -> End
-        (_, None) => Pat::End,
-        // _ -> Err
-        (_, Some(c)) => {
-            println!("Invalid head Pat: {}", c);
-            Pat::Err
-        }
+        None => Pat::End,
     }
 }
 
@@ -121,26 +128,6 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
         // `(` _ `)` -> _
         ([.., Pat::Mark('('), p, Pat::Mark(')')], _) =>
             stack.reduce_to_new(3, p.clone()),
-
-        // CharSeq("if") :Blank -> KwIf
-        ([.., Pat::CharSeq(cs)], FollowPat::Blank) if parse_if(cs) =>
-            stack.reduce_to_new(1, Pat::KwIf),
-        // CharSeq("then") :Blank -> KwThen
-        ([.., Pat::CharSeq(cs)], FollowPat::Blank) if parse_then(cs) =>
-            stack.reduce_to_new(1, Pat::KwThen),
-        // CharSeq("else") :Blank -> KwElse
-        ([.., Pat::CharSeq(cs) ], FollowPat::Blank) if parse_else(cs) =>
-            stack.reduce_to_new(1, Pat::KwElse),
-        // CharSeq("match") :Blank -> KwMatch
-        ([.., Pat::CharSeq(cs)], FollowPat::Blank) if parse_match(cs) => {
-            let top = Pat::KwMatch;
-            stack.reduce_to_new(1, top)
-        }
-        // CharSeq("with") :'|' -> KwWith
-        ([.., Pat::CharSeq(cs)], FollowPat::Mark('|')) if parse_with(cs) => {
-            let top = Pat::KwWith;
-            stack.reduce_to_new(1, top)
-        }
 
         // KwIf Blank Expr Blank KwThen Blank Expr Blank KwElse Blank Expr -> Cond
         ([..,
@@ -405,8 +392,9 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
     reduce_stack(&reduced_stack, follow_pat)
 }
 
-fn go(stack: &Vec<Pat>, seq: &str) -> Pat {
-    let (head, tail, follow) = get_head_tail_follow(seq);
+fn go(stack: &Vec<Pat>, seq: Vec<Either<char, KeyWord>>) -> Pat {
+    let (head, tail, follow) =
+        vec_get_head_tail_follow(seq);
 
     let follow_pat = parse_follow_pat(follow);
 
@@ -427,7 +415,8 @@ fn go(stack: &Vec<Pat>, seq: &str) -> Pat {
 
 pub fn parse_expr(seq: &str) -> Option<Expr> {
     println!("\nParsing seq: {:?}", seq);
-    Option::<Expr>::from(go(&vec![Pat::Start], seq))
+    let preprocessed = preprocess_keyword(seq);
+    Option::<Expr>::from(go(&vec![Pat::Start], preprocessed))
 }
 
 #[cfg(test)]
@@ -982,28 +971,28 @@ mod tests {
         let seq =
             "(((\
             match (((x))) with\
-             | 1 -> if a then b else c\
-             | (((v))) -> a -> b -> (((add a b)))\
-             | { a = (((_))), b = { foo = (((_))), bar = (((_))) }, c = 3 } -> \
-                 ((({ x = (((123))), y = c })))\
-             | (((_))) -> \
-                (((\
-                match y with\
-                | 1 -> ()\
-                | () -> \
-                     (((\
-                     a -> b -> \
-                       (((\
-                       match (((z))) with\
-                       | (((_))) -> 114514\
-                       | (((a))) -> \
-                         (((\
-                         (((x))) -> (((y))) -> (((add () y)))\
-                         )))\
-                       )))\
-                     )))\
-                | _ -> baz\
-                )))\
+            | 1 -> if a then b else c\
+            | (((v))) -> a -> b -> (((add a b)))\
+            | { a = (((_))), b = { foo = (((_))), bar = (((_))) }, c = 3 } -> \
+                ((({ x = (((123))), y = c })))\
+            | (((_))) -> \
+               (((\
+               match y with\
+               | 1 -> ()\
+               | () -> \
+                    (((\
+                    a -> b -> \
+                      (((\
+                      match (((z))) with\
+                      | (((_))) -> 114514\
+                      | (((a))) -> \
+                        (((\
+                        (((x))) -> (((y))) -> (((add () y)))\
+                        )))\
+                      )))\
+                    )))\
+               | _ -> baz\
+               )))\
              )))";
 
         assert_eq!(parse_expr(seq), r);

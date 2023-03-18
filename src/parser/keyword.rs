@@ -3,6 +3,7 @@
 #[derive(PartialEq)]
 pub enum KeyWord {
     Let,
+    In,
     Type,
     If,
     Then,
@@ -13,6 +14,10 @@ pub enum KeyWord {
 
 pub fn parse_let(x: &str) -> bool {
     x == "let"
+}
+
+pub fn parse_in(x: &str) -> bool {
+    x == "in"
 }
 
 pub fn parse_type(x: &str) -> bool {
@@ -40,8 +45,9 @@ pub fn parse_with(x: &str) -> bool {
 }
 
 pub fn parse_keyword(x: &str) -> Option<KeyWord> {
-    let map: [(fn(&str) -> bool, KeyWord); 7] = [
+    let map: [(fn(&str) -> bool, KeyWord); 8] = [
         (parse_let, KeyWord::Let),
+        (parse_in, KeyWord::In),
         (parse_type, KeyWord::Type),
         (parse_if, KeyWord::If),
         (parse_then, KeyWord::Then),
@@ -61,6 +67,7 @@ mod tests {
         use crate::parser::keyword::{KeyWord, parse_keyword};
 
         assert_eq!(parse_keyword("let"), Some(KeyWord::Let));
+        assert_eq!(parse_keyword("in"), Some(KeyWord::In));
         assert_eq!(parse_keyword("type"), Some(KeyWord::Type));
         assert_eq!(parse_keyword("if"), Some(KeyWord::If));
         assert_eq!(parse_keyword("then"), Some(KeyWord::Then));
