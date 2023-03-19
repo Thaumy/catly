@@ -8,6 +8,7 @@ use crate::parser::expr::follow_pat::{FollowPat, parse_follow_pat};
 use crate::parser::expr::pat::Pat;
 use crate::parser::keyword::{Keyword};
 use crate::parser::name::let_name::parse_let_name;
+use crate::parser::preprocess::blank::preprocess_blank;
 use crate::parser::preprocess::comment::preprocess_comment;
 use crate::parser::preprocess::keyword::{Either, preprocess_keyword};
 use crate::parser::value::int::parse_int;
@@ -424,6 +425,7 @@ fn go(stack: &Vec<Pat>, seq: Vec<Either<char, Keyword>>) -> Pat {
 pub fn parse_expr(seq: &str) -> Option<Expr> {
     println!("\nParsing seq: {:?}", seq);
     let seq = preprocess_comment(seq);
+    let seq = preprocess_blank(&seq);
     let seq = preprocess_keyword(&seq);
     Option::<Expr>::from(go(&vec![Pat::Start], seq))
 }

@@ -4,7 +4,7 @@ use crate::parser::preprocess::comment::Pat::{*};
 
 #[derive(Clone)]
 #[derive(Debug)]
-pub enum Either<L, R> {
+enum Either<L, R> {
     L(L),
     R(R),
 }
