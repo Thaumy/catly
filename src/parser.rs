@@ -6,6 +6,13 @@ mod name;
 mod expr;
 mod preprocess;
 
+#[derive(Clone)]
+#[derive(Debug)]
+pub enum Either<L, R> {
+    L(L),
+    R(R),
+}
+
 pub fn vec_get_head_tail<T>(vec: Vec<T>) -> (Option<T>, Vec<T>)
     where T: Clone
 {

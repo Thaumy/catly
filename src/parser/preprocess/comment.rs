@@ -1,13 +1,6 @@
-use crate::parser::{VecExt, get_head_tail};
+use crate::parser::{VecExt, get_head_tail, Either};
 use crate::parser::preprocess::comment::Either::{*};
 use crate::parser::preprocess::comment::Pat::{*};
-
-#[derive(Clone)]
-#[derive(Debug)]
-enum Either<L, R> {
-    L(L),
-    R(R),
-}
 
 #[derive(Clone)]
 enum Pat {
@@ -71,8 +64,6 @@ pub fn preprocess_comment(seq: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use crate::parser::BoxExt;
-    use crate::parser::expr::{Expr, parse_expr};
     use crate::parser::preprocess::comment::preprocess_comment;
 
     #[test]

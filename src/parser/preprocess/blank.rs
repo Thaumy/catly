@@ -1,12 +1,4 @@
-use crate::parser::{VecExt, get_head_tail_follow, get_head_tail};
-use crate::parser::char::parse_char;
-
-#[derive(Clone)]
-#[derive(Debug)]
-enum Either<L, R> {
-    L(L),
-    R(R),
-}
+use crate::parser::{VecExt, get_head_tail, Either};
 
 fn any(c: char) -> AnyOrBlank {
     Either::L(c)

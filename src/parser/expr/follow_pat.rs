@@ -1,7 +1,7 @@
 use crate::parser::char::{parse_digit, parse_letter};
+use crate::parser::Either;
 use crate::parser::expr::pat::Pat;
 use crate::parser::keyword::Keyword;
-use crate::parser::preprocess::keyword::Either;
 
 #[derive(Debug)]
 #[derive(Clone)]

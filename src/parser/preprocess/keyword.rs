@@ -1,13 +1,6 @@
-use crate::parser::{VecExt, get_head_tail_follow};
+use crate::parser::{VecExt, get_head_tail_follow, Either};
 use crate::parser::char::parse_char;
 use crate::parser::keyword::Keyword;
-
-#[derive(Clone)]
-#[derive(Debug)]
-pub enum Either<L, R> {
-    L(L),
-    R(R),
-}
 
 fn reduce_stack(stack: Vec<Either<char, Keyword>>, follow: Option<char>) -> Vec<Either<char, Keyword>> {
     use crate::parser::preprocess::keyword::Either::{*};

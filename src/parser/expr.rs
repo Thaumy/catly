@@ -3,14 +3,14 @@ mod pat;
 
 use std::{vec};
 use crate::parser::char::{parse_char, parse_digit};
-use crate::parser::{VecExt, vec_get_head_tail_follow};
+use crate::parser::{VecExt, vec_get_head_tail_follow, Either};
 use crate::parser::expr::follow_pat::{FollowPat, parse_follow_pat};
 use crate::parser::expr::pat::Pat;
 use crate::parser::keyword::{Keyword};
 use crate::parser::name::let_name::parse_let_name;
 use crate::parser::preprocess::blank::preprocess_blank;
 use crate::parser::preprocess::comment::preprocess_comment;
-use crate::parser::preprocess::keyword::{Either, preprocess_keyword};
+use crate::parser::preprocess::keyword::{preprocess_keyword};
 use crate::parser::value::int::parse_int;
 
 #[derive(Debug)]
