@@ -1,6 +1,5 @@
-use crate::parser::char::{parse_digit, parse_letter};
 use crate::parser::Either;
-use crate::parser::expr::pat::Pat;
+use crate::parser::char::{parse_digit, parse_letter};
 use crate::parser::keyword::Keyword;
 
 #[derive(Debug)]
@@ -12,7 +11,7 @@ pub enum FollowPat {
     Digit(char),
     Letter(char),
     Mark(char),
-    Keyword(Pat),
+    Keyword(Keyword),
 }
 
 impl FollowPat {
@@ -31,7 +30,7 @@ pub fn parse_follow_pat(follow: Option<Either<char, Keyword>>) -> FollowPat {
             Either::L(c) if parse_digit(&c).is_some() => FollowPat::Digit(c),
             Either::L(c) if parse_letter(&c).is_some() => FollowPat::Letter(c),
             Either::L(c) => FollowPat::Mark(c),
-            Either::R(kw) => FollowPat::Keyword(kw.into())
+            Either::R(kw) => FollowPat::Keyword(kw)
         }
         _ => FollowPat::End,
     }

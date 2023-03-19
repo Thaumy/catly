@@ -1,4 +1,4 @@
-use crate::parser::{VecExt, get_head_tail, Either};
+use crate::parser::{Either, get_head_tail, VecExt};
 use crate::parser::preprocess::comment::Either::{*};
 use crate::parser::preprocess::comment::Pat::{*};
 

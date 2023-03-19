@@ -1,17 +1,18 @@
-mod follow_pat;
-mod pat;
+use std::vec;
 
-use std::{vec};
+use crate::parser::{Either, vec_get_head_tail_follow, VecExt};
 use crate::parser::char::{parse_char, parse_digit};
-use crate::parser::{VecExt, vec_get_head_tail_follow, Either};
 use crate::parser::expr::follow_pat::{FollowPat, parse_follow_pat};
 use crate::parser::expr::pat::Pat;
-use crate::parser::keyword::{Keyword};
+use crate::parser::keyword::Keyword;
 use crate::parser::name::let_name::parse_let_name;
 use crate::parser::preprocess::blank::preprocess_blank;
 use crate::parser::preprocess::comment::preprocess_comment;
-use crate::parser::preprocess::keyword::{preprocess_keyword};
+use crate::parser::preprocess::keyword::preprocess_keyword;
 use crate::parser::value::int::parse_int;
+
+mod follow_pat;
+mod pat;
 
 #[derive(Debug)]
 #[derive(Clone)]
@@ -349,7 +350,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
         // Blank LetName Blank `=` Blank Expr Blank :KwIn -> Assign
         ([.., Pat::Blank,
         Pat::LetName(cs), Pat::Blank, Pat::Mark('='), Pat::Blank,
-        p, Pat::Blank], FollowPat::Keyword(Pat::KwIn)
+        p, Pat::Blank], FollowPat::Keyword(Keyword::In)
         )
         if p.is_expr() => {
             let top = Pat::Assign(cs.clone(), Box::new(p.clone()));

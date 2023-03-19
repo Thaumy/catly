@@ -1,4 +1,4 @@
-use crate::parser::{get_head_tail};
+use crate::parser::get_head_tail;
 
 #[derive(Copy)]
 #[derive(Debug)]

@@ -1,4 +1,4 @@
-use crate::parser::{VecExt, get_head_tail_follow, Either};
+use crate::parser::{Either, get_head_tail_follow, VecExt};
 use crate::parser::char::parse_char;
 use crate::parser::keyword::Keyword;
 

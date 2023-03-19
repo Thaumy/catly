@@ -51,7 +51,7 @@ pub fn parse_letter(x: &char) -> Option<Char> {
 
 // letter or digit
 pub fn parse_char(x: &char) -> Option<Char> {
-    use crate::parser::char::Char::{Digit};
+    use crate::parser::char::Char::Digit;
 
     let f1 = || parse_letter(x);
     let f2 = || parse_digit(x).and_then(|d| Some(Digit(d)));

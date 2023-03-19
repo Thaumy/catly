@@ -1,4 +1,4 @@
-use crate::parser::{VecExt, get_head_tail, Either};
+use crate::parser::{Either, get_head_tail, VecExt};
 
 fn any(c: char) -> AnyOrBlank {
     Either::L(c)

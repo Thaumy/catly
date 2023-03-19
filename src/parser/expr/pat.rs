@@ -1,6 +1,6 @@
 use crate::parser::expr::Expr;
-use crate::parser::VecExt;
 use crate::parser::keyword::Keyword;
+use crate::parser::VecExt;
 
 #[derive(Debug)]
 #[derive(Clone)]

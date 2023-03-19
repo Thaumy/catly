@@ -1,5 +1,5 @@
+use crate::parser::get_head_tail;
 use crate::parser::char::{parse_char, parse_lower};
-use crate::parser::{get_head_tail};
 
 #[derive(Debug)]
 #[derive(Clone)]
