@@ -1,7 +1,7 @@
 #[derive(Clone)]
 #[derive(Debug)]
 #[derive(PartialEq)]
-pub enum KeyWord {
+pub enum Keyword {
     Let,
     In,
     Type,
@@ -44,16 +44,16 @@ pub fn parse_with(x: &str) -> bool {
     x == "with"
 }
 
-pub fn parse_keyword(x: &str) -> Option<KeyWord> {
-    let map: [(fn(&str) -> bool, KeyWord); 8] = [
-        (parse_let, KeyWord::Let),
-        (parse_in, KeyWord::In),
-        (parse_type, KeyWord::Type),
-        (parse_if, KeyWord::If),
-        (parse_then, KeyWord::Then),
-        (parse_else, KeyWord::Else),
-        (parse_match, KeyWord::Match),
-        (parse_with, KeyWord::With),
+pub fn parse_keyword(x: &str) -> Option<Keyword> {
+    let map: [(fn(&str) -> bool, Keyword); 8] = [
+        (parse_let, Keyword::Let),
+        (parse_in, Keyword::In),
+        (parse_type, Keyword::Type),
+        (parse_if, Keyword::If),
+        (parse_then, Keyword::Then),
+        (parse_else, Keyword::Else),
+        (parse_match, Keyword::Match),
+        (parse_with, Keyword::With),
     ];
     map.iter()
         .find(|kv| kv.0(x))
@@ -64,16 +64,16 @@ pub fn parse_keyword(x: &str) -> Option<KeyWord> {
 mod tests {
     #[test]
     fn test_parse_keyword() {
-        use crate::parser::keyword::{KeyWord, parse_keyword};
+        use crate::parser::keyword::{Keyword, parse_keyword};
 
-        assert_eq!(parse_keyword("let"), Some(KeyWord::Let));
-        assert_eq!(parse_keyword("in"), Some(KeyWord::In));
-        assert_eq!(parse_keyword("type"), Some(KeyWord::Type));
-        assert_eq!(parse_keyword("if"), Some(KeyWord::If));
-        assert_eq!(parse_keyword("then"), Some(KeyWord::Then));
-        assert_eq!(parse_keyword("else"), Some(KeyWord::Else));
-        assert_eq!(parse_keyword("match"), Some(KeyWord::Match));
-        assert_eq!(parse_keyword("with"), Some(KeyWord::With));
+        assert_eq!(parse_keyword("let"), Some(Keyword::Let));
+        assert_eq!(parse_keyword("in"), Some(Keyword::In));
+        assert_eq!(parse_keyword("type"), Some(Keyword::Type));
+        assert_eq!(parse_keyword("if"), Some(Keyword::If));
+        assert_eq!(parse_keyword("then"), Some(Keyword::Then));
+        assert_eq!(parse_keyword("else"), Some(Keyword::Else));
+        assert_eq!(parse_keyword("match"), Some(Keyword::Match));
+        assert_eq!(parse_keyword("with"), Some(Keyword::With));
 
         assert_eq!(parse_keyword("abc"), None);
     }

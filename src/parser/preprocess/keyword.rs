@@ -1,6 +1,6 @@
 use crate::parser::{VecExt, get_head_tail_follow};
 use crate::parser::char::parse_char;
-use crate::parser::keyword::KeyWord;
+use crate::parser::keyword::Keyword;
 
 #[derive(Clone)]
 #[derive(Debug)]
@@ -9,9 +9,9 @@ pub enum Either<L, R> {
     R(R),
 }
 
-fn reduce_stack(stack: Vec<Either<char, KeyWord>>, follow: Option<char>) -> Vec<Either<char, KeyWord>> {
+fn reduce_stack(stack: Vec<Either<char, Keyword>>, follow: Option<char>) -> Vec<Either<char, Keyword>> {
     use crate::parser::preprocess::keyword::Either::{*};
-    use crate::parser::keyword::KeyWord::{*};
+    use crate::parser::keyword::Keyword::{*};
 
     match (&stack[..], follow) {
         // !(Letter|Digit): "let" :Blank -> Let
@@ -62,7 +62,7 @@ fn reduce_stack(stack: Vec<Either<char, KeyWord>>, follow: Option<char>) -> Vec<
     }
 }
 
-fn go(stack: Vec<Either<char, KeyWord>>, tail: &str) -> Vec<Either<char, KeyWord>> {
+fn go(stack: Vec<Either<char, Keyword>>, tail: &str) -> Vec<Either<char, Keyword>> {
     let (head, tail, follow) = get_head_tail_follow(tail);
     let move_in = match head {
         Some(c) => Either::L(c),
@@ -74,9 +74,8 @@ fn go(stack: Vec<Either<char, KeyWord>>, tail: &str) -> Vec<Either<char, KeyWord
     go(reduced_stack, tail)
 }
 
-pub fn preprocess_keyword(seq: &str) -> Vec<Either<char, KeyWord>> {
+pub fn preprocess_keyword(seq: &str) -> Vec<Either<char, Keyword>> {
     let r = go(vec![], seq);
-    println!("Preprocessed: {:?}", r);
+    println!("Keyword pp out: {:?}", r);
     r
 }
-

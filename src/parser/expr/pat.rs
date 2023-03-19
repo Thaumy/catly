@@ -1,6 +1,6 @@
 use crate::parser::expr::Expr;
 use crate::parser::VecExt;
-use crate::parser::keyword::KeyWord;
+use crate::parser::keyword::Keyword;
 
 #[derive(Debug)]
 #[derive(Clone)]
@@ -71,17 +71,17 @@ impl Pat {
     }
 }
 
-impl From<KeyWord> for Pat {
-    fn from(kw: KeyWord) -> Self {
+impl From<Keyword> for Pat {
+    fn from(kw: Keyword) -> Self {
         match kw {
-            KeyWord::Let => Pat::KwLet,
-            KeyWord::In => Pat::KwIn,
-            KeyWord::Type => todo!(),
-            KeyWord::If => Pat::KwIf,
-            KeyWord::Then => Pat::KwThen,
-            KeyWord::Else => Pat::KwElse,
-            KeyWord::Match => Pat::KwMatch,
-            KeyWord::With => Pat::KwWith,
+            Keyword::Let => Pat::KwLet,
+            Keyword::In => Pat::KwIn,
+            Keyword::Type => todo!(),
+            Keyword::If => Pat::KwIf,
+            Keyword::Then => Pat::KwThen,
+            Keyword::Else => Pat::KwElse,
+            Keyword::Match => Pat::KwMatch,
+            Keyword::With => Pat::KwWith,
         }
     }
 }

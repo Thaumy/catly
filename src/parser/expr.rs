@@ -6,8 +6,9 @@ use crate::parser::char::{parse_char, parse_digit};
 use crate::parser::{VecExt, vec_get_head_tail_follow};
 use crate::parser::expr::follow_pat::{FollowPat, parse_follow_pat};
 use crate::parser::expr::pat::Pat;
-use crate::parser::keyword::{KeyWord};
+use crate::parser::keyword::{Keyword};
 use crate::parser::name::let_name::parse_let_name;
+use crate::parser::preprocess::comment::preprocess_comment;
 use crate::parser::preprocess::keyword::{Either, preprocess_keyword};
 use crate::parser::value::int::parse_int;
 
@@ -27,7 +28,7 @@ pub enum Expr {
     Let(String, Box<Expr>, Box<Expr>),
 }
 
-fn move_in(stack: &Vec<Pat>, head: Option<Either<char, KeyWord>>) -> Pat {
+fn move_in(stack: &Vec<Pat>, head: Option<Either<char, Keyword>>) -> Pat {
     match head {
         Some(Either::L(o)) => match (&stack[..], o) {
             // DigitSeq: [0-9] -> Digit
@@ -347,7 +348,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
         // Blank LetName Blank `=` Blank Expr Blank :KwIn -> Assign
         ([.., Pat::Blank,
         Pat::LetName(cs), Pat::Blank, Pat::Mark('='), Pat::Blank,
-        p, Pat::Blank], FollowPat::KeyWord(Pat::KwIn)
+        p, Pat::Blank], FollowPat::Keyword(Pat::KwIn)
         )
         if p.is_expr() => {
             let top = Pat::Assign(cs.clone(), Box::new(p.clone()));
@@ -399,7 +400,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
     reduce_stack(&reduced_stack, follow_pat)
 }
 
-fn go(stack: &Vec<Pat>, seq: Vec<Either<char, KeyWord>>) -> Pat {
+fn go(stack: &Vec<Pat>, seq: Vec<Either<char, Keyword>>) -> Pat {
     let (head, tail, follow) =
         vec_get_head_tail_follow(seq);
 
@@ -422,8 +423,9 @@ fn go(stack: &Vec<Pat>, seq: Vec<Either<char, KeyWord>>) -> Pat {
 
 pub fn parse_expr(seq: &str) -> Option<Expr> {
     println!("\nParsing seq: {:?}", seq);
-    let preprocessed = preprocess_keyword(seq);
-    Option::<Expr>::from(go(&vec![Pat::Start], preprocessed))
+    let seq = preprocess_comment(seq);
+    let seq = preprocess_keyword(&seq);
+    Option::<Expr>::from(go(&vec![Pat::Start], seq))
 }
 
 #[cfg(test)]
