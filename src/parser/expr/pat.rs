@@ -1,5 +1,5 @@
 use crate::parser::expr::Expr;
-use crate::parser::Ext;
+use crate::parser::VecExt;
 use crate::parser::keyword::KeyWord;
 
 #[derive(Debug)]
@@ -49,6 +49,7 @@ pub enum Pat {
 
     KwLet,
     KwIn,
+    Let(String, Box<Pat>, Box<Pat>),
 }
 
 impl Pat {
@@ -62,7 +63,8 @@ impl Pat {
             Pat::Closure(_, _) |
             Pat::Struct(_) |
             Pat::Discard |
-            Pat::Match(_, _)
+            Pat::Match(_, _) |
+            Pat::Let(_, _, _)
             => true,
             _ => false,
         }
@@ -151,6 +153,16 @@ impl From<Pat> for Option<Expr> {
                     _ => Expr::Unit
                 }
             }
+            Pat::Let(n, n_e, e) =>
+                match (Self::from(*n_e), Self::from(*e)) {
+                    (Some(n_e), Some(e)) =>
+                        Expr::Let(
+                            n,
+                            Box::new(n_e),
+                            Box::new(e),
+                        ),
+                    _ => return None
+                }
 
             _ => return None,
         };

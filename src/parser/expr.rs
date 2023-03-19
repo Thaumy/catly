@@ -2,12 +2,11 @@ mod follow_pat;
 mod pat;
 
 use std::{vec};
-use std::slice::Iter;
 use crate::parser::char::{parse_char, parse_digit};
-use crate::parser::{Ext, get_head_tail, get_head_tail_follow, vec_get_head_tail_follow};
+use crate::parser::{VecExt, vec_get_head_tail_follow};
 use crate::parser::expr::follow_pat::{FollowPat, parse_follow_pat};
 use crate::parser::expr::pat::Pat;
-use crate::parser::keyword::{KeyWord, parse_else, parse_if, parse_match, parse_then, parse_with};
+use crate::parser::keyword::{KeyWord};
 use crate::parser::name::let_name::parse_let_name;
 use crate::parser::preprocess::keyword::{Either, preprocess_keyword};
 use crate::parser::value::int::parse_int;
@@ -25,6 +24,7 @@ pub enum Expr {
     Struct(Vec<(String, Expr)>),
     Discard,
     Match(Box<Expr>, Vec<(Expr, Expr)>),
+    Let(String, Box<Expr>, Box<Expr>),
 }
 
 fn move_in(stack: &Vec<Pat>, head: Option<Either<char, KeyWord>>) -> Pat {
@@ -86,40 +86,8 @@ fn move_in(stack: &Vec<Pat>, head: Option<Either<char, KeyWord>>) -> Pat {
 
 fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
     let reduced_stack = match (&stack[..], follow_pat) {
-        // Success with Unit
-        ([Pat::Start, Pat::Unit, Pat::End], _) =>
-            return vec![Pat::Unit],
-        // Success with Int
-        ([Pat::Start, Pat::Int(i), Pat::End], _) =>
-            return vec![Pat::Int(*i)],
-        // Success with EnvRef
-        ([Pat::Start, Pat::LetName(n), Pat::End], _) =>
-            return vec![Pat::LetName(n.to_string())],
-        // Success with Apply
-        ([Pat::Start, Pat::Apply(lhs, rhs), Pat::End], _) =>
-            return vec![Pat::Apply(
-                lhs.clone(),
-                rhs.clone(),
-            )],
-        // Success with Cond
-        ([Pat::Start, Pat::Cond(a, b, c), Pat::End], _) =>
-            return vec![Pat::Cond(
-                a.clone(),
-                b.clone(),
-                c.clone(),
-            )],
-        // Success with Closure
-        ([Pat::Start, Pat::Closure(a, b), Pat::End], _) =>
-            return vec![Pat::Closure(
-                a.clone(),
-                b.clone(),
-            )],
-        // Success with Struct
-        ([Pat::Start, Pat::Struct(vec), Pat::End], _) =>
-            return vec![Pat::Struct(vec.clone())],
-        // Success with Match
-        ([Pat::Start, Pat::Match(e, vec), Pat::End], _) =>
-            return vec![Pat::Match(e.clone(), vec.clone())],
+        // Success
+        ([Pat::Start, p, Pat::End], FollowPat::End) => return vec![p.clone()],
 
         // `(` `)` -> Unit
         ([.., Pat::Mark('('), Pat::Mark(')')], _) =>
@@ -209,7 +177,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
                  (x -> y -> z) }
                  否则将无法归约 */
         ([.., Pat::ClosurePara(n), p], follow_pat)
-        if p.is_expr() && follow_pat.not_blank() => {
+        if follow_pat.not_blank() && p.is_expr() => {
             let top = Pat::Closure(
                 n.to_string(),
                 Box::new(p.clone()),
@@ -307,7 +275,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
         Pat::CaseHead(e), Pat::Blank,
         p  ], follow_pat
         )
-        if p.is_expr() && follow_pat.not_blank() => {
+        if follow_pat.not_blank() && p.is_expr() => {
             let top = Pat::Case(
                 e.clone(),
                 Box::new(p.clone()),
@@ -376,6 +344,45 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
             stack.reduce_to_new(3, top)
         }
 
+        // Blank LetName Blank `=` Blank Expr Blank :KwIn -> Assign
+        ([.., Pat::Blank,
+        Pat::LetName(cs), Pat::Blank, Pat::Mark('='), Pat::Blank,
+        p, Pat::Blank], FollowPat::KeyWord(Pat::KwIn)
+        )
+        if p.is_expr() => {
+            let top = Pat::Assign(cs.clone(), Box::new(p.clone()));
+            stack.reduce_to_new(7, top)
+        }
+        // KwLet AssignSeq KwIn Blank Expr :!Blank -> Let
+        ([.., Pat::KwLet,
+        Pat::AssignSeq(a_seq), Pat::KwIn, Pat::Blank,
+        p], follow_pat)
+        if follow_pat.not_blank() && p.is_expr() => {
+            type F = fn(Pat, &(String, Pat)) -> Pat;
+            let f: F = |acc, (n, e)| Pat::Let(
+                n.to_string(),
+                Box::new(e.clone()),
+                Box::new(acc),
+            );
+            let top = a_seq
+                .iter()
+                .rev()
+                .fold(p.clone(), f);
+            stack.reduce_to_new(5, top)
+        }
+        // KwLet Assign KwIn Blank Expr :!Blank -> Let
+        ([.., Pat::KwLet,
+        Pat::Assign(n, e), Pat::KwIn, Pat::Blank,
+        p], follow_pat)
+        if follow_pat.not_blank() && p.is_expr() => {
+            let top = Pat::Let(
+                n.to_string(),
+                Box::new(*e.clone()),
+                Box::new(p.clone()),
+            );
+            stack.reduce_to_new(5, top)
+        }
+
         // Can not parse
         ([.., Pat::Err], _) => return vec![Pat::Err],
         // Can not reduce
@@ -421,6 +428,7 @@ pub fn parse_expr(seq: &str) -> Option<Expr> {
 
 #[cfg(test)]
 mod tests {
+    use crate::parser::BoxExt;
     use crate::parser::expr::{Expr, parse_expr};
 
     #[test]
@@ -995,6 +1003,152 @@ mod tests {
                )))\
              )))";
 
+        assert_eq!(parse_expr(seq), r);
+    }
+
+    #[test]
+    fn test_parse_let_part1() {
+        let r = Some(Expr::Let(
+            "a".to_string(),
+            Box::new(Expr::Int(123)),
+            Box::new(Expr::Apply(
+                Box::new(Expr::Apply(
+                    Box::new(Expr::EnvRef("add".to_string())),
+                    Box::new(Expr::EnvRef("a".to_string())),
+                )),
+                Box::new(Expr::Int(456)),
+            )),
+        ));
+
+        let seq = "let a = 123 in add a 456";
+        assert_eq!(parse_expr(seq), r);
+        let seq = "(((let (((a))) = (((123))) in (((add a (((456)))))))))";
+        assert_eq!(parse_expr(seq), r);
+    }
+
+    #[test]
+    fn test_parse_let_part2() {
+        let r = Some(Expr::Let(
+            "a".to_string(),
+            Box::new(Expr::Int(123)),
+            Box::new(Expr::Let(
+                "b".to_string(),
+                Box::new(Expr::Apply(
+                    Box::new(Expr::Apply(
+                        Box::new(Expr::EnvRef("add".to_string())),
+                        Box::new(Expr::EnvRef("c".to_string())),
+                    )),
+                    Box::new(Expr::EnvRef("d".to_string())),
+                )),
+                Box::new(Expr::Apply(
+                    Box::new(Expr::Apply(
+                        Box::new(Expr::EnvRef("add".to_string())),
+                        Box::new(Expr::Unit),
+                    )),
+                    Box::new(Expr::Int(456)),
+                )),
+            )),
+        ));
+
+        let seq = "let a = 123, b = add c d in add () 456";
+        assert_eq!(parse_expr(seq), r);
+    }
+
+    #[test]
+    fn test_parse_let_part3() {
+        let r = Expr::Let(
+            "a".to_string(),
+            Expr::Int(123).boxed(),
+            Expr::Let(
+                "b".to_string(),
+                Expr::Let("x".to_string(),
+                          Expr::Closure(
+                              "i".to_string(),
+                              Expr::Closure(
+                                  "j".to_string(),
+                                  Expr::EnvRef("k".to_string()).boxed(),
+                              ).boxed(),
+                          ).boxed(),
+                          Expr::Let(
+                              "y".to_string(),
+                              Expr::EnvRef("a".to_string()).boxed(),
+                              Expr::Let(
+                                  "z".to_string(),
+                                  Expr::Unit.boxed(),
+                                  Expr::EnvRef("a".to_string()).boxed(),
+                              ).boxed(),
+                          ).boxed(),
+                ).boxed(),
+                Expr::Let(
+                    "d".to_string(),
+                    Expr::Apply(
+                        Expr::EnvRef("neg".to_string()).boxed(),
+                        Expr::Int(1).boxed(),
+                    ).boxed(),
+                    Expr::Let(
+                        "e".to_string(),
+                        Expr::Int(6).boxed(),
+                        Expr::Let(
+                            "k".to_string(),
+                            Expr::Unit.boxed(),
+                            Expr::Let(
+                                "m".to_string(),
+                                Expr::Unit.boxed(),
+                                Expr::Let(
+                                    "n".to_string(),
+                                    Expr::Int(4).boxed(),
+                                    Expr::Apply(
+                                        Expr::Apply(
+                                            Expr::EnvRef("add".to_string()).boxed(),
+                                            Expr::Unit.boxed(),
+                                        ).boxed(),
+                                        Expr::Int(456).boxed(),
+                                    ).boxed(),
+                                ).boxed(),
+                            ).boxed(),
+                        ).boxed(),
+                    ).boxed(),
+                ).boxed(),
+            ).boxed(),
+        );
+        let r = Some(r);
+
+        let seq =
+            "let a = 123, \
+                 b = \
+                 let x = i -> j -> k, \
+                     y = a \
+                 in let z = () in a, \
+                 d = neg 1 \
+             in \
+             let e = 6, k = () in \
+             let m = (), n = 4 in \
+             add () 456";
+        assert_eq!(parse_expr(seq), r);
+        let seq =
+            "let a = (((123))), \
+                 b = \
+                 (((\
+                     let x = ((((((i))) -> ((((((j))) -> (((k))))))))), \
+                         y = (((a))) \
+                     in (((\
+                        let (((z))) = (((()))) in (((a)))\
+                        )))\
+                 ))), \
+                 (((d))) = \
+                     (((\
+                         (((neg))) (((1)))\
+                     ))) \
+             in \
+             (((\
+             let (((e))) = (((6))), (((k))) = (((()))) in \
+                 (((\
+                 let (((m))) = (((()))), (((n))) = (((4))) in \
+                     (((\
+                     add () (((456)))\
+                     )))\
+                 )))\
+             )))";
         assert_eq!(parse_expr(seq), r);
     }
 }

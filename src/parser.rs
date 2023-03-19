@@ -1,5 +1,3 @@
-use std::slice::Iter;
-
 mod char;
 mod keyword;
 mod mark;
@@ -37,12 +35,12 @@ pub fn get_head_tail_follow(seq: &str) -> (Option<char>, &str, Option<char>) {
     (head, tail, follow)
 }
 
-pub trait Ext<T> {
+pub trait VecExt<T> {
     fn reduce_to_new(&self, cost: u8, item: T) -> Vec<T>;
     fn push_to_new(&self, item: T) -> Vec<T>;
 }
 
-impl<T> Ext<T> for Vec<T> where T: Clone {
+impl<T> VecExt<T> for Vec<T> where T: Clone {
     fn reduce_to_new(&self, cost: u8, item: T) -> Vec<T> {
         let mut b = self.clone();
         for _ in 0..cost {
@@ -57,3 +55,11 @@ impl<T> Ext<T> for Vec<T> where T: Clone {
         b
     }
 }
+
+pub trait BoxExt<T> {
+    fn boxed(self) -> Box<Self> where Self: Sized {
+        Box::new(self)
+    }
+}
+
+impl<T> BoxExt<T> for T where T: Sized {}
