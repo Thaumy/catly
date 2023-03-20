@@ -14,8 +14,8 @@ fn reduce_stack(stack: Vec<Either<char, Keyword>>, follow: Option<char>) -> Vec<
         // Start: "let" :Blank -> Let
         ([L('l'), L('e'), L('t')], Some(' ')) => vec![R(Let)],
 
-        // Blank: "in" :Blank -> In
-        ([.., L(' '), L('i'), L('n') ], Some(' ')) =>
+        // Blank|`,`: "in" :Blank -> In
+        ([.., L(' ' | ','), L('i'), L('n') ], Some(' ')) =>
             stack.reduce_to_new(2, R(In)),
 
         // !(Letter|Digit): "type" :Blank -> Type

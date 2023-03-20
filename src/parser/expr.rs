@@ -781,7 +781,11 @@ mod tests {
         ]));
         let seq = "{ a = 123, ab = ref, abc = () }";
         assert_eq!(parse_expr(seq), r);
+        let seq = "{ a = 123, ab = ref, abc = (),}";
+        assert_eq!(parse_expr(seq), r);
         let seq = "(({ a = (((123))), ab = (((ref))), abc = ((())) }))";
+        assert_eq!(parse_expr(seq), r);
+        let seq = "(({ a = (((123))), ab = (((ref))), abc = ((())),}))";
         assert_eq!(parse_expr(seq), r);
     }
 
@@ -1027,7 +1031,11 @@ mod tests {
 
         let seq = "let a = 123 in add a 456";
         assert_eq!(parse_expr(seq), r);
+        let seq = "let a = 123,in add a 456";
+        assert_eq!(parse_expr(seq), r);
         let seq = "(((let (((a))) = (((123))) in (((add a (((456)))))))))";
+        assert_eq!(parse_expr(seq), r);
+        let seq = "(((let (((a))) = (((123))),in (((add a (((456)))))))))";
         assert_eq!(parse_expr(seq), r);
     }
 
