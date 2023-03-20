@@ -112,9 +112,12 @@ impl From<Pat> for Option<Expr> {
                         ),
                     _ => return None
                 }
-            Pat::Closure(a, b) =>
-                match Self::from(*b) {
-                    Some(b) => Expr::Closure(a, Box::new(b)),
+            Pat::Closure(para, e) =>
+                match Self::from(*e) {
+                    Some(e) => Expr::Closure(
+                        para,
+                        Box::new(e),
+                    ),
                     _ => return None
                 }
             Pat::Struct(vec) => {
@@ -169,4 +172,3 @@ impl From<Pat> for Option<Expr> {
         Some(r)
     }
 }
-

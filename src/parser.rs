@@ -5,6 +5,8 @@ mod value;
 mod name;
 mod expr;
 mod preprocess;
+mod define;
+mod r#type;
 
 #[derive(Clone)]
 #[derive(Debug)]
