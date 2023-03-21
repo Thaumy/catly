@@ -1,6 +1,6 @@
+use crate::parser::{BoxExt, VecExt};
 use crate::parser::expr::Expr;
 use crate::parser::keyword::Keyword;
-use crate::parser::VecExt;
 
 #[derive(Debug)]
 #[derive(Clone)]
@@ -97,8 +97,8 @@ impl From<Pat> for Option<Expr> {
                 match (Self::from(*l), Self::from(*r)) {
                     (Some(l), Some(r)) =>
                         Expr::Apply(
-                            Box::new(l),
-                            Box::new(r),
+                            l.boxed(),
+                            r.boxed(),
                         ),
                     _ => return None
                 }
@@ -106,9 +106,9 @@ impl From<Pat> for Option<Expr> {
                 match (Self::from(*a), Self::from(*b), Self::from(*c)) {
                     (Some(a), Some(b), Some(c)) =>
                         Expr::Cond(
-                            Box::new(a),
-                            Box::new(b),
-                            Box::new(c),
+                            a.boxed(),
+                            b.boxed(),
+                            c.boxed(),
                         ),
                     _ => return None
                 }
@@ -116,7 +116,7 @@ impl From<Pat> for Option<Expr> {
                 match Self::from(*e) {
                     Some(e) => Expr::Closure(
                         para,
-                        Box::new(e),
+                        e.boxed(),
                     ),
                     _ => return None
                 }
@@ -150,7 +150,7 @@ impl From<Pat> for Option<Expr> {
                 match (Self::from(*p), vec) {
                     (Some(p), Some(vec)) =>
                         Expr::Match(
-                            Box::new(p),
+                            p.boxed(),
                             vec,
                         ),
                     _ => Expr::Unit
@@ -161,8 +161,8 @@ impl From<Pat> for Option<Expr> {
                     (Some(n_e), Some(e)) =>
                         Expr::Let(
                             n,
-                            Box::new(n_e),
-                            Box::new(e),
+                            n_e.boxed(),
+                            e.boxed(),
                         ),
                     _ => return None
                 }

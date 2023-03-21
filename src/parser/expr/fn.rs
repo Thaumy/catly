@@ -1,4 +1,4 @@
-use crate::parser::{Either, vec_get_head_tail_follow, VecExt};
+use crate::parser::{BoxExt, Either, vec_get_head_tail_follow, VecExt};
 use crate::parser::char::{parse_char, parse_digit};
 use crate::parser::expr::follow_pat::{FollowPat, parse_follow_pat};
 use crate::parser::expr::pat::Pat;
@@ -84,9 +84,9 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
         ], _)
         if a.is_expr() && b.is_expr() && c.is_expr() =>
             stack.reduce_to_new(11, Pat::Cond(
-                Box::new(a.clone()),
-                Box::new(b.clone()),
-                Box::new(c.clone()),
+                a.clone().boxed(),
+                b.clone().boxed(),
+                c.clone().boxed(),
             )),
 
         // DigitSeq Digit -> DigitSeq
@@ -159,27 +159,30 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
         if follow_pat.not_blank() && p.is_expr() => {
             let top = Pat::Closure(
                 n.to_string(),
-                Box::new(p.clone()),
+                p.clone().boxed(),
             );
             stack.reduce_to_new(2, top)
         }
 
         // Blank LetName Blank `=` Blank Expr `,` -> Assign
         ([.., Pat::Blank,
-        Pat::LetName(cs), Pat::Blank, Pat::Mark('='), Pat::Blank,
+        Pat::LetName(n), Pat::Blank, Pat::Mark('='), Pat::Blank,
         p, Pat::Mark(',')], _
         )
         if p.is_expr() => {
-            let top = Pat::Assign(cs.clone(), Box::new(p.clone()));
+            let top = Pat::Assign(n.clone(), p.clone().boxed());
             stack.reduce_to_new(7, top)
         }
         // Blank LetName Blank `=` Blank Expr Blank :`}`-> Assign
         ([.., Pat::Blank,
-        Pat::LetName(cs), Pat::Blank, Pat::Mark('='), Pat::Blank,
+        Pat::LetName(n), Pat::Blank, Pat::Mark('='), Pat::Blank,
         p, Pat::Blank], FollowPat::Mark('}')
         )
         if p.is_expr() => {
-            let top = Pat::Assign(cs.clone(), Box::new(p.clone()));
+            let top = Pat::Assign(
+                n.clone(),
+                p.clone().boxed(),
+            );
             stack.reduce_to_new(7, top)
         }
         // Assign Assign -> AssignSeq
@@ -225,7 +228,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
         // KwMatch Blank Expr Blank KwWith -> MatchHead
         ([.., Pat::KwMatch, Pat::Blank, p, Pat::Blank, Pat::KwWith], _)
         if p.is_expr() => {
-            let top = Pat::MatchHead(Box::new(p.clone()));
+            let top = Pat::MatchHead(p.clone().boxed());
             stack.reduce_to_new(5, top)
         }
         // `|` Blank Expr Blank Arrow -> CaseHead
@@ -234,7 +237,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
         p, Pat::Blank, Pat::Arrow], _
         )
         if p.is_expr() => {
-            let top = Pat::CaseHead(Box::new(p.clone()));
+            let top = Pat::CaseHead(p.clone().boxed());
             stack.reduce_to_new(5, top)
         }
         // CaseHead Blank Expr Blank :VerticalBar -> Case
@@ -245,7 +248,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
         if p.is_expr() => {
             let top = Pat::Case(
                 e.clone(),
-                Box::new(p.clone()),
+                p.clone().boxed(),
             );
             stack.reduce_to_new(4, top)
         }
@@ -257,7 +260,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
         if follow_pat.not_blank() && p.is_expr() => {
             let top = Pat::Case(
                 e.clone(),
-                Box::new(p.clone()),
+                p.clone().boxed(),
             );
             stack.reduce_to_new(3, top)
         }
@@ -317,19 +320,22 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
         ([.., lhs, Pat::Blank, rhs], _)
         if lhs.is_expr() && rhs.is_expr() => {
             let top = Pat::Apply(
-                Box::new(lhs.clone()),
-                Box::new(rhs.clone()),
+                lhs.clone().boxed(),
+                rhs.clone().boxed(),
             );
             stack.reduce_to_new(3, top)
         }
 
         // Blank LetName Blank `=` Blank Expr Blank :KwIn -> Assign
         ([.., Pat::Blank,
-        Pat::LetName(cs), Pat::Blank, Pat::Mark('='), Pat::Blank,
+        Pat::LetName(n), Pat::Blank, Pat::Mark('='), Pat::Blank,
         p, Pat::Blank], FollowPat::Keyword(Keyword::In)
         )
         if p.is_expr() => {
-            let top = Pat::Assign(cs.clone(), Box::new(p.clone()));
+            let top = Pat::Assign(
+                n.clone(),
+                p.clone().boxed(),
+            );
             stack.reduce_to_new(7, top)
         }
         // KwLet AssignSeq KwIn Blank Expr :!Blank -> Let
@@ -340,8 +346,8 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
             type F = fn(Pat, &(String, Pat)) -> Pat;
             let f: F = |acc, (n, e)| Pat::Let(
                 n.to_string(),
-                Box::new(e.clone()),
-                Box::new(acc),
+                e.clone().boxed(),
+                acc.boxed(),
             );
             let top = a_seq
                 .iter()
@@ -356,8 +362,8 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
         if follow_pat.not_blank() && p.is_expr() => {
             let top = Pat::Let(
                 n.to_string(),
-                Box::new(*e.clone()),
-                Box::new(p.clone()),
+                *e.clone().boxed(),
+                p.clone().boxed(),
             );
             stack.reduce_to_new(5, top)
         }

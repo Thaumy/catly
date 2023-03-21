@@ -1,6 +1,7 @@
 use std::collections::BTreeSet;
+
+use crate::parser::{BoxExt, VecExt};
 use crate::parser::r#type::Type;
-use crate::parser::VecExt;
 
 #[derive(Debug)]
 #[derive(Clone)]
@@ -71,8 +72,8 @@ impl From<Pat> for Option<Type> {
                 match (Self::from(*lhs), Self::from(*rhs)) {
                     (Some(lhs), Some(rhs)) =>
                         Type::TypeApply(
-                            Box::new(lhs),
-                            Box::new(rhs),
+                            lhs.boxed(),
+                            rhs.boxed(),
                         ),
                     _ => return None
                 }
@@ -81,7 +82,7 @@ impl From<Pat> for Option<Type> {
                 match Self::from(*t) {
                     Some(t) => Type::TypeClosure(
                         para,
-                        Box::new(t),
+                        t.boxed(),
                     ),
                     _ => return None
                 },

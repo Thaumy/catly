@@ -10,6 +10,7 @@
     ProductType(Vec<(String, Type)>),
 */
 use std::collections::BTreeSet;
+
 use crate::parser::BoxExt;
 use crate::parser::r#type::{parse_type, Type};
 

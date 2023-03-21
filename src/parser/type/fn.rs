@@ -1,10 +1,11 @@
-use std::collections::{BTreeSet};
-use crate::parser::char::{parse_char};
+use std::collections::BTreeSet;
+
+use crate::parser::{BoxExt, get_head_tail_follow, VecExt};
+use crate::parser::char::parse_char;
 use crate::parser::name::let_name::parse_let_name;
 use crate::parser::name::type_name::parse_type_name;
 use crate::parser::r#type::follow_pat::{FollowPat, parse_follow_pat};
 use crate::parser::r#type::pat::Pat;
-use crate::parser::{get_head_tail_follow, VecExt};
 
 fn move_in(stack: &Vec<Pat>, head: Option<char>) -> Pat {
     match head {
@@ -111,8 +112,8 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
         ([.., lhs, Pat::Blank, rhs], _)
         if lhs.is_type() && rhs.is_type() => {
             let top = Pat::TypeApply(
-                Box::new(lhs.clone()),
-                Box::new(rhs.clone()),
+                lhs.clone().boxed(),
+                rhs.clone().boxed(),
             );
             stack.reduce_to_new(3, top)
         }
@@ -130,7 +131,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
         if follow_pat.not_blank() && p.is_type() => {
             let top = Pat::TypeClosure(
                 n.to_string(),
-                Box::new(p.clone()),
+                p.clone().boxed(),
             );
             stack.reduce_to_new(2, top)
         }
@@ -193,7 +194,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
         if p.is_type() => {
             let top = Pat::LetNameWithType(
                 n.to_string(),
-                Box::new(p.clone()),
+                p.clone().boxed(),
             );
             stack.reduce_to_new(6, top)
         }
@@ -206,7 +207,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
         if p.is_type() => {
             let top = Pat::LetNameWithType(
                 n.to_string(),
-                Box::new(p.clone()),
+                p.clone().boxed(),
             );
             stack.reduce_to_new(6, top)
         }
