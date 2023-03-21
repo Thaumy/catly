@@ -1,10 +1,11 @@
+use std::collections::BTreeSet;
 use crate::parser::r#type::Type;
 use crate::parser::VecExt;
 
 #[derive(Debug)]
 #[derive(Clone)]
-#[derive(PartialEq)]
-#[allow(dead_code)]
+#[derive(PartialEq, Eq)]
+#[derive(PartialOrd, Ord)]
 pub enum Pat {
     Start,
     End,
@@ -34,7 +35,7 @@ pub enum Pat {
     TypeClosurePara(String),
     TypeClosure(String, Box<Pat>),//Type::TypeClosure
 
-    SumType(Vec<Pat>),//Type::SumType
+    SumType(BTreeSet<Pat>),//Type::SumType
 
     LetName(String),
     LetNameWithType(String, Box<Pat>),
@@ -85,17 +86,19 @@ impl From<Pat> for Option<Type> {
                     _ => return None
                 },
             Pat::SumType(ts) => {
-                type F = fn(Option<Vec<Type>>, &Pat) -> Option<Vec<Type>>;
+                type F = fn(Option<BTreeSet<Type>>, &Pat) -> Option<BTreeSet<Type>>;
                 let f: F = |acc, t|
                     match (acc, Self::from(t.clone())) {
-                        (Some(ts), Some(t)) =>
-                            Some(ts.push_to_new(t)),
+                        (Some(mut ts), Some(t)) => {
+                            ts.insert(t);
+                            Some(ts)
+                        }
                         _ => None,
                     };
-                let vec = ts.iter().fold(Some(vec![]), f);
+                let set = ts.iter().fold(Some(BTreeSet::new()), f);
 
-                match vec {
-                    Some(vec) => Type::SumType(vec),
+                match set {
+                    Some(set) => Type::SumType(set),
                     _ => return None,
                 }
             }
@@ -115,7 +118,7 @@ impl From<Pat> for Option<Type> {
                     _ => return None,
                 }
             }
-            _ => Type::DiscardType,
+            _ => return None
         };
         Some(r)
     }

@@ -1,3 +1,4 @@
+use std::collections::{BTreeSet};
 use crate::parser::char::{parse_char};
 use crate::parser::name::let_name::parse_let_name;
 use crate::parser::name::type_name::parse_type_name;
@@ -116,10 +117,13 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
             stack.reduce_to_new(3, top)
         }
 
-        // TypeName Arrow -> TypeClosurePara
-        ([.., Pat::TypeName(n), Pat::Arrow], _) => {
+        // `-` `>` -> Arrow
+        ([.., Pat::Mark('-'), Pat::Mark('>')], _) =>
+            stack.reduce_to_new(2, Pat::Arrow),
+        // TypeName Blank Arrow Blank -> TypeClosurePara
+        ([.., Pat::TypeName(n), Pat::Blank, Pat::Arrow, Pat::Blank], _) => {
             let top = Pat::TypeClosurePara(n.to_string());
-            stack.reduce_to_new(2, top)
+            stack.reduce_to_new(4, top)
         }
         // TypeClosurePara Type -> TypeClosure
         ([.., Pat::TypeClosurePara(n), p], follow_pat)
@@ -131,23 +135,53 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
             stack.reduce_to_new(2, top)
         }
 
+        // SumType Blank `|` Blank SumType -> SumType
+        ([..,
+        Pat::SumType(l), Pat::Blank, Pat::Mark('|'), Pat::Blank,
+        Pat::SumType(r)], _
+        ) => {
+            let mut set = BTreeSet::new();
+            set.extend(l.clone());
+            set.extend(r.clone());
+
+            let top = Pat::SumType(set);
+            stack.reduce_to_new(5, top)
+        }
+        // Type Blank `|` Blank SumType -> SumType
+        ([..,
+        p, Pat::Blank, Pat::Mark('|'), Pat::Blank,
+        Pat::SumType(vec)], _
+        )
+        if p.is_type() => {
+            let mut set = BTreeSet::new();
+            set.extend(vec.clone());
+            set.insert(p.clone());
+
+            let top = Pat::SumType(set);
+            stack.reduce_to_new(5, top)
+        }
         // SumType Blank `|` Blank Type -> SumType
         ([..,
         Pat::SumType(vec), Pat::Blank, Pat::Mark('|'), Pat::Blank,
         p], _
         )
         if p.is_type() => {
-            let top = Pat::SumType(vec.push_to_new(p.clone()));
-            stack.reduce_to_new(2, top)
+            let mut set = BTreeSet::new();
+            set.extend(vec.clone());
+            set.insert(p.clone());
+
+            let top = Pat::SumType(set);
+            stack.reduce_to_new(5, top)
         }
         // Type Blank `|` Blank Type -> SumType
         ([.., a, Pat::Blank, Pat::Mark('|'), Pat::Blank, b], _)
         if a.is_type() && b.is_type() => {
-            let top = Pat::SumType(vec![
-                a.clone(),
-                b.clone(),
-            ]);
-            stack.reduce_to_new(2, top)
+            let mut set = BTreeSet::new();
+            set.insert(a.clone());
+            set.insert(b.clone());
+
+            let top = Pat::SumType(set);
+            stack.reduce_to_new(5, top)
         }
 
         // Blank LetName `:` Blank Type `,` -> LetNameWithType
