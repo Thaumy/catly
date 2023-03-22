@@ -103,7 +103,7 @@ let a = 1, b = 2,in ()
 
 If 表达式
 
-`if` `then` `else` 关键字用于构造 If 表达式。
+关键字 `if` `then` `else` 用于构造 If 表达式。
 
 `eq` 是 Catly 中的内置函数，用于判断两个值的相等性。当两个值在类型和值上均相等时，`eq` 返回真。否则，`eq` 返回假。
 
@@ -112,7 +112,7 @@ If 表达式
 if eq 1 2 then 3 else 4
 ```
 
-有关布尔类型的讨论参见 Alegbraic data type 部分。
+有关布尔类型的讨论参见 Type definition 部分。
 
 ### Lambda expression
 
@@ -143,9 +143,9 @@ a -> (b -> (add a) b)
 
 ### Struture
 
-结构体
+结构
 
-结构体是一组名和值的集合。
+结构是一组名和值的集合。
 
 ```Catly
 { a = 1 }
@@ -165,13 +165,13 @@ a -> (b -> (add a) b)
 
 模式匹配
 
-`match` `with` 关键字用于构造模式匹配，模式匹配顺序地匹配模式和解构类型，首个符合匹配的模式的表达式将被求值。  
+关键字 `match` `with` 用于构造模式匹配，模式匹配顺序地匹配模式和解构类型，首个符合匹配的模式的表达式将被求值。  
 
 模式匹配在 Catly 中是表达式。
 
 使用模式匹配来匹配值：
 
-```
+```Catly
 match x with
 | 1 -> add x 1 
 | 2 -> 1 
@@ -188,7 +188,7 @@ match x with
 
 模式匹配还被用作解构类型：
 
-```
+```Catly
 match x with
 | { a = 1, b = 1 } -> a 
 | { a = 2, b = 2 } -> b 
@@ -200,4 +200,120 @@ match x with
 上述代码中的模式 `y` 并非是对某个值的引用，当没有模式与前三种情况匹配时，`y` 模式将被匹配，`y` 将在随附的表达式 `add y 1` 中被绑定为 `x` 的值。
 
 当没有模式符合匹配时，求值将发生异常。
+
+### Top-level expression definition
+
+顶层表达式定义
+
+关键字 `def` 用于在顶层对表达式和名进行绑定，这种绑定的作用域是跟随其的整个代码序列。
+
+例如：
+
+```Catly
+def a = 1
+def f = x -> y -> add x y
+```
+
+这些名可以在绑定完成的那一刻起在后续环境中可用。
+
+main 函数是 Catly 的入口点，它也是一种顶层定义：
+
+```Catly
+def main = x -> 1
+```
+
+顶层定义不能被嵌套在任何已有的定义之中，这意味着这些定义只能出现在整个抽象语法树的最上层。如下的定义是非法的：
+
+```Catly
+# This code is illegal!!!
+def i =
+  def j = 1
+  j
+```
+
+### Type definition
+
+类型定义
+
+关键字 `type` 用于定义新的类型。同顶层表达式定义一样，类型定义也是顶层定义。
+
+创建一个新的 A 类型，它是基本类型 Unit 的包装：
+
+```
+type A = Unit
+```
+
+构造 A 类型值的方式与构造 Unit 值的方式相同，但 A 与 Unit 并不通用。为了正确构造类型为 A 的值，需要使用类型标注：
+
+```Catly
+def newA = (): A
+```
+
+同样可以基于结构类型定义新的类型：
+
+```Catly
+type IntPair = { l: Int, r: Int }
+def newIntPair: IntPair = l -> r -> { l = l, r = r }
+```
+
+结构类型在 Catly 中被视作**积类型**，Catly 还支持及**和类型**，和类型是几种类型之一的类型，例如：
+
+```Catly
+type IntOrUnit = Int | Unit
+def newIntOrUnit: IntOrUnit = i -> if eq i 0 then 1 else ()
+```
+
+对和类型的结构可使用模式匹配：
+
+```Catly
+match x: IntOrUnit with
+| i: Int -> 1
+| u: Unit -> 0
+```
+
+积类型和和类型共同组成了 Catly 的代数数据类型系统。
+
+Catly 内置了用于 If 表达式的布尔类型：
+
+```Catly
+type True = Unit
+def true = (): True
+type False = Unit
+def false = (): False
+type Bool = True | False
+```
+
+### Type constructor
+
+类型构造器
+
+类型构造器其实是类型定义的一部分，它允许用一种类型去构造另一种类型。
+
+例如，可用如下方式构造列表：
+
+```
+type Cons = H -> T -> { head: H, tail: T }
+def newCons = h: H -> t: T -> { head = h, tail = t }: Cons H T
+type EmptyList = Unit
+def newEmptyList = (): EmptyList
+type List = T -> (Cons T (List T)) | EmptyList
+
+def listFor123: List Int = newCons 1 (newCons 2 (newCons 3 newEmptyList))
+```
+
+### Built-in function
+
+内置函数
+
+Catly 的内置函数用于提供不可分割的基本算术操作，不同的内置函数拥有不同的求值策略。
+
+| 函数名 |  作用  | 求值策略 |
+| :----: | :----: | :------: |
+|  add   |  求和  |   立即   |
+|  neg   |  取负  |   立即   |
+|  mul   |  求积  |   惰性   |
+|  mod   |  取模  |   惰性   |
+|  and   | 逻辑与 |   惰性   |
+|   or   | 逻辑或 |   惰性   |
+|   eq   |  判等  |   惰性   |
 
