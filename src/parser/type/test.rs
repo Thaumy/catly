@@ -1,6 +1,6 @@
 use std::collections::BTreeSet;
 
-use crate::parser::BoxExt;
+use crate::parser::infra::BoxExt;
 use crate::parser::preprocess::blank::preprocess_blank;
 use crate::parser::preprocess::comment::preprocess_comment;
 use crate::parser::preprocess::keyword::preprocess_keyword;

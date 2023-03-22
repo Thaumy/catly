@@ -1,13 +1,12 @@
 use std::collections::BTreeSet;
 
-use crate::parser::Either;
+use crate::parser::infra::Either;
 use crate::parser::keyword::Keyword;
 use crate::parser::r#type::pat::Pat;
 use crate::parser::r#type::r#fn::go;
 
 mod pat;
 mod r#fn;
-mod follow_pat;
 
 // TODO
 #[derive(Debug)]

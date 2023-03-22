@@ -1,11 +1,11 @@
 use std::collections::BTreeSet;
 
-use crate::parser::{BoxExt, Either, vec_get_head_tail_follow, VecExt};
 use crate::parser::char::parse_char;
+use crate::parser::follow_pat::{FollowPat, parse_follow_pat};
+use crate::parser::infra::{BoxExt, Either, vec_get_head_tail_follow, VecExt};
 use crate::parser::keyword::Keyword;
 use crate::parser::name::let_name::parse_let_name;
 use crate::parser::name::type_name::parse_type_name;
-use crate::parser::r#type::follow_pat::{FollowPat, parse_follow_pat};
 use crate::parser::r#type::pat::Pat;
 
 fn move_in(stack: &Vec<Pat>, head: Option<Either<char, Keyword>>) -> Pat {

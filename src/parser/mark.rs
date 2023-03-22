@@ -11,73 +11,60 @@ pub enum Mark {
     LeftCurlyBracket,
     RightCurlyBracket,
     Colon,
-    Asterisk,
+    Star,
     Comma,
     VerticalBar,
     Equal,
 }
 
-#[allow(dead_code)]
 pub fn parse_underline(x: &char) -> bool {
     x == &'_'
 }
 
-#[allow(dead_code)]
 pub fn parse_blank(x: &char) -> bool {
     x == &' '
 }
 
-#[allow(dead_code)]
 pub fn parse_l_par(x: &char) -> bool {
     x == &'('
 }
 
-#[allow(dead_code)]
 pub fn parse_r_par(x: &char) -> bool {
     x == &')'
 }
 
-#[allow(dead_code)]
 pub fn parse_l_curly_bracket(x: &char) -> bool {
     x == &'{'
 }
 
-#[allow(dead_code)]
 pub fn parse_r_curly_bracket(x: &char) -> bool {
     x == &'}'
 }
 
-#[allow(dead_code)]
 pub fn parse_colon(x: &char) -> bool {
     x == &':'
 }
 
-#[allow(dead_code)]
-pub fn parse_asterisk(x: &char) -> bool {
+pub fn parse_star(x: &char) -> bool {
     x == &'*'
 }
 
-#[allow(dead_code)]
 pub fn parse_comma(x: &char) -> bool {
     x == &','
 }
 
-#[allow(dead_code)]
 pub fn parse_vertical_bar(x: &char) -> bool {
     x == &'|'
 }
 
-#[allow(dead_code)]
 pub fn parse_equal(x: &char) -> bool {
     x == &'='
 }
 
-#[allow(dead_code)]
 pub fn parse_dash(x: &char) -> bool {
     x == &'-'
 }
 
-#[allow(dead_code)]
 pub fn parse_r_angle_bracket(x: &char) -> bool {
     x == &'>'
 }
@@ -91,7 +78,7 @@ pub fn parse_mark(x: &char) -> Option<Mark> {
         '{' => Mark::LeftCurlyBracket,
         '}' => Mark::RightCurlyBracket,
         ':' => Mark::Colon,
-        '*' => Mark::Asterisk,
+        '*' => Mark::Star,
         ',' => Mark::Comma,
         '|' => Mark::VerticalBar,
         '=' => Mark::Equal,
@@ -104,8 +91,41 @@ pub fn parse_mark(x: &char) -> Option<Mark> {
 
 #[cfg(test)]
 mod tests {
+    use crate::parser::mark::{*};
+
     #[test]
-    fn test_parse_mark() {
+    fn test_parse_mark_part1() {
+        assert!(parse_underline(&'_'));
+        assert!(parse_blank(&' '));
+        assert!(parse_l_par(&'('));
+        assert!(parse_r_par(&')'));
+        assert!(parse_l_curly_bracket(&'{'));
+        assert!(parse_r_curly_bracket(&'}'));
+        assert!(parse_colon(&':'));
+        assert!(parse_star(&'*'));
+        assert!(parse_comma(&','));
+        assert!(parse_vertical_bar(&'|'));
+        assert!(parse_equal(&'='));
+        assert!(parse_dash(&'-'));
+        assert!(parse_r_angle_bracket(&'>'));
+
+        assert!(!parse_underline(&'a'));
+        assert!(!parse_blank(&'a'));
+        assert!(!parse_l_par(&'a'));
+        assert!(!parse_r_par(&'a'));
+        assert!(!parse_l_curly_bracket(&'a'));
+        assert!(!parse_r_curly_bracket(&'a'));
+        assert!(!parse_colon(&'a'));
+        assert!(!parse_star(&'a'));
+        assert!(!parse_comma(&'a'));
+        assert!(!parse_vertical_bar(&'a'));
+        assert!(!parse_equal(&'a'));
+        assert!(!parse_dash(&'a'));
+        assert!(!parse_r_angle_bracket(&'a'));
+    }
+
+    #[test]
+    fn test_parse_mark_part2() {
         use crate::parser::mark::{Mark, parse_mark};
 
         assert_eq!(parse_mark(&'_'), Some(Mark::Underline));
@@ -115,6 +135,7 @@ mod tests {
         assert_eq!(parse_mark(&'{'), Some(Mark::LeftCurlyBracket));
         assert_eq!(parse_mark(&'}'), Some(Mark::RightCurlyBracket));
         assert_eq!(parse_mark(&':'), Some(Mark::Colon));
+        assert_eq!(parse_mark(&'*'), Some(Mark::Star));
         assert_eq!(parse_mark(&','), Some(Mark::Comma));
         assert_eq!(parse_mark(&'|'), Some(Mark::VerticalBar));
         assert_eq!(parse_mark(&'='), Some(Mark::Equal));

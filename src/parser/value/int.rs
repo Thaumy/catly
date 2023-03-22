@@ -1,4 +1,4 @@
-use crate::parser::get_head_tail;
+use crate::parser::infra::str_get_head_tail;
 
 #[derive(Copy)]
 #[derive(Debug)]
@@ -15,7 +15,7 @@ enum Pat {
 
 //TODO: handle int overflow
 fn go(stack: Vec<Pat>, seq: &str) -> Option<i64> {
-    let (head, tail) = get_head_tail(seq);
+    let (head, tail) = str_get_head_tail(seq);
 
     let move_in = match head {
         // _ -> Digit|Err

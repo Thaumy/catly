@@ -1,5 +1,5 @@
 use crate::parser::char::{parse_char, parse_upper};
-use crate::parser::get_head_tail;
+use crate::parser::infra::str_get_head_tail;
 
 #[derive(Debug)]
 #[derive(Clone)]
@@ -15,7 +15,7 @@ enum Pat {
 }
 
 fn go(stack: &Pat, seq: &str) -> Option<String> {
-    let (head, tail) = get_head_tail(seq);
+    let (head, tail) = str_get_head_tail(seq);
 
     let move_in = match (stack, head) {
         // TypeName: [0-9a-zA-Z] -> Char

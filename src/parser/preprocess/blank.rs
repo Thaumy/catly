@@ -1,4 +1,4 @@
-use crate::parser::{Either, get_head_tail, VecExt};
+use crate::parser::infra::{Either, str_get_head_tail, VecExt};
 
 fn any(c: char) -> AnyOrBlank {
     Either::L(c)
@@ -20,7 +20,7 @@ fn reduce_stack(stack: Vec<AnyOrBlank>) -> Vec<AnyOrBlank> {
 }
 
 fn go(stack: Vec<AnyOrBlank>, tail: &str) -> Vec<AnyOrBlank> {
-    let (head, tail) = get_head_tail(tail);
+    let (head, tail) = str_get_head_tail(tail);
     let move_in = match head {
         Some(' ' | '\t' | '\n' | '\r') => blank(),
         Some(c) => any(c),

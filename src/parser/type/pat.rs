@@ -1,6 +1,6 @@
 use std::collections::BTreeSet;
 
-use crate::parser::{BoxExt, VecExt};
+use crate::parser::infra::{BoxExt, VecExt};
 use crate::parser::r#type::Type;
 
 #[derive(Debug)]

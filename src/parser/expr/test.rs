@@ -1,5 +1,5 @@
-use crate::parser::BoxExt;
 use crate::parser::expr::{Expr, parse_expr};
+use crate::parser::infra::BoxExt;
 use crate::parser::preprocess::blank::preprocess_blank;
 use crate::parser::preprocess::comment::preprocess_comment;
 use crate::parser::preprocess::keyword::preprocess_keyword;
@@ -484,20 +484,20 @@ fn test_parse_match_part1() {
     let r = Some(r);
 
     let seq =
-        "match x with\
-             | 1 -> neg 1\
-             | 2 -> if abc then () else 0\
-             | { a = 1, b = _, c = 3 } -> 0\
-             | _ -> ()";
+        "match x with \
+         | 1 -> neg 1 \
+         | 2 -> if abc then () else 0 \
+         | { a = 1, b = _, c = 3 } -> 0 \
+         | _ -> ()";
     assert_eq!(f(seq), r);
     let seq =
         "(((\
-               match x with\
-               | (((1))) -> (((neg 1)))\
-               | (((2))) -> (((if (((abc))) then (((()))) else (((0))))))\
-               | ((({ a = (((1))), b = (((_))), c = (((3))) }))) -> 0\
-               | (((_))) -> (((())))\
-             )))";
+         match x with \
+         | (((1))) -> (((neg 1))) \
+         | (((2))) -> (((if (((abc))) then (((()))) else (((0)))))) \
+         | ((({ a = (((1))), b = (((_))), c = (((3))) }))) -> 0 \
+         | (((_))) -> (((())))\
+         )))";
     assert_eq!(f(seq), r);
 }
 
@@ -578,51 +578,50 @@ fn test_parse_match_part2() {
     let r = Some(r);
 
     let seq =
-        "match x with\
-             | 1 -> if a then b else c\
-             | v -> a -> b -> add a b\
-             | { a = _, b = { foo = _, bar = _ }, c = 3 } -> \
-                 { x = 123, y = c }\
-             | _ -> \
-                match y with\
-                | 1 -> ()\
-                | () -> \
-                     a -> b -> \
-                       (\
-                       match z with\
-                       | _ -> 114514\
-                       | a -> x -> y -> add () y\
-                       )\
-                | _ -> baz";
+        "match x with \
+         | 1 -> if a then b else c \
+         | v -> (a -> b -> add a b) \
+         | { a = _, b = { foo = _, bar = _ }, c = 3 } -> \
+             { x = 123, y = c } \
+         | _ -> \
+            match y with \
+            | 1 -> () \
+            | () -> \
+                 (a -> b -> \
+                   match z with \
+                   | _ -> 114514 \
+                   | a -> (x -> y -> add () y)\
+                 ) \
+            | _ -> baz";
 
     assert_eq!(f(seq), r);
 
     let seq =
         "(((\
-            match (((x))) with\
-            | 1 -> if a then b else c\
-            | (((v))) -> a -> b -> (((add a b)))\
-            | { a = (((_))), b = { foo = (((_))), bar = (((_))) }, c = 3 } -> \
-                ((({ x = (((123))), y = c })))\
-            | (((_))) -> \
-               (((\
-               match y with\
-               | 1 -> ()\
-               | () -> \
-                    (((\
-                    a -> b -> \
-                      (((\
-                      match (((z))) with\
-                      | (((_))) -> 114514\
-                      | (((a))) -> \
-                        (((\
-                        (((x))) -> (((y))) -> (((add () y)))\
-                        )))\
-                      )))\
-                    )))\
-               | _ -> baz\
-               )))\
-             )))";
+         match (((x))) with \
+         | 1 -> if a then b else c \
+         | (((v))) -> (a -> b -> (((add a b)))) \
+         | { a = (((_))), b = { foo = (((_))), bar = (((_))) }, c = 3 } -> \
+             ((({ x = (((123))), y = c }))) \
+         | (((_))) -> \
+            (((\
+            match y with \
+            | 1 -> () \
+            | () -> \
+                 (((\
+                 a -> b -> \
+                   (((\
+                   match (((z))) with \
+                   | (((_))) -> 114514 \
+                   | (((a))) -> \
+                       (((\
+                         (((x))) -> (((y))) -> (((add () y)))\
+                       )))\
+                   )))\
+                 ))) \
+            | _ -> baz\
+            )))\
+          )))";
 
     assert_eq!(f(seq), r);
 }

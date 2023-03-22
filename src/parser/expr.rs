@@ -1,13 +1,12 @@
 use std::vec;
 
-use crate::parser::Either;
 use crate::parser::expr::pat::Pat;
 use crate::parser::expr::r#fn::go;
+use crate::parser::infra::Either;
 use crate::parser::keyword::Keyword;
 
 mod pat;
 mod r#fn;
-mod follow_pat;
 
 #[derive(Debug)]
 #[derive(Clone)]

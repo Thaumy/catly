@@ -1,8 +1,8 @@
-use crate::parser::{Either, vec_get_head_tail_follow, VecExt};
 use crate::parser::char::parse_char;
-use crate::parser::define::follow_pat::{FollowPat, parse_follow_pat};
 use crate::parser::define::pat::Pat;
 use crate::parser::expr::parse_expr;
+use crate::parser::follow_pat::{FollowPat, parse_follow_pat};
+use crate::parser::infra::{Either, vec_get_head_tail_follow, VecExt};
 use crate::parser::keyword::Keyword;
 use crate::parser::name::let_name::parse_let_name;
 use crate::parser::name::type_name::parse_type_name;

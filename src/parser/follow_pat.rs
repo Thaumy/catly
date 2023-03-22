@@ -1,5 +1,5 @@
 use crate::parser::char::{parse_digit, parse_letter};
-use crate::parser::Either;
+use crate::parser::infra::Either;
 use crate::parser::keyword::Keyword;
 
 #[derive(Debug)]

@@ -1,5 +1,5 @@
-use crate::parser::{BoxExt, VecExt};
 use crate::parser::expr::Expr;
+use crate::parser::infra::{BoxExt, VecExt};
 use crate::parser::keyword::Keyword;
 
 #[derive(Debug)]

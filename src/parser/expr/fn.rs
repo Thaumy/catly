@@ -1,7 +1,7 @@
-use crate::parser::{BoxExt, Either, vec_get_head_tail_follow, VecExt};
 use crate::parser::char::{parse_char, parse_digit};
-use crate::parser::expr::follow_pat::{FollowPat, parse_follow_pat};
 use crate::parser::expr::pat::Pat;
+use crate::parser::follow_pat::{FollowPat, parse_follow_pat};
+use crate::parser::infra::{BoxExt, Either, vec_get_head_tail_follow, VecExt};
 use crate::parser::keyword::Keyword;
 use crate::parser::name::let_name::parse_let_name;
 use crate::parser::value::int::parse_int;
@@ -225,11 +225,11 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
             stack.reduce_to_new(3, top)
         }
 
-        // KwMatch Blank Expr Blank KwWith -> MatchHead
-        ([.., Pat::KwMatch, Pat::Blank, p, Pat::Blank, Pat::KwWith], _)
+        // KwMatch Blank Expr Blank KwWith Blank -> MatchHead
+        ([.., Pat::KwMatch, Pat::Blank, p, Pat::Blank, Pat::KwWith, Pat::Blank], _)
         if p.is_expr() => {
             let top = Pat::MatchHead(p.clone().boxed());
-            stack.reduce_to_new(5, top)
+            stack.reduce_to_new(6, top)
         }
         // `|` Blank Expr Blank Arrow -> CaseHead
         ([..,

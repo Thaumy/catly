@@ -1,5 +1,5 @@
-use crate::parser::{Either, get_head_tail_follow, VecExt};
 use crate::parser::char::parse_char;
+use crate::parser::infra::{Either, str_get_head_tail_follow, VecExt};
 use crate::parser::keyword::Keyword;
 
 fn reduce_stack(stack: Vec<Either<char, Keyword>>, follow: Option<char>) -> Vec<Either<char, Keyword>> {
@@ -54,8 +54,8 @@ fn reduce_stack(stack: Vec<Either<char, Keyword>>, follow: Option<char>) -> Vec<
         // Start: "match" :Blank -> Match
         ([L('m'), L('a'), L('t'), L('c'), L('h')], Some(' ')) => vec![R(Match)],
 
-        // Blank: "with" :`|` -> With
-        ([.., L(' '), L('w'), L('i'), L('t'), L('h')], Some('|')) =>
+        // Blank: "with" :Blank -> With
+        ([.., L(' '), L('w'), L('i'), L('t'), L('h')], Some(' ')) =>
             stack.reduce_to_new(4, R(With)),
 
         _ => return stack
@@ -63,7 +63,7 @@ fn reduce_stack(stack: Vec<Either<char, Keyword>>, follow: Option<char>) -> Vec<
 }
 
 fn go(stack: Vec<Either<char, Keyword>>, tail: &str) -> Vec<Either<char, Keyword>> {
-    let (head, tail, follow) = get_head_tail_follow(tail);
+    let (head, tail, follow) = str_get_head_tail_follow(tail);
     let move_in = match head {
         Some(c) => Either::L(c),
         _ => return stack,
