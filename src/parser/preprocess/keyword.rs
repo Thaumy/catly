@@ -17,9 +17,9 @@ fn reduce_stack(stack: Vec<Either<char, Keyword>>, follow: Option<char>) -> Vec<
         // !(Letter|Digit): "def" :Blank -> Def
         ([.., L(c), L('d'), L('e'), L('f')], Some(' '))
         if parse_char(c).is_none() =>
-            stack.reduce_to_new(3, R(Let)),
+            stack.reduce_to_new(3, R(Def)),
         // Start: "def" :Blank -> Def
-        ([L('d'), L('e'), L('f')], Some(' ')) => vec![R(Let)],
+        ([L('d'), L('e'), L('f')], Some(' ')) => vec![R(Def)],
 
         // !(Letter|Digit): "let" :Blank -> Let
         ([.., L(c), L('l'), L('e'), L('t')], Some(' '))

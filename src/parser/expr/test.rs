@@ -12,7 +12,7 @@ fn f(seq: &str) -> Option<Expr> {
 }
 
 #[test]
-fn test_f_unit() {
+fn test_parse_unit() {
     let r = Expr::Unit;
     let r = Some(r);
 
@@ -22,7 +22,7 @@ fn test_f_unit() {
 }
 
 #[test]
-fn test_f_int() {
+fn test_parse_int() {
     let r = Expr::Int(123);
     let r = Some(r);
 
@@ -32,7 +32,7 @@ fn test_f_int() {
 }
 
 #[test]
-fn test_f_env_ref() {
+fn test_parse_env_ref() {
     let r = Expr::EnvRef("abc".to_string());
     let r = Some(r);
 
@@ -42,7 +42,7 @@ fn test_f_env_ref() {
 }
 
 #[test]
-fn test_f_apply_part1() {
+fn test_parse_apply_part1() {
     // Apply(Unit, Int)
     let r = Expr::Apply(
         Expr::Unit.boxed(),
@@ -58,7 +58,7 @@ fn test_f_apply_part1() {
 }
 
 #[test]
-fn test_f_apply_part2() {
+fn test_parse_apply_part2() {
     // Apply(EnvRef, Int)
     let r = Expr::Apply(
         Expr::EnvRef("abc".to_string()).boxed(),
@@ -74,7 +74,7 @@ fn test_f_apply_part2() {
 }
 
 #[test]
-fn test_f_apply_part3() {
+fn test_parse_apply_part3() {
     // Apply(EnvRef, Unit)
     let r = Expr::Apply(
         Expr::EnvRef("abc".to_string()).boxed(),
@@ -90,7 +90,7 @@ fn test_f_apply_part3() {
 }
 
 #[test]
-fn test_f_apply_part4() {
+fn test_parse_apply_part4() {
     // Apply(EnvRef, Apply(EnvRef, Unit))
     let r = Expr::Apply(
         Expr::EnvRef("abc".to_string()).boxed(),
@@ -109,7 +109,7 @@ fn test_f_apply_part4() {
 }
 
 #[test]
-fn test_f_apply_part5() {
+fn test_parse_apply_part5() {
     // Apply(EnvRef, Apply(EnvRef, Apply(EnvRef, Unit)))
     let r = Expr::Apply(
         Expr::EnvRef("abc".to_string()).boxed(),
@@ -131,7 +131,7 @@ fn test_f_apply_part5() {
 }
 
 #[test]
-fn test_f_apply_part6() {
+fn test_parse_apply_part6() {
     // Apply(EnvRef, Apply(EnvRef, Unit))
     let r = Expr::Apply(
         Expr::Apply(
@@ -154,7 +154,7 @@ fn test_f_apply_part6() {
 }
 
 #[test]
-fn test_f_apply_part7() {
+fn test_parse_apply_part7() {
     // Apply(EnvRef, Apply(EnvRef, Unit))
     let r = Expr::Apply(
         Expr::Apply(
@@ -177,7 +177,7 @@ fn test_f_apply_part7() {
 }
 
 #[test]
-fn test_f_cond_part1() {
+fn test_parse_cond_part1() {
     // Cond(EnvRef, Int, Unit)
     let r = Expr::Cond(
         Expr::EnvRef("abc".to_string()).boxed(),
@@ -193,7 +193,7 @@ fn test_f_cond_part1() {
 }
 
 #[test]
-fn test_f_cond_part2() {
+fn test_parse_cond_part2() {
     // Cond(a, a, a)
     // while: a = Cond(EnvRef, Apply(Int, Unit), Int)
     let e = Expr::Cond(
@@ -222,7 +222,7 @@ fn test_f_cond_part2() {
 }
 
 #[test]
-fn test_f_cond_part3() {
+fn test_parse_cond_part3() {
     // Cond(b, b, b)
     // while: a = Cond(Apply(Int, Unit), Int, EnvRef)
     // while: b = Cond(a, a, a)
@@ -257,7 +257,7 @@ fn test_f_cond_part3() {
 }
 
 #[test]
-fn test_f_cond_part4() {
+fn test_parse_cond_part4() {
     // Cond(b, b, b)
     // while: a = Cond(Apply(Int, Unit), Int, EnvRef)
     // while: b = Cond(a, a, a)

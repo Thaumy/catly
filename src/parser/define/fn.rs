@@ -40,13 +40,8 @@ fn move_in(stack: &Vec<Pat>, head: Option<Either<char, Keyword>>) -> Pat {
 fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
     let reduced_stack = match (&stack[..], follow_pat) {
         // Success
-        ([Pat::Start, .., Pat::End], FollowPat::End) => {
-            let mut iter = stack.iter();
-            iter.next();// remove Start
-            let mut stack: Vec<Pat> = iter.map(|x| x.clone()).collect();
-            stack.pop();// remove End
-
-            return stack;
+        ([Pat::Start, p, Pat::End], _) => {
+            return vec![p.clone()];
         }
 
         // CharSeq Char -> CharSeq
@@ -59,6 +54,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
         ([.., Pat::CharSeq(cs)], _) => {
             let top = match parse_type_name(cs) {
                 Some(n) => match &n[..] {
+                    // override primitive types are not allowed
                     "Int" | "Unit" => Pat::Err,
                     // _ -> TypeName
                     n => Pat::TypeName(n.to_string()),
@@ -88,8 +84,8 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
 
         // KwDef Blank LetName Blank `=` Blank -> TypeDefHead End
         ([..,
-        Pat::Keyword(Keyword::Def), Pat::Blank,
-        Pat::TypeName(n), Pat::Blank, Pat::Mark('='), Pat::Blank, ], _
+        Pat::Keyword(Keyword::Type), Pat::Blank,
+        Pat::TypeName(n), Pat::Blank, Pat::Mark('='), Pat::Blank], _
         ) => {
             let top = Pat::TypeDefHead(n.to_string());
             stack
@@ -100,7 +96,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
         // KwDef Blank LetName Blank `=` Blank -> ExprDefHead End
         ([..,
         Pat::Keyword(Keyword::Def), Pat::Blank,
-        Pat::LetName(n), Pat::Blank, Pat::Mark('='), Pat::Blank, ], _
+        Pat::LetName(n), Pat::Blank, Pat::Mark('='), Pat::Blank], _
         ) => {
             let top = Pat::ExprDefHead(n.to_string());
             stack
@@ -136,7 +132,7 @@ pub fn go(stack: &Vec<Pat>, seq: Vec<Either<char, Keyword>>) -> Pat {
     let reduced_stack = reduce_stack(&stack, &follow_pat);
 
     match (&reduced_stack[..], follow_pat) {
-        ([p], FollowPat::End) => {
+        ([p], _) => {
             let head = p.clone();
 
             let r = match head {
