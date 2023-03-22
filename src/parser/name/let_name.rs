@@ -29,7 +29,7 @@ fn go(stack: &Pat, seq: &str) -> Option<String> {
         (_, None) => Pat::End,
         // _ -> Err
         (_, Some(c)) => {
-            println!("Invalid head Pat: {}", c);
+            println!("Invalid head Pat: {:?}", c);
             Pat::Err
         }
     };

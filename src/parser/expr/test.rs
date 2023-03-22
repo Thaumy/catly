@@ -1,38 +1,48 @@
 use crate::parser::BoxExt;
 use crate::parser::expr::{Expr, parse_expr};
+use crate::parser::preprocess::blank::preprocess_blank;
+use crate::parser::preprocess::comment::preprocess_comment;
+use crate::parser::preprocess::keyword::preprocess_keyword;
+
+fn f(seq: &str) -> Option<Expr> {
+    let seq = preprocess_comment(seq);
+    let seq = preprocess_blank(&seq);
+    let seq = preprocess_keyword(&seq);
+    parse_expr(seq)
+}
 
 #[test]
-fn test_parse_expr_unit() {
+fn test_f_unit() {
     let r = Expr::Unit;
     let r = Some(r);
 
-    assert_eq!(parse_expr("()"), r);
-    assert_eq!(parse_expr("(())"), r);
-    assert_eq!(parse_expr("((()))"), r);
+    assert_eq!(f("()"), r);
+    assert_eq!(f("(())"), r);
+    assert_eq!(f("((()))"), r);
 }
 
 #[test]
-fn test_parse_expr_int() {
+fn test_f_int() {
     let r = Expr::Int(123);
     let r = Some(r);
 
-    assert_eq!(parse_expr("123"), r);
-    assert_eq!(parse_expr("(123)"), r);
-    assert_eq!(parse_expr("((123))"), r);
+    assert_eq!(f("123"), r);
+    assert_eq!(f("(123)"), r);
+    assert_eq!(f("((123))"), r);
 }
 
 #[test]
-fn test_parse_expr_env_ref() {
+fn test_f_env_ref() {
     let r = Expr::EnvRef("abc".to_string());
     let r = Some(r);
 
-    assert_eq!(parse_expr("abc"), r);
-    assert_eq!(parse_expr("(abc)"), r);
-    assert_eq!(parse_expr("((abc))"), r);
+    assert_eq!(f("abc"), r);
+    assert_eq!(f("(abc)"), r);
+    assert_eq!(f("((abc))"), r);
 }
 
 #[test]
-fn test_parse_expr_apply_part1() {
+fn test_f_apply_part1() {
     // Apply(Unit, Int)
     let r = Expr::Apply(
         Expr::Unit.boxed(),
@@ -40,15 +50,15 @@ fn test_parse_expr_apply_part1() {
     );
     let r = Some(r);
 
-    assert_eq!(parse_expr("() 123"), r);
-    assert_eq!(parse_expr("(()) (123)"), r);
-    assert_eq!(parse_expr("((())) ((123))"), r);
-    assert_eq!(parse_expr("(((())) ((123)))"), r);
-    assert_eq!(parse_expr("((((())) ((123))))"), r);
+    assert_eq!(f("() 123"), r);
+    assert_eq!(f("(()) (123)"), r);
+    assert_eq!(f("((())) ((123))"), r);
+    assert_eq!(f("(((())) ((123)))"), r);
+    assert_eq!(f("((((())) ((123))))"), r);
 }
 
 #[test]
-fn test_parse_expr_apply_part2() {
+fn test_f_apply_part2() {
     // Apply(EnvRef, Int)
     let r = Expr::Apply(
         Expr::EnvRef("abc".to_string()).boxed(),
@@ -56,15 +66,15 @@ fn test_parse_expr_apply_part2() {
     );
     let r = Some(r);
 
-    assert_eq!(parse_expr("abc 123"), r);
-    assert_eq!(parse_expr("(abc) (123)"), r);
-    assert_eq!(parse_expr("((abc)) ((123))"), r);
-    assert_eq!(parse_expr("(((abc)) ((123)))"), r);
-    assert_eq!(parse_expr("((((abc)) ((123))))"), r);
+    assert_eq!(f("abc 123"), r);
+    assert_eq!(f("(abc) (123)"), r);
+    assert_eq!(f("((abc)) ((123))"), r);
+    assert_eq!(f("(((abc)) ((123)))"), r);
+    assert_eq!(f("((((abc)) ((123))))"), r);
 }
 
 #[test]
-fn test_parse_expr_apply_part3() {
+fn test_f_apply_part3() {
     // Apply(EnvRef, Unit)
     let r = Expr::Apply(
         Expr::EnvRef("abc".to_string()).boxed(),
@@ -72,15 +82,15 @@ fn test_parse_expr_apply_part3() {
     );
     let r = Some(r);
 
-    assert_eq!(parse_expr("abc ()"), r);
-    assert_eq!(parse_expr("(abc) (())"), r);
-    assert_eq!(parse_expr("((abc)) ((()))"), r);
-    assert_eq!(parse_expr("(((abc)) ((())))"), r);
-    assert_eq!(parse_expr("((((abc)) ((()))))"), r);
+    assert_eq!(f("abc ()"), r);
+    assert_eq!(f("(abc) (())"), r);
+    assert_eq!(f("((abc)) ((()))"), r);
+    assert_eq!(f("(((abc)) ((())))"), r);
+    assert_eq!(f("((((abc)) ((()))))"), r);
 }
 
 #[test]
-fn test_parse_expr_apply_part4() {
+fn test_f_apply_part4() {
     // Apply(EnvRef, Apply(EnvRef, Unit))
     let r = Expr::Apply(
         Expr::EnvRef("abc".to_string()).boxed(),
@@ -91,15 +101,15 @@ fn test_parse_expr_apply_part4() {
     );
     let r = Some(r);
 
-    assert_eq!(parse_expr("abc (abc ())"), r);
-    assert_eq!(parse_expr("(abc) ((abc ()))"), r);
-    assert_eq!(parse_expr("((abc)) (((abc ())))"), r);
-    assert_eq!(parse_expr("(((abc)) (((abc ()))))"), r);
-    assert_eq!(parse_expr("((((abc)) (((abc ())))))"), r);
+    assert_eq!(f("abc (abc ())"), r);
+    assert_eq!(f("(abc) ((abc ()))"), r);
+    assert_eq!(f("((abc)) (((abc ())))"), r);
+    assert_eq!(f("(((abc)) (((abc ()))))"), r);
+    assert_eq!(f("((((abc)) (((abc ())))))"), r);
 }
 
 #[test]
-fn test_parse_expr_apply_part5() {
+fn test_f_apply_part5() {
     // Apply(EnvRef, Apply(EnvRef, Apply(EnvRef, Unit)))
     let r = Expr::Apply(
         Expr::EnvRef("abc".to_string()).boxed(),
@@ -113,15 +123,15 @@ fn test_parse_expr_apply_part5() {
     );
     let r = Some(r);
 
-    assert_eq!(parse_expr("abc (abc (abc ()))"), r);
-    assert_eq!(parse_expr("(abc) ((abc (abc ())))"), r);
-    assert_eq!(parse_expr("((abc)) (((abc (abc ()))))"), r);
-    assert_eq!(parse_expr("(((abc)) (((abc (abc ())))))"), r);
-    assert_eq!(parse_expr("((((abc)) (((abc (abc ()))))))"), r);
+    assert_eq!(f("abc (abc (abc ()))"), r);
+    assert_eq!(f("(abc) ((abc (abc ())))"), r);
+    assert_eq!(f("((abc)) (((abc (abc ()))))"), r);
+    assert_eq!(f("(((abc)) (((abc (abc ())))))"), r);
+    assert_eq!(f("((((abc)) (((abc (abc ()))))))"), r);
 }
 
 #[test]
-fn test_parse_expr_apply_part6() {
+fn test_f_apply_part6() {
     // Apply(EnvRef, Apply(EnvRef, Unit))
     let r = Expr::Apply(
         Expr::Apply(
@@ -138,13 +148,13 @@ fn test_parse_expr_apply_part6() {
     );
     let r = Some(r);
 
-    assert_eq!(parse_expr("abc 123 (add 123 456)"), r);
-    assert_eq!(parse_expr("abc ((123)) (((add 123 456)))"), r);
-    assert_eq!(parse_expr("(((abc (((123))) (((add (((123))) (((456)))))))))"), r);
+    assert_eq!(f("abc 123 (add 123 456)"), r);
+    assert_eq!(f("abc ((123)) (((add 123 456)))"), r);
+    assert_eq!(f("(((abc (((123))) (((add (((123))) (((456)))))))))"), r);
 }
 
 #[test]
-fn test_parse_expr_apply_part7() {
+fn test_f_apply_part7() {
     // Apply(EnvRef, Apply(EnvRef, Unit))
     let r = Expr::Apply(
         Expr::Apply(
@@ -161,13 +171,13 @@ fn test_parse_expr_apply_part7() {
     );
     let r = Some(r);
 
-    assert_eq!(parse_expr("abc (add 123 456) 123"), r);
-    assert_eq!(parse_expr("abc (((add 123 456))) ((123))"), r);
-    assert_eq!(parse_expr("(((abc (((add (((123))) (((456)))))) (((123))))))"), r);
+    assert_eq!(f("abc (add 123 456) 123"), r);
+    assert_eq!(f("abc (((add 123 456))) ((123))"), r);
+    assert_eq!(f("(((abc (((add (((123))) (((456)))))) (((123))))))"), r);
 }
 
 #[test]
-fn test_parse_expr_cond_part1() {
+fn test_f_cond_part1() {
     // Cond(EnvRef, Int, Unit)
     let r = Expr::Cond(
         Expr::EnvRef("abc".to_string()).boxed(),
@@ -176,14 +186,14 @@ fn test_parse_expr_cond_part1() {
     );
     let r = Some(r);
 
-    assert_eq!(parse_expr("if abc then 123 else ()"), r);
-    assert_eq!(parse_expr("if ((abc)) then ((123)) else ((()))"), r);
-    assert_eq!(parse_expr("(if (((abc))) then (((123))) else (((()))))"), r);
-    assert_eq!(parse_expr("(((if (((abc))) then (((123))) else (((()))))))"), r);
+    assert_eq!(f("if abc then 123 else ()"), r);
+    assert_eq!(f("if ((abc)) then ((123)) else ((()))"), r);
+    assert_eq!(f("(if (((abc))) then (((123))) else (((()))))"), r);
+    assert_eq!(f("(((if (((abc))) then (((123))) else (((()))))))"), r);
 }
 
 #[test]
-fn test_parse_expr_cond_part2() {
+fn test_f_cond_part2() {
     // Cond(a, a, a)
     // while: a = Cond(EnvRef, Apply(Int, Unit), Int)
     let e = Expr::Cond(
@@ -202,17 +212,17 @@ fn test_parse_expr_cond_part2() {
 
     let e = "if abc then 123 () else 456";
     let seq = &format!("if {} then {} else {}", e, e, e);
-    assert_eq!(parse_expr(seq), r);
+    assert_eq!(f(seq), r);
     let e = "if abc then (123 ()) else 456";
     let seq = &format!("if {} then {} else {}", e, e, e);
-    assert_eq!(parse_expr(seq), r);
+    assert_eq!(f(seq), r);
     let e = "(((if ((abc)) then ((123 ())) else ((456)))))";
     let seq = &format!("if {} then {} else {}", e, e, e);
-    assert_eq!(parse_expr(seq), r);
+    assert_eq!(f(seq), r);
 }
 
 #[test]
-fn test_parse_expr_cond_part3() {
+fn test_f_cond_part3() {
     // Cond(b, b, b)
     // while: a = Cond(Apply(Int, Unit), Int, EnvRef)
     // while: b = Cond(a, a, a)
@@ -239,15 +249,15 @@ fn test_parse_expr_cond_part3() {
     let a = "if 123 () then 123 else abc";
     let b = &format!("if {} then {} else {}", a, a, a);
     let seq = &format!("if {} then {} else {}", b, b, b);
-    assert_eq!(parse_expr(seq), r);
+    assert_eq!(f(seq), r);
     let a = "(((if (((123 ()))) then (((123))) else (((abc))))))";
     let b = &format!("(((if {} then {} else {})))", a, a, a);
     let seq = &format!("if {} then {} else {}", b, b, b);
-    assert_eq!(parse_expr(seq), r);
+    assert_eq!(f(seq), r);
 }
 
 #[test]
-fn test_parse_expr_cond_part4() {
+fn test_f_cond_part4() {
     // Cond(b, b, b)
     // while: a = Cond(Apply(Int, Unit), Int, EnvRef)
     // while: b = Cond(a, a, a)
@@ -274,7 +284,7 @@ fn test_parse_expr_cond_part4() {
     let a = "(((if (((123 ()))) then (((123))) else (((abc))))))";
     let b = &format!("(((if ((({}))) then ((({}))) else {})))", a, a, a);
     let seq = &format!("(((if ((({}))) then {} else ((({}))))))", b, b, b);
-    assert_eq!(parse_expr(seq), r);
+    assert_eq!(f(seq), r);
 }
 
 #[test]
@@ -292,11 +302,11 @@ fn test_parse_closure_part1() {
     let r = Some(r);
 
     let seq = "a -> add 123 ()";
-    assert_eq!(parse_expr(seq), r);
+    assert_eq!(f(seq), r);
     let seq = "(a -> (add (123) (())))";
-    assert_eq!(parse_expr(seq), r);
+    assert_eq!(f(seq), r);
     let seq = "(((a -> ((((add 123)) ((())))))))";
-    assert_eq!(parse_expr(seq), r);
+    assert_eq!(f(seq), r);
 }
 
 #[test]
@@ -326,11 +336,11 @@ fn test_parse_closure_part2() {
     let r = Some(r);
 
     let seq = "a -> b -> c -> add (add a b) c";
-    assert_eq!(parse_expr(seq), r);
+    assert_eq!(f(seq), r);
     let seq = "((a -> ((b -> ((c -> ((add (((add (a) (b)))) (c)))))))))";
-    assert_eq!(parse_expr(seq), r);
+    assert_eq!(f(seq), r);
     let seq = "((((((a))) -> (((b -> (((c))) -> (((add))) (add a b) c))))))";
-    assert_eq!(parse_expr(seq), r);
+    assert_eq!(f(seq), r);
 }
 
 #[test]
@@ -360,11 +370,11 @@ fn test_parse_closure_part3() {
     let r = Some(r);
 
     let seq = "aaa -> bbb -> ccc -> add (add aaa 123) ccc";
-    assert_eq!(parse_expr(seq), r);
+    assert_eq!(f(seq), r);
     let seq = "(((aaa -> ((bbb -> (ccc -> ((((((add (add aaa 123)))) ccc)))))))))";
-    assert_eq!(parse_expr(seq), r);
+    assert_eq!(f(seq), r);
     let seq = "(((aaa -> (((((bbb))) -> (((ccc)) -> ((((((add (add (((aaa))) 123)))) ccc)))))))))";
-    assert_eq!(parse_expr(seq), r);
+    assert_eq!(f(seq), r);
 }
 
 #[test]
@@ -377,13 +387,13 @@ fn test_parse_struct_part1() {
     let r = Some(r);
 
     let seq = "{ a = 123, ab = ref, abc = () }";
-    assert_eq!(parse_expr(seq), r);
+    assert_eq!(f(seq), r);
     let seq = "{ a = 123, ab = ref, abc = (),}";
-    assert_eq!(parse_expr(seq), r);
+    assert_eq!(f(seq), r);
     let seq = "(({ a = (((123))), ab = (((ref))), abc = ((())) }))";
-    assert_eq!(parse_expr(seq), r);
+    assert_eq!(f(seq), r);
     let seq = "(({ a = (((123))), ab = (((ref))), abc = ((())),}))";
-    assert_eq!(parse_expr(seq), r);
+    assert_eq!(f(seq), r);
 }
 
 #[test]
@@ -399,7 +409,7 @@ fn test_parse_struct_part2() {
          ])),
         ("x".to_string(), Expr::Int(1)),
     ]);
-    let f = Expr::Closure(
+    let fun = Expr::Closure(
         "x".to_string(),
         Expr::Closure(
             "y".to_string(),
@@ -418,7 +428,7 @@ fn test_parse_struct_part2() {
             Expr::EnvRef("neg".to_string()).boxed(),
             Expr::Int(1).boxed(),
         )),
-        ("f".to_string(), f),
+        ("fun".to_string(), fun),
     ]);
     let r = Some(r);
 
@@ -426,23 +436,23 @@ fn test_parse_struct_part2() {
         "{ \
                a = { abc = { efg = if 123 then () else 0 }, x = 1 }, \
                ab = neg 1, \
-               f = (x -> y -> add x y) \
+               fun = (x -> y -> add x y) \
              }";
-    assert_eq!(parse_expr(seq), r);
+    assert_eq!(f(seq), r);
     let seq =
         "((({ \
                   a = ((({ abc = { efg = if 123 then ((())) else 0 }, x = 1 }))), \
                   ab = (((neg))) 1, \
-                  f = (x -> y -> add x y) \
+                  fun = (x -> y -> add x y) \
             })))";
-    assert_eq!(parse_expr(seq), r);
+    assert_eq!(f(seq), r);
     let seq =
         "((({ \
                   (((a))) = ((({ abc = { efg = if (((123))) then ((())) else 0 }, x = (((1))) }))), \
                   (((ab))) = ((((((neg))) (((1)))))), \
-                  (((f))) = (x -> (((y -> add x y)))) \
+                  (((fun))) = (x -> (((y -> add x y)))) \
             })))";
-    assert_eq!(parse_expr(seq), r);
+    assert_eq!(f(seq), r);
 }
 
 #[test]
@@ -479,7 +489,7 @@ fn test_parse_match_part1() {
              | 2 -> if abc then () else 0\
              | { a = 1, b = _, c = 3 } -> 0\
              | _ -> ()";
-    assert_eq!(parse_expr(seq), r);
+    assert_eq!(f(seq), r);
     let seq =
         "(((\
                match x with\
@@ -488,7 +498,7 @@ fn test_parse_match_part1() {
                | ((({ a = (((1))), b = (((_))), c = (((3))) }))) -> 0\
                | (((_))) -> (((())))\
              )))";
-    assert_eq!(parse_expr(seq), r);
+    assert_eq!(f(seq), r);
 }
 
 #[test]
@@ -585,7 +595,7 @@ fn test_parse_match_part2() {
                        )\
                 | _ -> baz";
 
-    assert_eq!(parse_expr(seq), r);
+    assert_eq!(f(seq), r);
 
     let seq =
         "(((\
@@ -614,7 +624,7 @@ fn test_parse_match_part2() {
                )))\
              )))";
 
-    assert_eq!(parse_expr(seq), r);
+    assert_eq!(f(seq), r);
 }
 
 #[test]
@@ -633,13 +643,13 @@ fn test_parse_let_part1() {
     let r = Some(r);
 
     let seq = "let a = 123 in add a 456";
-    assert_eq!(parse_expr(seq), r);
+    assert_eq!(f(seq), r);
     let seq = "let a = 123,in add a 456";
-    assert_eq!(parse_expr(seq), r);
+    assert_eq!(f(seq), r);
     let seq = "(((let (((a))) = (((123))) in (((add a (((456)))))))))";
-    assert_eq!(parse_expr(seq), r);
+    assert_eq!(f(seq), r);
     let seq = "(((let (((a))) = (((123))),in (((add a (((456)))))))))";
-    assert_eq!(parse_expr(seq), r);
+    assert_eq!(f(seq), r);
 }
 
 #[test]
@@ -668,7 +678,7 @@ fn test_parse_let_part2() {
     let r = Some(r);
 
     let seq = "let a = 123, b = add c d in add () 456";
-    assert_eq!(parse_expr(seq), r);
+    assert_eq!(f(seq), r);
 }
 
 #[test]
@@ -741,7 +751,7 @@ fn test_parse_let_part3() {
              let e = 6, k = () in \
              let m = (), n = 4 in \
              add () 456";
-    assert_eq!(parse_expr(seq), r);
+    assert_eq!(f(seq), r);
     let seq =
         "let a = (((123))), \
                  b = \
@@ -766,5 +776,5 @@ fn test_parse_let_part3() {
                      )))\
                  )))\
              )))";
-    assert_eq!(parse_expr(seq), r);
+    assert_eq!(f(seq), r);
 }

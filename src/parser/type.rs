@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 
-use crate::parser::preprocess::blank::preprocess_blank;
-use crate::parser::preprocess::comment::preprocess_comment;
+use crate::parser::Either;
+use crate::parser::keyword::Keyword;
 use crate::parser::r#type::pat::Pat;
 use crate::parser::r#type::r#fn::go;
 
@@ -29,11 +29,9 @@ pub enum Type {
     ProductType(Vec<(String, Type)>),
 }
 
-pub fn parse_type(seq: &str) -> Option<Type> {
+pub fn parse_type(seq: Vec<Either<char, Keyword>>) -> Option<Type> {
     println!("\nParsing seq: {:?}", seq);
-    let seq = preprocess_comment(seq);
-    let seq = preprocess_blank(&seq);
-    Option::<Type>::from(go(&vec![Pat::Start], &seq))
+    Option::<Type>::from(go(&vec![Pat::Start], seq))
 }
 
 mod test;

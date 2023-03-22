@@ -74,9 +74,10 @@ impl Pat {
 impl From<Keyword> for Pat {
     fn from(kw: Keyword) -> Self {
         match kw {
+            Keyword::Type => todo!(),
+            Keyword::Def => todo!(),
             Keyword::Let => Pat::KwLet,
             Keyword::In => Pat::KwIn,
-            Keyword::Type => todo!(),
             Keyword::If => Pat::KwIf,
             Keyword::Then => Pat::KwThen,
             Keyword::Else => Pat::KwElse,

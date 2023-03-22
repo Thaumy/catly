@@ -25,7 +25,7 @@ fn go(stack: Vec<Pat>, seq: &str) -> Option<i64> {
                 Some(d) => Pat::Digit(d),
                 // ɛ -> Err
                 None => {
-                    println!("Invalid head Pat: {}", c);
+                    println!("Invalid head Pat: {:?}", c);
                     Pat::Err
                 }
             },

@@ -8,7 +8,7 @@ use crate::parser::value::int::parse_int;
 
 fn move_in(stack: &Vec<Pat>, head: Option<Either<char, Keyword>>) -> Pat {
     match head {
-        Some(Either::L(o)) => match (&stack[..], o) {
+        Some(Either::L(c)) => match (&stack[..], c) {
             // DigitSeq: [0-9] -> Digit
             ([.., Pat::DigitSeq(_)], c) if parse_digit(&c).is_some() =>
                 Pat::Digit(c),
@@ -51,7 +51,7 @@ fn move_in(stack: &Vec<Pat>, head: Option<Either<char, Keyword>>) -> Pat {
 
             // _ -> Err
             (_, c) => {
-                println!("Invalid head Pat: {}", c);
+                println!("Invalid head Pat: {:?}", c);
                 Pat::Err
             }
         }

@@ -2,14 +2,23 @@
 #[derive(Debug)]
 #[derive(PartialEq)]
 pub enum Keyword {
+    Type,
+    Def,
     Let,
     In,
-    Type,
     If,
     Then,
     Else,
     Match,
     With,
+}
+
+pub fn parse_type(x: &str) -> bool {
+    x == "type"
+}
+
+pub fn parse_def(x: &str) -> bool {
+    x == "def"
 }
 
 pub fn parse_let(x: &str) -> bool {
@@ -18,10 +27,6 @@ pub fn parse_let(x: &str) -> bool {
 
 pub fn parse_in(x: &str) -> bool {
     x == "in"
-}
-
-pub fn parse_type(x: &str) -> bool {
-    x == "type"
 }
 
 pub fn parse_if(x: &str) -> bool {
@@ -45,10 +50,11 @@ pub fn parse_with(x: &str) -> bool {
 }
 
 pub fn parse_keyword(x: &str) -> Option<Keyword> {
-    let map: [(fn(&str) -> bool, Keyword); 8] = [
+    let map: [(fn(&str) -> bool, Keyword); 9] = [
+        (parse_type, Keyword::Type),
+        (parse_def, Keyword::Def),
         (parse_let, Keyword::Let),
         (parse_in, Keyword::In),
-        (parse_type, Keyword::Type),
         (parse_if, Keyword::If),
         (parse_then, Keyword::Then),
         (parse_else, Keyword::Else),
@@ -66,9 +72,10 @@ mod tests {
     fn test_parse_keyword() {
         use crate::parser::keyword::{Keyword, parse_keyword};
 
+        assert_eq!(parse_keyword("type"), Some(Keyword::Type));
+        assert_eq!(parse_keyword("def"), Some(Keyword::Def));
         assert_eq!(parse_keyword("let"), Some(Keyword::Let));
         assert_eq!(parse_keyword("in"), Some(Keyword::In));
-        assert_eq!(parse_keyword("type"), Some(Keyword::Type));
         assert_eq!(parse_keyword("if"), Some(Keyword::If));
         assert_eq!(parse_keyword("then"), Some(Keyword::Then));
         assert_eq!(parse_keyword("else"), Some(Keyword::Else));

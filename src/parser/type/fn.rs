@@ -1,15 +1,16 @@
 use std::collections::BTreeSet;
 
-use crate::parser::{BoxExt, get_head_tail_follow, VecExt};
+use crate::parser::{BoxExt, Either, vec_get_head_tail_follow, VecExt};
 use crate::parser::char::parse_char;
+use crate::parser::keyword::Keyword;
 use crate::parser::name::let_name::parse_let_name;
 use crate::parser::name::type_name::parse_type_name;
 use crate::parser::r#type::follow_pat::{FollowPat, parse_follow_pat};
 use crate::parser::r#type::pat::Pat;
 
-fn move_in(stack: &Vec<Pat>, head: Option<char>) -> Pat {
+fn move_in(stack: &Vec<Pat>, head: Option<Either<char, Keyword>>) -> Pat {
     match head {
-        Some(c) => match (&stack[..], c) {
+        Some(Either::L(c)) => match (&stack[..], c) {
             // CharSeq: [0-9a-zA-Z] -> Char
             ([.., Pat::CharSeq(_)], c) if parse_char(&c).is_some() =>
                 Pat::Char(c),
@@ -45,9 +46,15 @@ fn move_in(stack: &Vec<Pat>, head: Option<char>) -> Pat {
 
             // _ -> Err
             (_, c) => {
-                println!("Invalid head Pat: {}", c);
+                println!("Invalid head Pat: {:?}", c);
                 Pat::Err
             }
+        }
+
+        // _ -> Err
+        Some(p) => {
+            println!("Invalid head Pat: {:?}", p);
+            Pat::Err
         }
 
         // ɛ -> End
@@ -271,9 +278,9 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
     reduce_stack(&reduced_stack, follow_pat)
 }
 
-pub fn go(stack: &Vec<Pat>, seq: &str) -> Pat {
+pub fn go(stack: &Vec<Pat>, seq: Vec<Either<char, Keyword>>) -> Pat {
     let (head, tail, follow) =
-        get_head_tail_follow(seq);
+        vec_get_head_tail_follow(seq);
 
     let follow_pat = parse_follow_pat(follow);
 

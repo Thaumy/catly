@@ -7,6 +7,20 @@ fn reduce_stack(stack: Vec<Either<char, Keyword>>, follow: Option<char>) -> Vec<
     use crate::parser::keyword::Keyword::{*};
 
     match (&stack[..], follow) {
+        // !(Letter|Digit): "type" :Blank -> Type
+        ([.., L(c), L('t'), L('y'), L('p'), L('e')], Some(' '))
+        if parse_char(c).is_none() =>
+            stack.reduce_to_new(4, R(Type)),
+        // Start: "type" :Blank -> Type
+        ([L('t'), L('y'), L('p'), L('e')], Some(' ')) => vec![R(Type)],
+
+        // !(Letter|Digit): "def" :Blank -> Def
+        ([.., L(c), L('d'), L('e'), L('f')], Some(' '))
+        if parse_char(c).is_none() =>
+            stack.reduce_to_new(3, R(Let)),
+        // Start: "def" :Blank -> Def
+        ([L('d'), L('e'), L('f')], Some(' ')) => vec![R(Let)],
+
         // !(Letter|Digit): "let" :Blank -> Let
         ([.., L(c), L('l'), L('e'), L('t')], Some(' '))
         if parse_char(c).is_none() =>
@@ -17,13 +31,6 @@ fn reduce_stack(stack: Vec<Either<char, Keyword>>, follow: Option<char>) -> Vec<
         // Blank|`,`: "in" :Blank -> In
         ([.., L(' ' | ','), L('i'), L('n') ], Some(' ')) =>
             stack.reduce_to_new(2, R(In)),
-
-        // !(Letter|Digit): "type" :Blank -> Type
-        ([.., L(c), L('t'), L('y'), L('p'), L('e')], Some(' '))
-        if parse_char(c).is_none() =>
-            stack.reduce_to_new(4, R(Type)),
-        // Start: "type" :Blank -> Type
-        ([L('t'), L('y'), L('p'), L('e')], Some(' ')) => vec![R(Type)],
 
         // !(Letter|Digit): "if" :Blank -> If
         ([.., L(c), L('i'), L('f')], Some(' '))
