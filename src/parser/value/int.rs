@@ -20,7 +20,7 @@ fn go(stack: Vec<Pat>, seq: &str) -> Option<i64> {
     let move_in = match head {
         // _ -> Digit|Err
         Some(c) =>
-            match crate::parser::char::parse_digit(&c) {
+            match crate::parser::alphanum::parse_digit(&c) {
                 // [0-9] -> Digit
                 Some(d) => Pat::Digit(d),
                 // ɛ -> Err

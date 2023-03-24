@@ -1,4 +1,4 @@
-use crate::parser::char::parse_char;
+use crate::parser::alphanum::parse_alphanum;
 use crate::parser::infra::{Either, str_get_head_tail_follow, VecExt};
 use crate::parser::keyword::Keyword;
 
@@ -9,21 +9,21 @@ fn reduce_stack(stack: Vec<Either<char, Keyword>>, follow: Option<char>) -> Vec<
     match (&stack[..], follow) {
         // !(Letter|Digit): "type" :Blank -> Type
         ([.., L(c), L('t'), L('y'), L('p'), L('e')], Some(' '))
-        if parse_char(c).is_none() =>
+        if parse_alphanum(c).is_none() =>
             stack.reduce_to_new(4, R(Type)),
         // Start: "type" :Blank -> Type
         ([L('t'), L('y'), L('p'), L('e')], Some(' ')) => vec![R(Type)],
 
         // !(Letter|Digit): "def" :Blank -> Def
         ([.., L(c), L('d'), L('e'), L('f')], Some(' '))
-        if parse_char(c).is_none() =>
+        if parse_alphanum(c).is_none() =>
             stack.reduce_to_new(3, R(Def)),
         // Start: "def" :Blank -> Def
         ([L('d'), L('e'), L('f')], Some(' ')) => vec![R(Def)],
 
         // !(Letter|Digit): "let" :Blank -> Let
         ([.., L(c), L('l'), L('e'), L('t')], Some(' '))
-        if parse_char(c).is_none() =>
+        if parse_alphanum(c).is_none() =>
             stack.reduce_to_new(3, R(Let)),
         // Start: "let" :Blank -> Let
         ([L('l'), L('e'), L('t')], Some(' ')) => vec![R(Let)],
@@ -34,7 +34,7 @@ fn reduce_stack(stack: Vec<Either<char, Keyword>>, follow: Option<char>) -> Vec<
 
         // !(Letter|Digit): "if" :Blank -> If
         ([.., L(c), L('i'), L('f')], Some(' '))
-        if parse_char(c).is_none() =>
+        if parse_alphanum(c).is_none() =>
             stack.reduce_to_new(2, R(If)),
         // Start: "if" :Blank -> If
         ([L('i'), L('f')], Some(' ')) => vec![R(If)],
@@ -49,7 +49,7 @@ fn reduce_stack(stack: Vec<Either<char, Keyword>>, follow: Option<char>) -> Vec<
 
         // !(Letter|Digit): "match" :Blank -> Match
         ([.., L(c), L('m'), L('a'), L('t'), L('c'), L('h')], Some(' '))
-        if parse_char(c).is_none() =>
+        if parse_alphanum(c).is_none() =>
             stack.reduce_to_new(5, R(Match)),
         // Start: "match" :Blank -> Match
         ([L('m'), L('a'), L('t'), L('c'), L('h')], Some(' ')) => vec![R(Match)],

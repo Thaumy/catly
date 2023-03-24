@@ -23,8 +23,8 @@ pub enum Pat {
 
     DiscardType,//Type::DiscardType
 
-    Char(char),
-    CharSeq(String),
+    Alphanum(char),
+    AlphanumSeq(String),
 
     //Type::TypeEnvRef
     TypeName(String),

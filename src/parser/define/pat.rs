@@ -14,8 +14,8 @@ pub enum Pat {
     Blank,
     Mark(char),
 
-    Char(char),
-    CharSeq(String),
+    Alphanum(char),
+    AlphanumSeq(String),
     LetName(String),
     TypeName(String),
 

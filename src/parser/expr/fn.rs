@@ -1,4 +1,4 @@
-use crate::parser::char::{parse_char, parse_digit};
+use crate::parser::alphanum::{parse_alphanum, parse_digit};
 use crate::parser::expr::pat::Pat;
 use crate::parser::follow_pat::{FollowPat, parse_follow_pat};
 use crate::parser::infra::{BoxExt, Either, vec_get_head_tail_follow, VecExt};
@@ -16,12 +16,12 @@ fn move_in(stack: &Vec<Pat>, head: Option<Either<char, Keyword>>) -> Pat {
             (_, c) if parse_digit(&c).is_some() =>
                 Pat::Digit(c),
 
-            // CharSeq: [0-9a-zA-Z] -> Char
-            ([.., Pat::CharSeq(_)], c) if parse_char(&c).is_some() =>
-                Pat::Char(c),
-            // [0-9a-zA-Z] -> Char
-            (_, c) if parse_char(&c).is_some() =>
-                Pat::Char(c),
+            // AlphanumSeq: [0-9a-zA-Z] -> Alphanum
+            ([.., Pat::AlphanumSeq(_)], c) if parse_alphanum(&c).is_some() =>
+                Pat::Alphanum(c),
+            // [0-9a-zA-Z] -> Alphanum
+            (_, c) if parse_alphanum(&c).is_some() =>
+                Pat::Alphanum(c),
 
             // TypedExprHead: _ -> TypeSymbol
             // TypeSymbolSeq: _ -> TypeSymbolSeq
@@ -129,25 +129,25 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
             stack.reduce_to_new(1, top)
         }
 
-        // CharSeq Char -> CharSeq
-        ([.., Pat::CharSeq(cs), Pat::Char(c)], _) =>
-            stack.reduce_to_new(2, Pat::CharSeq(format!("{}{}", cs, c))),
-        // CharSeq :Char -> CharSeq
-        ([.., Pat::CharSeq(_)], FollowPat::Letter(_) | FollowPat::Digit(_)) =>
+        // AlphanumSeq Alphanum -> AlphanumSeq
+        ([.., Pat::AlphanumSeq(cs), Pat::Alphanum(c)], _) =>
+            stack.reduce_to_new(2, Pat::AlphanumSeq(format!("{}{}", cs, c))),
+        // AlphanumSeq :Alphanum -> AlphanumSeq
+        ([.., Pat::AlphanumSeq(_)], FollowPat::Letter(_) | FollowPat::Digit(_)) =>
             return stack.clone(),
-        // CharSeq :!Char-> LetName|TypeName|Err
-        ([.., Pat::CharSeq(cs)], _) => {
+        // AlphanumSeq :!Alphanum-> LetName|TypeName|Err
+        ([.., Pat::AlphanumSeq(cs)], _) => {
             let top = match parse_let_name(cs) {
                 Some(n) => Pat::LetName(n),
                 None => Pat::Err
             };
             stack.reduce_to_new(1, top)
         }
-        // Char :Char -> CharSeq
-        ([.., Pat::Char(c)], FollowPat::Letter(_) | FollowPat::Digit(_)) =>
-            stack.reduce_to_new(1, Pat::CharSeq(c.to_string())),
-        // Char :!Char -> LetName|TypeName|Err
-        ([.., Pat::Char(c)], _) => {
+        // Alphanum :Alphanum -> AlphanumSeq
+        ([.., Pat::Alphanum(c)], FollowPat::Letter(_) | FollowPat::Digit(_)) =>
+            stack.reduce_to_new(1, Pat::AlphanumSeq(c.to_string())),
+        // Alphanum :!Alphanum -> LetName|TypeName|Err
+        ([.., Pat::Alphanum(c)], _) => {
             let top = match parse_let_name(&c.to_string()) {
                 Some(n) => Pat::LetName(n),
                 None => Pat::Err

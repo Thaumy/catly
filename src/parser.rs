@@ -1,4 +1,4 @@
-mod char;
+mod alphanum;
 mod keyword;
 mod mark;
 mod value;

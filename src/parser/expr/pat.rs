@@ -18,8 +18,8 @@ pub enum Pat {
     DigitSeq(String),
     Int(i64),//Expr::Int
 
-    Char(char),
-    CharSeq(String),
+    Alphanum(char),
+    AlphanumSeq(String),
     LetName(String),//Expr::EnvRef
 
     Blank,

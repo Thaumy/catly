@@ -1,4 +1,4 @@
-use crate::parser::char::{parse_char, parse_upper};
+use crate::parser::alphanum::{parse_alphanum, parse_upper};
 use crate::parser::infra::str_get_head_tail;
 
 #[derive(Debug)]
@@ -10,7 +10,7 @@ enum Pat {
     Err,
 
     Upper(char),
-    Char(char),
+    Alphanum(char),
     TypeName(String),
 }
 
@@ -18,9 +18,9 @@ fn go(stack: &Pat, seq: &str) -> Option<String> {
     let (head, tail) = str_get_head_tail(seq);
 
     let move_in = match (stack, head) {
-        // TypeName: [0-9a-zA-Z] -> Char
-        (Pat::TypeName(_), Some(c)) if parse_char(&c).is_some() =>
-            Pat::Char(c),
+        // TypeName: [0-9a-zA-Z] -> Alphanum
+        (Pat::TypeName(_), Some(c)) if parse_alphanum(&c).is_some() =>
+            Pat::Alphanum(c),
         // Start: [A-Z] -> Upper
         (Pat::Start, Some(c)) if parse_upper(&c).is_some() =>
             Pat::Upper(c),
@@ -38,8 +38,8 @@ fn go(stack: &Pat, seq: &str) -> Option<String> {
         // Start Upper -> TypeName
         (Pat::Start, Pat::Upper(c)) =>
             Pat::TypeName(c.to_string()),
-        // TypeName Char -> TypeName
-        (Pat::TypeName(n), Pat::Char(c)) =>
+        // TypeName Alphanum -> TypeName
+        (Pat::TypeName(n), Pat::Alphanum(c)) =>
             Pat::TypeName(format!("{}{}", n, c)),
 
         // Success

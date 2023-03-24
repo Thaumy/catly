@@ -1,4 +1,4 @@
-use crate::parser::char::{parse_digit, parse_letter};
+use crate::parser::alphanum::{parse_digit, parse_letter};
 use crate::parser::infra::Either;
 use crate::parser::keyword::Keyword;
 

@@ -558,6 +558,13 @@ fn test_parse_match_part1() {
         ],
     );
     let r = Some(r);
+    /*
+        "match x with \
+         | (1: Int -> Int -> Int) -> neg 1 \
+         | 2 -> if abc then () else 0 \
+         | { a = 1, b = _, c = 3 } -> 0 \
+         | _ -> ()";
+    */
 
     let seq =
         "match x with \
