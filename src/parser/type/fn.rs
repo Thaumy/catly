@@ -83,16 +83,21 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
             return stack.clone(),
         // CharSeq :!Char-> TypeName|LetName|Err
         ([.., Pat::CharSeq(cs)], _) => {
-            let top = match parse_type_name(cs) {
-                Some(n) => match &n[..] {
-                    // "Unit" -> UnitType
-                    "Unit" => Pat::UnitType,
-                    // "Int" -> IntType
-                    "Int" => Pat::IntType,
-                    // _ -> TypeName
-                    n => Pat::TypeName(n.to_string()),
+            let top = if cs.starts_with(|c: char| c.is_uppercase()) {
+                match parse_type_name(cs) {
+                    Some(n) => match &n[..] {
+                        // "Unit" -> UnitType
+                        "Unit" => Pat::UnitType,
+                        // "Int" -> IntType
+                        "Int" => Pat::IntType,
+                        // _ -> TypeName
+                        n => Pat::TypeName(n.to_string()),
+                    }
+                    None => Pat::Err,
                 }
-                None => match parse_let_name(cs) {
+            } else {
+                match parse_let_name(cs) {
+                    // _ -> LetName
                     Some(n) => Pat::LetName(n.to_string()),
                     None => Pat::Err
                 }
@@ -104,10 +109,15 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
             stack.reduce_to_new(1, Pat::CharSeq(c.to_string())),
         // Char :!Char -> TypeName|LetName|Err
         ([.., Pat::Char(c)], _) => {
-            let top = match parse_type_name(c.to_string().as_str()) {
-                // _ -> TypeName
-                Some(n) => Pat::TypeName(n.to_string()),
-                None => match parse_let_name(&c.to_string()) {
+            let top = if c.is_uppercase() {
+                match parse_type_name(c.to_string().as_str()) {
+                    // _ -> TypeName
+                    Some(n) => Pat::TypeName(n.to_string()),
+                    None => Pat::Err
+                }
+            } else {
+                match parse_let_name(&c.to_string()) {
+                    // _ -> LetName
                     Some(n) => Pat::LetName(n.to_string()),
                     None => Pat::Err
                 }
@@ -115,29 +125,20 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
             stack.reduce_to_new(1, top)
         }
 
-        // Type Blank Type -> TypeApply
-        ([.., lhs, Pat::Blank, rhs], _)
-        if lhs.is_type() && rhs.is_type() => {
-            let top = Pat::TypeApply(
-                lhs.clone().boxed(),
-                rhs.clone().boxed(),
-            );
-            stack.reduce_to_new(3, top)
-        }
-
         // `-` `>` -> Arrow
         ([.., Pat::Mark('-'), Pat::Mark('>')], _) =>
             stack.reduce_to_new(2, Pat::Arrow),
-        // TypeName Blank Arrow Blank -> TypeClosurePara
-        ([.., Pat::TypeName(n), Pat::Blank, Pat::Arrow, Pat::Blank], _) => {
-            let top = Pat::TypeClosurePara(n.to_string());
+        // Type Blank Arrow Blank -> ClosureTypeHead
+        ([.., p, Pat::Blank, Pat::Arrow, Pat::Blank], _)
+        if p.is_type() => {
+            let top = Pat::ClosureTypeHead(p.clone().boxed());
             stack.reduce_to_new(4, top)
         }
-        // TypeClosurePara Type -> TypeClosure
-        ([.., Pat::TypeClosurePara(n), p], follow_pat)
+        // ClosureTypeHead Type -> ClosureType
+        ([.., Pat::ClosureTypeHead(t), p], follow_pat)
         if follow_pat.not_blank() && p.is_type() => {
-            let top = Pat::TypeClosure(
-                n.to_string(),
+            let top = Pat::ClosureType(
+                t.clone(),
                 p.clone().boxed(),
             );
             stack.reduce_to_new(2, top)

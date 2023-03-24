@@ -1,3 +1,6 @@
+use crate::parser::expr::Expr;
+use crate::parser::r#type::Type;
+
 #[derive(Clone)]
 #[derive(Debug)]
 #[derive(PartialEq)]
@@ -63,3 +66,6 @@ pub trait BoxExt<T> {
 }
 
 impl<T> BoxExt<T> for T where T: Sized {}
+
+pub type MaybeType = Option<Type>;
+pub type MaybeExpr = Option<Expr>;

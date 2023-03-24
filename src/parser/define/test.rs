@@ -30,15 +30,13 @@ fn test_parse_type_def_part2() {
     let t = Type::ProductType(vec![
         ("abc".to_string(), Type::TypeEnvRef("A".to_string())),
         ("uuu".to_string(), Type::UnitType),
-        ("intList".to_string(), Type::TypeApply(
-            Type::TypeEnvRef("List".to_string()).boxed(),
-            Type::IntType.boxed(),
-        ))]);
+        ("intList".to_string(), Type::TypeEnvRef("List".to_string())),
+    ]);
 
     let r = Define::TypeDef("A".to_string(), t);
     let r = Some(r);
 
-    let seq = "type A = { abc: A, uuu: Unit, intList: List Int }";
+    let seq = "type A = { abc: A, uuu: Unit, intList: IntList }";
     assert_eq!(f(seq), r)
 }
 
@@ -57,52 +55,80 @@ fn test_parse_expr_def_part1() {
 #[test]
 fn test_parse_expr_def_part2() {
     let e = Expr::Let(
+        None,
         "a".to_string(),
-        Expr::Int(123).boxed(),
+        None,
+        Expr::Int(None, 123).boxed(),
         Expr::Let(
+            None,
             "b".to_string(),
-            Expr::Let("x".to_string(),
-                      Expr::Closure(
-                          "i".to_string(),
-                          Expr::Closure(
-                              "j".to_string(),
-                              Expr::EnvRef("k".to_string()).boxed(),
-                          ).boxed(),
-                      ).boxed(),
-                      Expr::Let(
-                          "y".to_string(),
-                          Expr::EnvRef("a".to_string()).boxed(),
-                          Expr::Let(
-                              "z".to_string(),
-                              Expr::Unit.boxed(),
-                              Expr::EnvRef("a".to_string()).boxed(),
-                          ).boxed(),
-                      ).boxed(),
-            ).boxed(),
+            None,
             Expr::Let(
-                "d".to_string(),
-                Expr::Apply(
-                    Expr::EnvRef("neg".to_string()).boxed(),
-                    Expr::Int(1).boxed(),
+                None,
+                "x".to_string(),
+                None,
+                Expr::Closure(
+                    None,
+                    "i".to_string(),
+                    None,
+                    Expr::Closure(
+                        None,
+                        "j".to_string(),
+                        None,
+                        Expr::EnvRef("k".to_string()).boxed(),
+                    ).boxed(),
                 ).boxed(),
                 Expr::Let(
-                    "e".to_string(),
-                    Expr::Int(6).boxed(),
+                    None,
+                    "y".to_string(),
+                    None,
+                    Expr::EnvRef("a".to_string()).boxed(),
                     Expr::Let(
+                        None,
+                        "z".to_string(),
+                        None,
+                        Expr::Unit(None).boxed(),
+                        Expr::EnvRef("a".to_string()).boxed(),
+                    ).boxed(),
+                ).boxed(),
+            ).boxed(),
+            Expr::Let(
+                None,
+                "d".to_string(),
+                None,
+                Expr::Apply(
+                    None,
+                    Expr::EnvRef("neg".to_string()).boxed(),
+                    Expr::Int(None, 1).boxed(),
+                ).boxed(),
+                Expr::Let(
+                    None,
+                    "e".to_string(),
+                    None,
+                    Expr::Int(None, 6).boxed(),
+                    Expr::Let(
+                        None,
                         "k".to_string(),
-                        Expr::Unit.boxed(),
+                        None,
+                        Expr::Unit(None).boxed(),
                         Expr::Let(
+                            None,
                             "m".to_string(),
-                            Expr::Unit.boxed(),
+                            None,
+                            Expr::Unit(None).boxed(),
                             Expr::Let(
+                                None,
                                 "n".to_string(),
-                                Expr::Int(4).boxed(),
+                                None,
+                                Expr::Int(None, 4).boxed(),
                                 Expr::Apply(
+                                    None,
                                     Expr::Apply(
+                                        None,
                                         Expr::EnvRef("add".to_string()).boxed(),
-                                        Expr::Unit.boxed(),
+                                        Expr::Unit(None).boxed(),
                                     ).boxed(),
-                                    Expr::Int(456).boxed(),
+                                    Expr::Int(None, 456).boxed(),
                                 ).boxed(),
                             ).boxed(),
                         ).boxed(),

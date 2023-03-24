@@ -2,7 +2,7 @@ use crate::parser::char::{parse_char, parse_digit};
 use crate::parser::expr::pat::Pat;
 use crate::parser::follow_pat::{FollowPat, parse_follow_pat};
 use crate::parser::infra::{BoxExt, Either, vec_get_head_tail_follow, VecExt};
-use crate::parser::keyword::Keyword;
+use crate::parser::keyword::{Keyword};
 use crate::parser::name::let_name::parse_let_name;
 use crate::parser::value::int::parse_int;
 
@@ -22,6 +22,9 @@ fn move_in(stack: &Vec<Pat>, head: Option<Either<char, Keyword>>) -> Pat {
             // [0-9a-zA-Z] -> Char
             (_, c) if parse_char(&c).is_some() =>
                 Pat::Char(c),
+
+            // TypedExprHead: _ -> TypeSymbol
+            // TypeSymbolSeq: _ -> TypeSymbolSeq
 
             // ' ' -> Blank
             (_, ' ') => Pat::Blank,
@@ -68,6 +71,16 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
         // Success
         ([Pat::Start, p, Pat::End], FollowPat::End) => return vec![p.clone()],
 
+        // Expr `:` Blank -> TypedExprHead
+        // TypedExprHead: TypeSymbolSeq :!Blank -> Expr
+        /* TODO: 此产生式要求当 Type 后存在空白时:
+                 x: A -> B ->
+                 Expr: Type 必须被括号环绕:
+                 (x: A -> B) ->
+                 (x: A -> { x: Int }) ->
+                 否则将无法归约 */
+        // TypedExprHead Blank TypeName -> Expr
+
         // `(` `)` -> Unit
         ([.., Pat::Mark('('), Pat::Mark(')')], _) =>
             stack.reduce_to_new(2, Pat::Unit),
@@ -84,6 +97,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
         ], _)
         if a.is_expr() && b.is_expr() && c.is_expr() =>
             stack.reduce_to_new(11, Pat::Cond(
+                None,
                 a.clone().boxed(),
                 b.clone().boxed(),
                 c.clone().boxed(),
@@ -121,7 +135,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
         // CharSeq :Char -> CharSeq
         ([.., Pat::CharSeq(_)], FollowPat::Letter(_) | FollowPat::Digit(_)) =>
             return stack.clone(),
-        // CharSeq :!Char-> LetName|Err
+        // CharSeq :!Char-> LetName|TypeName|Err
         ([.., Pat::CharSeq(cs)], _) => {
             let top = match parse_let_name(cs) {
                 Some(n) => Pat::LetName(n),
@@ -132,7 +146,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
         // Char :Char -> CharSeq
         ([.., Pat::Char(c)], FollowPat::Letter(_) | FollowPat::Digit(_)) =>
             stack.reduce_to_new(1, Pat::CharSeq(c.to_string())),
-        // Char :!Char -> LetName|Err
+        // Char :!Char -> LetName|TypeName|Err
         ([.., Pat::Char(c)], _) => {
             let top = match parse_let_name(&c.to_string()) {
                 Some(n) => Pat::LetName(n),
@@ -158,7 +172,9 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
         ([.., Pat::ClosurePara(n), p], follow_pat)
         if follow_pat.not_blank() && p.is_expr() => {
             let top = Pat::Closure(
+                None,
                 n.to_string(),
+                None,
                 p.clone().boxed(),
             );
             stack.reduce_to_new(2, top)
@@ -295,6 +311,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
             _ => true
         } => {
             let top = Pat::Match(
+                None,
                 h_e.clone(),
                 vec![((*case.clone(), *then.clone()))],
             );
@@ -310,6 +327,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
             _ => true
         } => {
             let top = Pat::Match(
+                None,
                 h_e.clone(),
                 vec.clone(),
             );
@@ -345,7 +363,9 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
         if follow_pat.not_blank() && p.is_expr() => {
             type F = fn(Pat, &(String, Pat)) -> Pat;
             let f: F = |acc, (n, e)| Pat::Let(
+                None,
                 n.to_string(),
+                None,
                 e.clone().boxed(),
                 acc.boxed(),
             );
@@ -361,7 +381,9 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
         p], follow_pat)
         if follow_pat.not_blank() && p.is_expr() => {
             let top = Pat::Let(
+                None,
                 n.to_string(),
+                None,
                 *e.clone().boxed(),
                 p.clone().boxed(),
             );

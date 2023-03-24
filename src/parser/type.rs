@@ -1,6 +1,6 @@
 use std::collections::BTreeSet;
 
-use crate::parser::infra::Either;
+use crate::parser::infra::{Either, MaybeType};
 use crate::parser::keyword::Keyword;
 use crate::parser::r#type::pat::Pat;
 use crate::parser::r#type::r#fn::go;
@@ -17,18 +17,14 @@ pub enum Type {
     IntType,
     UnitType,
     DiscardType,
+    ClosureType(Box<Type>, Box<Type>),
 
     TypeEnvRef(String),
-    TypeApply(Box<Type>, Box<Type>),
-
-    //different meaning in type define and type annotation
-    TypeClosure(String, Box<Type>),
-
     SumType(BTreeSet<Type>),
     ProductType(Vec<(String, Type)>),
 }
 
-pub fn parse_type(seq: Vec<Either<char, Keyword>>) -> Option<Type> {
+pub fn parse_type(seq: Vec<Either<char, Keyword>>) -> MaybeType {
     println!("\nParsing seq: {:?}", seq);
     Option::<Type>::from(go(&vec![Pat::Start], seq))
 }

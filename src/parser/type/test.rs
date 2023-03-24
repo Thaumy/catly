@@ -1,12 +1,12 @@
 use std::collections::BTreeSet;
 
-use crate::parser::infra::BoxExt;
+use crate::parser::infra::{BoxExt, MaybeType};
 use crate::parser::preprocess::blank::preprocess_blank;
 use crate::parser::preprocess::comment::preprocess_comment;
 use crate::parser::preprocess::keyword::preprocess_keyword;
 use crate::parser::r#type::{parse_type, Type};
 
-fn f(seq: &str) -> Option<Type> {
+fn f(seq: &str) -> MaybeType {
     let seq = preprocess_comment(seq);
     let seq = preprocess_blank(&seq);
     let seq = preprocess_keyword(&seq);
@@ -64,80 +64,50 @@ fn test_f_env_ref_part2() {
 }
 
 #[test]
-fn test_f_apply_part1() {
-    let r = Type::TypeApply(
-        Type::TypeEnvRef("Lhs".to_string()).boxed(),
-        Type::TypeEnvRef("Rhs".to_string()).boxed(),
+fn test_parse_closure_type_part1() {
+    let r = Type::ClosureType(
+        Type::TypeEnvRef("T".to_string()).boxed(),
+        Type::TypeEnvRef("TList".to_string()).boxed(),
     );
     let r = Some(r);
 
-    let seq = "Lhs Rhs";
+    let seq = "T -> TList";
     assert_eq!(f(seq), r);
-    let seq = "(((Lhs Rhs)))";
-    assert_eq!(f(seq), r);
-    let seq = "((((((Lhs))) (((Rhs))))))";
+    let seq = "((((((T))) -> (((TList))))))";
     assert_eq!(f(seq), r);
 }
 
 #[test]
-fn test_f_apply_part2() {
-    let r = Type::TypeApply(
-        Type::TypeApply(
-            Type::TypeApply(
-                Type::TypeEnvRef("A".to_string()).boxed(),
-                Type::TypeEnvRef("B".to_string()).boxed(),
-            ).boxed(),
-            Type::TypeEnvRef("C".to_string()).boxed(),
+fn test_parse_closure_type_part2() {
+    let r = Type::ClosureType(
+        Type::TypeEnvRef("T".to_string()).boxed(),
+        Type::ClosureType(
+            Type::TypeEnvRef("U".to_string()).boxed(),
+            Type::TypeEnvRef("TUEither".to_string()).boxed(),
         ).boxed(),
-        Type::TypeEnvRef("D".to_string()).boxed(),
     );
     let r = Some(r);
 
-    let seq = "A B C D";
+    let seq = "T -> U ->  TUEither";
     assert_eq!(f(seq), r);
-    let seq = "(((A B) C) D)";
-    assert_eq!(f(seq), r);
-    let seq = "((((((((((((A))) (((B)))))) (((C)))))) (((D))))))";
+    let seq = "(((T -> (((U -> (((TUEither)))))))))";
     assert_eq!(f(seq), r);
 }
 
 #[test]
-fn test_f_closure_part1() {
-    let r = Type::TypeClosure(
-        "T".to_string(),
-        Type::TypeApply(
-            Type::TypeEnvRef("List".to_string()).boxed(),
+fn test_parse_closure_type_part3() {
+    let r = Type::ClosureType(
+        Type::ClosureType(
             Type::TypeEnvRef("T".to_string()).boxed(),
+            Type::TypeEnvRef("U".to_string()).boxed(),
         ).boxed(),
+        Type::TypeEnvRef("TUEither".to_string()).boxed(),
     );
     let r = Some(r);
 
-    let seq = "T -> List T";
+    let seq = "(T -> U) -> TUEither";
     assert_eq!(f(seq), r);
-    let seq = "(((T))) -> ((((((List))) (((T))))))";
-    assert_eq!(f(seq), r);
-}
-
-#[test]
-fn test_f_closure_part2() {
-    let r = Type::TypeClosure(
-        "T".to_string(),
-        Type::TypeClosure(
-            "U".to_string(),
-            Type::TypeApply(
-                Type::TypeApply(
-                    Type::TypeEnvRef("Either".to_string()).boxed(),
-                    Type::TypeEnvRef("T".to_string()).boxed(),
-                ).boxed(),
-                Type::TypeEnvRef("U".to_string()).boxed(),
-            ).boxed(),
-        ).boxed(),
-    );
-    let r = Some(r);
-
-    let seq = "T -> U -> Either T U";
-    assert_eq!(f(seq), r);
-    let seq = "(((T -> (((U -> ((((((Either T))) U)))))))))";
+    let seq = "((((((T -> U))) -> (((TUEither))))))";
     assert_eq!(f(seq), r);
 }
 
@@ -185,94 +155,91 @@ fn test_parse_product_type_part2() {
     let r = Type::ProductType(vec![
         ("abc".to_string(), Type::TypeEnvRef("A".to_string())),
         ("uuu".to_string(), Type::UnitType),
-        ("intList".to_string(), Type::TypeApply(
-            Type::TypeEnvRef("List".to_string()).boxed(),
-            Type::IntType.boxed(),
-        )),
+        ("intList".to_string(), Type::TypeEnvRef("IntList".to_string())),
     ]);
     let r = Some(r);
 
-    let seq = "{ abc: A, uuu: Unit, intList: List Int }";
+    let seq = "{ abc: A, uuu: Unit, intList: IntList }";
     assert_eq!(f(seq), r);
-    let seq = "{ abc: A, uuu: Unit, intList: List Int,}";
+    let seq = "{ abc: A, uuu: Unit, intList: IntList,}";
     assert_eq!(f(seq), r);
-    let seq = "((({ abc: (((A))), uuu: (((Unit))), intList: ((((((List))) Int))) })))";
+    let seq = "((({ abc: (((A))), uuu: (((Unit))), intList: (((IntList))) })))";
     assert_eq!(f(seq), r);
-    let seq = "((({ abc: (((A))), uuu: (((Unit))), intList: ((((((List))) Int))),})))";
+    let seq = "((({ abc: (((A))), uuu: (((Unit))), intList: (((IntList))),})))";
     assert_eq!(f(seq), r);
 }
 
 #[test]
 fn test_parse_product_type_part3() {
     let r = Type::ProductType(vec![
-        ("abc".to_string(), Type::TypeEnvRef("A".to_string())),
-        ("uuu".to_string(), Type::ProductType(vec![
-            ("x".to_string(), Type::TypeEnvRef("X".to_string())),
-            ("y".to_string(), Type::TypeEnvRef("Y".to_string())),
-        ])),
-        ("intList".to_string(), Type::TypeApply(
-            Type::TypeEnvRef("List".to_string()).boxed(),
-            Type::IntType.boxed(),
-        )),
+        ("abc".to_string(),
+         Type::TypeEnvRef("A".to_string())),
+        ("uuu".to_string(),
+         Type::ProductType(vec![
+             ("x".to_string(), Type::TypeEnvRef("X".to_string())),
+             ("y".to_string(), Type::TypeEnvRef("Y".to_string())),
+         ])),
+        ("intList".to_string(),
+         Type::TypeEnvRef("IntList".to_string())),
     ]);
     let r = Some(r);
 
-    let seq = "{ abc: A, uuu: { x: X, y: Y }, intList: List Int }";
+    let seq = "{ abc: A, uuu: { x: X, y: Y }, intList: IntList }";
     assert_eq!(f(seq), r);
-    let seq = "{ abc: A, uuu: { x: X, y: Y }, intList: List Int,}";
+    let seq = "{ abc: A, uuu: { x: X, y: Y }, intList: IntList,}";
     assert_eq!(f(seq), r);
-    let seq = "{ abc: A, uuu: ((({ x: (((X))), y: (((Y))) }))), intList: List Int }";
+    let seq = "{ abc: A, uuu: ((({ x: (((X))), y: (((Y))) }))), intList: IntList }";
     assert_eq!(f(seq), r);
-    let seq = "{ abc: A, uuu: ((({ x: (((X))), y: (((Y))) }))), intList: List Int,}";
+    let seq = "{ abc: A, uuu: ((({ x: (((X))), y: (((Y))) }))), intList: IntList,}";
     assert_eq!(f(seq), r);
 }
 
 #[test]
 fn test_parse_product_type_part4() {
     let r = Type::ProductType(vec![
-        ("abc".to_string(), Type::ProductType(vec![
-            ("x".to_string(), Type::TypeEnvRef("X".to_string())),
-            ("y".to_string(), Type::TypeEnvRef("Y".to_string())),
-        ])),
-        ("uuu".to_string(), Type::TypeEnvRef("A".to_string())),
-        ("intList".to_string(), Type::TypeApply(
-            Type::TypeEnvRef("List".to_string()).boxed(),
-            Type::IntType.boxed(),
-        )),
+        ("abc".to_string(),
+         Type::ProductType(vec![
+             ("x".to_string(), Type::TypeEnvRef("X".to_string())),
+             ("y".to_string(), Type::TypeEnvRef("Y".to_string())),
+         ])),
+        ("uuu".to_string(),
+         Type::TypeEnvRef("A".to_string())),
+        ("intList".to_string(),
+         Type::TypeEnvRef("IntList".to_string())),
     ]);
     let r = Some(r);
 
-    let seq = "{ abc: { x: X, y: Y }, uuu: A, intList: List Int }";
+    let seq = "{ abc: { x: X, y: Y }, uuu: A, intList: IntList }";
     assert_eq!(f(seq), r);
-    let seq = "{ abc: { x: X, y: Y }, uuu: A, intList: List Int,}";
+    let seq = "{ abc: { x: X, y: Y }, uuu: A, intList: IntList,}";
     assert_eq!(f(seq), r);
-    let seq = "{ abc: ((({ x: (((X))), y: (((Y))) }))), uuu: A, intList: List Int }";
+    let seq = "{ abc: ((({ x: (((X))), y: (((Y))) }))), uuu: A, intList: IntList }";
     assert_eq!(f(seq), r);
-    let seq = "{ abc: ((({ x: (((X))), y: (((Y))) }))), uuu: A, intList: List Int,}";
+    let seq = "{ abc: ((({ x: (((X))), y: (((Y))) }))), uuu: A, intList: IntList,}";
     assert_eq!(f(seq), r);
 }
 
 #[test]
 fn test_parse_product_type_part5() {
     let r = Type::ProductType(vec![
-        ("abc".to_string(), Type::TypeEnvRef("A".to_string())),
-        ("uuu".to_string(), Type::TypeApply(
-            Type::TypeEnvRef("List".to_string()).boxed(),
-            Type::IntType.boxed(),
-        )),
-        ("intList".to_string(), Type::ProductType(vec![
-            ("x".to_string(), Type::TypeEnvRef("X".to_string())),
-            ("y".to_string(), Type::TypeEnvRef("Y".to_string())),
-        ])),
+        ("abc".to_string(),
+         Type::TypeEnvRef("A".to_string())),
+        ("uuu".to_string(),
+         Type::TypeEnvRef("IntList".to_string())),
+        ("s".to_string(),
+         Type::ProductType(vec![
+             ("x".to_string(), Type::TypeEnvRef("X".to_string())),
+             ("y".to_string(), Type::TypeEnvRef("Y".to_string())),
+         ])),
     ]);
     let r = Some(r);
 
-    let seq = "{ abc: A, uuu: List Int, intList: { x: X, y: Y } }";
+    let seq = "{ abc: A, uuu: IntList, s: { x: X, y: Y } }";
     assert_eq!(f(seq), r);
-    let seq = "{ abc: A, uuu: List Int, intList: { x: X, y: Y },}";
+    let seq = "{ abc: A, uuu: IntList, s: { x: X, y: Y },}";
     assert_eq!(f(seq), r);
-    let seq = "{ abc: A, uuu: List Int, intList: ((({ x: (((X))), y: (((Y))) }))) }";
+    let seq = "{ abc: A, uuu: IntList, s: ((({ x: (((X))), y: (((Y))) }))) }";
     assert_eq!(f(seq), r);
-    let seq = "{ abc: A, uuu: List Int, intList: ((({ x: (((X))), y: (((Y))) }))),}";
+    let seq = "{ abc: A, uuu: IntList, s: ((({ x: (((X))), y: (((Y))) }))),}";
     assert_eq!(f(seq), r);
 }

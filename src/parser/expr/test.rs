@@ -1,10 +1,10 @@
 use crate::parser::expr::{Expr, parse_expr};
-use crate::parser::infra::BoxExt;
+use crate::parser::infra::{BoxExt, MaybeExpr};
 use crate::parser::preprocess::blank::preprocess_blank;
 use crate::parser::preprocess::comment::preprocess_comment;
 use crate::parser::preprocess::keyword::preprocess_keyword;
 
-fn f(seq: &str) -> Option<Expr> {
+fn f(seq: &str) -> MaybeExpr {
     let seq = preprocess_comment(seq);
     let seq = preprocess_blank(&seq);
     let seq = preprocess_keyword(&seq);
@@ -13,7 +13,7 @@ fn f(seq: &str) -> Option<Expr> {
 
 #[test]
 fn test_parse_unit() {
-    let r = Expr::Unit;
+    let r = Expr::Unit(None);
     let r = Some(r);
 
     assert_eq!(f("()"), r);
@@ -23,7 +23,7 @@ fn test_parse_unit() {
 
 #[test]
 fn test_parse_int() {
-    let r = Expr::Int(123);
+    let r = Expr::Int(None, 123);
     let r = Some(r);
 
     assert_eq!(f("123"), r);
@@ -45,8 +45,9 @@ fn test_parse_env_ref() {
 fn test_parse_apply_part1() {
     // Apply(Unit, Int)
     let r = Expr::Apply(
-        Expr::Unit.boxed(),
-        Expr::Int(123).boxed(),
+        None,
+        Expr::Unit(None).boxed(),
+        Expr::Int(None, 123).boxed(),
     );
     let r = Some(r);
 
@@ -61,8 +62,9 @@ fn test_parse_apply_part1() {
 fn test_parse_apply_part2() {
     // Apply(EnvRef, Int)
     let r = Expr::Apply(
+        None,
         Expr::EnvRef("abc".to_string()).boxed(),
-        Expr::Int(123).boxed(),
+        Expr::Int(None, 123).boxed(),
     );
     let r = Some(r);
 
@@ -77,8 +79,9 @@ fn test_parse_apply_part2() {
 fn test_parse_apply_part3() {
     // Apply(EnvRef, Unit)
     let r = Expr::Apply(
+        None,
         Expr::EnvRef("abc".to_string()).boxed(),
-        Expr::Unit.boxed(),
+        Expr::Unit(None).boxed(),
     );
     let r = Some(r);
 
@@ -93,10 +96,12 @@ fn test_parse_apply_part3() {
 fn test_parse_apply_part4() {
     // Apply(EnvRef, Apply(EnvRef, Unit))
     let r = Expr::Apply(
+        None,
         Expr::EnvRef("abc".to_string()).boxed(),
         Expr::Apply(
+            None,
             Expr::EnvRef("abc".to_string()).boxed(),
-            Expr::Unit.boxed(),
+            Expr::Unit(None).boxed(),
         ).boxed(),
     );
     let r = Some(r);
@@ -112,12 +117,15 @@ fn test_parse_apply_part4() {
 fn test_parse_apply_part5() {
     // Apply(EnvRef, Apply(EnvRef, Apply(EnvRef, Unit)))
     let r = Expr::Apply(
+        None,
         Expr::EnvRef("abc".to_string()).boxed(),
         Expr::Apply(
+            None,
             Expr::EnvRef("abc".to_string()).boxed(),
             Expr::Apply(
+                None,
                 Expr::EnvRef("abc".to_string()).boxed(),
-                Expr::Unit.boxed(),
+                Expr::Unit(None).boxed(),
             ).boxed(),
         ).boxed(),
     );
@@ -134,16 +142,20 @@ fn test_parse_apply_part5() {
 fn test_parse_apply_part6() {
     // Apply(EnvRef, Apply(EnvRef, Unit))
     let r = Expr::Apply(
+        None,
         Expr::Apply(
+            None,
             Expr::EnvRef("abc".to_string()).boxed(),
-            Expr::Int(123).boxed(),
+            Expr::Int(None, 123).boxed(),
         ).boxed(),
         Expr::Apply(
+            None,
             Expr::Apply(
+                None,
                 Expr::EnvRef("add".to_string()).boxed(),
-                Expr::Int(123).boxed(),
+                Expr::Int(None, 123).boxed(),
             ).boxed(),
-            Expr::Int(456).boxed(),
+            Expr::Int(None, 456).boxed(),
         ).boxed(),
     );
     let r = Some(r);
@@ -157,17 +169,21 @@ fn test_parse_apply_part6() {
 fn test_parse_apply_part7() {
     // Apply(EnvRef, Apply(EnvRef, Unit))
     let r = Expr::Apply(
+        None,
         Expr::Apply(
+            None,
             Expr::EnvRef("abc".to_string()).boxed(),
             Expr::Apply(
+                None,
                 Expr::Apply(
+                    None,
                     Expr::EnvRef("add".to_string()).boxed(),
-                    Expr::Int(123).boxed(),
+                    Expr::Int(None, 123).boxed(),
                 ).boxed(),
-                Expr::Int(456).boxed(),
+                Expr::Int(None, 456).boxed(),
             ).boxed(),
         ).boxed(),
-        Expr::Int(123).boxed(),
+        Expr::Int(None, 123).boxed(),
     );
     let r = Some(r);
 
@@ -180,9 +196,10 @@ fn test_parse_apply_part7() {
 fn test_parse_cond_part1() {
     // Cond(EnvRef, Int, Unit)
     let r = Expr::Cond(
+        None,
         Expr::EnvRef("abc".to_string()).boxed(),
-        Expr::Int(123).boxed(),
-        Expr::Unit.boxed(),
+        Expr::Int(None, 123).boxed(),
+        Expr::Unit(None).boxed(),
     );
     let r = Some(r);
 
@@ -197,14 +214,17 @@ fn test_parse_cond_part2() {
     // Cond(a, a, a)
     // while: a = Cond(EnvRef, Apply(Int, Unit), Int)
     let e = Expr::Cond(
+        None,
         Expr::EnvRef("abc".to_string()).boxed(),
         Expr::Apply(
-            Expr::Int(123).boxed(),
-            Expr::Unit.boxed(),
+            None,
+            Expr::Int(None, 123).boxed(),
+            Expr::Unit(None).boxed(),
         ).boxed(),
-        Expr::Int(456).boxed(),
+        Expr::Int(None, 456).boxed(),
     );
     let r = Some(Expr::Cond(
+        None,
         e.clone().boxed(),
         e.clone().boxed(),
         e.clone().boxed(),
@@ -227,19 +247,23 @@ fn test_parse_cond_part3() {
     // while: a = Cond(Apply(Int, Unit), Int, EnvRef)
     // while: b = Cond(a, a, a)
     let a = Expr::Cond(
+        None,
         Expr::Apply(
-            Expr::Int(123).boxed(),
-            Expr::Unit.boxed(),
+            None,
+            Expr::Int(None, 123).boxed(),
+            Expr::Unit(None).boxed(),
         ).boxed(),
-        Expr::Int(123).boxed(),
+        Expr::Int(None, 123).boxed(),
         Expr::EnvRef("abc".to_string()).boxed(),
     );
     let b = Expr::Cond(
+        None,
         a.clone().boxed(),
         a.clone().boxed(),
         a.clone().boxed(),
     );
     let r = Expr::Cond(
+        None,
         b.clone().boxed(),
         b.clone().boxed(),
         b.clone().boxed(),
@@ -262,19 +286,23 @@ fn test_parse_cond_part4() {
     // while: a = Cond(Apply(Int, Unit), Int, EnvRef)
     // while: b = Cond(a, a, a)
     let a = Expr::Cond(
+        None,
         Expr::Apply(
-            Expr::Int(123).boxed(),
-            Expr::Unit.boxed(),
+            None,
+            Expr::Int(None, 123).boxed(),
+            Expr::Unit(None).boxed(),
         ).boxed(),
-        Expr::Int(123).boxed(),
+        Expr::Int(None, 123).boxed(),
         Expr::EnvRef("abc".to_string()).boxed(),
     );
     let b = Expr::Cond(
+        None,
         a.clone().boxed(),
         a.clone().boxed(),
         a.clone().boxed(),
     );
     let r = Expr::Cond(
+        None,
         b.clone().boxed(),
         b.clone().boxed(),
         b.clone().boxed(),
@@ -290,13 +318,17 @@ fn test_parse_cond_part4() {
 #[test]
 fn test_parse_closure_part1() {
     let r = Expr::Closure(
+        None,
         "a".to_string(),
+        None,
         Expr::Apply(
+            None,
             Expr::Apply(
+                None,
                 Expr::EnvRef("add".to_string()).boxed(),
-                Expr::Int(123).boxed(),
+                Expr::Int(None, 123).boxed(),
             ).boxed(),
-            Expr::Unit.boxed(),
+            Expr::Unit(None).boxed(),
         ).boxed(),
     );
     let r = Some(r);
@@ -312,16 +344,26 @@ fn test_parse_closure_part1() {
 #[test]
 fn test_parse_closure_part2() {
     let r = Expr::Closure(
+        None,
         "a".to_string(),
+        None,
         Expr::Closure(
+            None,
             "b".to_string(),
+            None,
             Expr::Closure(
+                None,
                 "c".to_string(),
+                None,
                 Expr::Apply(
+                    None,
                     Expr::Apply(
+                        None,
                         Expr::EnvRef("add".to_string()).boxed(),
                         Expr::Apply(
+                            None,
                             Expr::Apply(
+                                None,
                                 Expr::EnvRef("add".to_string()).boxed(),
                                 Expr::EnvRef("a".to_string()).boxed(),
                             ).boxed(),
@@ -346,20 +388,30 @@ fn test_parse_closure_part2() {
 #[test]
 fn test_parse_closure_part3() {
     let r = Expr::Closure(
+        None,
         "aaa".to_string(),
+        None,
         Expr::Closure(
+            None,
             "bbb".to_string(),
+            None,
             Expr::Closure(
+                None,
                 "ccc".to_string(),
+                None,
                 Expr::Apply(
+                    None,
                     Expr::Apply(
+                        None,
                         Expr::EnvRef("add".to_string()).boxed(),
                         Expr::Apply(
+                            None,
                             Expr::Apply(
+                                None,
                                 Expr::EnvRef("add".to_string()).boxed(),
                                 Expr::EnvRef("aaa".to_string()).boxed(),
                             ).boxed(),
-                            Expr::Int(123).boxed(),
+                            Expr::Int(None, 123).boxed(),
                         ).boxed(),
                     ).boxed(),
                     Expr::EnvRef("ccc".to_string()).boxed(),
@@ -379,11 +431,13 @@ fn test_parse_closure_part3() {
 
 #[test]
 fn test_parse_struct_part1() {
-    let r = Expr::Struct(vec![
-        ("a".to_string(), Expr::Int(123)),
-        ("ab".to_string(), Expr::EnvRef("ref".to_string())),
-        ("abc".to_string(), Expr::Unit),
-    ]);
+    let r = Expr::Struct(
+        None,
+        vec![
+            ("a".to_string(), None, Expr::Int(None, 123)),
+            ("ab".to_string(), None, Expr::EnvRef("ref".to_string())),
+            ("abc".to_string(), None, Expr::Unit(None)),
+        ]);
     let r = Some(r);
 
     let seq = "{ a = 123, ab = ref, abc = () }";
@@ -398,23 +452,37 @@ fn test_parse_struct_part1() {
 
 #[test]
 fn test_parse_struct_part2() {
-    let a = Expr::Struct(vec![
-        ("abc".to_string(),
-         Expr::Struct(vec![
-             ("efg".to_string(), Expr::Cond(
-                 Expr::Int(123).boxed(),
-                 Expr::Unit.boxed(),
-                 Expr::Int(0).boxed(),
-             ))
-         ])),
-        ("x".to_string(), Expr::Int(1)),
-    ]);
+    let a = Expr::Struct(
+        None,
+        vec![
+            ("abc".to_string(),
+             None,
+             Expr::Struct(
+                 None,
+                 vec![
+                     ("efg".to_string(),
+                      None,
+                      Expr::Cond(
+                          None,
+                          Expr::Int(None, 123).boxed(),
+                          Expr::Unit(None).boxed(),
+                          Expr::Int(None, 0).boxed(),
+                      ))
+                 ])),
+            ("x".to_string(), None, Expr::Int(None, 1)),
+        ]);
     let fun = Expr::Closure(
+        None,
         "x".to_string(),
+        None,
         Expr::Closure(
+            None,
             "y".to_string(),
+            None,
             Expr::Apply(
+                None,
                 Expr::Apply(
+                    None,
                     Expr::EnvRef("add".to_string()).boxed(),
                     Expr::EnvRef("x".to_string()).boxed(),
                 ).boxed(),
@@ -422,14 +490,17 @@ fn test_parse_struct_part2() {
             ).boxed(),
         ).boxed(),
     );
-    let r = Expr::Struct(vec![
-        ("a".to_string(), a),
-        ("ab".to_string(), Expr::Apply(
-            Expr::EnvRef("neg".to_string()).boxed(),
-            Expr::Int(1).boxed(),
-        )),
-        ("fun".to_string(), fun),
-    ]);
+    let r = Expr::Struct(
+        None,
+        vec![
+            ("a".to_string(), None, a),
+            ("ab".to_string(), None, Expr::Apply(
+                None,
+                Expr::EnvRef("neg".to_string()).boxed(),
+                Expr::Int(None, 1).boxed(),
+            )),
+            ("fun".to_string(), None, fun),
+        ]);
     let r = Some(r);
 
     let seq =
@@ -458,27 +529,32 @@ fn test_parse_struct_part2() {
 #[test]
 fn test_parse_match_part1() {
     let r = Expr::Match(
+        None,
         Expr::EnvRef("x".to_string()).boxed(),
         vec![
-            (Expr::Int(1),
+            (Expr::Int(None, 1),
              Expr::Apply(
+                 None,
                  Expr::EnvRef("neg".to_string()).boxed(),
-                 Expr::Int(1).boxed(),
+                 Expr::Int(None, 1).boxed(),
              )),
-            (Expr::Int(2),
+            (Expr::Int(None, 2),
              Expr::Cond(
+                 None,
                  Expr::EnvRef("abc".to_string()).boxed(),
-                 Expr::Unit.boxed(),
-                 Expr::Int(0).boxed(),
+                 Expr::Unit(None).boxed(),
+                 Expr::Int(None, 0).boxed(),
              )),
-            (Expr::Struct(vec![
-                ("a".to_string(), Expr::Int(1)),
-                ("b".to_string(), Expr::Discard),
-                ("c".to_string(), Expr::Int(3)),
-            ]),
-             Expr::Int(0)),
+            (Expr::Struct(
+                None,
+                vec![
+                    ("a".to_string(), None, Expr::Int(None, 1)),
+                    ("b".to_string(), None, Expr::Discard),
+                    ("c".to_string(), None, Expr::Int(None, 3)),
+                ]),
+             Expr::Int(None, 0)),
             (Expr::Discard,
-             Expr::Unit),
+             Expr::Unit(None)),
         ],
     );
     let r = Some(r);
@@ -504,21 +580,29 @@ fn test_parse_match_part1() {
 #[test]
 fn test_parse_match_part2() {
     let r = Expr::Match(
+        None,
         Expr::EnvRef("x".to_string()).boxed(),
         vec![
-            (Expr::Int(1),
+            (Expr::Int(None, 1),
              Expr::Cond(
+                 None,
                  Expr::EnvRef("a".to_string()).boxed(),
                  Expr::EnvRef("b".to_string()).boxed(),
                  Expr::EnvRef("c".to_string()).boxed(),
              )),
             (Expr::EnvRef("v".to_string()),
              Expr::Closure(
+                 None,
                  "a".to_string(),
+                 None,
                  Expr::Closure(
+                     None,
                      "b".to_string(),
+                     None,
                      Expr::Apply(
+                         None,
                          Expr::Apply(
+                             None,
                              Expr::EnvRef("add".to_string()).boxed(),
                              Expr::EnvRef("a".to_string()).boxed(),
                          ).boxed(),
@@ -526,41 +610,68 @@ fn test_parse_match_part2() {
                      ).boxed(),
                  ).boxed())
             ),
-            (Expr::Struct(vec![
-                ("a".to_string(), Expr::Discard),
-                ("b".to_string(),
-                 Expr::Struct(vec![
-                     ("foo".to_string(), Expr::Discard),
-                     ("bar".to_string(), Expr::Discard),
+            (Expr::Struct(
+                None,
+                vec![
+                    ("a".to_string(),
+                     None,
+                     Expr::Discard),
+                    ("b".to_string(),
+                     None,
+                     Expr::Struct(
+                         None,
+                         vec![
+                             ("foo".to_string(), None, Expr::Discard),
+                             ("bar".to_string(), None, Expr::Discard),
+                         ])),
+                    ("c".to_string(),
+                     None,
+                     Expr::Int(None, 3)),
+                ]),
+             Expr::Struct(
+                 None,
+                 vec![
+                     ("x".to_string(),
+                      None,
+                      Expr::Int(None, 123)),
+                     ("y".to_string(),
+                      None,
+                      Expr::EnvRef("c".to_string())),
                  ])),
-                ("c".to_string(), Expr::Int(3)),
-            ]),
-             Expr::Struct(vec![
-                 ("x".to_string(), Expr::Int(123)),
-                 ("y".to_string(), Expr::EnvRef("c".to_string())),
-             ])),
             (Expr::Discard,
              Expr::Match(
+                 None,
                  Expr::EnvRef("y".to_string()).boxed(),
                  vec![
-                     (Expr::Int(1), Expr::Unit),
-                     (Expr::Unit, Expr::Closure(
+                     (Expr::Int(None, 1), Expr::Unit(None)),
+                     (Expr::Unit(None), Expr::Closure(
+                         None,
                          "a".to_string(),
+                         None,
                          Expr::Closure(
+                             None,
                              "b".to_string(),
+                             None,
                              Expr::Match(
+                                 None,
                                  Expr::EnvRef("z".to_string()).boxed(),
                                  vec![
-                                     (Expr::Discard, Expr::Int(114514)),
+                                     (Expr::Discard, Expr::Int(None, 114514)),
                                      (Expr::EnvRef("a".to_string()),
                                       Expr::Closure(
+                                          None,
                                           "x".to_string(),
+                                          None,
                                           Expr::Closure(
+                                              None,
                                               "y".to_string(),
+                                              None,
                                               Expr::Apply(
+                                                  None,
                                                   Expr::Apply(
+                                                      None,
                                                       Expr::EnvRef("add".to_string()).boxed(),
-                                                      Expr::Unit.boxed(),
+                                                      Expr::Unit(None).boxed(),
                                                   ).boxed(),
                                                   Expr::EnvRef("y".to_string()).boxed(),
                                               ).boxed(),
@@ -629,14 +740,18 @@ fn test_parse_match_part2() {
 #[test]
 fn test_parse_let_part1() {
     let r = Expr::Let(
+        None,
         "a".to_string(),
-        Expr::Int(123).boxed(),
+        None,
+        Expr::Int(None, 123).boxed(),
         Expr::Apply(
+            None,
             Expr::Apply(
+                None,
                 Expr::EnvRef("add".to_string()).boxed(),
                 Expr::EnvRef("a".to_string()).boxed(),
             ).boxed(),
-            Expr::Int(456).boxed(),
+            Expr::Int(None, 456).boxed(),
         ).boxed(),
     );
     let r = Some(r);
@@ -654,23 +769,31 @@ fn test_parse_let_part1() {
 #[test]
 fn test_parse_let_part2() {
     let r = Expr::Let(
+        None,
         "a".to_string(),
-        Expr::Int(123).boxed(),
+        None,
+        Expr::Int(None, 123).boxed(),
         Expr::Let(
+            None,
             "b".to_string(),
+            None,
             Expr::Apply(
+                None,
                 Expr::Apply(
+                    None,
                     Expr::EnvRef("add".to_string()).boxed(),
                     Expr::EnvRef("c".to_string()).boxed(),
                 ).boxed(),
                 Expr::EnvRef("d".to_string()).boxed(),
             ).boxed(),
             Expr::Apply(
+                None,
                 Expr::Apply(
+                    None,
                     Expr::EnvRef("add".to_string()).boxed(),
-                    Expr::Unit.boxed(),
+                    Expr::Unit(None).boxed(),
                 ).boxed(),
-                Expr::Int(456).boxed(),
+                Expr::Int(None, 456).boxed(),
             ).boxed(),
         ).boxed(),
     );
@@ -683,52 +806,80 @@ fn test_parse_let_part2() {
 #[test]
 fn test_parse_let_part3() {
     let r = Expr::Let(
+        None,
         "a".to_string(),
-        Expr::Int(123).boxed(),
+        None,
+        Expr::Int(None, 123).boxed(),
         Expr::Let(
+            None,
             "b".to_string(),
-            Expr::Let("x".to_string(),
-                      Expr::Closure(
-                          "i".to_string(),
-                          Expr::Closure(
-                              "j".to_string(),
-                              Expr::EnvRef("k".to_string()).boxed(),
-                          ).boxed(),
-                      ).boxed(),
-                      Expr::Let(
-                          "y".to_string(),
-                          Expr::EnvRef("a".to_string()).boxed(),
-                          Expr::Let(
-                              "z".to_string(),
-                              Expr::Unit.boxed(),
-                              Expr::EnvRef("a".to_string()).boxed(),
-                          ).boxed(),
-                      ).boxed(),
-            ).boxed(),
+            None,
             Expr::Let(
-                "d".to_string(),
-                Expr::Apply(
-                    Expr::EnvRef("neg".to_string()).boxed(),
-                    Expr::Int(1).boxed(),
+                None,
+                "x".to_string(),
+                None,
+                Expr::Closure(
+                    None,
+                    "i".to_string(),
+                    None,
+                    Expr::Closure(
+                        None,
+                        "j".to_string(),
+                        None,
+                        Expr::EnvRef("k".to_string()).boxed(),
+                    ).boxed(),
                 ).boxed(),
                 Expr::Let(
-                    "e".to_string(),
-                    Expr::Int(6).boxed(),
+                    None,
+                    "y".to_string(),
+                    None,
+                    Expr::EnvRef("a".to_string()).boxed(),
                     Expr::Let(
+                        None,
+                        "z".to_string(),
+                        None,
+                        Expr::Unit(None).boxed(),
+                        Expr::EnvRef("a".to_string()).boxed(),
+                    ).boxed(),
+                ).boxed(),
+            ).boxed(),
+            Expr::Let(
+                None,
+                "d".to_string(),
+                None,
+                Expr::Apply(
+                    None,
+                    Expr::EnvRef("neg".to_string()).boxed(),
+                    Expr::Int(None,1).boxed(),
+                ).boxed(),
+                Expr::Let(
+                    None,
+                    "e".to_string(),
+                    None,
+                    Expr::Int(None, 6).boxed(),
+                    Expr::Let(
+                        None,
                         "k".to_string(),
-                        Expr::Unit.boxed(),
+                        None,
+                        Expr::Unit(None).boxed(),
                         Expr::Let(
+                            None,
                             "m".to_string(),
-                            Expr::Unit.boxed(),
+                            None,
+                            Expr::Unit(None).boxed(),
                             Expr::Let(
+                                None,
                                 "n".to_string(),
-                                Expr::Int(4).boxed(),
+                                None,
+                                Expr::Int(None, 4).boxed(),
                                 Expr::Apply(
+                                    None,
                                     Expr::Apply(
+                                        None,
                                         Expr::EnvRef("add".to_string()).boxed(),
-                                        Expr::Unit.boxed(),
+                                        Expr::Unit(None).boxed(),
                                     ).boxed(),
-                                    Expr::Int(456).boxed(),
+                                    Expr::Int(None, 456).boxed(),
                                 ).boxed(),
                             ).boxed(),
                         ).boxed(),

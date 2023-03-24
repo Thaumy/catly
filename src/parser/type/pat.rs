@@ -1,6 +1,6 @@
 use std::collections::BTreeSet;
 
-use crate::parser::infra::{BoxExt, VecExt};
+use crate::parser::infra::{BoxExt, MaybeType, VecExt};
 use crate::parser::r#type::Type;
 
 #[derive(Debug)]
@@ -33,8 +33,8 @@ pub enum Pat {
     TypeApply(Box<Pat>, Box<Pat>),
 
     Arrow,
-    TypeClosurePara(String),
-    TypeClosure(String, Box<Pat>),//Type::TypeClosure
+    ClosureTypeHead(Box<Pat>),
+    ClosureType(Box<Pat>, Box<Pat>),//Type::ClosureType
 
     SumType(BTreeSet<Pat>),//Type::SumType
 
@@ -52,7 +52,7 @@ impl Pat {
             Pat::DiscardType |
             Pat::TypeName(_) |
             Pat::TypeApply(_, _) |
-            Pat::TypeClosure(_, _) |
+            Pat::ClosureType(_, _) |
             Pat::SumType(_) |
             Pat::ProductType(_)
             => true,
@@ -61,27 +61,18 @@ impl Pat {
     }
 }
 
-impl From<Pat> for Option<Type> {
+impl From<Pat> for MaybeType {
     fn from(pat: Pat) -> Self {
         let r = match pat {
             Pat::IntType => Type::IntType,
             Pat::UnitType => Type::UnitType,
             Pat::DiscardType => Type::DiscardType,
             Pat::TypeName(n) => Type::TypeEnvRef(n),
-            Pat::TypeApply(lhs, rhs) =>
-                match (Self::from(*lhs), Self::from(*rhs)) {
-                    (Some(lhs), Some(rhs)) =>
-                        Type::TypeApply(
-                            lhs.boxed(),
-                            rhs.boxed(),
-                        ),
-                    _ => return None
-                }
 
-            Pat::TypeClosure(para, t) =>
-                match Self::from(*t) {
-                    Some(t) => Type::TypeClosure(
-                        para,
+            Pat::ClosureType(para, t) =>
+                match (Self::from(*para), Self::from(*t)) {
+                    (Some(para), Some(t)) => Type::ClosureType(
+                        para.boxed(),
                         t.boxed(),
                     ),
                     _ => return None
