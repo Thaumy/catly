@@ -1,81 +1,140 @@
 use crate::parser::alphanum::parse_alphanum;
-use crate::parser::infra::{Either, str_get_head_tail_follow, VecExt};
+use crate::parser::infra::{vec_get_head_tail, vec_get_head_tail_follow, VecExt};
 use crate::parser::keyword::Keyword;
 
-fn reduce_stack(stack: Vec<Either<char, Keyword>>, follow: Option<char>) -> Vec<Either<char, Keyword>> {
-    use crate::parser::preprocess::keyword::Either::{*};
+type In = crate::parser::preprocess::chunk::Out;
+
+#[derive(Debug)]
+#[derive(Clone)]
+#[derive(PartialEq)]
+pub enum Out {
+    Symbol(char),
+    DigitChunk(String),
+    LowerStartChunk(String),
+    UpperStartChunk(String),
+
+    Kw(Keyword),
+}
+
+fn reduce_stack(stack: Vec<Out>) -> Vec<Out> {
     use crate::parser::keyword::Keyword::{*};
 
-    match (&stack[..], follow) {
-        // !(Letter|Digit): "type" :Blank -> Type
-        ([.., L(c), L('t'), L('y'), L('p'), L('e')], Some(' '))
-        if parse_alphanum(c).is_none() =>
-            stack.reduce_to_new(4, R(Type)),
-        // Start: "type" :Blank -> Type
-        ([L('t'), L('y'), L('p'), L('e')], Some(' ')) => vec![R(Type)],
+    let reduced_stack = match &stack[..] {
+        // "type" -> Type
+        [.., Out::LowerStartChunk(c)]
+        if c == "type" => stack.reduce_to_new(1, Out::Kw(Type)),
 
-        // !(Letter|Digit): "def" :Blank -> Def
-        ([.., L(c), L('d'), L('e'), L('f')], Some(' '))
-        if parse_alphanum(c).is_none() =>
-            stack.reduce_to_new(3, R(Def)),
-        // Start: "def" :Blank -> Def
-        ([L('d'), L('e'), L('f')], Some(' ')) => vec![R(Def)],
+        // "def" -> Def
+        [.., Out::LowerStartChunk(c)]
+        if c == "def" => stack.reduce_to_new(1, Out::Kw(Def)),
 
-        // !(Letter|Digit): "let" :Blank -> Let
-        ([.., L(c), L('l'), L('e'), L('t')], Some(' '))
-        if parse_alphanum(c).is_none() =>
-            stack.reduce_to_new(3, R(Let)),
-        // Start: "let" :Blank -> Let
-        ([L('l'), L('e'), L('t')], Some(' ')) => vec![R(Let)],
+        // "let" -> Let
+        [.., Out::LowerStartChunk(c)]
+        if c == "let" => stack.reduce_to_new(1, Out::Kw(Let)),
 
-        // Blank|`,`: "in" :Blank -> In
-        ([.., L(' ' | ','), L('i'), L('n') ], Some(' ')) =>
-            stack.reduce_to_new(2, R(In)),
+        // "in" -> In
+        [.., Out::LowerStartChunk(c)]
+        if c == "in" => stack.reduce_to_new(1, Out::Kw(In)),
 
-        // !(Letter|Digit): "if" :Blank -> If
-        ([.., L(c), L('i'), L('f')], Some(' '))
-        if parse_alphanum(c).is_none() =>
-            stack.reduce_to_new(2, R(If)),
-        // Start: "if" :Blank -> If
-        ([L('i'), L('f')], Some(' ')) => vec![R(If)],
+        // "if" -> If
+        [.., Out::LowerStartChunk(c)]
+        if c == "if" => stack.reduce_to_new(1, Out::Kw(If)),
 
-        // Blank: "then" :Blank -> Then
-        ([.., L(' '), L('t'), L('h'), L('e'), L('n')], Some(' ')) =>
-            stack.reduce_to_new(4, R(Then)),
+        // "then" -> Then
+        [.., Out::LowerStartChunk(c)]
+        if c == "then" => stack.reduce_to_new(1, Out::Kw(Then)),
 
-        // Blank: "else" :Blank -> Else
-        ([.., L(' '), L('e'), L('l'), L('s'), L('e') ], Some(' ')) =>
-            stack.reduce_to_new(4, R(Else)),
+        // "else" -> Else
+        [.., Out::LowerStartChunk(c)]
+        if c == "else" => stack.reduce_to_new(1, Out::Kw(Else)),
 
-        // !(Letter|Digit): "match" :Blank -> Match
-        ([.., L(c), L('m'), L('a'), L('t'), L('c'), L('h')], Some(' '))
-        if parse_alphanum(c).is_none() =>
-            stack.reduce_to_new(5, R(Match)),
-        // Start: "match" :Blank -> Match
-        ([L('m'), L('a'), L('t'), L('c'), L('h')], Some(' ')) => vec![R(Match)],
+        // "match" -> Match
+        [.., Out::LowerStartChunk(c)]
+        if c == "match" => stack.reduce_to_new(1, Out::Kw(Match)),
 
-        // Blank: "with" :Blank -> With
-        ([.., L(' '), L('w'), L('i'), L('t'), L('h')], Some(' ')) =>
-            stack.reduce_to_new(4, R(With)),
+        // "with" -> With
+        [.., Out::LowerStartChunk(c)]
+        if c == "with" => stack.reduce_to_new(1, Out::Kw(With)),
 
         _ => return stack
+    };
+
+    println!("Reduce to: {:?}", reduced_stack);
+
+    reduced_stack
+}
+
+impl From<In> for Out {
+    fn from(value: In) -> Self {
+        match value {
+            In::DigitChunk(c) => Self::DigitChunk(c),
+            In::LowerStartChunk(c) => Self::LowerStartChunk(c),
+            In::UpperStartChunk(c) => Self::UpperStartChunk(c),
+            In::Symbol(c) => Self::Symbol(c),
+        }
     }
 }
 
-fn go(stack: Vec<Either<char, Keyword>>, tail: &str) -> Vec<Either<char, Keyword>> {
-    let (head, tail, follow) = str_get_head_tail_follow(tail);
+fn go(stack: Vec<Out>, tail: Vec<In>) -> Vec<Out> {
+    let (head, tail) = vec_get_head_tail(tail);
     let move_in = match head {
-        Some(c) => Either::L(c),
+        Some(x) => x.into(),
         _ => return stack,
     };
 
     let stack = stack.push_to_new(move_in);
-    let reduced_stack = reduce_stack(stack, follow);
+    let reduced_stack = reduce_stack(stack);
     go(reduced_stack, tail)
 }
 
-pub fn preprocess_keyword(seq: &str) -> Vec<Either<char, Keyword>> {
+pub fn preprocess_keyword(seq: Vec<In>) -> Vec<Out> {
     let r = go(vec![], seq);
     println!("Keyword pp out: {:?}", r);
     r
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::parser::keyword::Keyword;
+    use crate::parser::preprocess::keyword::{Out, preprocess_keyword};
+
+    type In = crate::parser::preprocess::chunk::Out;
+
+    #[test]
+    fn test_pp_keyword() {
+        let seq = vec![
+            In::Symbol('{'),
+            In::LowerStartChunk("type".to_string()),
+            In::LowerStartChunk("boob".to_string()),
+            In::LowerStartChunk("def".to_string()),
+            In::LowerStartChunk("let".to_string()),
+            In::LowerStartChunk("in".to_string()),
+            In::LowerStartChunk("if".to_string()),
+            In::DigitChunk("123".to_string()),
+            In::LowerStartChunk("then".to_string()),
+            In::LowerStartChunk("else".to_string()),
+            In::UpperStartChunk("Boob".to_string()),
+            In::LowerStartChunk("match".to_string()),
+            In::LowerStartChunk("with".to_string()),
+            In::Symbol(' '),
+        ];
+        let r = vec![
+            Out::Symbol('{'),
+            Out::Kw(Keyword::Type),
+            Out::LowerStartChunk("boob".to_string()),
+            Out::Kw(Keyword::Def),
+            Out::Kw(Keyword::Let),
+            Out::Kw(Keyword::In),
+            Out::Kw(Keyword::If),
+            Out::DigitChunk("123".to_string()),
+            Out::Kw(Keyword::Then),
+            Out::Kw(Keyword::Else),
+            Out::UpperStartChunk("Boob".to_string()),
+            Out::Kw(Keyword::Match),
+            Out::Kw(Keyword::With),
+            Out::Symbol(' '),
+        ];
+
+        assert_eq!(preprocess_keyword(seq), r);
+    }
 }
