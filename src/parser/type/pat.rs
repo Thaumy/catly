@@ -15,14 +15,6 @@ pub enum Pat {
     Mark(char),
     Blank,
 
-    //Type::IntType
-    IntType,
-
-    //Type::UnitType
-    UnitType,
-
-    DiscardType,//Type::DiscardType
-
     Alphanum(char),
     AlphanumSeq(String),
 
@@ -47,9 +39,6 @@ pub enum Pat {
 impl Pat {
     pub(crate) fn is_type(&self) -> bool {
         match self {
-            Pat::IntType |
-            Pat::UnitType |
-            Pat::DiscardType |
             Pat::TypeName(_) |
             Pat::TypeApply(_, _) |
             Pat::ClosureType(_, _) |
@@ -64,9 +53,6 @@ impl Pat {
 impl From<Pat> for MaybeType {
     fn from(pat: Pat) -> Self {
         let r = match pat {
-            Pat::IntType => Type::IntType,
-            Pat::UnitType => Type::UnitType,
-            Pat::DiscardType => Type::DiscardType,
             Pat::TypeName(n) => Type::TypeEnvRef(n),
 
             Pat::ClosureType(para, t) =>

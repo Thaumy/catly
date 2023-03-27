@@ -20,14 +20,15 @@ pub enum Pat {
 
     Alphanum(char),
     AlphanumSeq(String),
-    LetName(String),//Expr::EnvRef
+    //Expr::EnvRef
+    LetName(String),
+
+    Kw(Keyword),
 
     Blank,
     Apply(Box<Pat>, Box<Pat>),//Expr::Apply
 
-    KwIf,
-    KwThen,
-    KwElse,
+    // if then else
     Cond(MaybeType, Box<Pat>, Box<Pat>, Box<Pat>),//Expr::Cond
 
     Arrow,
@@ -38,8 +39,7 @@ pub enum Pat {
     AssignSeq(Vec<(String, Pat)>),
     Struct(Vec<(String, Pat)>),//Expr::Struct
 
-    KwMatch,
-    KwWith,
+    // match with
     Discard,
     MatchHead(Box<Pat>),
     CaseHead(Box<Pat>),
@@ -47,8 +47,7 @@ pub enum Pat {
     CaseSeq(Vec<(Pat, Pat)>),
     Match(MaybeType, Box<Pat>, Vec<(Pat, Pat)>),//Expr::Match
 
-    KwLet,
-    KwIn,
+    // let in
     Let(MaybeType, String, MaybeType, Box<Pat>, Box<Pat>),
 }
 
@@ -73,17 +72,7 @@ impl Pat {
 
 impl From<Keyword> for Pat {
     fn from(kw: Keyword) -> Self {
-        match kw {
-            Keyword::Type => todo!(),
-            Keyword::Def => todo!(),
-            Keyword::Let => Pat::KwLet,
-            Keyword::In => Pat::KwIn,
-            Keyword::If => Pat::KwIf,
-            Keyword::Then => Pat::KwThen,
-            Keyword::Else => Pat::KwElse,
-            Keyword::Match => Pat::KwMatch,
-            Keyword::With => Pat::KwWith,
-        }
+        Pat::Kw(kw)
     }
 }
 

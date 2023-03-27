@@ -39,8 +39,6 @@ fn move_in(stack: &Vec<Pat>, head: Option<Either<char, Keyword>>) -> Pat {
 
             // '|' -> `|`
             (_, '|') => Pat::Mark('|'),
-            // '_' -> Discard
-            (_, '_') => Pat::DiscardType,
             // ':' -> `:`
             (_, ':') => Pat::Mark(':'),
 
@@ -71,10 +69,6 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
         ([.., Pat::Mark('('), p, Pat::Mark(')')], _) if p.is_type() =>
             stack.reduce_to_new(3, p.clone()),
 
-        // "_" -> DiscardType
-        ([.., Pat::Mark('_')], _) =>
-            stack.reduce_to_new(1, Pat::DiscardType),
-
         // AlphanumSeq Alphanum -> AlphanumSeq
         ([.., Pat::AlphanumSeq(cs), Pat::Alphanum(c)], _) =>
             stack.reduce_to_new(2, Pat::AlphanumSeq(format!("{}{}", cs, c))),
@@ -85,14 +79,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
         ([.., Pat::AlphanumSeq(cs)], _) => {
             let top = if cs.starts_with(|c: char| c.is_uppercase()) {
                 match parse_type_name(cs) {
-                    Some(n) => match &n[..] {
-                        // "Unit" -> UnitType
-                        "Unit" => Pat::UnitType,
-                        // "Int" -> IntType
-                        "Int" => Pat::IntType,
-                        // _ -> TypeName
-                        n => Pat::TypeName(n.to_string()),
-                    }
+                    Some(n) => Pat::TypeName(n.to_string()),
                     None => Pat::Err,
                 }
             } else {

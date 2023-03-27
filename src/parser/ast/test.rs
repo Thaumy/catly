@@ -179,9 +179,9 @@ fn test_parse_ast_part2() {
         "Love".to_string(),
         Type::SumType(BTreeSet::from([
             Type::TypeEnvRef("A".to_string()),
-            Type::UnitType,
+            Type::TypeEnvRef("Unit".to_string()),
             Type::TypeEnvRef("C".to_string()),
-            Type::IntType,
+            Type::TypeEnvRef("Int".to_string()),
         ])),
     );
     let d2 = Define::ExprDef(

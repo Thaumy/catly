@@ -29,7 +29,7 @@ fn test_parse_type_def_part1() {
 fn test_parse_type_def_part2() {
     let t = Type::ProductType(vec![
         ("abc".to_string(), Type::TypeEnvRef("A".to_string())),
-        ("uuu".to_string(), Type::UnitType),
+        ("uuu".to_string(), Type::TypeEnvRef("Unit".to_string())),
         ("intList".to_string(), Type::TypeEnvRef("List".to_string())),
     ]);
 

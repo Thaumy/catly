@@ -91,9 +91,9 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
 
         // KwIf Blank Expr Blank KwThen Blank Expr Blank KwElse Blank Expr -> Cond
         ([..,
-        Pat::KwIf, Pat::Blank, a, Pat::Blank,
-        Pat::KwThen, Pat::Blank, b, Pat::Blank,
-        Pat::KwElse, Pat::Blank, c
+        Pat::Kw(Keyword::If), Pat::Blank, a, Pat::Blank,
+        Pat::Kw(Keyword::Then), Pat::Blank, b, Pat::Blank,
+        Pat::Kw(Keyword::Else), Pat::Blank, c
         ], _)
         if a.is_expr() && b.is_expr() && c.is_expr() =>
             stack.reduce_to_new(11, Pat::Cond(
@@ -242,7 +242,10 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
         }
 
         // KwMatch Blank Expr Blank KwWith Blank -> MatchHead
-        ([.., Pat::KwMatch, Pat::Blank, p, Pat::Blank, Pat::KwWith, Pat::Blank], _)
+        ([..,
+        Pat::Kw(Keyword::Match), Pat::Blank,
+        p, Pat::Blank, Pat::Kw(Keyword::With), Pat::Blank], _
+        )
         if p.is_expr() => {
             let top = Pat::MatchHead(p.clone().boxed());
             stack.reduce_to_new(6, top)
@@ -357,8 +360,8 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
             stack.reduce_to_new(7, top)
         }
         // KwLet AssignSeq KwIn Blank Expr :!Blank -> Let
-        ([.., Pat::KwLet,
-        Pat::AssignSeq(a_seq), Pat::KwIn, Pat::Blank,
+        ([.., Pat::Kw(Keyword::Let),
+        Pat::AssignSeq(a_seq), Pat::Kw(Keyword::In), Pat::Blank,
         p], follow_pat)
         if follow_pat.not_blank() && p.is_expr() => {
             type F = fn(Pat, &(String, Pat)) -> Pat;
@@ -376,8 +379,8 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
             stack.reduce_to_new(5, top)
         }
         // KwLet Assign KwIn Blank Expr :!Blank -> Let
-        ([.., Pat::KwLet,
-        Pat::Assign(n, e), Pat::KwIn, Pat::Blank,
+        ([.., Pat::Kw(Keyword::Let),
+        Pat::Assign(n, e), Pat::Kw(Keyword::In), Pat::Blank,
         p], follow_pat)
         if follow_pat.not_blank() && p.is_expr() => {
             let top = Pat::Let(

@@ -15,7 +15,7 @@ fn f(seq: &str) -> MaybeType {
 
 #[test]
 fn test_parse_int_type() {
-    let r = Type::IntType;
+    let r = Type::TypeEnvRef("Int".to_string());
     let r = Some(r);
 
     let seq = "Int";
@@ -26,7 +26,7 @@ fn test_parse_int_type() {
 
 #[test]
 fn test_parse_unit_type() {
-    let r = Type::UnitType;
+    let r = Type::TypeEnvRef("Unit".to_string());
     let r = Some(r);
 
     let seq = "Unit";
@@ -115,9 +115,9 @@ fn test_parse_closure_type_part3() {
 fn test_parse_sum_type() {
     let r = Type::SumType(BTreeSet::from([
         Type::TypeEnvRef("A".to_string()),
-        Type::UnitType,
+        Type::TypeEnvRef("Unit".to_string()),
         Type::TypeEnvRef("C".to_string()),
-        Type::IntType,
+        Type::TypeEnvRef("Int".to_string()),
     ]));
     let r = Some(r);
 
@@ -136,7 +136,7 @@ fn test_parse_sum_type() {
 #[test]
 fn test_parse_product_type_part1() {
     let r = Type::ProductType(vec![
-        ("a".to_string(), Type::IntType)
+        ("a".to_string(), Type::TypeEnvRef("Int".to_string()))
     ]);
     let r = Some(r);
 
@@ -154,7 +154,7 @@ fn test_parse_product_type_part1() {
 fn test_parse_product_type_part2() {
     let r = Type::ProductType(vec![
         ("abc".to_string(), Type::TypeEnvRef("A".to_string())),
-        ("uuu".to_string(), Type::UnitType),
+        ("uuu".to_string(), Type::TypeEnvRef("Unit".to_string())),
         ("intList".to_string(), Type::TypeEnvRef("IntList".to_string())),
     ]);
     let r = Some(r);

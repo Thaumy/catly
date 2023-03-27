@@ -14,12 +14,8 @@ mod r#fn;
 #[derive(PartialEq, Eq)]
 #[derive(PartialOrd, Ord)]
 pub enum Type {
-    IntType,
-    UnitType,
-    DiscardType,
-    ClosureType(Box<Type>, Box<Type>),
-
     TypeEnvRef(String),
+    ClosureType(Box<Type>, Box<Type>),
     SumType(BTreeSet<Type>),
     ProductType(Vec<(String, Type)>),
 }
