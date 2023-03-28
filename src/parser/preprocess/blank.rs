@@ -1,4 +1,6 @@
-use crate::parser::infra::{Either, str_get_head_tail, VecExt};
+use crate::parser::infra::either::Either;
+use crate::parser::infra::str::str_get_head_tail;
+use crate::parser::infra::vec::Ext;
 
 fn any(c: char) -> AnyOrBlank {
     Either::L(c)
@@ -20,7 +22,7 @@ fn reduce_stack(mut stack: Vec<AnyOrBlank>) -> Vec<AnyOrBlank> {
     stack
 }
 
-fn go(stack: Vec<AnyOrBlank>, tail: &str) -> Vec<AnyOrBlank> {
+fn go(mut stack: Vec<AnyOrBlank>, tail: &str) -> Vec<AnyOrBlank> {
     let (head, tail) = str_get_head_tail(tail);
     let move_in = match head {
         Some(' ' | '\t' | '\n' | '\r') => blank(),
@@ -28,7 +30,7 @@ fn go(stack: Vec<AnyOrBlank>, tail: &str) -> Vec<AnyOrBlank> {
         _ => return stack,
     };
 
-    let stack = stack.push_to_new(move_in);
+    stack.push(move_in);
     let reduced_stack = reduce_stack(stack);
     go(reduced_stack, tail)
 }

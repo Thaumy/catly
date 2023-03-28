@@ -1,4 +1,5 @@
-use crate::parser::infra::{slice_get_head_tail, VecExt};
+use crate::parser::infra::slice::slice_get_head_tail;
+use crate::parser::infra::vec::Ext;
 use crate::parser::keyword::Keyword;
 use crate::parser::value::int::parse_int;
 
@@ -36,7 +37,6 @@ pub enum Pat {
 }
 
 fn reduce_stack(mut stack: Vec<Pat>) -> Vec<Pat> {
-
     match &stack[..] {
         // DigitChunk -> IntValue
         [.., Pat::DigitChunk(c)] => match parse_int(c) {
@@ -91,14 +91,14 @@ impl From<Pat> for Option<Out> {
     }
 }
 
-fn go(stack: Vec<Pat>, tail: &[In]) -> Vec<Pat> {
+fn go(mut stack: Vec<Pat>, tail: &[In]) -> Vec<Pat> {
     let (head, tail) = slice_get_head_tail(tail);
     let move_in = match head {
         Some(x) => x.clone().into(),
         _ => return stack,
     };
 
-    let stack = stack.push_to_new(move_in);
+    stack.push(move_in);
     let reduced_stack = reduce_stack(stack);
     go(reduced_stack, tail)
 }
@@ -110,7 +110,10 @@ pub fn preprocess_const(seq: &[In]) -> Option<Vec<Out>> {
         .iter()
         .fold(Some(vec![]), |acc, x|
             match (acc, Option::<Out>::from(x.clone())) {
-                (Some(vec), Some(top)) => Some(vec.push_to_new(top)),
+                (Some(mut vec), Some(top)) => {
+                    vec.push(top);
+                    Some(vec)
+                }
                 _ => None
             },
         );

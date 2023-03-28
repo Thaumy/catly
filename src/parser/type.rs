@@ -1,6 +1,6 @@
 use std::collections::BTreeSet;
 
-use crate::parser::infra::MaybeType;
+use crate::parser::infra::alias::MaybeType;
 use crate::parser::preprocess::Out;
 use crate::parser::r#type::pat::Pat;
 use crate::parser::r#type::r#fn::go;
@@ -22,7 +22,7 @@ pub enum Type {
 
 pub fn parse_type(seq: Vec<Out>) -> MaybeType {
     println!("\nParsing seq: {:?}", seq);
-    Option::<Type>::from(go(&vec![Pat::Start], seq))
+    Option::<Type>::from(go(vec![Pat::Start], seq))
 }
 
 mod test;

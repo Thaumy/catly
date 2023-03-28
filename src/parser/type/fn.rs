@@ -1,6 +1,7 @@
 use std::collections::BTreeSet;
 
-use crate::parser::infra::{BoxExt, vec_get_head_tail_follow, VecExt};
+use crate::parser::infra::r#box::Ext as BoxExt;
+use crate::parser::infra::vec::{Ext, vec_get_head_tail_follow};
 use crate::parser::preprocess::Out;
 use crate::parser::r#type::pat::Pat;
 
@@ -225,11 +226,11 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
     reduce_stack(reduced_stack, follow)
 }
 
-pub fn go(stack: &Vec<Pat>, seq: Vec<Out>) -> Pat {
+pub fn go(mut stack: Vec<Pat>, seq: Vec<Out>) -> Pat {
     let (head, tail, follow) =
         vec_get_head_tail_follow(seq);
 
-    let stack = stack.push_to_new(move_in(stack, head));
+    stack.push(move_in(&stack, head));
     println!("Move in result: {:?} follow: {:?}", stack, follow);
 
     let reduced_stack = reduce_stack(stack, follow.clone());
@@ -240,6 +241,6 @@ pub fn go(stack: &Vec<Pat>, seq: Vec<Out>) -> Pat {
             println!("Success with: {:?}", r);
             return r;
         }
-        _ => go(&reduced_stack, tail)
+        _ => go(reduced_stack, tail)
     }
 }

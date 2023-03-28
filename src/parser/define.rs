@@ -16,7 +16,7 @@ pub enum Define {
 
 pub fn parse_define(seq: Vec<Out>) -> Option<Define> {
     println!("\nParsing seq: {:?}", seq);
-    Option::<Define>::from(go(&vec![Pat::Start], seq))
+    Option::<Define>::from(go(vec![Pat::Start], seq))
 }
 
 mod test;

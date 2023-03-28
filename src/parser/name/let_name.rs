@@ -1,5 +1,5 @@
 use crate::parser::alphanum::{parse_alphanum, parse_lower};
-use crate::parser::infra::str_get_head_tail;
+use crate::parser::infra::str::str_get_head_tail;
 
 #[derive(Debug)]
 #[derive(Clone)]

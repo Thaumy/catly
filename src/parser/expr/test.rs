@@ -1,5 +1,6 @@
 use crate::parser::expr::{Expr, parse_expr};
-use crate::parser::infra::{BoxExt, MaybeExpr};
+use crate::parser::infra::alias::MaybeExpr;
+use crate::parser::infra::r#box::Ext;
 use crate::parser::preprocess::preprocess;
 
 fn f(seq: &str) -> MaybeExpr {

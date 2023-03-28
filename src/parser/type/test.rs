@@ -1,6 +1,7 @@
 use std::collections::BTreeSet;
 
-use crate::parser::infra::{BoxExt, MaybeType};
+use crate::parser::infra::alias::MaybeType;
+use crate::parser::infra::r#box::Ext;
 use crate::parser::preprocess::preprocess;
 use crate::parser::r#type::{parse_type, Type};
 

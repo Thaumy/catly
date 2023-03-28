@@ -1,5 +1,6 @@
 use crate::parser::expr::Expr;
-use crate::parser::infra::{BoxExt, MaybeExpr, MaybeType, VecExt};
+use crate::parser::infra::alias::{MaybeExpr, MaybeType};
+use crate::parser::infra::r#box::Ext;
 use crate::parser::keyword::Keyword;
 
 #[derive(Debug)]
@@ -115,8 +116,10 @@ impl From<Pat> for MaybeExpr {
                 type F = fn(Option<Vec<Assign>>, &(String, Pat)) -> Option<Vec<Assign>>;
                 let f: F = |acc, (n, p)|
                     match (acc, Self::from(p.clone())) {
-                        (Some(vec), Some(e)) =>
-                            Some(vec.push_to_new((n.to_string(), None, e))),
+                        (Some(mut vec), Some(e)) => {
+                            vec.push((n.to_string(), None, e));
+                            Some(vec)
+                        }
                         _ => None,
                     };
                 let vec = vec.iter().fold(Some(vec![]), f);
@@ -131,8 +134,10 @@ impl From<Pat> for MaybeExpr {
                 type F = fn(Option<Vec<Case>>, &(Pat, Pat)) -> Option<Vec<Case>>;
                 let f: F = |acc, (case_p, then_p)|
                     match (acc, Self::from(case_p.clone()), Self::from(then_p.clone())) {
-                        (Some(vec), Some(case_e), Some(then_e)) =>
-                            Some(vec.push_to_new((case_e, then_e))),
+                        (Some(mut vec), Some(case_e), Some(then_e)) => {
+                            vec.push((case_e, then_e));
+                            Some(vec)
+                        }
                         _ => None,
                     };
                 let vec = vec.iter().fold(Some(vec![]), f);

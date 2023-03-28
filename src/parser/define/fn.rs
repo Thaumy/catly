@@ -1,6 +1,6 @@
 use crate::parser::define::pat::Pat;
 use crate::parser::expr::parse_expr;
-use crate::parser::infra::{vec_get_head_tail_follow, VecExt};
+use crate::parser::infra::vec::{Ext, vec_get_head_tail_follow};
 use crate::parser::keyword::Keyword;
 use crate::parser::preprocess::Out;
 use crate::parser::r#type::parse_type;
@@ -86,11 +86,11 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
     reduce_stack(reduced_stack, follow)
 }
 
-pub fn go(stack: &Vec<Pat>, seq: Vec<Out>) -> Pat {
+pub fn go(mut stack: Vec<Pat>, seq: Vec<Out>) -> Pat {
     let (head, tail, follow) =
         vec_get_head_tail_follow(seq);
 
-    let stack = stack.push_to_new(move_in(stack, head));
+    stack.push(move_in(&stack, head));
     println!("Move in result: {:?} follow: {:?}", stack, follow);
 
     let reduced_stack = reduce_stack(stack, follow.clone());
@@ -115,6 +115,6 @@ pub fn go(stack: &Vec<Pat>, seq: Vec<Out>) -> Pat {
 
             return r;
         }
-        _ => go(&reduced_stack, tail)
+        _ => go(reduced_stack, tail)
     }
 }

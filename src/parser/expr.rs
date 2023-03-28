@@ -2,7 +2,7 @@ use std::vec;
 
 use crate::parser::expr::pat::Pat;
 use crate::parser::expr::r#fn::go;
-use crate::parser::infra::{MaybeExpr, MaybeType};
+use crate::parser::infra::alias::{MaybeExpr, MaybeType};
 use crate::parser::preprocess::Out;
 
 mod pat;

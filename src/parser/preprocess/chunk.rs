@@ -1,5 +1,6 @@
 use crate::parser::alphanum::{parse_alphanum, parse_digit, parse_lower, parse_upper};
-use crate::parser::infra::{str_get_head_tail_follow, VecExt};
+use crate::parser::infra::str::str_get_head_tail_follow;
+use crate::parser::infra::vec::Ext;
 
 #[derive(Debug)]
 #[derive(Clone)]
@@ -122,15 +123,17 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<char>) -> Vec<Pat> {
 
     let reduced_stack = stack;
 
+    // TODO: low performance when printing
     //println!("Reduce to: {:?}", reduced_stack);
 
     reduce_stack(reduced_stack, follow)
 }
 
-fn go(stack: Vec<Pat>, tail: &str) -> Vec<Pat> {
+fn go(mut stack: Vec<Pat>, tail: &str) -> Vec<Pat> {
     let (head, tail, follow) = str_get_head_tail_follow(tail);
 
-    let stack = stack.push_to_new(move_in(&stack, head));
+    stack.push(move_in(&stack, head));
+    // TODO: low performance when printing
     //println!("Move in result: {:?} follow: {:?}", stack, follow);
     let reduced_stack = reduce_stack(stack, follow);
 

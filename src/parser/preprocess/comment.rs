@@ -1,4 +1,6 @@
-use crate::parser::infra::{Either, str_get_head_tail, VecExt};
+use crate::parser::infra::either::Either;
+use crate::parser::infra::str::str_get_head_tail;
+use crate::parser::infra::vec::Ext;
 use crate::parser::preprocess::comment::Either::{*};
 use crate::parser::preprocess::comment::Pat::{*};
 
@@ -36,14 +38,14 @@ fn reduce_stack(mut stack: Vec<Either<char, Pat>>) -> Vec<Either<char, Pat>> {
     stack
 }
 
-fn go(stack: Vec<Either<char, Pat>>, tail: &str) -> Vec<Either<char, Pat>> {
+fn go(mut stack: Vec<Either<char, Pat>>, tail: &str) -> Vec<Either<char, Pat>> {
     let (head, tail) = str_get_head_tail(tail);
     let move_in = match head {
         Some(c) => L(c),
         _ => return stack,
     };
 
-    let stack = stack.push_to_new(move_in);
+    stack.push(move_in);
     let reduced_stack = reduce_stack(stack);
     go(reduced_stack, tail)
 }

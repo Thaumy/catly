@@ -1,5 +1,6 @@
 use crate::parser::expr::pat::Pat;
-use crate::parser::infra::{BoxExt, vec_get_head_tail_follow, VecExt};
+use crate::parser::infra::r#box::Ext as BoxExt;
+use crate::parser::infra::vec::{Ext, vec_get_head_tail_follow};
 use crate::parser::keyword::Keyword;
 use crate::parser::preprocess::Out;
 
@@ -160,12 +161,12 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
         }
         // AssignSeq Assign -> AssignSeq
         ([..,
-        Pat::AssignSeq(a_seq),
+        Pat::AssignSeq(vec),
         Pat::Assign(n, v)], _
         ) => {
-            let top = Pat::AssignSeq(
-                a_seq.push_to_new((n.clone(), *v.clone()))
-            );
+            let top = Pat::AssignSeq(vec.push_to_new(
+                (n.clone(), *v.clone())
+            ));
             stack.reduce(2, top)
         }
         // `{` AssignSeq `}` -> Struct
@@ -248,9 +249,9 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
         Pat::CaseSeq(vec),
         Pat::Case(case, then) ], _
         ) => {
-            let top = Pat::CaseSeq(
-                vec.push_to_new((*case.clone(), *then.clone()))
-            );
+            let top = Pat::CaseSeq(vec.push_to_new(
+                (*case.clone(), *then.clone())
+            ));
             stack.reduce(2, top)
         }
         // MatchHead Case :!(Blank|`|`) -> Match
@@ -366,11 +367,11 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
     reduce_stack(reduced_stack, follow)
 }
 
-pub fn go(stack: Vec<Pat>, seq: Vec<Out>) -> Pat {
+pub fn go(mut stack: Vec<Pat>, seq: Vec<Out>) -> Pat {
     let (head, tail, follow) =
         vec_get_head_tail_follow(seq);
 
-    let stack = stack.push_to_new(move_in(&stack, head));
+    stack.push(move_in(&stack, head));
     println!("Move in result: {:?} follow: {:?}", stack, follow);
 
     let reduced_stack = reduce_stack(stack, follow.clone());

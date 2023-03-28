@@ -3,7 +3,7 @@ use std::collections::BTreeSet;
 use crate::parser::ast::parse_ast;
 use crate::parser::define::Define;
 use crate::parser::expr::Expr;
-use crate::parser::infra::BoxExt;
+use crate::parser::infra::r#box::Ext;
 use crate::parser::preprocess::preprocess;
 use crate::parser::r#type::Type;
 

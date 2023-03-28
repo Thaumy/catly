@@ -1,6 +1,6 @@
 use crate::parser::define::{Define, parse_define};
 use crate::parser::expr::Expr;
-use crate::parser::infra::BoxExt;
+use crate::parser::infra::r#box::Ext;
 use crate::parser::preprocess::preprocess;
 use crate::parser::r#type::Type;
 

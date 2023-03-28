@@ -1,6 +1,7 @@
 use std::collections::BTreeSet;
 
-use crate::parser::infra::{BoxExt, MaybeType, VecExt};
+use crate::parser::infra::alias::MaybeType;
+use crate::parser::infra::r#box::Ext;
 use crate::parser::r#type::Type;
 
 #[derive(Debug)]
@@ -82,8 +83,10 @@ impl From<Pat> for MaybeType {
                 type F = fn(Option<Vec<LetNameWithType>>, &(String, Pat)) -> Option<Vec<LetNameWithType>>;
                 let f: F = |acc, (n, p)|
                     match (acc, Self::from(p.clone())) {
-                        (Some(vec), Some(e)) =>
-                            Some(vec.push_to_new((n.to_string(), e))),
+                        (Some(mut vec), Some(e)) => {
+                            vec.push((n.to_string(), e));
+                            Some(vec)
+                        }
                         _ => None,
                     };
                 let vec = vec.iter().fold(Some(vec![]), f);
