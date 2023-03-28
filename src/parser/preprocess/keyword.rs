@@ -16,79 +16,45 @@ pub enum Out {
     Kw(Keyword),
 }
 
-fn reduce_stack(stack: Vec<Out>) -> Vec<Out> {
-    use crate::parser::keyword::Keyword::{*};
-
-    let reduced_stack = match &stack[..] {
-        // "type" -> Type
-        [.., Out::LowerStartChunk(c)]
-        if c == "type" => stack.reduce_to_new(1, Out::Kw(Type)),
-
-        // "def" -> Def
-        [.., Out::LowerStartChunk(c)]
-        if c == "def" => stack.reduce_to_new(1, Out::Kw(Def)),
-
-        // "let" -> Let
-        [.., Out::LowerStartChunk(c)]
-        if c == "let" => stack.reduce_to_new(1, Out::Kw(Let)),
-
-        // "in" -> In
-        [.., Out::LowerStartChunk(c)]
-        if c == "in" => stack.reduce_to_new(1, Out::Kw(In)),
-
-        // "if" -> If
-        [.., Out::LowerStartChunk(c)]
-        if c == "if" => stack.reduce_to_new(1, Out::Kw(If)),
-
-        // "then" -> Then
-        [.., Out::LowerStartChunk(c)]
-        if c == "then" => stack.reduce_to_new(1, Out::Kw(Then)),
-
-        // "else" -> Else
-        [.., Out::LowerStartChunk(c)]
-        if c == "else" => stack.reduce_to_new(1, Out::Kw(Else)),
-
-        // "match" -> Match
-        [.., Out::LowerStartChunk(c)]
-        if c == "match" => stack.reduce_to_new(1, Out::Kw(Match)),
-
-        // "with" -> With
-        [.., Out::LowerStartChunk(c)]
-        if c == "with" => stack.reduce_to_new(1, Out::Kw(With)),
-
-        _ => return stack
-    };
-
-    println!("Reduce to: {:?}", reduced_stack);
-
-    reduced_stack
-}
-
 impl From<In> for Out {
     fn from(value: In) -> Self {
         match value {
             In::DigitChunk(c) => Self::DigitChunk(c),
-            In::LowerStartChunk(c) => Self::LowerStartChunk(c),
+            In::LowerStartChunk(c) => match c {
+                // "type" -> Type
+                c if c == "type" => Self::Kw(Keyword::Type),
+                // "def" -> Def
+                c if c == "def" => Self::Kw(Keyword::Def),
+                // "let" -> Let
+                c if c == "let" => Self::Kw(Keyword::Let),
+                // "in" -> In
+                c if c == "in" => Self::Kw(Keyword::In),
+                // "if" -> If
+                c if c == "if" => Self::Kw(Keyword::If),
+                // "then" -> Then
+                c if c == "then" => Self::Kw(Keyword::Then),
+                // "else" -> Else
+                c if c == "else" => Self::Kw(Keyword::Else),
+                // "match" -> Match
+                c if c == "match" => Self::Kw(Keyword::Match),
+                // "with" -> With
+                c if c == "with" => Self::Kw(Keyword::With),
+
+                _ => Self::LowerStartChunk(c)
+            },
             In::UpperStartChunk(c) => Self::UpperStartChunk(c),
             In::Symbol(c) => Self::Symbol(c),
         }
     }
 }
 
-fn go(stack: Vec<Out>, tail: Vec<In>) -> Vec<Out> {
-    let (head, tail) = vec_get_head_tail(tail);
-    let move_in = match head {
-        Some(x) => x.into(),
-        _ => return stack,
-    };
-
-    let stack = stack.push_to_new(move_in);
-    let reduced_stack = reduce_stack(stack);
-    go(reduced_stack, tail)
-}
-
 pub fn preprocess_keyword(seq: Vec<In>) -> Vec<Out> {
-    let r = go(vec![], seq);
+    let r = seq
+        .iter()
+        .fold(vec![], |mut acc, x| {
+            acc.push(Out::from(x.clone()));
+            acc
+        });
     println!("Keyword pp out: {:?}", r);
     r
 }

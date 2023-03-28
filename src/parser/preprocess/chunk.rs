@@ -160,14 +160,12 @@ pub fn preprocess_chunk(seq: &str) -> Option<Vec<Out>> {
     let vec = go(vec![Pat::Start], seq);
     let r = vec
         .iter()
-        .fold(
-            Some(vec![]),
-            |mut acc, p|
-                match (acc, Option::<Out>::from(p.clone())) {
-                    (Some(acc), Some(o)) =>
-                        Some(acc.push_to_new(o)),
-                    _ => None
-                },
+        .fold(Some(vec![]), |mut acc, p|
+            match (acc, Option::<Out>::from(p.clone())) {
+                (Some(acc), Some(o)) =>
+                    Some(acc.push_to_new(o)),
+                _ => None
+            },
         );
     println!("Chunk pp out: {:?}", r);
     r

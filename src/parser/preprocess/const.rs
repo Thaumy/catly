@@ -108,13 +108,11 @@ fn go(stack: Vec<Pat>, tail: Vec<In>) -> Vec<Pat> {
 pub fn preprocess_const(seq: Vec<In>) -> Option<Vec<Out>> {
     let r = go(vec![], seq)
         .iter()
-        .fold(
-            Some(vec![]),
-            |acc, x|
-                match (acc, Option::<Out>::from(x.clone())) {
-                    (Some(vec), Some(top)) => Some(vec.push_to_new(top)),
-                    _ => None
-                },
+        .fold(Some(vec![]), |acc, x|
+            match (acc, Option::<Out>::from(x.clone())) {
+                (Some(vec), Some(top)) => Some(vec.push_to_new(top)),
+                _ => None
+            },
         );
     println!("Const pp out: {:?}", r);
     r
@@ -136,13 +134,13 @@ mod tests {
             In::Kw(Keyword::Def),
             In::DigitChunk("8888".to_string()),
             In::Kw(Keyword::Let),
-            In::Kw(Keyword::In),
-            In::Kw(Keyword::If),
+            In::Symbol('('),
+            In::Symbol(')'),
             In::DigitChunk("123".to_string()),
             In::Kw(Keyword::Then),
-            In::Kw(Keyword::Else),
             In::UpperStartChunk("Boob".to_string()),
             In::Kw(Keyword::Match),
+            In::Symbol('_'),
             In::Kw(Keyword::With),
             In::Symbol(' '),
         ];
@@ -153,13 +151,12 @@ mod tests {
             Out::Kw(Keyword::Def),
             Out::IntValue(8888),
             Out::Kw(Keyword::Let),
-            Out::Kw(Keyword::In),
-            Out::Kw(Keyword::If),
+            Out::UnitValue,
             Out::IntValue(123),
             Out::Kw(Keyword::Then),
-            Out::Kw(Keyword::Else),
             Out::UpperStartChunk("Boob".to_string()),
             Out::Kw(Keyword::Match),
+            Out::DiscardValue,
             Out::Kw(Keyword::With),
             Out::Symbol(' '),
         ];
