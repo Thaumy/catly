@@ -143,23 +143,31 @@ fn go(stack: Vec<Pat>, tail: &str) -> Vec<Pat> {
     }
 }
 
+impl From<Pat> for Option<Out> {
+    fn from(value: Pat) -> Self {
+        let r = match value {
+            Pat::DigitChunk(c) => Out::DigitChunk(c.to_string()),
+            Pat::LowerStartChunk(c) => Out::LowerStartChunk(c.to_string()),
+            Pat::UpperStartChunk(c) => Out::UpperStartChunk(c.to_string()),
+            Pat::Symbol(s) => Out::Symbol(s.clone()),
+            _ => return None
+        };
+        Some(r)
+    }
+}
+
 pub fn preprocess_chunk(seq: &str) -> Option<Vec<Out>> {
     let vec = go(vec![Pat::Start], seq);
     let r = vec
         .iter()
         .fold(
             Some(vec![]),
-            |mut acc, p| match (acc, p) {
-                (Some(acc), Pat::DigitChunk(c)) =>
-                    Some(acc.push_to_new(Out::DigitChunk(c.to_string()))),
-                (Some(acc), Pat::LowerStartChunk(c)) =>
-                    Some(acc.push_to_new(Out::LowerStartChunk(c.to_string()))),
-                (Some(acc), Pat::UpperStartChunk(c)) =>
-                    Some(acc.push_to_new(Out::UpperStartChunk(c.to_string()))),
-                (Some(acc), Pat::Symbol(s)) =>
-                    Some(acc.push_to_new(Out::Symbol(s.clone()))),
-                _ => None
-            },
+            |mut acc, p|
+                match (acc, Option::<Out>::from(p.clone())) {
+                    (Some(acc), Some(o)) =>
+                        Some(acc.push_to_new(o)),
+                    _ => None
+                },
         );
     println!("Chunk pp out: {:?}", r);
     r

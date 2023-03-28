@@ -9,7 +9,7 @@ use crate::parser::r#type::{parse_type, Type};
 fn f(seq: &str) -> MaybeType {
     let seq = preprocess_comment(seq);
     let seq = preprocess_blank(&seq);
-    let seq = preprocess_keyword(&seq);
+    let seq = vec![];//preprocess_keyword(&seq);
     parse_type(seq)
 }
 
