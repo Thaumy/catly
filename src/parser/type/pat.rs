@@ -15,9 +15,6 @@ pub enum Pat {
     Mark(char),
     Blank,
 
-    Alphanum(char),
-    AlphanumSeq(String),
-
     //Type::TypeEnvRef
     TypeName(String),
 

@@ -14,12 +14,8 @@ pub enum Pat {
 
     Unit,//Expr::Unit
 
-    Digit(char),
-    DigitSeq(String),
     Int(i64),//Expr::Int
 
-    Alphanum(char),
-    AlphanumSeq(String),
     //Expr::EnvRef
     LetName(String),
 

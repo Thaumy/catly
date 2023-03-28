@@ -1,10 +1,10 @@
 use std::vec;
 
 use crate::parser::define::{Define, parse_define};
-use crate::parser::infra::Either;
 use crate::parser::keyword::Keyword;
+use crate::parser::preprocess::Out;
 
-fn parse_ast(seq: Vec<Either<char, Keyword>>) -> Option<Vec<Define>> {
+fn parse_ast(seq: Vec<Out>) -> Option<Vec<Define>> {
     let seq = {
         let (mut acc_a, acc_p) = seq
             .iter()
@@ -12,16 +12,16 @@ fn parse_ast(seq: Vec<Either<char, Keyword>>) -> Option<Vec<Define>> {
                 (vec![], vec![]),
                 |(mut acc_a, mut acc_p), x|
                     match x {
-                        Either::R(kw) if kw.is_top_level() => {
+                        Out::Kw(kw) if kw.is_top_level() => {
                             if acc_p.is_empty() {
-                                (acc_a, vec![Either::R(kw.clone())])
+                                (acc_a, vec![Out::Kw(kw.clone())])
                             } else {
                                 // remove last blank for each def
-                                if let Some(Either::L(' ')) = acc_p.last() {
+                                if let Some(Out::Symbol(' ')) = acc_p.last() {
                                     acc_p.pop();
                                 }
                                 acc_a.push(acc_p);
-                                (acc_a, vec![Either::R(kw.clone())])
+                                (acc_a, vec![Out::Kw(kw.clone())])
                             }
                         }
                         x => {

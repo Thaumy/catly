@@ -4,6 +4,7 @@ use crate::parser::expr::pat::Pat;
 use crate::parser::expr::r#fn::go;
 use crate::parser::infra::{Either, MaybeExpr, MaybeType};
 use crate::parser::keyword::Keyword;
+use crate::parser::preprocess::Out;
 
 mod pat;
 mod r#fn;
@@ -24,7 +25,7 @@ pub enum Expr {
     Let(MaybeType, String, MaybeType, Box<Expr>, Box<Expr>),
 }
 
-pub fn parse_expr(seq: Vec<Either<char, Keyword>>) -> MaybeExpr {
+pub fn parse_expr(seq: Vec<Out>) -> MaybeExpr {
     println!("\nParsing seq: {:?}", seq);
     Option::<Expr>::from(go(&vec![Pat::Start], seq))
 }

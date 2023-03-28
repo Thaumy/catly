@@ -4,15 +4,11 @@ use crate::parser::ast::parse_ast;
 use crate::parser::define::Define;
 use crate::parser::expr::Expr;
 use crate::parser::infra::BoxExt;
-use crate::parser::preprocess::blank::preprocess_blank;
-use crate::parser::preprocess::comment::preprocess_comment;
-use crate::parser::preprocess::keyword::preprocess_keyword;
+use crate::parser::preprocess::preprocess;
 use crate::parser::r#type::Type;
 
 fn f(seq: &str) -> Option<Vec<Define>> {
-    let seq = preprocess_comment(seq);
-    let seq = preprocess_blank(&seq);
-    let seq = preprocess_keyword(&seq);
+    let seq = preprocess(&seq)?;
     parse_ast(seq)
 }
 

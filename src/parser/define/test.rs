@@ -1,15 +1,11 @@
 use crate::parser::define::{Define, parse_define};
 use crate::parser::expr::Expr;
 use crate::parser::infra::BoxExt;
-use crate::parser::preprocess::blank::preprocess_blank;
-use crate::parser::preprocess::comment::preprocess_comment;
-use crate::parser::preprocess::keyword::preprocess_keyword;
+use crate::parser::preprocess::preprocess;
 use crate::parser::r#type::Type;
 
 fn f(seq: &str) -> Option<Define> {
-    let seq = preprocess_comment(seq);
-    let seq = preprocess_blank(&seq);
-    let seq = preprocess_keyword(&seq);
+    let seq = preprocess(&seq)?;
     parse_define(seq)
 }
 
@@ -30,7 +26,7 @@ fn test_parse_type_def_part2() {
     let t = Type::ProductType(vec![
         ("abc".to_string(), Type::TypeEnvRef("A".to_string())),
         ("uuu".to_string(), Type::TypeEnvRef("Unit".to_string())),
-        ("intList".to_string(), Type::TypeEnvRef("List".to_string())),
+        ("intList".to_string(), Type::TypeEnvRef("IntList".to_string())),
     ]);
 
     let r = Define::TypeDef("A".to_string(), t);

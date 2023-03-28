@@ -1,58 +1,59 @@
 use std::collections::BTreeSet;
 
 use crate::parser::alphanum::parse_alphanum;
-use crate::parser::follow_pat::{FollowPat, parse_follow_pat};
 use crate::parser::infra::{BoxExt, Either, vec_get_head_tail_follow, VecExt};
 use crate::parser::keyword::Keyword;
 use crate::parser::name::let_name::parse_let_name;
 use crate::parser::name::type_name::parse_type_name;
+use crate::parser::preprocess::Out;
 use crate::parser::r#type::pat::Pat;
 
-fn move_in(stack: &Vec<Pat>, head: Option<Either<char, Keyword>>) -> Pat {
+fn move_in(stack: &Vec<Pat>, head: Option<Out>) -> Pat {
     match head {
-        Some(Either::L(c)) => match (&stack[..], c) {
-            // AlphanumSeq: [0-9a-zA-Z] -> Alphanum
-            ([.., Pat::AlphanumSeq(_)], c) if parse_alphanum(&c).is_some() =>
-                Pat::Alphanum(c),
-            // [0-9a-zA-Z] -> Alphanum
-            (_, c) if parse_alphanum(&c).is_some() =>
-                Pat::Alphanum(c),
+        Some(o) => match (&stack[..], o) {
+            // .. -> LetName
+            (_, Out::LetName(n)) => Pat::LetName(n),
+            // .. -> TypeName
+            (_, Out::TypeName(n)) => Pat::TypeName(n),
 
-            // ' ' -> Blank
-            (_, ' ') => Pat::Blank,
-            // '(' -> `(`
-            (_, '(') => Pat::Mark('('),
-            // ')' -> `)`
-            (_, ')') => Pat::Mark(')'),
+            // .. -> Mark
+            (_, Out::Symbol(s)) => match s {
+                // ' ' -> Blank
+                ' ' => Pat::Blank,
+                // '(' -> `(`
+                '(' => Pat::Mark('('),
+                // ')' -> `)`
+                ')' => Pat::Mark(')'),
 
-            // '-' -> `-`
-            (_, '-') => Pat::Mark('-'),
-            // '>' -> `>`
-            (_, '>') => Pat::Mark('>'),
+                // '-' -> `-`
+                '-' => Pat::Mark('-'),
+                // '>' -> `>`
+                '>' => Pat::Mark('>'),
 
-            // '{' -> `{`
-            (_, '{') => Pat::Mark('{'),
-            // '}' -> `}`
-            (_, '}') => Pat::Mark('}'),
-            // ',' -> `,`
-            (_, ',') => Pat::Mark(','),
+                // '{' -> `{`
+                '{' => Pat::Mark('{'),
+                // '}' -> `}`
+                '}' => Pat::Mark('}'),
+                // ',' -> `,`
+                ',' => Pat::Mark(','),
 
-            // '|' -> `|`
-            (_, '|') => Pat::Mark('|'),
-            // ':' -> `:`
-            (_, ':') => Pat::Mark(':'),
+                // '|' -> `|`
+                '|' => Pat::Mark('|'),
+                // ':' -> `:`
+                ':' => Pat::Mark(':'),
+
+                // _ -> Err
+                c => {
+                    println!("Invalid head Pat: {:?}", c);
+                    Pat::Err
+                }
+            },
 
             // _ -> Err
-            (_, c) => {
-                println!("Invalid head Pat: {:?}", c);
+            (_, p) => {
+                println!("Invalid head Pat: {:?}", p);
                 Pat::Err
             }
-        }
-
-        // _ -> Err
-        Some(p) => {
-            println!("Invalid head Pat: {:?}", p);
-            Pat::Err
         }
 
         // ɛ -> End
@@ -60,57 +61,14 @@ fn move_in(stack: &Vec<Pat>, head: Option<Either<char, Keyword>>) -> Pat {
     }
 }
 
-fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
-    let reduced_stack = match (&stack[..], follow_pat) {
+fn reduce_stack(stack: &Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
+    let reduced_stack = match (&stack[..], &follow) {
         // Success
-        ([Pat::Start, p, Pat::End], FollowPat::End) => return vec![p.clone()],
+        ([Pat::Start, p, Pat::End], None) => return vec![p.clone()],
 
         // `(` Type `)` -> Type
         ([.., Pat::Mark('('), p, Pat::Mark(')')], _) if p.is_type() =>
             stack.reduce_to_new(3, p.clone()),
-
-        // AlphanumSeq Alphanum -> AlphanumSeq
-        ([.., Pat::AlphanumSeq(cs), Pat::Alphanum(c)], _) =>
-            stack.reduce_to_new(2, Pat::AlphanumSeq(format!("{}{}", cs, c))),
-        // AlphanumSeq :Alphanum -> AlphanumSeq
-        ([.., Pat::AlphanumSeq(_)], FollowPat::Letter(_) | FollowPat::Digit(_)) =>
-            return stack.clone(),
-        // AlphanumSeq :!Alphanum-> TypeName|LetName|Err
-        ([.., Pat::AlphanumSeq(cs)], _) => {
-            let top = if cs.starts_with(|c: char| c.is_uppercase()) {
-                match parse_type_name(cs) {
-                    Some(n) => Pat::TypeName(n.to_string()),
-                    None => Pat::Err,
-                }
-            } else {
-                match parse_let_name(cs) {
-                    // _ -> LetName
-                    Some(n) => Pat::LetName(n.to_string()),
-                    None => Pat::Err
-                }
-            };
-            stack.reduce_to_new(1, top)
-        }
-        // Alphanum :Alphanum -> AlphanumSeq
-        ([.., Pat::Alphanum(c)], FollowPat::Letter(_) | FollowPat::Digit(_)) =>
-            stack.reduce_to_new(1, Pat::AlphanumSeq(c.to_string())),
-        // Alphanum :!Alphanum -> TypeName|LetName|Err
-        ([.., Pat::Alphanum(c)], _) => {
-            let top = if c.is_uppercase() {
-                match parse_type_name(c.to_string().as_str()) {
-                    // _ -> TypeName
-                    Some(n) => Pat::TypeName(n.to_string()),
-                    None => Pat::Err
-                }
-            } else {
-                match parse_let_name(&c.to_string()) {
-                    // _ -> LetName
-                    Some(n) => Pat::LetName(n.to_string()),
-                    None => Pat::Err
-                }
-            };
-            stack.reduce_to_new(1, top)
-        }
 
         // `-` `>` -> Arrow
         ([.., Pat::Mark('-'), Pat::Mark('>')], _) =>
@@ -122,8 +80,11 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
             stack.reduce_to_new(4, top)
         }
         // ClosureTypeHead Type :!Blank -> ClosureType
-        ([.., Pat::ClosureTypeHead(t), p], follow_pat)
-        if follow_pat.not_blank() && p.is_type() => {
+        ([.., Pat::ClosureTypeHead(t), p], follow)
+        if match follow {
+            Some(Out::Symbol(' ')) => false,
+            _ => true
+        } && p.is_type() => {
             let top = Pat::ClosureType(
                 t.clone(),
                 p.clone().boxed(),
@@ -197,7 +158,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
         ([..,
         Pat::Blank,
         Pat::LetName(n), Pat::Mark(':'), Pat::Blank,
-        p, Pat::Blank], FollowPat::Mark('}')
+        p, Pat::Blank], Some(Out::Symbol('}'))
         )
         if p.is_type() => {
             let top = Pat::LetNameWithType(
@@ -263,22 +224,20 @@ fn reduce_stack(stack: &Vec<Pat>, follow_pat: &FollowPat) -> Vec<Pat> {
 
     println!("Reduce to: {:?}", reduced_stack);
 
-    reduce_stack(&reduced_stack, follow_pat)
+    reduce_stack(&reduced_stack, follow)
 }
 
-pub fn go(stack: &Vec<Pat>, seq: Vec<Either<char, Keyword>>) -> Pat {
+pub fn go(stack: &Vec<Pat>, seq: Vec<Out>) -> Pat {
     let (head, tail, follow) =
         vec_get_head_tail_follow(seq);
 
-    let follow_pat = parse_follow_pat(follow);
-
     let stack = stack.push_to_new(move_in(stack, head));
-    println!("Move in result: {:?} follow: {:?}", stack, follow_pat);
+    println!("Move in result: {:?} follow: {:?}", stack, follow);
 
-    let reduced_stack = reduce_stack(&stack, &follow_pat);
+    let reduced_stack = reduce_stack(&stack, follow.clone());
 
-    match (&reduced_stack[..], follow_pat) {
-        ([p], FollowPat::End) => {
+    match (&reduced_stack[..], follow) {
+        ([p], None) => {
             let r = p.clone();
             println!("Success with: {:?}", r);
             return r;

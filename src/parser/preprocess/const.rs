@@ -1,8 +1,6 @@
-use crate::parser::infra::{vec_get_head_tail, VecExt};
+use crate::parser::infra::{slice_get_head_tail, vec_get_head_tail, VecExt};
 use crate::parser::keyword::Keyword;
 use crate::parser::value::int::parse_int;
-
-type In = crate::parser::preprocess::keyword::Out;
 
 #[derive(Debug)]
 #[derive(Clone)]
@@ -93,10 +91,10 @@ impl From<Pat> for Option<Out> {
     }
 }
 
-fn go(stack: Vec<Pat>, tail: Vec<In>) -> Vec<Pat> {
-    let (head, tail) = vec_get_head_tail(tail);
+fn go(stack: Vec<Pat>, tail: &[In]) -> Vec<Pat> {
+    let (head, tail) = slice_get_head_tail(tail);
     let move_in = match head {
-        Some(x) => x.into(),
+        Some(x) => x.clone().into(),
         _ => return stack,
     };
 
@@ -105,7 +103,9 @@ fn go(stack: Vec<Pat>, tail: Vec<In>) -> Vec<Pat> {
     go(reduced_stack, tail)
 }
 
-pub fn preprocess_const(seq: Vec<In>) -> Option<Vec<Out>> {
+type In = crate::parser::preprocess::keyword::Out;
+
+pub fn preprocess_const(seq: &[In]) -> Option<Vec<Out>> {
     let r = go(vec![], seq)
         .iter()
         .fold(Some(vec![]), |acc, x|
@@ -162,6 +162,6 @@ mod tests {
         ];
         let r = Some(r);
 
-        assert_eq!(preprocess_const(seq), r);
+        assert_eq!(preprocess_const(&seq), r);
     }
 }

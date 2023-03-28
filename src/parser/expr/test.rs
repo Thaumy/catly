@@ -1,13 +1,15 @@
 use crate::parser::expr::{Expr, parse_expr};
 use crate::parser::infra::{BoxExt, MaybeExpr};
 use crate::parser::preprocess::blank::preprocess_blank;
+use crate::parser::preprocess::chunk::preprocess_chunk;
 use crate::parser::preprocess::comment::preprocess_comment;
 use crate::parser::preprocess::keyword::preprocess_keyword;
+use crate::parser::preprocess::name::preprocess_name;
+use crate::parser::preprocess::{Out, preprocess};
+use crate::parser::preprocess::r#const::preprocess_const;
 
 fn f(seq: &str) -> MaybeExpr {
-    let seq = preprocess_comment(seq);
-    let seq = preprocess_blank(&seq);
-    let seq = preprocess_keyword(&seq);
+    let seq = preprocess(&seq)?;
     parse_expr(seq)
 }
 
@@ -312,6 +314,7 @@ fn test_parse_cond_part4() {
     let a = "(((if (((123 ()))) then (((123))) else (((abc))))))";
     let b = &format!("(((if ((({}))) then ((({}))) else {})))", a, a, a);
     let seq = &format!("(((if ((({}))) then {} else ((({}))))))", b, b, b);
+
     assert_eq!(f(seq), r);
 }
 
@@ -857,7 +860,7 @@ fn test_parse_let_part3() {
                 Expr::Apply(
                     None,
                     Expr::EnvRef("neg".to_string()).boxed(),
-                    Expr::Int(None,1).boxed(),
+                    Expr::Int(None, 1).boxed(),
                 ).boxed(),
                 Expr::Let(
                     None,

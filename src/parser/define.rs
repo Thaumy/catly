@@ -3,6 +3,7 @@ use crate::parser::define::r#fn::go;
 use crate::parser::expr::Expr;
 use crate::parser::infra::Either;
 use crate::parser::keyword::Keyword;
+use crate::parser::preprocess::Out;
 use crate::parser::r#type::Type;
 
 mod pat;
@@ -15,7 +16,7 @@ pub enum Define {
     ExprDef(String, Expr),
 }
 
-pub fn parse_define(seq: Vec<Either<char, Keyword>>) -> Option<Define> {
+pub fn parse_define(seq: Vec<Out>) -> Option<Define> {
     println!("\nParsing seq: {:?}", seq);
     Option::<Define>::from(go(&vec![Pat::Start], seq))
 }

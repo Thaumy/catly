@@ -9,6 +9,15 @@ pub enum Either<L, R> {
     R(R),
 }
 
+pub fn slice_get_head_tail<T>(slice: &[T]) -> (Option<&T>, &[T])
+{
+    if slice.len() > 0 {
+        (slice.first(), &slice[1..])
+    } else {
+        (slice.first(), &[])
+    }
+}
+
 pub fn vec_get_head_tail<T>(vec: Vec<T>) -> (Option<T>, Vec<T>)
     where T: Clone
 {
@@ -39,11 +48,18 @@ pub fn str_get_head_tail_follow(seq: &str) -> (Option<char>, &str, Option<char>)
 }
 
 pub trait VecExt<T> {
+    fn reduce(&mut self, cost: u8, item: T);
     fn reduce_to_new(&self, cost: u8, item: T) -> Vec<T>;
     fn push_to_new(&self, item: T) -> Vec<T>;
 }
 
 impl<T> VecExt<T> for Vec<T> where T: Clone {
+    fn reduce(&mut self, cost: u8, item: T) {
+        for _ in 0..cost {
+            self.pop();
+        }
+        self.push(item);
+    }
     fn reduce_to_new(&self, cost: u8, item: T) -> Vec<T> {
         let mut b = self.clone();
         for _ in 0..cost {

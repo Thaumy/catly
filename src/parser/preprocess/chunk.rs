@@ -64,38 +64,38 @@ fn move_in(stack: &Vec<Pat>, head: Option<char>) -> Pat {
     }
 }
 
-fn reduce_stack(stack: Vec<Pat>, follow: Option<char>) -> Vec<Pat> {
-    let reduced_stack = match (&stack[..], follow) {
+fn reduce_stack(mut stack: Vec<Pat>, follow: Option<char>) -> Vec<Pat> {
+    match (&stack[..], follow) {
         // DigitStart Digit -> DigitStartChunk
         ([.., Pat::DigitStart(a), Pat::Digit(b)], _) => {
             let top = Pat::DigitChunk(format!("{}{}", a, b));
-            stack.reduce_to_new(2, top)
+            stack.reduce(2, top)
         }
         // LowerStart Alphanum -> LowerStartChunk
         ([.., Pat::LowerStart(a), Pat::Alphanum(b)], _) => {
             let top = Pat::LowerStartChunk(format!("{}{}", a, b));
-            stack.reduce_to_new(2, top)
+            stack.reduce(2, top)
         }
         // UpperStart Alphanum -> UpperStartChunk
         ([.., Pat::UpperStart(a), Pat::Alphanum(b)], _) => {
             let top = Pat::UpperStartChunk(format!("{}{}", a, b));
-            stack.reduce_to_new(2, top)
+            stack.reduce(2, top)
         }
 
         // DigitStartChunk Digit -> DigitStartChunk
         ([.., Pat::DigitChunk(c), Pat::Digit(d)], _) => {
             let top = Pat::DigitChunk(format!("{}{}", c, d));
-            stack.reduce_to_new(2, top)
+            stack.reduce(2, top)
         }
         // LowerStartChunk Alphanum -> LowerStartChunk
         ([.., Pat::LowerStartChunk(c), Pat::Alphanum(a)], _) => {
             let top = Pat::LowerStartChunk(format!("{}{}", c, a));
-            stack.reduce_to_new(2, top)
+            stack.reduce(2, top)
         }
         // UpperStartChunk Alphanum -> UpperStartChunk
         ([.., Pat::UpperStartChunk(c), Pat::Alphanum(a)], _) => {
             let top = Pat::UpperStartChunk(format!("{}{}", c, a));
-            stack.reduce_to_new(2, top)
+            stack.reduce(2, top)
         }
 
         // DigitStart :!Digit -> DigitStartChunk
@@ -103,24 +103,26 @@ fn reduce_stack(stack: Vec<Pat>, follow: Option<char>) -> Vec<Pat> {
         if match follow {
             Some(c) => parse_digit(&c).is_none(),
             None => true,
-        } => stack.reduce_to_new(1, Pat::DigitChunk(c.to_string())),
+        } => stack.reduce(1, Pat::DigitChunk(c.to_string())),
         // LowerStart :!Alphanum -> LowerStartChunk
         ([.., Pat::LowerStart(c)], follow)
         if match follow {
             Some(c) => parse_alphanum(&c).is_none(),
             None => true,
-        } => stack.reduce_to_new(1, Pat::LowerStartChunk(c.to_string())),
+        } => stack.reduce(1, Pat::LowerStartChunk(c.to_string())),
         // UpperStart :!Alphanum -> UpperStartChunk
         ([.., Pat::UpperStart(c)], follow)
         if match follow {
             Some(c) => parse_alphanum(&c).is_none(),
             None => true,
-        } => stack.reduce_to_new(1, Pat::UpperStartChunk(c.to_string())),
+        } => stack.reduce(1, Pat::UpperStartChunk(c.to_string())),
 
         _ => return stack
     };
 
-    println!("Reduce to: {:?}", reduced_stack);
+    let reduced_stack = stack;
+
+    //println!("Reduce to: {:?}", reduced_stack);
 
     reduce_stack(reduced_stack, follow)
 }
@@ -129,7 +131,7 @@ fn go(stack: Vec<Pat>, tail: &str) -> Vec<Pat> {
     let (head, tail, follow) = str_get_head_tail_follow(tail);
 
     let stack = stack.push_to_new(move_in(&stack, head));
-    println!("Move in result: {:?} follow: {:?}", stack, follow);
+    //println!("Move in result: {:?} follow: {:?}", stack, follow);
     let reduced_stack = reduce_stack(stack, follow);
 
     match reduced_stack[..] {
@@ -162,8 +164,10 @@ pub fn preprocess_chunk(seq: &str) -> Option<Vec<Out>> {
         .iter()
         .fold(Some(vec![]), |mut acc, p|
             match (acc, Option::<Out>::from(p.clone())) {
-                (Some(acc), Some(o)) =>
-                    Some(acc.push_to_new(o)),
+                (Some(mut vec), Some(o)) => {
+                    vec.push(o);
+                    Some(vec)
+                }
                 _ => None
             },
         );

@@ -2,8 +2,6 @@ use crate::parser::alphanum::parse_alphanum;
 use crate::parser::infra::{vec_get_head_tail, vec_get_head_tail_follow, VecExt};
 use crate::parser::keyword::Keyword;
 
-type In = crate::parser::preprocess::chunk::Out;
-
 #[derive(Debug)]
 #[derive(Clone)]
 #[derive(PartialEq)]
@@ -48,7 +46,9 @@ impl From<In> for Out {
     }
 }
 
-pub fn preprocess_keyword(seq: Vec<In>) -> Vec<Out> {
+type In = crate::parser::preprocess::chunk::Out;
+
+pub fn preprocess_keyword(seq: &[In]) -> Vec<Out> {
     let r = seq
         .iter()
         .fold(vec![], |mut acc, x| {
@@ -101,6 +101,6 @@ mod tests {
             Out::Symbol(' '),
         ];
 
-        assert_eq!(preprocess_keyword(seq), r);
+        assert_eq!(preprocess_keyword(&seq), r);
     }
 }

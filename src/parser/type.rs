@@ -2,6 +2,7 @@ use std::collections::BTreeSet;
 
 use crate::parser::infra::{Either, MaybeType};
 use crate::parser::keyword::Keyword;
+use crate::parser::preprocess::Out;
 use crate::parser::r#type::pat::Pat;
 use crate::parser::r#type::r#fn::go;
 
@@ -20,7 +21,7 @@ pub enum Type {
     ProductType(Vec<(String, Type)>),
 }
 
-pub fn parse_type(seq: Vec<Either<char, Keyword>>) -> MaybeType {
+pub fn parse_type(seq: Vec<Out>) -> MaybeType {
     println!("\nParsing seq: {:?}", seq);
     Option::<Type>::from(go(&vec![Pat::Start], seq))
 }

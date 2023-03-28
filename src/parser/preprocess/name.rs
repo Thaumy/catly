@@ -5,8 +5,6 @@ use crate::parser::name::let_name::parse_let_name;
 use crate::parser::name::{Name, parse_name};
 use crate::parser::name::type_name::parse_type_name;
 
-type In = crate::parser::preprocess::r#const::Out;
-
 #[derive(Debug)]
 #[derive(Clone)]
 #[derive(PartialEq)]
@@ -42,7 +40,9 @@ impl From<In> for Option<Out> {
     }
 }
 
-pub fn preprocess_name(seq: Vec<In>) -> Option<Vec<Out>> {
+type In = crate::parser::preprocess::r#const::Out;
+
+pub fn preprocess_name(seq: &[In]) -> Option<Vec<Out>> {
     let r = seq
         .iter()
         .fold(Some(vec![]), |mut acc, x|
@@ -101,6 +101,6 @@ mod tests {
         ];
         let r = Some(r);
 
-        assert_eq!(preprocess_name(seq), r);
+        assert_eq!(preprocess_name(&seq), r);
     }
 }

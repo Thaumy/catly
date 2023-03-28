@@ -14,12 +14,10 @@ pub enum Pat {
     Blank,
     Mark(char),
 
-    Alphanum(char),
-    AlphanumSeq(String),
     LetName(String),
     TypeName(String),
 
-    Keyword(Keyword),
+    Kw(Keyword),
 
     TypeDefHead(String),
     TypeDef(String, Type),
