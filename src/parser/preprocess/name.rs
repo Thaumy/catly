@@ -1,8 +1,5 @@
-use crate::parser::alphanum::{parse_alphanum, parse_digit};
-use crate::parser::infra::{Either, str_get_head_tail_follow, VecExt};
 use crate::parser::keyword::Keyword;
 use crate::parser::name::let_name::parse_let_name;
-use crate::parser::name::{Name, parse_name};
 use crate::parser::name::type_name::parse_type_name;
 
 #[derive(Debug)]
@@ -45,7 +42,7 @@ type In = crate::parser::preprocess::r#const::Out;
 pub fn preprocess_name(seq: &[In]) -> Option<Vec<Out>> {
     let r = seq
         .iter()
-        .fold(Some(vec![]), |mut acc, x|
+        .fold(Some(vec![]), |acc, x|
             match (acc, Option::<Out>::from(x.clone())) {
                 (Some(mut vec), Some(o)) => {
                     vec.push(o);

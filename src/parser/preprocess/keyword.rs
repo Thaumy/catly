@@ -1,5 +1,3 @@
-use crate::parser::alphanum::parse_alphanum;
-use crate::parser::infra::{vec_get_head_tail, vec_get_head_tail_follow, VecExt};
 use crate::parser::keyword::Keyword;
 
 #[derive(Debug)]

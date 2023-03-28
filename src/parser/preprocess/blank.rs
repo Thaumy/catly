@@ -10,13 +10,14 @@ fn blank() -> AnyOrBlank {
 
 type AnyOrBlank = Either<char, ()>;
 
-fn reduce_stack(stack: Vec<AnyOrBlank>) -> Vec<AnyOrBlank> {
+fn reduce_stack(mut stack: Vec<AnyOrBlank>) -> Vec<AnyOrBlank> {
     use crate::parser::preprocess::blank::Either::R;
     match &stack[..] {
         // Blank Blank -> Blank
-        [.., R(()), R(())] => stack.reduce_to_new(2, blank()),
+        [.., R(()), R(())] => stack.reduce(2, blank()),
         _ => return stack
     }
+    stack
 }
 
 fn go(stack: Vec<AnyOrBlank>, tail: &str) -> Vec<AnyOrBlank> {

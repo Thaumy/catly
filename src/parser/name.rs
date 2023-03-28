@@ -1,4 +1,3 @@
-use crate::parser::infra::Either;
 use crate::parser::name::let_name::parse_let_name;
 use crate::parser::name::type_name::parse_type_name;
 

@@ -1,7 +1,6 @@
 use std::collections::BTreeSet;
 
-use crate::parser::infra::{Either, MaybeType};
-use crate::parser::keyword::Keyword;
+use crate::parser::infra::MaybeType;
 use crate::parser::preprocess::Out;
 use crate::parser::r#type::pat::Pat;
 use crate::parser::r#type::r#fn::go;

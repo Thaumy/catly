@@ -1,8 +1,6 @@
 use crate::parser::define::pat::Pat;
 use crate::parser::define::r#fn::go;
 use crate::parser::expr::Expr;
-use crate::parser::infra::Either;
-use crate::parser::keyword::Keyword;
 use crate::parser::preprocess::Out;
 use crate::parser::r#type::Type;
 

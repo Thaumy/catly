@@ -1,10 +1,6 @@
 use std::collections::BTreeSet;
 
-use crate::parser::alphanum::parse_alphanum;
-use crate::parser::infra::{BoxExt, Either, vec_get_head_tail_follow, VecExt};
-use crate::parser::keyword::Keyword;
-use crate::parser::name::let_name::parse_let_name;
-use crate::parser::name::type_name::parse_type_name;
+use crate::parser::infra::{BoxExt, vec_get_head_tail_follow, VecExt};
 use crate::parser::preprocess::Out;
 use crate::parser::r#type::pat::Pat;
 
@@ -61,23 +57,23 @@ fn move_in(stack: &Vec<Pat>, head: Option<Out>) -> Pat {
     }
 }
 
-fn reduce_stack(stack: &Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
-    let reduced_stack = match (&stack[..], &follow) {
+fn reduce_stack(mut stack: Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
+    match (&stack[..], &follow) {
         // Success
         ([Pat::Start, p, Pat::End], None) => return vec![p.clone()],
 
         // `(` Type `)` -> Type
         ([.., Pat::Mark('('), p, Pat::Mark(')')], _) if p.is_type() =>
-            stack.reduce_to_new(3, p.clone()),
+            stack.reduce(3, p.clone()),
 
         // `-` `>` -> Arrow
         ([.., Pat::Mark('-'), Pat::Mark('>')], _) =>
-            stack.reduce_to_new(2, Pat::Arrow),
+            stack.reduce(2, Pat::Arrow),
         // Type Blank Arrow Blank -> ClosureTypeHead
         ([.., p, Pat::Blank, Pat::Arrow, Pat::Blank], _)
         if p.is_type() => {
             let top = Pat::ClosureTypeHead(p.clone().boxed());
-            stack.reduce_to_new(4, top)
+            stack.reduce(4, top)
         }
         // ClosureTypeHead Type :!Blank -> ClosureType
         ([.., Pat::ClosureTypeHead(t), p], follow)
@@ -89,7 +85,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
                 t.clone(),
                 p.clone().boxed(),
             );
-            stack.reduce_to_new(2, top)
+            stack.reduce(2, top)
         }
 
         // SumType Blank `|` Blank SumType -> SumType
@@ -102,7 +98,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
             set.extend(r.clone());
 
             let top = Pat::SumType(set);
-            stack.reduce_to_new(5, top)
+            stack.reduce(5, top)
         }
         // Type Blank `|` Blank SumType -> SumType
         ([..,
@@ -115,7 +111,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
             set.insert(p.clone());
 
             let top = Pat::SumType(set);
-            stack.reduce_to_new(5, top)
+            stack.reduce(5, top)
         }
         // SumType Blank `|` Blank Type -> SumType
         ([..,
@@ -128,7 +124,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
             set.insert(p.clone());
 
             let top = Pat::SumType(set);
-            stack.reduce_to_new(5, top)
+            stack.reduce(5, top)
         }
         // Type Blank `|` Blank Type -> SumType
         ([.., a, Pat::Blank, Pat::Mark('|'), Pat::Blank, b], _)
@@ -138,7 +134,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
             set.insert(b.clone());
 
             let top = Pat::SumType(set);
-            stack.reduce_to_new(5, top)
+            stack.reduce(5, top)
         }
 
         // Blank LetName `:` Blank Type `,` -> LetNameWithType
@@ -152,7 +148,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
                 n.to_string(),
                 p.clone().boxed(),
             );
-            stack.reduce_to_new(6, top)
+            stack.reduce(6, top)
         }
         // Blank LetName `:` Blank Type Blank :`}` -> LetNameWithType
         ([..,
@@ -165,7 +161,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
                 n.to_string(),
                 p.clone().boxed(),
             );
-            stack.reduce_to_new(6, top)
+            stack.reduce(6, top)
         }
         // `{` LetNameWithType `}` -> ProductType
         ([..,
@@ -176,7 +172,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
             let top = Pat::ProductType(vec![
                 (n.clone(), *t.clone())
             ]);
-            stack.reduce_to_new(3, top)
+            stack.reduce(3, top)
         }
         // LetNameWithType LetNameWithType -> LetNameWithTypeSeq
         ([..,
@@ -188,7 +184,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
                 (a_n.clone(), *a_t.clone()),
                 (b_n.clone(), *b_t.clone()),
             ]);
-            stack.reduce_to_new(2, top)
+            stack.reduce(2, top)
         }
         // LetNameWithTypeSeq LetNameWithType -> LetNameWithTypeSeq
         ([..,
@@ -199,7 +195,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
             let top = Pat::LetNameWithTypeSeq(seq.push_to_new(
                 (n.clone(), *t.clone())
             ));
-            stack.reduce_to_new(2, top)
+            stack.reduce(2, top)
         }
         // "{ " LetNameWithTypeSeq " }" -> ProductType
         ([..,
@@ -208,7 +204,7 @@ fn reduce_stack(stack: &Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
         Pat::Mark('}')], _
         ) => {
             let top = Pat::ProductType(seq.clone());
-            stack.reduce_to_new(3, top)
+            stack.reduce(3, top)
         }
 
         // Can not parse
@@ -219,12 +215,14 @@ fn reduce_stack(stack: &Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
             return vec![Pat::Err];
         }
         // keep move in
-        _ => return stack.clone()
+        _ => return stack
     };
+
+    let reduced_stack = stack;
 
     println!("Reduce to: {:?}", reduced_stack);
 
-    reduce_stack(&reduced_stack, follow)
+    reduce_stack(reduced_stack, follow)
 }
 
 pub fn go(stack: &Vec<Pat>, seq: Vec<Out>) -> Pat {
@@ -234,7 +232,7 @@ pub fn go(stack: &Vec<Pat>, seq: Vec<Out>) -> Pat {
     let stack = stack.push_to_new(move_in(stack, head));
     println!("Move in result: {:?} follow: {:?}", stack, follow);
 
-    let reduced_stack = reduce_stack(&stack, follow.clone());
+    let reduced_stack = reduce_stack(stack, follow.clone());
 
     match (&reduced_stack[..], follow) {
         ([p], None) => {

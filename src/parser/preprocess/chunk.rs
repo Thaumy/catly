@@ -162,7 +162,7 @@ pub fn preprocess_chunk(seq: &str) -> Option<Vec<Out>> {
     let vec = go(vec![Pat::Start], seq);
     let r = vec
         .iter()
-        .fold(Some(vec![]), |mut acc, p|
+        .fold(Some(vec![]), |acc, p|
             match (acc, Option::<Out>::from(p.clone())) {
                 (Some(mut vec), Some(o)) => {
                     vec.push(o);

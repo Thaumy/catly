@@ -9,29 +9,31 @@ enum Pat {
     Comment,
 }
 
-fn reduce_stack(stack: Vec<Either<char, Pat>>) -> Vec<Either<char, Pat>> {
+fn reduce_stack(mut stack: Vec<Either<char, Pat>>) -> Vec<Either<char, Pat>> {
     match stack[..] {
         // "# " -> CommentStart
         [.., L('#'), L(' ')] =>
-            stack.reduce_to_new(2, R(CommentStart)),
+            stack.reduce(2, R(CommentStart)),
         // CommentStart: (!\n) -> CommentBody
         [.., R(CommentStart), L(c)] if c != '\n' =>
-            stack.reduce_to_new(1, R(CommentBody)),
+            stack.reduce(1, R(CommentBody)),
         // CommentBody (!\n) -> CommentBody
         [.., R(CommentBody), L(c)] if c != '\n' =>
-            stack.reduce_to_new(2, R(CommentBody)),
+            stack.reduce(2, R(CommentBody)),
         // CommentStart '\n' -> Comment
         [.., R(CommentStart), L('\n')] =>
-            stack.reduce_to_new(2, R(Comment)),
+            stack.reduce(2, R(Comment)),
         // CommentStart CommentBody '\n' -> Comment
         [.., R(CommentStart), R(CommentBody), L('\n')] =>
-            stack.reduce_to_new(3, R(Comment)),
+            stack.reduce(3, R(Comment)),
         // CommentStart CommentBody End -> Comment
         [.., R(CommentStart), R(CommentBody)] =>
-            stack.reduce_to_new(3, R(Comment)),
+            stack.reduce(3, R(Comment)),
 
         _ => return stack
     }
+
+    stack
 }
 
 fn go(stack: Vec<Either<char, Pat>>, tail: &str) -> Vec<Either<char, Pat>> {

@@ -1,10 +1,7 @@
-use crate::parser::alphanum::parse_alphanum;
 use crate::parser::define::pat::Pat;
 use crate::parser::expr::parse_expr;
-use crate::parser::infra::{Either, vec_get_head_tail_follow, VecExt};
+use crate::parser::infra::{vec_get_head_tail_follow, VecExt};
 use crate::parser::keyword::Keyword;
-use crate::parser::name::let_name::parse_let_name;
-use crate::parser::name::type_name::parse_type_name;
 use crate::parser::preprocess::Out;
 use crate::parser::r#type::parse_type;
 
@@ -44,8 +41,8 @@ fn move_in(stack: &Vec<Pat>, head: Option<Out>) -> Pat {
     }
 }
 
-fn reduce_stack(stack: &Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
-    let reduced_stack = match (&stack[..], &follow) {
+fn reduce_stack(mut stack: Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
+    match (&stack[..], &follow) {
         // Success
         ([Pat::Start, p, Pat::End], _) => {
             return vec![p.clone()];
@@ -57,9 +54,8 @@ fn reduce_stack(stack: &Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
         Pat::TypeName(n), Pat::Blank, Pat::Mark('='), Pat::Blank], _
         ) => {
             let top = Pat::TypeDefHead(n.to_string());
-            stack
-                .reduce_to_new(6, top)
-                .push_to_new(Pat::End)
+            stack.reduce(6, top);
+            stack.push(Pat::End)
         }
 
         // KwDef Blank LetName Blank `=` Blank -> ExprDefHead End
@@ -68,9 +64,8 @@ fn reduce_stack(stack: &Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
         Pat::LetName(n), Pat::Blank, Pat::Mark('='), Pat::Blank], _
         ) => {
             let top = Pat::ExprDefHead(n.to_string());
-            stack
-                .reduce_to_new(6, top)
-                .push_to_new(Pat::End)
+            stack.reduce(6, top);
+            stack.push(Pat::End)
         }
 
         // Can not parse
@@ -81,12 +76,14 @@ fn reduce_stack(stack: &Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
             return vec![Pat::Err];
         }
         // keep move in
-        _ => return stack.clone()
+        _ => return stack
     };
+
+    let reduced_stack = stack;
 
     println!("Reduce to: {:?}", reduced_stack);
 
-    reduce_stack(&reduced_stack, follow)
+    reduce_stack(reduced_stack, follow)
 }
 
 pub fn go(stack: &Vec<Pat>, seq: Vec<Out>) -> Pat {
@@ -96,7 +93,7 @@ pub fn go(stack: &Vec<Pat>, seq: Vec<Out>) -> Pat {
     let stack = stack.push_to_new(move_in(stack, head));
     println!("Move in result: {:?} follow: {:?}", stack, follow);
 
-    let reduced_stack = reduce_stack(&stack, follow.clone());
+    let reduced_stack = reduce_stack(stack, follow.clone());
 
     match (&reduced_stack[..], follow) {
         ([p], _) => {

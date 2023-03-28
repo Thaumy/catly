@@ -1,7 +1,6 @@
 use std::vec;
 
 use crate::parser::define::{Define, parse_define};
-use crate::parser::keyword::Keyword;
 use crate::parser::preprocess::Out;
 
 fn parse_ast(seq: Vec<Out>) -> Option<Vec<Define>> {

@@ -1,4 +1,4 @@
-use crate::parser::infra::{slice_get_head_tail, vec_get_head_tail, VecExt};
+use crate::parser::infra::{slice_get_head_tail, VecExt};
 use crate::parser::keyword::Keyword;
 use crate::parser::value::int::parse_int;
 
@@ -35,26 +35,26 @@ pub enum Pat {
     DiscardValue,
 }
 
-fn reduce_stack(stack: Vec<Pat>) -> Vec<Pat> {
-    use crate::parser::keyword::Keyword::{*};
+fn reduce_stack(mut stack: Vec<Pat>) -> Vec<Pat> {
 
-    let reduced_stack = match &stack[..] {
+    match &stack[..] {
         // DigitChunk -> IntValue
         [.., Pat::DigitChunk(c)] => match parse_int(c) {
-            Some(i) => stack.reduce_to_new(1, Pat::IntValue(i)),
+            Some(i) => stack.reduce(1, Pat::IntValue(i)),
             None => return vec![Pat::Err]
         }
 
         // '(' ')' -> UnitValue
         [.., Pat::Symbol('('), Pat::Symbol(')')] =>
-            stack.reduce_to_new(2, Pat::UnitValue),
+            stack.reduce(2, Pat::UnitValue),
 
         // '_' -> DiscardValue
         [.., Pat::Symbol('_')] =>
-            stack.reduce_to_new(1, Pat::DiscardValue),
+            stack.reduce(1, Pat::DiscardValue),
 
         _ => return stack
     };
+    let reduced_stack = stack;
 
     println!("Reduce to: {:?}", reduced_stack);
 

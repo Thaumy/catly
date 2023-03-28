@@ -1,12 +1,6 @@
 use crate::parser::expr::{Expr, parse_expr};
 use crate::parser::infra::{BoxExt, MaybeExpr};
-use crate::parser::preprocess::blank::preprocess_blank;
-use crate::parser::preprocess::chunk::preprocess_chunk;
-use crate::parser::preprocess::comment::preprocess_comment;
-use crate::parser::preprocess::keyword::preprocess_keyword;
-use crate::parser::preprocess::name::preprocess_name;
-use crate::parser::preprocess::{Out, preprocess};
-use crate::parser::preprocess::r#const::preprocess_const;
+use crate::parser::preprocess::preprocess;
 
 fn f(seq: &str) -> MaybeExpr {
     let seq = preprocess(&seq)?;
