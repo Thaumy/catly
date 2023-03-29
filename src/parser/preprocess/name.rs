@@ -39,7 +39,7 @@ impl From<In> for Option<Out> {
 
 type In = crate::parser::preprocess::r#const::Out;
 
-pub fn preprocess_name(seq: &[In]) -> Option<Vec<Out>> {
+pub fn pp_name(seq: &[In]) -> Option<Vec<Out>> {
     let r = seq
         .iter()
         .fold(Some(vec![]), |acc, x|
@@ -58,7 +58,7 @@ pub fn preprocess_name(seq: &[In]) -> Option<Vec<Out>> {
 #[cfg(test)]
 mod tests {
     use crate::parser::keyword::Keyword;
-    use crate::parser::preprocess::name::{Out, preprocess_name};
+    use crate::parser::preprocess::name::{Out, pp_name};
 
     type In = crate::parser::preprocess::r#const::Out;
 
@@ -98,6 +98,6 @@ mod tests {
         ];
         let r = Some(r);
 
-        assert_eq!(preprocess_name(&seq), r);
+        assert_eq!(pp_name(&seq), r);
     }
 }

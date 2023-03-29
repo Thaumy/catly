@@ -46,7 +46,7 @@ impl From<In> for Out {
 
 type In = crate::parser::preprocess::chunk::Out;
 
-pub fn preprocess_keyword(seq: &[In]) -> Vec<Out> {
+pub fn pp_keyword(seq: &[In]) -> Vec<Out> {
     let r = seq
         .iter()
         .fold(vec![], |mut acc, x| {
@@ -60,7 +60,7 @@ pub fn preprocess_keyword(seq: &[In]) -> Vec<Out> {
 #[cfg(test)]
 mod tests {
     use crate::parser::keyword::Keyword;
-    use crate::parser::preprocess::keyword::{Out, preprocess_keyword};
+    use crate::parser::preprocess::keyword::{Out, pp_keyword};
 
     type In = crate::parser::preprocess::chunk::Out;
 
@@ -99,6 +99,6 @@ mod tests {
             Out::Symbol(' '),
         ];
 
-        assert_eq!(preprocess_keyword(&seq), r);
+        assert_eq!(pp_keyword(&seq), r);
     }
 }

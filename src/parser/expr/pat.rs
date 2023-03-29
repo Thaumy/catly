@@ -22,7 +22,6 @@ pub enum Pat {
 
     Kw(Keyword),
 
-    Blank,
     Apply(Box<Pat>, Box<Pat>),//Expr::Apply
 
     // if then else

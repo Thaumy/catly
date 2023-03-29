@@ -50,7 +50,7 @@ fn go(mut stack: Vec<Either<char, Pat>>, tail: &str) -> Vec<Either<char, Pat>> {
     go(reduced_stack, tail)
 }
 
-pub fn preprocess_comment(seq: &str) -> String {
+pub fn pp_comment(seq: &str) -> String {
     let r = go(vec![], seq)
         .iter()
         .fold("".to_string(), |mut acc, p|
@@ -68,7 +68,7 @@ pub fn preprocess_comment(seq: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use crate::parser::preprocess::comment::preprocess_comment;
+    use crate::parser::preprocess::comment::pp_comment;
 
     #[test]
     fn test_comment_pp_part1() {
@@ -122,7 +122,7 @@ mod tests {
                        )\
                 | _ -> baz";
 
-        assert_eq!(preprocess_comment(seq), r);
+        assert_eq!(pp_comment(seq), r);
     }
 
     #[test]
@@ -166,6 +166,6 @@ mod tests {
              let m = (), n = 4 in \
              add () 456";
 
-        assert_eq!(preprocess_comment(seq), r);
+        assert_eq!(pp_comment(seq), r);
     }
 }

@@ -11,7 +11,6 @@ pub enum Pat {
     End,
     Err,
 
-    Blank,
     Mark(char),
 
     LetName(String),

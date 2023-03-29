@@ -17,8 +17,6 @@ fn move_in(stack: &Vec<Pat>, head: Option<Out>) -> Pat {
 
             // .. -> Mark
             (_, Out::Symbol(s)) => match s {
-                // ' ' -> Blank
-                ' ' => Pat::Blank,
                 // '=' -> `=`
                 '=' => Pat::Mark('='),
 
@@ -50,21 +48,21 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
 
         // KwDef Blank LetName Blank `=` Blank -> TypeDefHead End
         ([..,
-        Pat::Kw(Keyword::Type), Pat::Blank,
-        Pat::TypeName(n), Pat::Blank, Pat::Mark('='), Pat::Blank], _
+        Pat::Kw(Keyword::Type),
+        Pat::TypeName(n), Pat::Mark('=')], _
         ) => {
             let top = Pat::TypeDefHead(n.to_string());
-            stack.reduce(6, top);
+            stack.reduce(3, top);
             stack.push(Pat::End)
         }
 
         // KwDef Blank LetName Blank `=` Blank -> ExprDefHead End
         ([..,
-        Pat::Kw(Keyword::Def), Pat::Blank,
-        Pat::LetName(n), Pat::Blank, Pat::Mark('='), Pat::Blank], _
+        Pat::Kw(Keyword::Def),
+        Pat::LetName(n), Pat::Mark('=')], _
         ) => {
             let top = Pat::ExprDefHead(n.to_string());
-            stack.reduce(6, top);
+            stack.reduce(3, top);
             stack.push(Pat::End)
         }
 

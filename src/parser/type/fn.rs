@@ -1,4 +1,5 @@
 use std::collections::BTreeSet;
+use crate::parser::infra::option::Ext as OptExt;
 
 use crate::parser::infra::r#box::Ext as BoxExt;
 use crate::parser::infra::vec::{Ext, vec_get_head_tail_follow};
@@ -15,8 +16,6 @@ fn move_in(stack: &Vec<Pat>, head: Option<Out>) -> Pat {
 
             // .. -> Mark
             (_, Out::Symbol(s)) => match s {
-                // ' ' -> Blank
-                ' ' => Pat::Blank,
                 // '(' -> `(`
                 '(' => Pat::Mark('('),
                 // ')' -> `)`
@@ -71,17 +70,14 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
         ([.., Pat::Mark('-'), Pat::Mark('>')], _) =>
             stack.reduce(2, Pat::Arrow),
         // Type Blank Arrow Blank -> ClosureTypeHead
-        ([.., p, Pat::Blank, Pat::Arrow, Pat::Blank], _)
+        ([.., p, Pat::Arrow, ], _)
         if p.is_type() => {
             let top = Pat::ClosureTypeHead(p.clone().boxed());
-            stack.reduce(4, top)
+            stack.reduce(2, top)
         }
         // ClosureTypeHead Type :!Blank -> ClosureType
         ([.., Pat::ClosureTypeHead(t), p], follow)
-        if match follow {
-            Some(Out::Symbol(' ')) => false,
-            _ => true
-        } && p.is_type() => {
+        if follow.is_end_pat() && p.is_type() => {
             let top = Pat::ClosureType(
                 t.clone(),
                 p.clone().boxed(),
@@ -91,7 +87,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
 
         // SumType Blank `|` Blank SumType -> SumType
         ([..,
-        Pat::SumType(l), Pat::Blank, Pat::Mark('|'), Pat::Blank,
+        Pat::SumType(l), Pat::Mark('|'),
         Pat::SumType(r)], _
         ) => {
             let mut set = BTreeSet::new();
@@ -99,11 +95,11 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
             set.extend(r.clone());
 
             let top = Pat::SumType(set);
-            stack.reduce(5, top)
+            stack.reduce(3, top)
         }
         // Type Blank `|` Blank SumType -> SumType
         ([..,
-        p, Pat::Blank, Pat::Mark('|'), Pat::Blank,
+        p, Pat::Mark('|'),
         Pat::SumType(vec)], _
         )
         if p.is_type() => {
@@ -112,11 +108,11 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
             set.insert(p.clone());
 
             let top = Pat::SumType(set);
-            stack.reduce(5, top)
+            stack.reduce(3, top)
         }
         // SumType Blank `|` Blank Type -> SumType
         ([..,
-        Pat::SumType(vec), Pat::Blank, Pat::Mark('|'), Pat::Blank,
+        Pat::SumType(vec), Pat::Mark('|'),
         p], _
         )
         if p.is_type() => {
@@ -125,23 +121,22 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
             set.insert(p.clone());
 
             let top = Pat::SumType(set);
-            stack.reduce(5, top)
+            stack.reduce(3, top)
         }
         // Type Blank `|` Blank Type -> SumType
-        ([.., a, Pat::Blank, Pat::Mark('|'), Pat::Blank, b], _)
+        ([.., a, Pat::Mark('|'), b], _)
         if a.is_type() && b.is_type() => {
             let mut set = BTreeSet::new();
             set.insert(a.clone());
             set.insert(b.clone());
 
             let top = Pat::SumType(set);
-            stack.reduce(5, top)
+            stack.reduce(3, top)
         }
 
         // Blank LetName `:` Blank Type `,` -> LetNameWithType
         ([..,
-        Pat::Blank,
-        Pat::LetName(n), Pat::Mark(':'), Pat::Blank,
+        Pat::LetName(n), Pat::Mark(':'),
         p, Pat::Mark(',')], _
         )
         if p.is_type() => {
@@ -149,20 +144,19 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
                 n.to_string(),
                 p.clone().boxed(),
             );
-            stack.reduce(6, top)
+            stack.reduce(4, top)
         }
         // Blank LetName `:` Blank Type Blank :`}` -> LetNameWithType
         ([..,
-        Pat::Blank,
-        Pat::LetName(n), Pat::Mark(':'), Pat::Blank,
-        p, Pat::Blank], Some(Out::Symbol('}'))
+        Pat::LetName(n), Pat::Mark(':'),
+        p], Some(Out::Symbol('}'))
         )
         if p.is_type() => {
             let top = Pat::LetNameWithType(
                 n.to_string(),
                 p.clone().boxed(),
             );
-            stack.reduce(6, top)
+            stack.reduce(3, top)
         }
         // `{` LetNameWithType `}` -> ProductType
         ([..,

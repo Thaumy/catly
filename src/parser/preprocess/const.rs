@@ -105,7 +105,7 @@ fn go(mut stack: Vec<Pat>, tail: &[In]) -> Vec<Pat> {
 
 type In = crate::parser::preprocess::keyword::Out;
 
-pub fn preprocess_const(seq: &[In]) -> Option<Vec<Out>> {
+pub fn pp_const(seq: &[In]) -> Option<Vec<Out>> {
     let r = go(vec![], seq)
         .iter()
         .fold(Some(vec![]), |acc, x|
@@ -124,7 +124,7 @@ pub fn preprocess_const(seq: &[In]) -> Option<Vec<Out>> {
 #[cfg(test)]
 mod tests {
     use crate::parser::keyword::Keyword;
-    use crate::parser::preprocess::r#const::{Out, preprocess_const};
+    use crate::parser::preprocess::r#const::{Out, pp_const};
 
     type In = crate::parser::preprocess::keyword::Out;
 
@@ -165,6 +165,6 @@ mod tests {
         ];
         let r = Some(r);
 
-        assert_eq!(preprocess_const(&seq), r);
+        assert_eq!(pp_const(&seq), r);
     }
 }

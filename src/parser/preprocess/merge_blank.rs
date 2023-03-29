@@ -13,7 +13,7 @@ fn blank() -> AnyOrBlank {
 type AnyOrBlank = Either<char, ()>;
 
 fn reduce_stack(mut stack: Vec<AnyOrBlank>) -> Vec<AnyOrBlank> {
-    use crate::parser::preprocess::blank::Either::R;
+    use crate::parser::preprocess::merge_blank::Either::R;
     match &stack[..] {
         // Blank Blank -> Blank
         [.., R(()), R(())] => stack.reduce(2, blank()),
@@ -35,7 +35,7 @@ fn go(mut stack: Vec<AnyOrBlank>, tail: &str) -> Vec<AnyOrBlank> {
     go(reduced_stack, tail)
 }
 
-pub fn preprocess_blank(seq: &str) -> String {
+pub fn pp_merge_blank(seq: &str) -> String {
     let r = go(vec![], seq)
         .iter()
         .fold("".to_string(), |mut acc, c| {
@@ -45,19 +45,19 @@ pub fn preprocess_blank(seq: &str) -> String {
             }
             acc
         });
-    println!("Blank pp out: {:?}", r);
+    println!("MergeBlank pp out: {:?}", r);
     r
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::parser::preprocess::blank::preprocess_blank;
+    use crate::parser::preprocess::merge_blank::pp_merge_blank;
 
     #[test]
     fn test_blank_pp() {
         let seq = "    \n    \r    \t    ";
-        assert_eq!(preprocess_blank(seq), " ");
+        assert_eq!(pp_merge_blank(seq), " ");
         let seq = "    \n\t\n\r    \t\t\r\n\n    \t\n\r\r    ";
-        assert_eq!(preprocess_blank(seq), " ");
+        assert_eq!(pp_merge_blank(seq), " ");
     }
 }

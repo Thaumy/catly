@@ -161,7 +161,7 @@ impl From<Pat> for Option<Out> {
     }
 }
 
-pub fn preprocess_chunk(seq: &str) -> Option<Vec<Out>> {
+pub fn pp_chunk(seq: &str) -> Option<Vec<Out>> {
     let vec = go(vec![Pat::Start], seq);
     let r = vec
         .iter()
@@ -180,7 +180,7 @@ pub fn preprocess_chunk(seq: &str) -> Option<Vec<Out>> {
 
 #[cfg(test)]
 mod tests {
-    use crate::parser::preprocess::chunk::{Out, preprocess_chunk};
+    use crate::parser::preprocess::chunk::{Out, pp_chunk};
 
     #[test]
     fn test_pp_chunk() {
@@ -198,6 +198,6 @@ mod tests {
         ];
         let r = Some(r);
 
-        assert_eq!(preprocess_chunk(seq), r);
+        assert_eq!(pp_chunk(seq), r);
     }
 }

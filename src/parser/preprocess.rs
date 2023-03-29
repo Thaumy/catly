@@ -1,17 +1,19 @@
 use crate::parser::keyword::Keyword;
-use crate::parser::preprocess::blank::preprocess_blank;
-use crate::parser::preprocess::chunk::preprocess_chunk;
-use crate::parser::preprocess::comment::preprocess_comment;
-use crate::parser::preprocess::keyword::preprocess_keyword;
-use crate::parser::preprocess::name::preprocess_name;
-use crate::parser::preprocess::r#const::preprocess_const;
+use crate::parser::preprocess::chunk::pp_chunk;
+use crate::parser::preprocess::comment::pp_comment;
+use crate::parser::preprocess::keyword::pp_keyword;
+use crate::parser::preprocess::merge_blank::pp_merge_blank;
+use crate::parser::preprocess::name::pp_name;
+use crate::parser::preprocess::r#const::pp_const;
+use crate::parser::preprocess::remove_blank::pp_remove_blank;
 
 pub mod keyword;
 pub mod comment;
-pub mod blank;
+pub mod merge_blank;
 pub mod name;
 pub mod chunk;
 pub mod r#const;
+mod remove_blank;
 
 #[derive(Debug)]
 #[derive(Clone)]
@@ -44,12 +46,13 @@ impl From<In> for Out {
 }
 
 pub fn preprocess(seq: &str) -> Option<Vec<Out>> {
-    let r = preprocess_comment(seq);
-    let r = preprocess_blank(&r);
-    let r = preprocess_chunk(&r)?;
-    let r = preprocess_keyword(&r);
-    let r = preprocess_const(&r)?;
-    let r = preprocess_name(&r)?;
+    let r = pp_comment(seq);
+    let r = pp_merge_blank(&r);
+    let r = pp_chunk(&r)?;
+    let r = pp_keyword(&r);
+    let r = pp_const(&r)?;
+    let r = pp_name(&r)?;
+    let r = pp_remove_blank(&r);
     let r = r
         .iter()
         .map(|x| Out::from(x.clone()))

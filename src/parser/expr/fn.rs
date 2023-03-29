@@ -1,4 +1,5 @@
 use crate::parser::expr::pat::Pat;
+use crate::parser::infra::option::Ext as OptExt;
 use crate::parser::infra::r#box::Ext as BoxExt;
 use crate::parser::infra::vec::{Ext, vec_get_head_tail_follow};
 use crate::parser::keyword::Keyword;
@@ -23,8 +24,6 @@ fn move_in(stack: &Vec<Pat>, head: Option<Out>) -> Pat {
 
             // .. -> Mark
             (_, Out::Symbol(s)) => match s {
-                // ' ' -> Blank
-                ' ' => Pat::Blank,
                 // '(' -> `(`
                 '(' => Pat::Mark('('),
                 // ')' -> `)`
@@ -71,28 +70,28 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
         // Success
         ([Pat::Start, p, Pat::End], None) => return vec![p.clone()],
 
-        // Expr `:` Blank -> TypedExprHead
-        // TypedExprHead: TypeSymbolSeq :!Blank -> Expr
+        // Expr `:` -> TypedExprHead
+        // TypedExprHead: TypeSymbolSeq :EndPat -> Expr
         /* TODO: 此产生式要求当 Type 后存在空白时:
                  x: A -> B ->
                  Expr: Type 必须被括号环绕:
                  (x: A -> B) ->
                  (x: A -> { x: Int }) ->
                  否则将无法归约 */
-        // TypedExprHead Blank TypeName -> Expr
+        // TypedExprHead TypeName -> Expr
 
         // `(` Expr `)` -> Expr
         ([.., Pat::Mark('('), p, Pat::Mark(')')], _) if p.is_expr() =>
             stack.reduce(3, p.clone()),
 
-        // KwIf Blank Expr Blank KwThen Blank Expr Blank KwElse Blank Expr -> Cond
+        // KwIf Expr KwThen Expr KwElse Expr ... -> Cond
         ([..,
-        Pat::Kw(Keyword::If), Pat::Blank, a, Pat::Blank,
-        Pat::Kw(Keyword::Then), Pat::Blank, b, Pat::Blank,
-        Pat::Kw(Keyword::Else), Pat::Blank, c
-        ], _)
-        if a.is_expr() && b.is_expr() && c.is_expr() =>
-            stack.reduce(11, Pat::Cond(
+        Pat::Kw(Keyword::If), a,
+        Pat::Kw(Keyword::Then), b,
+        Pat::Kw(Keyword::Else), c
+        ], follow)
+        if follow.is_end_pat() && a.is_expr() && b.is_expr() && c.is_expr() =>
+            stack.reduce(6, Pat::Cond(
                 None,
                 a.clone().boxed(),
                 b.clone().boxed(),
@@ -102,22 +101,14 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
         // `-` `>` -> Arrow
         ([.., Pat::Mark('-'), Pat::Mark('>')], _) =>
             stack.reduce(2, Pat::Arrow),
-        // LetName Blank Arrow Blank -> ClosurePara
-        ([.., Pat::LetName(n), Pat::Blank, Pat::Arrow, Pat::Blank], _) => {
+        // LetName Arrow -> ClosurePara
+        ([.., Pat::LetName(n), Pat::Arrow], _) => {
             let top = Pat::ClosurePara(n.to_string());
-            stack.reduce(4, top)
+            stack.reduce(2, top)
         }
-        // ClosurePara Expr :!Blank -> Closure
-        /* TODO: 此产生式要求当 Closure 具备如下形式时:
-                 x -> y -> z }
-                 Closure 必须被括号环绕:
-                 (x -> y -> z) }
-                 否则将无法归约 */
+        // ClosurePara Expr :EndPat -> Closure
         ([.., Pat::ClosurePara(n), p], follow)
-        if match follow {
-            Some(Out::Symbol(' ')) => false,
-            _ => true,
-        } && p.is_expr() => {
+        if follow.is_end_pat() && p.is_expr() => {
             let top = Pat::Closure(
                 None,
                 n.to_string(),
@@ -127,26 +118,26 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
             stack.reduce(2, top)
         }
 
-        // Blank LetName Blank `=` Blank Expr `,` -> Assign
-        ([.., Pat::Blank,
-        Pat::LetName(n), Pat::Blank, Pat::Mark('='), Pat::Blank,
+        // LetName `=` Expr `,` -> Assign
+        ([..,
+        Pat::LetName(n), Pat::Mark('='),
         p, Pat::Mark(',')], _
         )
         if p.is_expr() => {
             let top = Pat::Assign(n.clone(), p.clone().boxed());
-            stack.reduce(7, top)
+            stack.reduce(4, top)
         }
-        // Blank LetName Blank `=` Blank Expr Blank :`}`-> Assign
-        ([.., Pat::Blank,
-        Pat::LetName(n), Pat::Blank, Pat::Mark('='), Pat::Blank,
-        p, Pat::Blank], Some(Out::Symbol('}'))
+        // LetName `=` Expr :`}`-> Assign
+        ([..,
+        Pat::LetName(n), Pat::Mark('='),
+        p], Some(Out::Symbol('}'))
         )
         if p.is_expr() => {
             let top = Pat::Assign(
                 n.clone(),
                 p.clone().boxed(),
             );
-            stack.reduce(7, top)
+            stack.reduce(3, top)
         }
         // Assign Assign -> AssignSeq
         ([..,
@@ -188,45 +179,31 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
             stack.reduce(3, top)
         }
 
-        // KwMatch Blank Expr Blank KwWith Blank -> MatchHead
+        // KwMatch Expr KwWith -> MatchHead
         ([..,
-        Pat::Kw(Keyword::Match), Pat::Blank,
-        p, Pat::Blank, Pat::Kw(Keyword::With), Pat::Blank], _
+        Pat::Kw(Keyword::Match),
+        p, Pat::Kw(Keyword::With)], _
         )
         if p.is_expr() => {
             let top = Pat::MatchHead(p.clone().boxed());
-            stack.reduce(6, top)
+            stack.reduce(3, top)
         }
-        // `|` Blank Expr Blank Arrow -> CaseHead
+        // `|` Expr -> CaseHead
         ([..,
-        Pat::Mark('|'), Pat::Blank,
-        p, Pat::Blank, Pat::Arrow], _
+        Pat::Mark('|'),
+        p], _
         )
         if p.is_expr() => {
             let top = Pat::CaseHead(p.clone().boxed());
-            stack.reduce(5, top)
+            stack.reduce(2, top)
         }
-        // CaseHead Blank Expr Blank :VerticalBar -> Case
+        // CaseHead Arrow Expr :EndPat -> Case
         ([..,
-        Pat::CaseHead(e), Pat::Blank,
-        p, Pat::Blank ], Some(Out::Symbol('|'))
-        )
-        if p.is_expr() => {
-            let top = Pat::Case(
-                e.clone(),
-                p.clone().boxed(),
-            );
-            stack.reduce(4, top)
-        }
-        // CaseHead Blank Expr :!Blank -> Case
-        ([..,
-        Pat::CaseHead(e), Pat::Blank,
+        Pat::CaseHead(e), Pat::Arrow,
         p  ], follow
         )
-        if match follow {
-            Some(Out::Symbol(' ')) => false,
-            _ => true,
-        } && p.is_expr() => {
+        // Case 的终结标记与一般的语言构造恰好相同
+        if follow.is_end_pat() && p.is_expr() => {
             let top = Pat::Case(
                 e.clone(),
                 p.clone().boxed(),
@@ -254,14 +231,15 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
             ));
             stack.reduce(2, top)
         }
-        // MatchHead Case :!(Blank|`|`) -> Match
+        // MatchHead Case :!`|` -> Match
         ([..,
         Pat::MatchHead(h_e),
         Pat::Case(case, then) ], follow
         )
         if match follow {
-            Some(Out::Symbol(' ')) | Some(Out::Symbol('|')) => false,
-            _ => true
+            // 存在后继 Case 时拒绝归约
+            Some(Out::Symbol('|')) => false,
+            _ => true,
         } => {
             let top = Pat::Match(
                 None,
@@ -270,14 +248,15 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
             );
             stack.reduce(2, top)
         }
-        // MatchHead CaseSeq :!(Blank|`|`) -> Match
+        // MatchHead CaseSeq :!`|` -> Match
         ([..,
         Pat::MatchHead(h_e),
         Pat::CaseSeq(vec) ], follow
         )
         if match follow {
-            Some(Out::Symbol(' ')) | Some(Out::Symbol('|')) => false,
-            _ => true
+            // 存在后继 Case 时拒绝归约
+            Some(Out::Symbol('|')) => false,
+            _ => true,
         } => {
             let top = Pat::Match(
                 None,
@@ -287,36 +266,33 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
             stack.reduce(2, top)
         }
 
-        // Expr Blank Expr -> Apply
-        ([.., lhs, Pat::Blank, rhs], _)
+        // Expr Expr -> Apply
+        ([.., lhs, rhs], _)
         if lhs.is_expr() && rhs.is_expr() => {
             let top = Pat::Apply(
                 lhs.clone().boxed(),
                 rhs.clone().boxed(),
             );
-            stack.reduce(3, top)
+            stack.reduce(2, top)
         }
 
-        // Blank LetName Blank `=` Blank Expr Blank :KwIn -> Assign
-        ([.., Pat::Blank,
-        Pat::LetName(n), Pat::Blank, Pat::Mark('='), Pat::Blank,
-        p, Pat::Blank], Some(Out::Kw(Keyword::In))
+        // LetName `=` Expr :KwIn -> Assign
+        ([..,
+        Pat::LetName(n), Pat::Mark('='),
+        p], Some(Out::Kw(Keyword::In))
         )
         if p.is_expr() => {
             let top = Pat::Assign(
                 n.clone(),
                 p.clone().boxed(),
             );
-            stack.reduce(7, top)
+            stack.reduce(3, top)
         }
-        // KwLet AssignSeq KwIn Blank Expr :!Blank -> Let
+        // KwLet AssignSeq KwIn Expr :EndPat -> Let
         ([.., Pat::Kw(Keyword::Let),
-        Pat::AssignSeq(a_seq), Pat::Kw(Keyword::In), Pat::Blank,
+        Pat::AssignSeq(a_seq), Pat::Kw(Keyword::In),
         p], follow)
-        if match follow {
-            Some(Out::Symbol(' ')) => false,
-            _ => true,
-        } && p.is_expr() => {
+        if follow.is_end_pat() && p.is_expr() => {
             type F = fn(Pat, &(String, Pat)) -> Pat;
             let f: F = |acc, (n, e)| Pat::Let(
                 None,
@@ -329,16 +305,13 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
                 .iter()
                 .rev()
                 .fold(p.clone(), f);
-            stack.reduce(5, top)
+            stack.reduce(4, top)
         }
-        // KwLet Assign KwIn Blank Expr :!Blank -> Let
+        // KwLet Assign KwIn Expr :EndPat -> Let
         ([.., Pat::Kw(Keyword::Let),
-        Pat::Assign(n, e), Pat::Kw(Keyword::In), Pat::Blank,
+        Pat::Assign(n, e), Pat::Kw(Keyword::In),
         p], follow)
-        if match follow {
-            Some(Out::Symbol(' ')) => false,
-            _ => true,
-        } && p.is_expr() => {
+        if follow.is_end_pat() && p.is_expr() => {
             let top = Pat::Let(
                 None,
                 n.to_string(),
@@ -346,7 +319,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
                 *e.clone().boxed(),
                 p.clone().boxed(),
             );
-            stack.reduce(5, top)
+            stack.reduce(4, top)
         }
 
         // Can not parse

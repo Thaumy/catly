@@ -14,7 +14,6 @@ pub enum Pat {
     Err,
 
     Mark(char),
-    Blank,
 
     //Type::TypeEnvRef
     TypeName(String),
