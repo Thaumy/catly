@@ -505,7 +505,7 @@ fn test_parse_struct_part2() {
         "{ \
                a = { abc = { efg = if 123 then () else 0 }, x = 1 }, \
                ab = neg 1, \
-               fun = (x -> y -> add x y) \
+               fun = x -> y -> add x y \
              }";
     assert_eq!(f(seq), r);
     let seq =
@@ -696,7 +696,7 @@ fn test_parse_match_part2() {
     let seq =
         "match x with \
          | 1 -> if a then b else c \
-         | v -> (a -> b -> add a b) \
+         | v -> a -> b -> add a b \
          | { a = _, b = { foo = _, bar = _ }, c = 3 } -> \
              { x = 123, y = c } \
          | _ -> \
@@ -706,7 +706,7 @@ fn test_parse_match_part2() {
                  (a -> b -> \
                    match z with \
                    | _ -> 114514 \
-                   | a -> (x -> y -> add () y)\
+                   | a -> x -> y -> add () y\
                  ) \
             | _ -> baz";
 

@@ -3,19 +3,20 @@ use crate::parser::infra::option::Ext as OptExt;
 
 use crate::parser::infra::r#box::Ext as BoxExt;
 use crate::parser::infra::vec::{Ext, vec_get_head_tail_follow};
-use crate::parser::preprocess::Out;
 use crate::parser::r#type::pat::Pat;
 
-fn move_in(stack: &Vec<Pat>, head: Option<Out>) -> Pat {
+type In = crate::parser::preprocess::Out;
+
+fn move_in(stack: &Vec<Pat>, head: Option<In>) -> Pat {
     match head {
         Some(o) => match (&stack[..], o) {
             // .. -> LetName
-            (_, Out::LetName(n)) => Pat::LetName(n),
+            (_, In::LetName(n)) => Pat::LetName(n),
             // .. -> TypeName
-            (_, Out::TypeName(n)) => Pat::TypeName(n),
+            (_, In::TypeName(n)) => Pat::TypeName(n),
 
             // .. -> Mark
-            (_, Out::Symbol(s)) => match s {
+            (_, In::Symbol(s)) => match s {
                 // '(' -> `(`
                 '(' => Pat::Mark('('),
                 // ')' -> `)`
@@ -57,7 +58,7 @@ fn move_in(stack: &Vec<Pat>, head: Option<Out>) -> Pat {
     }
 }
 
-fn reduce_stack(mut stack: Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
+fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
     match (&stack[..], &follow) {
         // Success
         ([Pat::Start, p, Pat::End], None) => return vec![p.clone()],
@@ -149,7 +150,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
         // Blank LetName `:` Blank Type Blank :`}` -> LetNameWithType
         ([..,
         Pat::LetName(n), Pat::Mark(':'),
-        p], Some(Out::Symbol('}'))
+        p], Some(In::Symbol('}'))
         )
         if p.is_type() => {
             let top = Pat::LetNameWithType(
@@ -220,7 +221,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
     reduce_stack(reduced_stack, follow)
 }
 
-pub fn go(mut stack: Vec<Pat>, seq: Vec<Out>) -> Pat {
+pub fn go(mut stack: Vec<Pat>, seq: Vec<In>) -> Pat {
     let (head, tail, follow) =
         vec_get_head_tail_follow(seq);
 

@@ -3,27 +3,28 @@ use crate::parser::infra::option::Ext as OptExt;
 use crate::parser::infra::r#box::Ext as BoxExt;
 use crate::parser::infra::vec::{Ext, vec_get_head_tail_follow};
 use crate::parser::keyword::Keyword;
-use crate::parser::preprocess::Out;
 
-fn move_in(stack: &Vec<Pat>, head: Option<Out>) -> Pat {
+type In = crate::parser::preprocess::Out;
+
+fn move_in(stack: &Vec<Pat>, head: Option<In>) -> Pat {
     match head {
         Some(o) => match (&stack[..], o) {
             // .. -> LetName
-            (_, Out::LetName(n)) => Pat::LetName(n),
+            (_, In::LetName(n)) => Pat::LetName(n),
             // .. -> Kw
-            (_, Out::Kw(kw)) => Pat::Kw(kw),
+            (_, In::Kw(kw)) => Pat::Kw(kw),
             // .. -> Int
-            (_, Out::IntValue(i)) => Pat::Int(i),
+            (_, In::IntValue(i)) => Pat::Int(i),
             // .. -> Unit
-            (_, Out::UnitValue) => Pat::Unit,
+            (_, In::UnitValue) => Pat::Unit,
             // .. -> Discard
-            (_, Out::DiscardValue) => Pat::Discard,
+            (_, In::DiscardValue) => Pat::Discard,
 
             // TypedExprHead: _ -> TypeSymbol
             // TypeSymbolSeq: _ -> TypeSymbolSeq
 
             // .. -> Mark
-            (_, Out::Symbol(s)) => match s {
+            (_, In::Symbol(s)) => match s {
                 // '(' -> `(`
                 '(' => Pat::Mark('('),
                 // ')' -> `)`
@@ -65,7 +66,7 @@ fn move_in(stack: &Vec<Pat>, head: Option<Out>) -> Pat {
     }
 }
 
-fn reduce_stack(mut stack: Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
+fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
     match (&stack[..], &follow) {
         // Success
         ([Pat::Start, p, Pat::End], None) => return vec![p.clone()],
@@ -130,7 +131,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
         // LetName `=` Expr :`}`-> Assign
         ([..,
         Pat::LetName(n), Pat::Mark('='),
-        p], Some(Out::Symbol('}'))
+        p], Some(In::Symbol('}'))
         )
         if p.is_expr() => {
             let top = Pat::Assign(
@@ -238,7 +239,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
         )
         if match follow {
             // 存在后继 Case 时拒绝归约
-            Some(Out::Symbol('|')) => false,
+            Some(In::Symbol('|')) => false,
             _ => true,
         } => {
             let top = Pat::Match(
@@ -255,7 +256,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
         )
         if match follow {
             // 存在后继 Case 时拒绝归约
-            Some(Out::Symbol('|')) => false,
+            Some(In::Symbol('|')) => false,
             _ => true,
         } => {
             let top = Pat::Match(
@@ -279,7 +280,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
         // LetName `=` Expr :KwIn -> Assign
         ([..,
         Pat::LetName(n), Pat::Mark('='),
-        p], Some(Out::Kw(Keyword::In))
+        p], Some(In::Kw(Keyword::In))
         )
         if p.is_expr() => {
             let top = Pat::Assign(
@@ -340,7 +341,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
     reduce_stack(reduced_stack, follow)
 }
 
-pub fn go(mut stack: Vec<Pat>, seq: Vec<Out>) -> Pat {
+pub fn go(mut stack: Vec<Pat>, seq: Vec<In>) -> Pat {
     let (head, tail, follow) =
         vec_get_head_tail_follow(seq);
 

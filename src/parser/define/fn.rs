@@ -2,21 +2,22 @@ use crate::parser::define::pat::Pat;
 use crate::parser::expr::parse_expr;
 use crate::parser::infra::vec::{Ext, vec_get_head_tail_follow};
 use crate::parser::keyword::Keyword;
-use crate::parser::preprocess::Out;
 use crate::parser::r#type::parse_type;
 
-fn move_in(stack: &Vec<Pat>, head: Option<Out>) -> Pat {
+type In = crate::parser::preprocess::Out;
+
+fn move_in(stack: &Vec<Pat>, head: Option<In>) -> Pat {
     match head {
         Some(o) => match (&stack[..], o) {
             // .. -> LetName
-            (_, Out::LetName(n)) => Pat::LetName(n),
+            (_, In::LetName(n)) => Pat::LetName(n),
             // .. -> TypeName
-            (_, Out::TypeName(n)) => Pat::TypeName(n),
+            (_, In::TypeName(n)) => Pat::TypeName(n),
             // .. -> Kw
-            (_, Out::Kw(kw)) => Pat::Kw(kw),
+            (_, In::Kw(kw)) => Pat::Kw(kw),
 
             // .. -> Mark
-            (_, Out::Symbol(s)) => match s {
+            (_, In::Symbol(s)) => match s {
                 // '=' -> `=`
                 '=' => Pat::Mark('='),
 
@@ -39,7 +40,7 @@ fn move_in(stack: &Vec<Pat>, head: Option<Out>) -> Pat {
     }
 }
 
-fn reduce_stack(mut stack: Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
+fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
     match (&stack[..], &follow) {
         // Success
         ([Pat::Start, p, Pat::End], _) => {
@@ -84,7 +85,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<Out>) -> Vec<Pat> {
     reduce_stack(reduced_stack, follow)
 }
 
-pub fn go(mut stack: Vec<Pat>, seq: Vec<Out>) -> Pat {
+pub fn go(mut stack: Vec<Pat>, seq: Vec<In>) -> Pat {
     let (head, tail, follow) =
         vec_get_head_tail_follow(seq);
 

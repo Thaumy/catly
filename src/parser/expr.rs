@@ -3,7 +3,6 @@ use std::vec;
 use crate::parser::expr::pat::Pat;
 use crate::parser::expr::r#fn::go;
 use crate::parser::infra::alias::{MaybeExpr, MaybeType};
-use crate::parser::preprocess::Out;
 
 mod pat;
 mod r#fn;
@@ -24,8 +23,10 @@ pub enum Expr {
     Let(MaybeType, String, MaybeType, Box<Expr>, Box<Expr>),
 }
 
-pub fn parse_expr(seq: Vec<Out>) -> MaybeExpr {
-    println!("\nParsing seq: {:?}", seq);
+type In = crate::parser::preprocess::Out;
+
+pub fn parse_expr(seq: Vec<In>) -> MaybeExpr {
+    println!("\nParsing Expr seq: {:?}", seq);
     Option::<Expr>::from(go(vec![Pat::Start], seq))
 }
 
