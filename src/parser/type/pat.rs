@@ -1,5 +1,6 @@
 use std::collections::BTreeSet;
 
+use crate::maybe_fold;
 use crate::parser::infra::alias::MaybeType;
 use crate::parser::infra::r#box::Ext;
 use crate::parser::r#type::Type;
@@ -61,16 +62,12 @@ impl From<Pat> for MaybeType {
                     _ => return None
                 },
             Pat::SumType(ts) => {
-                type F = fn(Option<BTreeSet<Type>>, &Pat) -> Option<BTreeSet<Type>>;
-                let f: F = |acc, t|
-                    match (acc, Self::from(t.clone())) {
-                        (Some(mut ts), Some(t)) => {
-                            ts.insert(t);
-                            Some(ts)
-                        }
-                        _ => None,
-                    };
-                let set = ts.iter().fold(Some(BTreeSet::new()), f);
+                let set = maybe_fold!(
+                    ts.iter(),
+                    BTreeSet::new(),
+                    insert,
+                    |t: &Pat| t.clone().into()
+                );
 
                 match set {
                     Some(set) => Type::SumType(set),
@@ -78,17 +75,15 @@ impl From<Pat> for MaybeType {
                 }
             }
             Pat::ProductType(vec) => {
-                type LetNameWithType = (String, Type);
-                type F = fn(Option<Vec<LetNameWithType>>, &(String, Pat)) -> Option<Vec<LetNameWithType>>;
-                let f: F = |acc, (n, p)|
-                    match (acc, Self::from(p.clone())) {
-                        (Some(mut vec), Some(e)) => {
-                            vec.push((n.to_string(), e));
-                            Some(vec)
-                        }
-                        _ => None,
-                    };
-                let vec = vec.iter().fold(Some(vec![]), f);
+                let f = |(n, p): &(String, Pat)|
+                    (p.clone().into(): MaybeType).map(|e| (n.to_string(), e));
+
+                let vec = maybe_fold!(
+                    vec.iter(),
+                    vec![],
+                    push,
+                    f
+                );
 
                 match vec {
                     Some(vec) => Type::ProductType(vec),

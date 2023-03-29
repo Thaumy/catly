@@ -1,6 +1,6 @@
 use std::collections::BTreeSet;
-use crate::parser::infra::option::Ext as OptExt;
 
+use crate::parser::infra::option::Ext as OptExt;
 use crate::parser::infra::r#box::Ext as BoxExt;
 use crate::parser::infra::vec::{Ext, vec_get_head_tail_follow};
 use crate::parser::r#type::pat::Pat;
@@ -70,13 +70,13 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
         // `-` `>` -> Arrow
         ([.., Pat::Mark('-'), Pat::Mark('>')], _) =>
             stack.reduce(2, Pat::Arrow),
-        // Type Blank Arrow Blank -> ClosureTypeHead
+        // Type Arrow -> ClosureTypeHead
         ([.., p, Pat::Arrow, ], _)
         if p.is_type() => {
             let top = Pat::ClosureTypeHead(p.clone().boxed());
             stack.reduce(2, top)
         }
-        // ClosureTypeHead Type :!Blank -> ClosureType
+        // ClosureTypeHead Type :EndPat -> ClosureType
         ([.., Pat::ClosureTypeHead(t), p], follow)
         if follow.is_end_pat() && p.is_type() => {
             let top = Pat::ClosureType(
@@ -86,7 +86,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
             stack.reduce(2, top)
         }
 
-        // SumType Blank `|` Blank SumType -> SumType
+        // SumType `|` SumType -> SumType
         ([..,
         Pat::SumType(l), Pat::Mark('|'),
         Pat::SumType(r)], _
@@ -98,7 +98,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
             let top = Pat::SumType(set);
             stack.reduce(3, top)
         }
-        // Type Blank `|` Blank SumType -> SumType
+        // Type `|` SumType -> SumType
         ([..,
         p, Pat::Mark('|'),
         Pat::SumType(vec)], _
@@ -111,7 +111,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
             let top = Pat::SumType(set);
             stack.reduce(3, top)
         }
-        // SumType Blank `|` Blank Type -> SumType
+        // SumType `|` Type -> SumType
         ([..,
         Pat::SumType(vec), Pat::Mark('|'),
         p], _
@@ -124,7 +124,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
             let top = Pat::SumType(set);
             stack.reduce(3, top)
         }
-        // Type Blank `|` Blank Type -> SumType
+        // Type `|` Type -> SumType
         ([.., a, Pat::Mark('|'), b], _)
         if a.is_type() && b.is_type() => {
             let mut set = BTreeSet::new();
@@ -135,7 +135,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
             stack.reduce(3, top)
         }
 
-        // Blank LetName `:` Blank Type `,` -> LetNameWithType
+        // LetName `:` Type `,` -> LetNameWithType
         ([..,
         Pat::LetName(n), Pat::Mark(':'),
         p, Pat::Mark(',')], _
@@ -147,7 +147,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
             );
             stack.reduce(4, top)
         }
-        // Blank LetName `:` Blank Type Blank :`}` -> LetNameWithType
+        // LetName `:` Type :`}` -> LetNameWithType
         ([..,
         Pat::LetName(n), Pat::Mark(':'),
         p], Some(In::Symbol('}'))

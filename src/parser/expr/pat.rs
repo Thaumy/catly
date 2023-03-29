@@ -1,3 +1,4 @@
+use crate::maybe_fold;
 use crate::parser::expr::Expr;
 use crate::parser::infra::alias::{MaybeExpr, MaybeType};
 use crate::parser::infra::r#box::Ext;
@@ -13,27 +14,27 @@ pub enum Pat {
 
     Mark(char),
 
-    Unit,//Expr::Unit
+    Unit(MaybeType),//Expr::Unit
 
-    Int(i64),//Expr::Int
+    Int(i64, MaybeType),//Expr::Int
 
     //Expr::EnvRef
-    LetName(String),
+    LetName(String, MaybeType),
 
     Kw(Keyword),
 
-    Apply(Box<Pat>, Box<Pat>),//Expr::Apply
+    Apply(MaybeType, Box<Pat>, Box<Pat>),//Expr::Apply
 
     // if then else
     Cond(MaybeType, Box<Pat>, Box<Pat>, Box<Pat>),//Expr::Cond
 
     Arrow,
-    ClosurePara(String),
+    ClosurePara(String, MaybeType),
     Closure(MaybeType, String, MaybeType, Box<Pat>),//Expr::Closure
 
-    Assign(String, Box<Pat>),
-    AssignSeq(Vec<(String, Pat)>),
-    Struct(Vec<(String, Pat)>),//Expr::Struct
+    Assign(String, MaybeType, Box<Pat>),
+    AssignSeq(Vec<(String, MaybeType, Pat)>),
+    Struct(Vec<(String, MaybeType, Pat)>),//Expr::Struct
 
     // match with
     Discard,
@@ -50,10 +51,10 @@ pub enum Pat {
 impl Pat {
     pub(crate) fn is_expr(&self) -> bool {
         match self {
-            Pat::Unit |
-            Pat::Int(_) |
-            Pat::LetName(_) |
-            Pat::Apply(_, _) |
+            Pat::Unit(_) |
+            Pat::Int(_, _) |
+            Pat::LetName(_, _) |
+            Pat::Apply(_, _, _) |
             Pat::Cond(_, _, _, _) |
             Pat::Closure(_, _, _, _) |
             Pat::Struct(_) |
@@ -76,10 +77,10 @@ impl From<Pat> for MaybeExpr {
     fn from(pat: Pat) -> Self {
         let r = match pat {
             Pat::Discard => Expr::Discard,
-            Pat::Unit => Expr::Unit(None),
-            Pat::Int(i) => Expr::Int(None, i),
-            Pat::LetName(n) => Expr::EnvRef(n),
-            Pat::Apply(l, r) =>
+            Pat::Unit(_) => Expr::Unit(None),
+            Pat::Int(i, _) => Expr::Int(None, i),
+            Pat::LetName(n, _) => Expr::EnvRef(n),
+            Pat::Apply(_, l, r) =>
                 match (Self::from(*l), Self::from(*r)) {
                     (Some(l), Some(r)) =>
                         Expr::Apply(
@@ -102,44 +103,48 @@ impl From<Pat> for MaybeExpr {
                 }
             Pat::Closure(_, para, _, e) =>
                 match Self::from(*e) {
-                    Some(e) => Expr::Closure(
-                        None,
-                        para,
-                        None,
-                        e.boxed(),
-                    ),
+                    Some(e) =>
+                        Expr::Closure(
+                            None,
+                            para,
+                            None,
+                            e.boxed(),
+                        ),
                     _ => return None
                 }
             Pat::Struct(vec) => {
-                type Assign = (String, MaybeType, Expr);
-                type F = fn(Option<Vec<Assign>>, &(String, Pat)) -> Option<Vec<Assign>>;
-                let f: F = |acc, (n, p)|
-                    match (acc, Self::from(p.clone())) {
-                        (Some(mut vec), Some(e)) => {
-                            vec.push((n.to_string(), None, e));
-                            Some(vec)
-                        }
-                        _ => None,
-                    };
-                let vec = vec.iter().fold(Some(vec![]), f);
+                let f = |(n, _, p): &(String, _, Pat)|
+                    (p.clone().into(): MaybeExpr).map(|e| (n.to_string(), None, e));
+
+                let vec = maybe_fold!(
+                    vec.iter(),
+                    vec![],
+                    push,
+                    f
+                );
 
                 match vec {
-                    Some(vec) => Expr::Struct(None, vec),
+                    Some(vec) =>
+                        Expr::Struct(
+                            None,
+                            vec,
+                        ),
                     _ => return None,
                 }
             }
             Pat::Match(_, p, vec) => {
-                type Case = (Expr, Expr);
-                type F = fn(Option<Vec<Case>>, &(Pat, Pat)) -> Option<Vec<Case>>;
-                let f: F = |acc, (case_p, then_p)|
-                    match (acc, Self::from(case_p.clone()), Self::from(then_p.clone())) {
-                        (Some(mut vec), Some(case_e), Some(then_e)) => {
-                            vec.push((case_e, then_e));
-                            Some(vec)
-                        }
-                        _ => None,
-                    };
-                let vec = vec.iter().fold(Some(vec![]), f);
+                let f = |(case_p, then_p): &(Pat, Pat)| {
+                    let case_e = (case_p.clone().into(): MaybeExpr)?;
+                    let then_e = (then_p.clone().into(): MaybeExpr)?;
+                    Some((case_e, then_e))
+                };
+
+                let vec = maybe_fold!(
+                    vec.iter(),
+                    vec![],
+                    push,
+                    f
+                );
 
                 match (Self::from(*p), vec) {
                     (Some(p), Some(vec)) =>

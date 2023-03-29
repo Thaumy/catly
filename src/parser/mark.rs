@@ -3,7 +3,6 @@
 #[derive(PartialEq)]
 pub enum Mark {
     Underline,
-    Blank,
     Dash,
     RightAngleBracket,
     LeftPar,
@@ -19,10 +18,6 @@ pub enum Mark {
 
 pub fn parse_underline(x: &char) -> bool {
     x == &'_'
-}
-
-pub fn parse_blank(x: &char) -> bool {
-    x == &' '
 }
 
 pub fn parse_l_par(x: &char) -> bool {
@@ -72,7 +67,6 @@ pub fn parse_r_angle_bracket(x: &char) -> bool {
 pub fn parse_mark(x: &char) -> Option<Mark> {
     let r = match x {
         '_' => Mark::Underline,
-        ' ' => Mark::Blank,
         '(' => Mark::LeftPar,
         ')' => Mark::RightPar,
         '{' => Mark::LeftCurlyBracket,
@@ -96,7 +90,6 @@ mod tests {
     #[test]
     fn test_parse_mark_part1() {
         assert!(parse_underline(&'_'));
-        assert!(parse_blank(&' '));
         assert!(parse_l_par(&'('));
         assert!(parse_r_par(&')'));
         assert!(parse_l_curly_bracket(&'{'));
@@ -110,7 +103,6 @@ mod tests {
         assert!(parse_r_angle_bracket(&'>'));
 
         assert!(!parse_underline(&'a'));
-        assert!(!parse_blank(&'a'));
         assert!(!parse_l_par(&'a'));
         assert!(!parse_r_par(&'a'));
         assert!(!parse_l_curly_bracket(&'a'));
@@ -129,7 +121,6 @@ mod tests {
         use crate::parser::mark::{Mark, parse_mark};
 
         assert_eq!(parse_mark(&'_'), Some(Mark::Underline));
-        assert_eq!(parse_mark(&' '), Some(Mark::Blank));
         assert_eq!(parse_mark(&'('), Some(Mark::LeftPar));
         assert_eq!(parse_mark(&')'), Some(Mark::RightPar));
         assert_eq!(parse_mark(&'{'), Some(Mark::LeftCurlyBracket));

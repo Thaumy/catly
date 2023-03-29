@@ -17,7 +17,7 @@ type In = crate::parser::preprocess::Out;
 
 pub fn parse_define(seq: Vec<In>) -> Option<Define> {
     println!("\nParsing Define seq: {:?}", seq);
-    Option::<Define>::from(go(vec![Pat::Start], seq))
+    go(vec![Pat::Start], seq).into()
 }
 
 mod test;

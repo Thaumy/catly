@@ -1,3 +1,4 @@
+use crate::maybe_fold;
 use crate::parser::alphanum::{parse_alphanum, parse_digit, parse_lower, parse_upper};
 use crate::parser::infra::str::str_get_head_tail_follow;
 use crate::parser::infra::vec::Ext;
@@ -163,17 +164,12 @@ impl From<Pat> for Option<Out> {
 
 pub fn pp_chunk(seq: &str) -> Option<Vec<Out>> {
     let vec = go(vec![Pat::Start], seq);
-    let r = vec
-        .iter()
-        .fold(Some(vec![]), |acc, p|
-            match (acc, Option::<Out>::from(p.clone())) {
-                (Some(mut vec), Some(o)) => {
-                    vec.push(o);
-                    Some(vec)
-                }
-                _ => None
-            },
-        );
+    let r = maybe_fold!(
+        vec.iter(),
+        vec![],
+        push,
+        |p: &Pat| p.clone().into()
+    );
     println!("Chunk pp out: {:?}", r);
     r
 }

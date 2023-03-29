@@ -23,7 +23,7 @@ type In = crate::parser::preprocess::Out;
 
 pub fn parse_type(seq: Vec<In>) -> MaybeType {
     println!("\nParsing Type seq: {:?}", seq);
-    Option::<Type>::from(go(vec![Pat::Start], seq))
+    go(vec![Pat::Start], seq).into()
 }
 
 mod test;

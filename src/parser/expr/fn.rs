@@ -1,4 +1,5 @@
 use crate::parser::expr::pat::Pat;
+use crate::parser::infra::alias::MaybeType;
 use crate::parser::infra::option::Ext as OptExt;
 use crate::parser::infra::r#box::Ext as BoxExt;
 use crate::parser::infra::vec::{Ext, vec_get_head_tail_follow};
@@ -10,13 +11,13 @@ fn move_in(stack: &Vec<Pat>, head: Option<In>) -> Pat {
     match head {
         Some(o) => match (&stack[..], o) {
             // .. -> LetName
-            (_, In::LetName(n)) => Pat::LetName(n),
+            (_, In::LetName(n)) => Pat::LetName(n, None),
             // .. -> Kw
             (_, In::Kw(kw)) => Pat::Kw(kw),
             // .. -> Int
-            (_, In::IntValue(i)) => Pat::Int(i),
+            (_, In::IntValue(i)) => Pat::Int(i, None),
             // .. -> Unit
-            (_, In::UnitValue) => Pat::Unit,
+            (_, In::UnitValue) => Pat::Unit(None),
             // .. -> Discard
             (_, In::DiscardValue) => Pat::Discard,
 
@@ -103,12 +104,12 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
         ([.., Pat::Mark('-'), Pat::Mark('>')], _) =>
             stack.reduce(2, Pat::Arrow),
         // LetName Arrow -> ClosurePara
-        ([.., Pat::LetName(n), Pat::Arrow], _) => {
-            let top = Pat::ClosurePara(n.to_string());
+        ([.., Pat::LetName(n, None), Pat::Arrow], _) => {
+            let top = Pat::ClosurePara(n.to_string(), None);
             stack.reduce(2, top)
         }
         // ClosurePara Expr :EndPat -> Closure
-        ([.., Pat::ClosurePara(n), p], follow)
+        ([.., Pat::ClosurePara(n, None), p], follow)
         if follow.is_end_pat() && p.is_expr() => {
             let top = Pat::Closure(
                 None,
@@ -121,43 +122,44 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
 
         // LetName `=` Expr `,` -> Assign
         ([..,
-        Pat::LetName(n), Pat::Mark('='),
+        Pat::LetName(n, None), Pat::Mark('='),
         p, Pat::Mark(',')], _
         )
         if p.is_expr() => {
-            let top = Pat::Assign(n.clone(), p.clone().boxed());
+            let top = Pat::Assign(n.clone(), None, p.clone().boxed());
             stack.reduce(4, top)
         }
         // LetName `=` Expr :`}`-> Assign
         ([..,
-        Pat::LetName(n), Pat::Mark('='),
+        Pat::LetName(n, None), Pat::Mark('='),
         p], Some(In::Symbol('}'))
         )
         if p.is_expr() => {
             let top = Pat::Assign(
                 n.clone(),
+                None,
                 p.clone().boxed(),
             );
             stack.reduce(3, top)
         }
         // Assign Assign -> AssignSeq
         ([..,
-        Pat::Assign(a_n, a_v),
-        Pat::Assign(b_n, b_v)], _
+        Pat::Assign(a_n, _, a_v),
+        Pat::Assign(b_n, _, b_v)], _
         ) => {
             let top = Pat::AssignSeq(vec![
-                (a_n.to_string(), *a_v.clone()),
-                (b_n.to_string(), *b_v.clone()),
+                (a_n.to_string(), None, *a_v.clone()),
+                (b_n.to_string(), None, *b_v.clone()),
             ]);
             stack.reduce(2, top)
         }
         // AssignSeq Assign -> AssignSeq
         ([..,
         Pat::AssignSeq(vec),
-        Pat::Assign(n, v)], _
+        Pat::Assign(n, _, v)], _
         ) => {
             let top = Pat::AssignSeq(vec.push_to_new(
-                (n.clone(), *v.clone())
+                (n.clone(), None, *v.clone())
             ));
             stack.reduce(2, top)
         }
@@ -173,10 +175,10 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
         // `{` Assign `}` -> Struct
         ([..,
         Pat::Mark('{'),
-        Pat::Assign(n, v),
+        Pat::Assign(n, _, v),
         Pat::Mark('}')], _
         ) => {
-            let top = Pat::Struct(vec![(n.to_string(), *v.clone())]);
+            let top = Pat::Struct(vec![(n.to_string(), None, *v.clone())]);
             stack.reduce(3, top)
         }
 
@@ -271,6 +273,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
         ([.., lhs, rhs], _)
         if lhs.is_expr() && rhs.is_expr() => {
             let top = Pat::Apply(
+                None,
                 lhs.clone().boxed(),
                 rhs.clone().boxed(),
             );
@@ -279,12 +282,13 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
 
         // LetName `=` Expr :KwIn -> Assign
         ([..,
-        Pat::LetName(n), Pat::Mark('='),
+        Pat::LetName(n, None), Pat::Mark('='),
         p], Some(In::Kw(Keyword::In))
         )
         if p.is_expr() => {
             let top = Pat::Assign(
                 n.clone(),
+                None,
                 p.clone().boxed(),
             );
             stack.reduce(3, top)
@@ -294,8 +298,8 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
         Pat::AssignSeq(a_seq), Pat::Kw(Keyword::In),
         p], follow)
         if follow.is_end_pat() && p.is_expr() => {
-            type F = fn(Pat, &(String, Pat)) -> Pat;
-            let f: F = |acc, (n, e)| Pat::Let(
+            type F = fn(Pat, &(String, MaybeType, Pat)) -> Pat;
+            let f: F = |acc, (n, _, e)| Pat::Let(
                 None,
                 n.to_string(),
                 None,
@@ -310,7 +314,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
         }
         // KwLet Assign KwIn Expr :EndPat -> Let
         ([.., Pat::Kw(Keyword::Let),
-        Pat::Assign(n, e), Pat::Kw(Keyword::In),
+        Pat::Assign(n, _, e), Pat::Kw(Keyword::In),
         p], follow)
         if follow.is_end_pat() && p.is_expr() => {
             let top = Pat::Let(

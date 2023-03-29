@@ -27,7 +27,7 @@ type In = crate::parser::preprocess::Out;
 
 pub fn parse_expr(seq: Vec<In>) -> MaybeExpr {
     println!("\nParsing Expr seq: {:?}", seq);
-    Option::<Expr>::from(go(vec![Pat::Start], seq))
+    go(vec![Pat::Start], seq).into()
 }
 
 mod test;

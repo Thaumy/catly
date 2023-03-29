@@ -47,7 +47,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
             return vec![p.clone()];
         }
 
-        // KwDef Blank LetName Blank `=` Blank -> TypeDefHead End
+        // KwDef LetName `=` -> TypeDefHead End
         ([..,
         Pat::Kw(Keyword::Type),
         Pat::TypeName(n), Pat::Mark('=')], _
@@ -57,7 +57,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
             stack.push(Pat::End)
         }
 
-        // KwDef Blank LetName Blank `=` Blank -> ExprDefHead End
+        // KwDef LetName `=` -> ExprDefHead End
         ([..,
         Pat::Kw(Keyword::Def),
         Pat::LetName(n), Pat::Mark('=')], _

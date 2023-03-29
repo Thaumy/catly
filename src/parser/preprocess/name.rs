@@ -1,3 +1,4 @@
+use crate::maybe_fold;
 use crate::parser::keyword::Keyword;
 use crate::parser::name::let_name::parse_let_name;
 use crate::parser::name::type_name::parse_type_name;
@@ -40,17 +41,12 @@ impl From<In> for Option<Out> {
 type In = crate::parser::preprocess::r#const::Out;
 
 pub fn pp_name(seq: &[In]) -> Option<Vec<Out>> {
-    let r = seq
-        .iter()
-        .fold(Some(vec![]), |acc, x|
-            match (acc, Option::<Out>::from(x.clone())) {
-                (Some(mut vec), Some(o)) => {
-                    vec.push(o);
-                    Some(vec)
-                }
-                _ => None
-            },
-        );
+    let r = maybe_fold!(
+        seq.iter(),
+        vec![],
+        push,
+        |p: &In| p.clone().into()
+    );
     println!("Name pp out: {:?}", r);
     r
 }
