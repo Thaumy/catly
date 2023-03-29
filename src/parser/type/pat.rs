@@ -16,22 +16,20 @@ pub enum Pat {
 
     Mark(char),
 
-    //Type::TypeEnvRef
-    TypeName(String),
+    TypeName(String),// Type::TypeEnvRef
 
-    //Type::TypeApply
-    TypeApply(Box<Pat>, Box<Pat>),
+    TypeApply(Box<Pat>, Box<Pat>),// Type::TypeApply
 
     Arrow,
     ClosureTypeHead(Box<Pat>),
-    ClosureType(Box<Pat>, Box<Pat>),//Type::ClosureType
+    ClosureType(Box<Pat>, Box<Pat>),// Type::ClosureType
 
-    SumType(BTreeSet<Pat>),//Type::SumType
+    SumType(BTreeSet<Pat>),// Type::SumType
 
     LetName(String),
     LetNameWithType(String, Box<Pat>),
     LetNameWithTypeSeq(Vec<(String, Pat)>),
-    ProductType(Vec<(String, Pat)>),//Type::ProductType
+    ProductType(Vec<(String, Pat)>),// Type::ProductType
 }
 
 impl Pat {

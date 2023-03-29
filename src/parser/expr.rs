@@ -30,4 +30,5 @@ pub fn parse_expr(seq: Vec<In>) -> MaybeExpr {
     go(vec![Pat::Start], seq).into()
 }
 
+#[cfg(test)]
 mod test;

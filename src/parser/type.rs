@@ -26,4 +26,5 @@ pub fn parse_type(seq: Vec<In>) -> MaybeType {
     go(vec![Pat::Start], seq).into()
 }
 
+#[cfg(test)]
 mod test;

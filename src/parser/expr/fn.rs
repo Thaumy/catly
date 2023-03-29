@@ -1,3 +1,4 @@
+use std::collections::BTreeSet;
 use crate::parser::expr::pat::Pat;
 use crate::parser::infra::alias::MaybeType;
 use crate::parser::infra::option::Ext as OptExt;
@@ -48,6 +49,9 @@ fn move_in(stack: &Vec<Pat>, head: Option<In>) -> Pat {
                 // '|' -> `|`
                 '|' => Pat::Mark('|'),
 
+                // ':' -> `:`
+                ':' => Pat::Mark(':'),// type annotation usage
+
                 // _ -> Err
                 c => {
                     println!("Invalid head Pat: {:?}", c);
@@ -71,16 +75,6 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
     match (&stack[..], &follow) {
         // Success
         ([Pat::Start, p, Pat::End], None) => return vec![p.clone()],
-
-        // Expr `:` -> TypedExprHead
-        // TypedExprHead: TypeSymbolSeq :EndPat -> Expr
-        /* TODO: 此产生式要求当 Type 后存在空白时:
-                 x: A -> B ->
-                 Expr: Type 必须被括号环绕:
-                 (x: A -> B) ->
-                 (x: A -> { x: Int }) ->
-                 否则将无法归约 */
-        // TypedExprHead TypeName -> Expr
 
         // `(` Expr `)` -> Expr
         ([.., Pat::Mark('('), p, Pat::Mark(')')], _) if p.is_expr() =>
@@ -325,6 +319,173 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
                 p.clone().boxed(),
             );
             stack.reduce(4, top)
+        }
+
+        /* type annotation productions */
+
+        /* TODO: ClosureType 与 Closure, Case 在归约上存在二义性, 表现为:
+                 当 Type 后存在 `->` 时:
+                 x: A -> <closure_body>
+                 f: A -> B -> <closure_body>
+                 | x: A -> <case_then>
+                 | g: A -> B -> <case_then>
+                 Type 必须由括号显示终结:
+                 x: (A) -> <closure_body>
+                 f: (A -> B) -> <closure_body>
+                 | x: (A) -> <case_then>
+                 | g: (A -> B) -> <case_then>
+                 或:
+                 (x: A) -> <closure_body>
+                 (f: A -> B) -> <closure_body>
+                 | (x: A) -> <case_then>
+                 | (g: A -> B) -> <case_then>
+                 否则类型标注将无法终结
+                 重新设计 类型归约的终止模式 以解决该问题 */
+
+        // Expr `:` -> TypedExprHead
+        ([.., p, Pat::Mark(':')], _) if p.is_expr() =>
+            stack.reduce(2, Pat::TypedExprHead(p.clone().boxed())),
+
+        // TypedExprHead Type :EndPat -> Expr
+        ([.., Pat::TypedExprHead(e), p], follow)
+        if follow.is_end_pat() && p.is_type() =>
+            stack.reduce(2, *e.clone()),
+
+        // `(` Type `)` -> Type
+        ([.., Pat::Mark('('), p, Pat::Mark(')')], _) if p.is_type() =>
+            stack.reduce(3, p.clone()),
+
+        // Type Arrow -> ClosureTypeHead
+        ([.., p, Pat::Arrow, ], _)
+        if p.is_type() => {
+            let top = Pat::ClosureTypeHead(p.clone().boxed());
+            stack.reduce(2, top)
+        }
+        // ClosureTypeHead Type :EndPat -> ClosureType
+        ([.., Pat::ClosureTypeHead(t), p], follow)
+        if follow.is_end_pat() && p.is_type() => {
+            let top = Pat::ClosureType(
+                t.clone(),
+                p.clone().boxed(),
+            );
+            stack.reduce(2, top)
+        }
+
+        // SumType `|` SumType -> SumType
+        ([..,
+        Pat::SumType(l), Pat::Mark('|'),
+        Pat::SumType(r)], _
+        ) => {
+            let mut set = BTreeSet::new();
+            set.extend(l.clone());
+            set.extend(r.clone());
+
+            let top = Pat::SumType(set);
+            stack.reduce(3, top)
+        }
+        // Type `|` SumType -> SumType
+        ([..,
+        p, Pat::Mark('|'),
+        Pat::SumType(vec)], _
+        )
+        if p.is_type() => {
+            let mut set = BTreeSet::new();
+            set.extend(vec.clone());
+            set.insert(p.clone());
+
+            let top = Pat::SumType(set);
+            stack.reduce(3, top)
+        }
+        // SumType `|` Type -> SumType
+        ([..,
+        Pat::SumType(vec), Pat::Mark('|'),
+        p], _
+        )
+        if p.is_type() => {
+            let mut set = BTreeSet::new();
+            set.extend(vec.clone());
+            set.insert(p.clone());
+
+            let top = Pat::SumType(set);
+            stack.reduce(3, top)
+        }
+        // Type `|` Type -> SumType
+        ([.., a, Pat::Mark('|'), b], _)
+        if a.is_type() && b.is_type() => {
+            let mut set = BTreeSet::new();
+            set.insert(a.clone());
+            set.insert(b.clone());
+
+            let top = Pat::SumType(set);
+            stack.reduce(3, top)
+        }
+
+        // LetName `:` Type `,` -> LetNameWithType
+        ([..,
+        Pat::LetName(n, _), Pat::Mark(':'),
+        p, Pat::Mark(',')], _
+        )
+        if p.is_type() => {
+            let top = Pat::LetNameWithType(
+                n.to_string(),
+                p.clone().boxed(),
+            );
+            stack.reduce(4, top)
+        }
+        // LetName `:` Type :`}` -> LetNameWithType
+        ([..,
+        Pat::LetName(n, _), Pat::Mark(':'),
+        p], Some(In::Symbol('}'))
+        )
+        if p.is_type() => {
+            let top = Pat::LetNameWithType(
+                n.to_string(),
+                p.clone().boxed(),
+            );
+            stack.reduce(3, top)
+        }
+        // `{` LetNameWithType `}` -> ProductType
+        ([..,
+        Pat::Mark('{'),
+        Pat::LetNameWithType(n, t),
+        Pat::Mark('}')], _
+        ) => {
+            let top = Pat::ProductType(vec![
+                (n.clone(), *t.clone())
+            ]);
+            stack.reduce(3, top)
+        }
+        // LetNameWithType LetNameWithType -> LetNameWithTypeSeq
+        ([..,
+        Pat::LetNameWithType(a_n, a_t),
+        Pat::LetNameWithType(b_n, b_t),
+        ], _
+        ) => {
+            let top = Pat::LetNameWithTypeSeq(vec![
+                (a_n.clone(), *a_t.clone()),
+                (b_n.clone(), *b_t.clone()),
+            ]);
+            stack.reduce(2, top)
+        }
+        // LetNameWithTypeSeq LetNameWithType -> LetNameWithTypeSeq
+        ([..,
+        Pat::LetNameWithTypeSeq(seq),
+        Pat::LetNameWithType(n, t),
+        ], _
+        ) => {
+            let top = Pat::LetNameWithTypeSeq(seq.push_to_new(
+                (n.clone(), *t.clone())
+            ));
+            stack.reduce(2, top)
+        }
+        // "{ " LetNameWithTypeSeq " }" -> ProductType
+        ([..,
+        Pat::Mark('{'),
+        Pat::LetNameWithTypeSeq(seq),
+        Pat::Mark('}')], _
+        ) => {
+            let top = Pat::ProductType(seq.clone());
+            stack.reduce(3, top)
         }
 
         // Can not parse

@@ -20,4 +20,5 @@ pub fn parse_define(seq: Vec<In>) -> Option<Define> {
     go(vec![Pat::Start], seq).into()
 }
 
+#[cfg(test)]
 mod test;

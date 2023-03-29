@@ -1,3 +1,4 @@
+use std::collections::BTreeSet;
 use crate::maybe_fold;
 use crate::parser::expr::Expr;
 use crate::parser::infra::alias::{MaybeExpr, MaybeType};
@@ -6,35 +7,35 @@ use crate::parser::keyword::Keyword;
 
 #[derive(Debug)]
 #[derive(Clone)]
-#[derive(PartialEq)]
+#[derive(PartialEq, Eq)]
+#[derive(PartialOrd, Ord)]
 pub enum Pat {
     Start,
     End,
     Err,
 
     Mark(char),
-
-    Unit(MaybeType),//Expr::Unit
-
-    Int(i64, MaybeType),//Expr::Int
-
-    //Expr::EnvRef
-    LetName(String, MaybeType),
-
     Kw(Keyword),
 
-    Apply(MaybeType, Box<Pat>, Box<Pat>),//Expr::Apply
+    // Expr::Unit
+    Unit(MaybeType),
+    // Expr::Int
+    Int(i64, MaybeType),
+
+    LetName(String, MaybeType),// Expr::EnvRef
+
+    Apply(MaybeType, Box<Pat>, Box<Pat>),// Expr::Apply
 
     // if then else
-    Cond(MaybeType, Box<Pat>, Box<Pat>, Box<Pat>),//Expr::Cond
+    Cond(MaybeType, Box<Pat>, Box<Pat>, Box<Pat>),// Expr::Cond
 
     Arrow,
     ClosurePara(String, MaybeType),
-    Closure(MaybeType, String, MaybeType, Box<Pat>),//Expr::Closure
+    Closure(MaybeType, String, MaybeType, Box<Pat>),// Expr::Closure
 
     Assign(String, MaybeType, Box<Pat>),
     AssignSeq(Vec<(String, MaybeType, Pat)>),
-    Struct(Vec<(String, MaybeType, Pat)>),//Expr::Struct
+    Struct(Vec<(String, MaybeType, Pat)>),// Expr::Struct
 
     // match with
     Discard,
@@ -42,14 +43,31 @@ pub enum Pat {
     CaseHead(Box<Pat>),
     Case(Box<Pat>, Box<Pat>),
     CaseSeq(Vec<(Pat, Pat)>),
-    Match(MaybeType, Box<Pat>, Vec<(Pat, Pat)>),//Expr::Match
+    Match(MaybeType, Box<Pat>, Vec<(Pat, Pat)>),// Expr::Match
 
     // let in
     Let(MaybeType, String, MaybeType, Box<Pat>, Box<Pat>),
+
+    /* type annotation patterns */
+
+    TypedExprHead(Box<Pat>),
+
+    TypeName(String),// Type::TypeEnvRef
+
+    TypeApply(Box<Pat>, Box<Pat>),// Type::TypeApply
+
+    ClosureTypeHead(Box<Pat>),
+    ClosureType(Box<Pat>, Box<Pat>),// Type::ClosureType
+
+    SumType(BTreeSet<Pat>),// Type::SumType
+
+    LetNameWithType(String, Box<Pat>),
+    LetNameWithTypeSeq(Vec<(String, Pat)>),
+    ProductType(Vec<(String, Pat)>),// Type::ProductType
 }
 
 impl Pat {
-    pub(crate) fn is_expr(&self) -> bool {
+    pub fn is_expr(&self) -> bool {
         match self {
             Pat::Unit(_) |
             Pat::Int(_, _) |
@@ -61,6 +79,17 @@ impl Pat {
             Pat::Discard |
             Pat::Match(_, _, _) |
             Pat::Let(_, _, _, _, _)
+            => true,
+            _ => false,
+        }
+    }
+    pub fn is_type(&self) -> bool {
+        match self {
+            Pat::TypeName(_) |
+            Pat::TypeApply(_, _) |
+            Pat::ClosureType(_, _) |
+            Pat::SumType(_) |
+            Pat::ProductType(_)
             => true,
             _ => false,
         }

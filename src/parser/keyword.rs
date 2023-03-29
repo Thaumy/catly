@@ -1,6 +1,7 @@
 #[derive(Clone)]
 #[derive(Debug)]
-#[derive(PartialEq)]
+#[derive(PartialEq, Eq)]
+#[derive(PartialOrd, Ord)]
 pub enum Keyword {
     Type,
     Def,

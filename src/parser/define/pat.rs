@@ -12,17 +12,16 @@ pub enum Pat {
     Err,
 
     Mark(char),
+    Kw(Keyword),
 
     LetName(String),
     TypeName(String),
 
-    Kw(Keyword),
-
     TypeDefHead(String),
-    TypeDef(String, Type),
+    TypeDef(String, Type),// Define::TypeDef
 
     ExprDefHead(String),
-    ExprDef(String, Expr),
+    ExprDef(String, Expr),// Define::ExprDef
 }
 
 impl From<Pat> for Option<Define> {
