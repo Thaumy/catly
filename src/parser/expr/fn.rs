@@ -12,18 +12,17 @@ fn move_in(stack: &Vec<Pat>, head: Option<In>) -> Pat {
     match head {
         Some(o) => match (&stack[..], o) {
             // .. -> LetName
-            (_, In::LetName(n)) => Pat::LetName(n, None),
+            (_, In::LetName(n)) => Pat::LetName(None, n),
+            // .. -> TypeName
+            (_, In::TypeName(n)) => Pat::TypeName(n),
             // .. -> Kw
             (_, In::Kw(kw)) => Pat::Kw(kw),
             // .. -> Int
-            (_, In::IntValue(i)) => Pat::Int(i, None),
+            (_, In::IntValue(i)) => Pat::Int(None, i),
             // .. -> Unit
             (_, In::UnitValue) => Pat::Unit(None),
             // .. -> Discard
-            (_, In::DiscardValue) => Pat::Discard,
-
-            // TypedExprHead: _ -> TypeSymbol
-            // TypeSymbolSeq: _ -> TypeSymbolSeq
+            (_, In::DiscardValue) => Pat::Discard(None),
 
             // .. -> Mark
             (_, In::Symbol(s)) => match s {
@@ -59,11 +58,11 @@ fn move_in(stack: &Vec<Pat>, head: Option<In>) -> Pat {
                 }
             }
 
-            // _ -> Err
-            (_, p) => {
-                println!("Invalid head Pat: {:?}", p);
-                Pat::Err
-            }
+            //// _ -> Err
+            //(_, p) => {
+            //    println!("Invalid head Pat: {:?}", p);
+            //    Pat::Err
+            //}
         }
 
         // ɛ -> End
@@ -75,6 +74,8 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
     match (&stack[..], &follow) {
         // Success
         ([Pat::Start, p, Pat::End], None) => return vec![p.clone()],
+
+        /* expression productions */
 
         // `(` Expr `)` -> Expr
         ([.., Pat::Mark('('), p, Pat::Mark(')')], _) if p.is_expr() =>
@@ -98,7 +99,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
         ([.., Pat::Mark('-'), Pat::Mark('>')], _) =>
             stack.reduce(2, Pat::Arrow),
         // LetName Arrow -> ClosurePara
-        ([.., Pat::LetName(n, None), Pat::Arrow], _) => {
+        ([.., Pat::LetName(None, n), Pat::Arrow], _) => {
             let top = Pat::ClosurePara(n.to_string(), None);
             stack.reduce(2, top)
         }
@@ -116,7 +117,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
 
         // LetName `=` Expr `,` -> Assign
         ([..,
-        Pat::LetName(n, None), Pat::Mark('='),
+        Pat::LetName(None, n, ), Pat::Mark('='),
         p, Pat::Mark(',')], _
         )
         if p.is_expr() => {
@@ -125,7 +126,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
         }
         // LetName `=` Expr :`}`-> Assign
         ([..,
-        Pat::LetName(n, None), Pat::Mark('='),
+        Pat::LetName(None, n), Pat::Mark('='),
         p], Some(In::Symbol('}'))
         )
         if p.is_expr() => {
@@ -163,7 +164,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
         Pat::AssignSeq(a_seq),
         Pat::Mark('}')], _
         ) => {
-            let top = Pat::Struct(a_seq.clone());
+            let top = Pat::Struct(None, a_seq.clone());
             stack.reduce(3, top)
         }
         // `{` Assign `}` -> Struct
@@ -172,7 +173,10 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
         Pat::Assign(n, _, v),
         Pat::Mark('}')], _
         ) => {
-            let top = Pat::Struct(vec![(n.to_string(), None, *v.clone())]);
+            let top = Pat::Struct(
+                None,
+                vec![(n.to_string(), None, *v.clone())],
+            );
             stack.reduce(3, top)
         }
 
@@ -185,10 +189,10 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
             let top = Pat::MatchHead(p.clone().boxed());
             stack.reduce(3, top)
         }
-        // `|` Expr -> CaseHead
+        // `|` Expr :`-` -> CaseHead
         ([..,
         Pat::Mark('|'),
-        p], _
+        p], Some(In::Symbol('-'))
         )
         if p.is_expr() => {
             let top = Pat::CaseHead(p.clone().boxed());
@@ -276,7 +280,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
 
         // LetName `=` Expr :KwIn -> Assign
         ([..,
-        Pat::LetName(n, None), Pat::Mark('='),
+        Pat::LetName(None, n), Pat::Mark('='),
         p], Some(In::Kw(Keyword::In))
         )
         if p.is_expr() => {
@@ -348,8 +352,15 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
 
         // TypedExprHead Type :EndPat -> Expr
         ([.., Pat::TypedExprHead(e), p], follow)
-        if follow.is_end_pat() && p.is_type() =>
-            stack.reduce(2, *e.clone()),
+        if follow.is_end_pat() && p.is_type() => {
+            match (p.clone().into(): MaybeType)
+                .map(|t| e.clone().with_type(t))
+                .flatten()
+            {
+                Some(e) => stack.reduce(2, e),
+                _ => return vec![Pat::Err]
+            }
+        }
 
         // `(` Type `)` -> Type
         ([.., Pat::Mark('('), p, Pat::Mark(')')], _) if p.is_type() =>
@@ -422,7 +433,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
 
         // LetName `:` Type `,` -> LetNameWithType
         ([..,
-        Pat::LetName(n, _), Pat::Mark(':'),
+        Pat::LetName(_, n), Pat::Mark(':'),
         p, Pat::Mark(',')], _
         )
         if p.is_type() => {
@@ -434,7 +445,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
         }
         // LetName `:` Type :`}` -> LetNameWithType
         ([..,
-        Pat::LetName(n, _), Pat::Mark(':'),
+        Pat::LetName(_, n), Pat::Mark(':'),
         p], Some(In::Symbol('}'))
         )
         if p.is_type() => {

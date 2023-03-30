@@ -18,7 +18,7 @@ pub enum Expr {
     Cond(MaybeType, Box<Expr>, Box<Expr>, Box<Expr>),
     Closure(MaybeType, String, MaybeType, Box<Expr>),
     Struct(MaybeType, Vec<(String, MaybeType, Expr)>),
-    Discard,
+    Discard(MaybeType),
     Match(MaybeType, Box<Expr>, Vec<(Expr, Expr)>),
     Let(MaybeType, String, MaybeType, Box<Expr>, Box<Expr>),
 }

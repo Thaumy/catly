@@ -25,11 +25,11 @@ fn test_parse_match_part1() {
                 None,
                 vec![
                     ("a".to_string(), None, Expr::Int(None, 1)),
-                    ("b".to_string(), None, Expr::Discard),
+                    ("b".to_string(), None, Expr::Discard(None)),
                     ("c".to_string(), None, Expr::Int(None, 3)),
                 ]),
              Expr::Int(None, 0)),
-            (Expr::Discard,
+            (Expr::Discard(None),
              Expr::Unit(None)),
         ],
     );
@@ -98,14 +98,14 @@ fn test_parse_match_part2() {
                 vec![
                     ("a".to_string(),
                      None,
-                     Expr::Discard),
+                     Expr::Discard(None)),
                     ("b".to_string(),
                      None,
                      Expr::Struct(
                          None,
                          vec![
-                             ("foo".to_string(), None, Expr::Discard),
-                             ("bar".to_string(), None, Expr::Discard),
+                             ("foo".to_string(), None, Expr::Discard(None)),
+                             ("bar".to_string(), None, Expr::Discard(None)),
                          ])),
                     ("c".to_string(),
                      None,
@@ -121,7 +121,7 @@ fn test_parse_match_part2() {
                       None,
                       Expr::EnvRef("c".to_string())),
                  ])),
-            (Expr::Discard,
+            (Expr::Discard(None),
              Expr::Match(
                  None,
                  Expr::EnvRef("y".to_string()).boxed(),
@@ -139,7 +139,8 @@ fn test_parse_match_part2() {
                                  None,
                                  Expr::EnvRef("z".to_string()).boxed(),
                                  vec![
-                                     (Expr::Discard, Expr::Int(None, 114514)),
+                                     (Expr::Discard(None),
+                                      Expr::Int(None, 114514)),
                                      (Expr::EnvRef("a".to_string()),
                                       Expr::Closure(
                                           None,
@@ -165,14 +166,16 @@ fn test_parse_match_part2() {
                                           None,
                                           Expr::EnvRef("w".to_string()).boxed(),
                                           vec![
-                                              (Expr::Discard, Expr::Int(None, 0)),
+                                              (Expr::Discard(None),
+                                               Expr::Int(None, 0)),
                                           ],
                                       )),
                                  ],
                              ).boxed(),
                          ).boxed(),
                      )),
-                     (Expr::Discard, Expr::EnvRef("baz".to_string())),
+                     (Expr::Discard(None),
+                      Expr::EnvRef("baz".to_string())),
                  ],
              )),
         ],

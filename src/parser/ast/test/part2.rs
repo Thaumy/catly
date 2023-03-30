@@ -59,7 +59,7 @@ fn test_parse_ast_part2() {
                     vec![
                         ("a".to_string(),
                          None,
-                         Expr::Discard),
+                         Expr::Discard(None)),
                         ("b".to_string(),
                          None,
                          Expr::Struct(
@@ -67,10 +67,10 @@ fn test_parse_ast_part2() {
                              vec![
                                  ("foo".to_string(),
                                   None,
-                                  Expr::Discard),
+                                  Expr::Discard(None)),
                                  ("bar".to_string(),
                                   None,
-                                  Expr::Discard),
+                                  Expr::Discard(None)),
                              ])),
                         ("c".to_string(),
                          None,
@@ -86,7 +86,7 @@ fn test_parse_ast_part2() {
                           None,
                           Expr::EnvRef("c".to_string())),
                      ])),
-                (Expr::Discard,
+                (Expr::Discard(None),
                  Expr::Match(
                      None,
                      Expr::EnvRef("y".to_string()).boxed(),
@@ -104,7 +104,8 @@ fn test_parse_ast_part2() {
                                      None,
                                      Expr::EnvRef("z".to_string()).boxed(),
                                      vec![
-                                         (Expr::Discard, Expr::Int(None, 114514)),
+                                         (Expr::Discard(None),
+                                          Expr::Int(None, 114514)),
                                          (Expr::EnvRef("a".to_string()),
                                           Expr::Closure(
                                               None,
@@ -129,7 +130,8 @@ fn test_parse_ast_part2() {
                                  ).boxed(),
                              ).boxed(),
                          )),
-                         (Expr::Discard, Expr::EnvRef("baz".to_string())),
+                         (Expr::Discard(None),
+                          Expr::EnvRef("baz".to_string())),
                      ],
                  )),
             ],
