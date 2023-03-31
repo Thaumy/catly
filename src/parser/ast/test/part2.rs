@@ -2,6 +2,7 @@ use crate::btree_set;
 use crate::parser::ast::test::f;
 use crate::parser::define::Define;
 use crate::parser::expr::Expr;
+use crate::parser::infra::option::AnyExt;
 use crate::parser::infra::r#box::Ext;
 use crate::parser::r#type::Type;
 
@@ -147,9 +148,20 @@ fn test_parse_ast_part2() {
             Type::TypeEnvRef("Int".to_string()),
         ]),
     );
+    let i1 = Define::ExprDef(
+        "i".to_string(),
+        Type::TypeEnvRef("Int".to_string()).some(),
+        Expr::Int(
+            Type::TypeEnvRef("Int".to_string()).some(),
+            0,
+        ),
+    );
     let d2 = Define::ExprDef(
         "main".to_string(),
-        None,
+        Type::ClosureType(
+            Type::TypeEnvRef("Unit".to_string()).boxed(),
+            Type::TypeEnvRef("Unit".to_string()).boxed(),
+        ).some(),
         Expr::Let(
             None,
             "a".to_string(),
@@ -234,7 +246,7 @@ fn test_parse_ast_part2() {
             ).boxed(),
         ),
     );
-    let r = vec![t1, d1, t2, d2];
+    let r = vec![t1, d1, t2, i1, d2];
     let r = Some(r);
 
     let seq =
@@ -255,7 +267,8 @@ fn test_parse_ast_part2() {
                          | a -> (x -> y -> add () y))
                  | _ -> baz
          type Love = A | Unit | C | Int
-         def main =
+         def i: Int = 0: Int
+         def main: Unit -> Unit =
              let a = 123,
                  b =
                      let x = i -> j -> k,

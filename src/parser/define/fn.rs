@@ -92,7 +92,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
         Pat::Type(t)], _
         ) => {
             let top = Pat::LetName(t.clone().some(), n.clone());
-            stack.reduce(1, top);
+            stack.reduce(3, top);
         }
 
         // KwDef LetName `=` -> ExprDefHead End

@@ -1,7 +1,9 @@
 use crate::parser::define::Define;
 use crate::parser::define::test::f;
 use crate::parser::expr::Expr;
+use crate::parser::infra::option::AnyExt;
 use crate::parser::infra::r#box::Ext;
+use crate::parser::r#type::Type;
 
 #[test]
 fn test_parse_expr_def_part1() {
@@ -18,6 +20,35 @@ fn test_parse_expr_def_part1() {
 
 #[test]
 fn test_parse_expr_def_part2() {
+    let r = Define::ExprDef(
+        "a".to_string(),
+        Type::TypeEnvRef("Int".to_string()).some(),
+        Expr::EnvRef(None, "b".to_string()),
+    );
+    let r = Some(r);
+
+    let seq = "def a: Int = b";
+    assert_eq!(f(seq), r)
+}
+
+#[test]
+fn test_parse_expr_def_part3() {
+    let r = Define::ExprDef(
+        "a".to_string(),
+        Type::ClosureType(
+            Type::TypeEnvRef("Int".to_string()).boxed(),
+            Type::TypeEnvRef("Int".to_string()).boxed(),
+        ).some(),
+        Expr::EnvRef(None, "b".to_string()),
+    );
+    let r = Some(r);
+
+    let seq = "def a: Int -> Int = b";
+    assert_eq!(f(seq), r)
+}
+
+#[test]
+fn test_parse_expr_def_part4() {
     let e = Expr::Let(
         None,
         "a".to_string(),
