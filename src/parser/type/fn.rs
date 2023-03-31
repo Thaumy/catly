@@ -1,6 +1,6 @@
 use std::collections::BTreeSet;
 
-use crate::parser::infra::option::Ext as OptExt;
+use crate::parser::infra::option::FollowExt;
 use crate::parser::infra::r#box::Ext as BoxExt;
 use crate::parser::infra::vec::{Ext, vec_get_head_tail_follow};
 use crate::parser::r#type::pat::Pat;
@@ -76,9 +76,9 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
             let top = Pat::ClosureTypeHead(p.clone().boxed());
             stack.reduce(2, top)
         }
-        // ClosureTypeHead Type :EndPat -> ClosureType
+        // ClosureTypeHead Type :TypeEndPat -> ClosureType
         ([.., Pat::ClosureTypeHead(t), p], follow)
-        if follow.is_end_pat() && p.is_type() => {
+        if follow.is_type_end_pat() && p.is_type() => {
             let top = Pat::ClosureType(
                 t.clone(),
                 p.clone().boxed(),

@@ -2,9 +2,12 @@ use std::collections::BTreeSet;
 use crate::maybe_fold;
 use crate::parser::expr::Expr;
 use crate::parser::infra::alias::{MaybeExpr, MaybeType};
+use crate::parser::infra::option::{AnyExt};
 use crate::parser::infra::r#box::Ext;
 use crate::parser::keyword::Keyword;
 use crate::parser::r#type::Type;
+
+pub type OptBoxPat = Option<Box<Pat>>;
 
 #[derive(Debug)]
 #[derive(Clone)]
@@ -21,35 +24,35 @@ pub enum Pat {
     /* expression patterns */
 
     // Expr::Unit
-    Unit(MaybeType),
+    Unit(OptBoxPat),
     // Expr::Int
-    Int(MaybeType, i64),
+    Int(OptBoxPat, i64),
 
-    LetName(MaybeType, String),// Expr::EnvRef
+    LetName(OptBoxPat, String),// Expr::EnvRef
 
-    Apply(MaybeType, Box<Pat>, Box<Pat>),// Expr::Apply
+    Apply(OptBoxPat, Box<Pat>, Box<Pat>),// Expr::Apply
 
     // if then else
-    Cond(MaybeType, Box<Pat>, Box<Pat>, Box<Pat>),// Expr::Cond
+    Cond(OptBoxPat, Box<Pat>, Box<Pat>, Box<Pat>),// Expr::Cond
 
     Arrow,
-    ClosurePara(String, MaybeType),
-    Closure(MaybeType, String, MaybeType, Box<Pat>),// Expr::Closure
+    ClosurePara(String, OptBoxPat),
+    Closure(OptBoxPat, String, OptBoxPat, Box<Pat>),// Expr::Closure
 
-    Assign(String, MaybeType, Box<Pat>),
-    AssignSeq(Vec<(String, MaybeType, Pat)>),
-    Struct(MaybeType, Vec<(String, MaybeType, Pat)>),// Expr::Struct
+    Assign(String, OptBoxPat, Box<Pat>),
+    AssignSeq(Vec<(String, OptBoxPat, Pat)>),
+    Struct(OptBoxPat, Vec<(String, OptBoxPat, Pat)>),// Expr::Struct
 
     // match with
-    Discard(MaybeType),
+    Discard(OptBoxPat),
     MatchHead(Box<Pat>),
     CaseHead(Box<Pat>),
     Case(Box<Pat>, Box<Pat>),
     CaseSeq(Vec<(Pat, Pat)>),
-    Match(MaybeType, Box<Pat>, Vec<(Pat, Pat)>),// Expr::Match
+    Match(OptBoxPat, Box<Pat>, Vec<(Pat, Pat)>),// Expr::Match
 
     // let in
-    Let(MaybeType, String, MaybeType, Box<Pat>, Box<Pat>),
+    Let(OptBoxPat, String, OptBoxPat, Box<Pat>, Box<Pat>),
 
     /* type annotation patterns */
 
@@ -64,8 +67,7 @@ pub enum Pat {
 
     SumType(BTreeSet<Pat>),// Type::SumType
 
-    LetNameWithType(String, Box<Pat>),
-    LetNameWithTypeSeq(Vec<(String, Pat)>),
+    TypedLetNameSeq(Vec<(String, Pat)>),
     ProductType(Vec<(String, Pat)>),// Type::ProductType
 }
 
@@ -86,50 +88,50 @@ impl Pat {
             _ => false,
         }
     }
-    pub fn with_type(self, r#type: Type) -> Option<Self> {
+    pub fn with_type(self, r#type: Pat) -> Option<Self> {
         let r = match self {
             Pat::Unit(_) => Pat::Unit(
-                Some(r#type)
+                r#type.boxed().some(),
             ),
             Pat::Int(_, i) => Pat::Int(
-                Some(r#type),
+                r#type.boxed().some(),
                 i,
             ),
             Pat::LetName(_, n) => Pat::LetName(
-                Some(r#type),
+                r#type.boxed().some(),
                 n,
             ),
             Pat::Apply(_, lhs, rhs) => Pat::Apply(
-                Some(r#type),
+                r#type.boxed().some(),
                 lhs,
                 rhs,
             ),
             Pat::Cond(_, e, t, f) => Pat::Cond(
-                Some(r#type),
+                r#type.boxed().some(),
                 e,
                 t,
                 f,
             ),
             Pat::Closure(_, para_n, para_t, e) => Pat::Closure(
-                Some(r#type),
+                r#type.boxed().some(),
                 para_n,
                 para_t,
                 e,
             ),
             Pat::Struct(_, vec) => Pat::Struct(
-                Some(r#type),
+                r#type.boxed().some(),
                 vec,
             ),
             Pat::Discard(_) => Pat::Discard(
-                Some(r#type)
+                r#type.boxed().some(),
             ),
             Pat::Match(_, e, vec) => Pat::Match(
-                Some(r#type),
+                r#type.boxed().some(),
                 e,
                 vec,
             ),
             Pat::Let(_, a_n, a_t, a_e, e) => Pat::Let(
-                Some(r#type),
+                r#type.boxed().some(),
                 a_n,
                 a_t,
                 a_e,
@@ -158,18 +160,33 @@ impl From<Keyword> for Pat {
     }
 }
 
+pub trait OptBoxPatExt {
+    fn map_into(self) -> Option<Type>;
+}
+
+impl OptBoxPatExt for Option<Box<Pat>> {
+    fn map_into(self) -> Option<Type> {
+        self.map(|x| <Pat as Into<MaybeType>>::into(*x))
+            .flatten()
+    }
+}
+
 impl From<Pat> for MaybeExpr {
     fn from(pat: Pat) -> Self {
         let r = match pat {
-            Pat::Discard(t) => Expr::Discard(t),
-            Pat::Unit(t) => Expr::Unit(t),
-            Pat::Int(t, i) => Expr::Int(t, i),
-            Pat::LetName(_, n) => Expr::EnvRef(n),// Discard the type
+            Pat::Discard(t) =>
+                Expr::Discard(t.map_into()),
+            Pat::Unit(t) =>
+                Expr::Unit(t.map_into()),
+            Pat::Int(t, i) =>
+                Expr::Int(t.map_into(), i),
+            Pat::LetName(t, n) =>
+                Expr::EnvRef(t.map_into(), n),
             Pat::Apply(t, l, r) =>
                 match (Self::from(*l), Self::from(*r)) {
                     (Some(l), Some(r)) =>
                         Expr::Apply(
-                            t,
+                            t.map_into(),
                             l.boxed(),
                             r.boxed(),
                         ),
@@ -179,27 +196,29 @@ impl From<Pat> for MaybeExpr {
                 match (Self::from(*a), Self::from(*b), Self::from(*c)) {
                     (Some(a), Some(b), Some(c)) =>
                         Expr::Cond(
-                            t,
+                            t.map_into(),
                             a.boxed(),
                             b.boxed(),
                             c.boxed(),
                         ),
                     _ => return None
                 }
-            Pat::Closure(_, para, _, e) =>
+            Pat::Closure(t, para_n, para_t, e) =>
                 match Self::from(*e) {
                     Some(e) =>
                         Expr::Closure(
-                            None,
-                            para,
-                            None,
+                            t.map_into(),
+                            para_n,
+                            para_t.map_into(),
                             e.boxed(),
                         ),
                     _ => return None
                 }
             Pat::Struct(t, vec) => {
-                let f = |(n, _, p): &(String, _, Pat)|
-                    (p.clone().into(): MaybeExpr).map(|e| (n.to_string(), None, e));
+                let f = |(n, t, p): &(String, Option<Box<Pat>>, Pat)|
+                    (p.clone().into(): MaybeExpr).map(
+                        |e| (n.to_string(), t.clone().map_into(), e)
+                    );
 
                 let vec = maybe_fold!(
                     vec.iter(),
@@ -211,7 +230,7 @@ impl From<Pat> for MaybeExpr {
                 match vec {
                     Some(vec) =>
                         Expr::Struct(
-                            t,
+                            t.map_into(),
                             vec,
                         ),
                     _ => return None,
@@ -234,21 +253,21 @@ impl From<Pat> for MaybeExpr {
                 match (Self::from(*p), vec) {
                     (Some(p), Some(vec)) =>
                         Expr::Match(
-                            t,
+                            t.map_into(),
                             p.boxed(),
                             vec,
                         ),
                     _ => Expr::Unit(None)
                 }
             }
-            Pat::Let(t, n, _, n_e, e) =>
-                match (Self::from(*n_e), Self::from(*e)) {
-                    (Some(n_e), Some(e)) =>
+            Pat::Let(t, a_n, a_t, a_e, e) =>
+                match (Self::from(*a_e), Self::from(*e)) {
+                    (Some(a_e), Some(e)) =>
                         Expr::Let(
-                            t,
-                            n,
-                            None,
-                            n_e.boxed(),
+                            t.map_into(),
+                            a_n,
+                            a_t.map_into(),
+                            a_e.boxed(),
                             e.boxed(),
                         ),
                     _ => return None
@@ -288,7 +307,7 @@ impl From<Pat> for MaybeType {
             }
             Pat::ProductType(vec) => {
                 let f = |(n, p): &(String, Pat)|
-                    (p.clone().into(): MaybeType).map(|e| (n.to_string(), e));
+                    (p.clone().into(): Option<Type>).map(|t| (n.to_string(), t));
 
                 let vec = maybe_fold!(
                     vec.iter(),

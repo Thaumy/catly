@@ -13,7 +13,7 @@ mod r#fn;
 pub enum Expr {
     Unit(MaybeType),
     Int(MaybeType, i64),
-    EnvRef(String),
+    EnvRef(MaybeType, String),
     Apply(MaybeType, Box<Expr>, Box<Expr>),
     Cond(MaybeType, Box<Expr>, Box<Expr>, Box<Expr>),
     Closure(MaybeType, String, MaybeType, Box<Expr>),

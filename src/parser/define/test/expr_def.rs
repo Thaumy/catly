@@ -7,7 +7,7 @@ use crate::parser::infra::r#box::Ext;
 fn test_parse_expr_def_part1() {
     let r = Define::ExprDef(
         "a".to_string(),
-        Expr::EnvRef("b".to_string()),
+        Expr::EnvRef(None, "b".to_string()),
     );
     let r = Some(r);
 
@@ -38,20 +38,20 @@ fn test_parse_expr_def_part2() {
                         None,
                         "j".to_string(),
                         None,
-                        Expr::EnvRef("k".to_string()).boxed(),
+                        Expr::EnvRef(None, "k".to_string()).boxed(),
                     ).boxed(),
                 ).boxed(),
                 Expr::Let(
                     None,
                     "y".to_string(),
                     None,
-                    Expr::EnvRef("a".to_string()).boxed(),
+                    Expr::EnvRef(None, "a".to_string()).boxed(),
                     Expr::Let(
                         None,
                         "z".to_string(),
                         None,
                         Expr::Unit(None).boxed(),
-                        Expr::EnvRef("a".to_string()).boxed(),
+                        Expr::EnvRef(None, "a".to_string()).boxed(),
                     ).boxed(),
                 ).boxed(),
             ).boxed(),
@@ -61,7 +61,7 @@ fn test_parse_expr_def_part2() {
                 None,
                 Expr::Apply(
                     None,
-                    Expr::EnvRef("neg".to_string()).boxed(),
+                    Expr::EnvRef(None, "neg".to_string()).boxed(),
                     Expr::Int(None, 1).boxed(),
                 ).boxed(),
                 Expr::Let(
@@ -88,7 +88,7 @@ fn test_parse_expr_def_part2() {
                                     None,
                                     Expr::Apply(
                                         None,
-                                        Expr::EnvRef("add".to_string()).boxed(),
+                                        Expr::EnvRef(None, "add".to_string()).boxed(),
                                         Expr::Unit(None).boxed(),
                                     ).boxed(),
                                     Expr::Int(None, 456).boxed(),

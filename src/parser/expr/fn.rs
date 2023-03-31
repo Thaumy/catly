@@ -1,7 +1,6 @@
 use std::collections::BTreeSet;
-use crate::parser::expr::pat::Pat;
-use crate::parser::infra::alias::MaybeType;
-use crate::parser::infra::option::Ext as OptExt;
+use crate::parser::expr::pat::{OptBoxPat, Pat};
+use crate::parser::infra::option::FollowExt;
 use crate::parser::infra::r#box::Ext as BoxExt;
 use crate::parser::infra::vec::{Ext, vec_get_head_tail_follow};
 use crate::parser::keyword::Keyword;
@@ -87,7 +86,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
         Pat::Kw(Keyword::Then), b,
         Pat::Kw(Keyword::Else), c
         ], follow)
-        if follow.is_end_pat() && a.is_expr() && b.is_expr() && c.is_expr() =>
+        if follow.is_expr_end_pat() && a.is_expr() && b.is_expr() && c.is_expr() =>
             stack.reduce(6, Pat::Cond(
                 None,
                 a.clone().boxed(),
@@ -99,17 +98,20 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
         ([.., Pat::Mark('-'), Pat::Mark('>')], _) =>
             stack.reduce(2, Pat::Arrow),
         // LetName Arrow -> ClosurePara
-        ([.., Pat::LetName(None, n), Pat::Arrow], _) => {
-            let top = Pat::ClosurePara(n.to_string(), None);
+        ([.., Pat::LetName(t, n), Pat::Arrow], _) => {
+            let top = Pat::ClosurePara(
+                n.to_string(),
+                t.clone(),
+            );
             stack.reduce(2, top)
         }
-        // ClosurePara Expr :EndPat -> Closure
-        ([.., Pat::ClosurePara(n, None), p], follow)
-        if follow.is_end_pat() && p.is_expr() => {
+        // ClosurePara Expr :ExprEndPat -> Closure
+        ([.., Pat::ClosurePara(n, t), p], follow)
+        if follow.is_expr_end_pat() && p.is_expr() => {
             let top = Pat::Closure(
                 None,
                 n.to_string(),
-                None,
+                t.clone(),
                 p.clone().boxed(),
             );
             stack.reduce(2, top)
@@ -117,44 +119,48 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
 
         // LetName `=` Expr `,` -> Assign
         ([..,
-        Pat::LetName(None, n, ), Pat::Mark('='),
+        Pat::LetName(t, n), Pat::Mark('='),
         p, Pat::Mark(',')], _
         )
         if p.is_expr() => {
-            let top = Pat::Assign(n.clone(), None, p.clone().boxed());
+            let top = Pat::Assign(
+                n.clone(),
+                t.clone(),
+                p.clone().boxed(),
+            );
             stack.reduce(4, top)
         }
         // LetName `=` Expr :`}`-> Assign
         ([..,
-        Pat::LetName(None, n), Pat::Mark('='),
+        Pat::LetName(t, n), Pat::Mark('='),
         p], Some(In::Symbol('}'))
         )
         if p.is_expr() => {
             let top = Pat::Assign(
                 n.clone(),
-                None,
+                t.clone(),
                 p.clone().boxed(),
             );
             stack.reduce(3, top)
         }
         // Assign Assign -> AssignSeq
         ([..,
-        Pat::Assign(a_n, _, a_v),
-        Pat::Assign(b_n, _, b_v)], _
+        Pat::Assign(a_n, a_t, a_v),
+        Pat::Assign(b_n, b_t, b_v)], _
         ) => {
             let top = Pat::AssignSeq(vec![
-                (a_n.to_string(), None, *a_v.clone()),
-                (b_n.to_string(), None, *b_v.clone()),
+                (a_n.to_string(), a_t.clone(), *a_v.clone()),
+                (b_n.to_string(), b_t.clone(), *b_v.clone()),
             ]);
             stack.reduce(2, top)
         }
         // AssignSeq Assign -> AssignSeq
         ([..,
         Pat::AssignSeq(vec),
-        Pat::Assign(n, _, v)], _
+        Pat::Assign(n, t, v)], _
         ) => {
             let top = Pat::AssignSeq(vec.push_to_new(
-                (n.clone(), None, *v.clone())
+                (n.clone(), t.clone(), *v.clone())
             ));
             stack.reduce(2, top)
         }
@@ -170,12 +176,12 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
         // `{` Assign `}` -> Struct
         ([..,
         Pat::Mark('{'),
-        Pat::Assign(n, _, v),
+        Pat::Assign(n, t, v),
         Pat::Mark('}')], _
         ) => {
             let top = Pat::Struct(
                 None,
-                vec![(n.to_string(), None, *v.clone())],
+                vec![(n.to_string(), t.clone(), *v.clone())],
             );
             stack.reduce(3, top)
         }
@@ -198,13 +204,13 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
             let top = Pat::CaseHead(p.clone().boxed());
             stack.reduce(2, top)
         }
-        // CaseHead Arrow Expr :EndPat -> Case
+        // CaseHead Arrow Expr :ExprEndPat -> Case
         ([..,
         Pat::CaseHead(e), Pat::Arrow,
         p  ], follow
         )
         // Case 的终结标记与一般的语言构造恰好相同
-        if follow.is_end_pat() && p.is_expr() => {
+        if follow.is_expr_end_pat() && p.is_expr() => {
             let top = Pat::Case(
                 e.clone(),
                 p.clone().boxed(),
@@ -280,27 +286,27 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
 
         // LetName `=` Expr :KwIn -> Assign
         ([..,
-        Pat::LetName(None, n), Pat::Mark('='),
+        Pat::LetName(t, n), Pat::Mark('='),
         p], Some(In::Kw(Keyword::In))
         )
         if p.is_expr() => {
             let top = Pat::Assign(
                 n.clone(),
-                None,
+                t.clone(),
                 p.clone().boxed(),
             );
             stack.reduce(3, top)
         }
-        // KwLet AssignSeq KwIn Expr :EndPat -> Let
+        // KwLet AssignSeq KwIn Expr :ExprEndPat -> Let
         ([.., Pat::Kw(Keyword::Let),
         Pat::AssignSeq(a_seq), Pat::Kw(Keyword::In),
         p], follow)
-        if follow.is_end_pat() && p.is_expr() => {
-            type F = fn(Pat, &(String, MaybeType, Pat)) -> Pat;
-            let f: F = |acc, (n, _, e)| Pat::Let(
+        if follow.is_expr_end_pat() && p.is_expr() => {
+            type F = fn(Pat, &(String, OptBoxPat, Pat)) -> Pat;
+            let f: F = |acc, (n, t, e)| Pat::Let(
                 None,
                 n.to_string(),
-                None,
+                t.clone(),
                 e.clone().boxed(),
                 acc.boxed(),
             );
@@ -310,15 +316,15 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
                 .fold(p.clone(), f);
             stack.reduce(4, top)
         }
-        // KwLet Assign KwIn Expr :EndPat -> Let
+        // KwLet Assign KwIn Expr :ExprEndPat -> Let
         ([.., Pat::Kw(Keyword::Let),
-        Pat::Assign(n, _, e), Pat::Kw(Keyword::In),
+        Pat::Assign(n, t, e), Pat::Kw(Keyword::In),
         p], follow)
-        if follow.is_end_pat() && p.is_expr() => {
+        if follow.is_expr_end_pat() && p.is_expr() => {
             let top = Pat::Let(
                 None,
                 n.to_string(),
-                None,
+                t.clone(),
                 *e.clone().boxed(),
                 p.clone().boxed(),
             );
@@ -327,7 +333,11 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
 
         /* type annotation productions */
 
-        /* TODO: ClosureType 与 Closure, Case 在归约上存在二义性, 表现为:
+        /* TODO: 1. 类型标注的结合优先级低于 Apply
+                 2. 当类型标注发生于 Closure body 时, 类型会优先标注到 Closure body,
+                    需要对其合理性进行评估
+                 4. SumType 与 Case 在存在归约冲突
+                 5. ClosureType 与 Closure, Case 在归约上存在二义性, 表现为:
                  当 Type 后存在 `->` 时:
                  x: A -> <closure_body>
                  f: A -> B -> <closure_body>
@@ -350,17 +360,14 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
         ([.., p, Pat::Mark(':')], _) if p.is_expr() =>
             stack.reduce(2, Pat::TypedExprHead(p.clone().boxed())),
 
-        // TypedExprHead Type :EndPat -> Expr
+        // TypedExprHead Type :TypeEndPat -> Expr
         ([.., Pat::TypedExprHead(e), p], follow)
-        if follow.is_end_pat() && p.is_type() => {
-            match (p.clone().into(): MaybeType)
-                .map(|t| e.clone().with_type(t))
-                .flatten()
+        if follow.is_type_end_pat() && p.is_type() =>
+            match e.clone().with_type(p.clone())
             {
                 Some(e) => stack.reduce(2, e),
                 _ => return vec![Pat::Err]
             }
-        }
 
         // `(` Type `)` -> Type
         ([.., Pat::Mark('('), p, Pat::Mark(')')], _) if p.is_type() =>
@@ -372,9 +379,9 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
             let top = Pat::ClosureTypeHead(p.clone().boxed());
             stack.reduce(2, top)
         }
-        // ClosureTypeHead Type :EndPat -> ClosureType
+        // ClosureTypeHead Type :TypeEndPat -> ClosureType
         ([.., Pat::ClosureTypeHead(t), p], follow)
-        if follow.is_end_pat() && p.is_type() => {
+        if follow.is_type_end_pat() && p.is_type() => {
             let top = Pat::ClosureType(
                 t.clone(),
                 p.clone().boxed(),
@@ -430,35 +437,54 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
             let top = Pat::SumType(set);
             stack.reduce(3, top)
         }
-
-        // LetName `:` Type `,` -> LetNameWithType
+        // LetName `,` LetName :`}`|`,` -> TypedLetNameSeq
+        // where LetName is typed
         ([..,
-        Pat::LetName(_, n), Pat::Mark(':'),
-        p, Pat::Mark(',')], _
-        )
-        if p.is_type() => {
-            let top = Pat::LetNameWithType(
-                n.to_string(),
-                p.clone().boxed(),
-            );
-            stack.reduce(4, top)
-        }
-        // LetName `:` Type :`}` -> LetNameWithType
-        ([..,
-        Pat::LetName(_, n), Pat::Mark(':'),
-        p], Some(In::Symbol('}'))
-        )
-        if p.is_type() => {
-            let top = Pat::LetNameWithType(
-                n.to_string(),
-                p.clone().boxed(),
-            );
+        Pat::LetName(Some(a_t), a_n), Pat::Mark(','),
+        Pat::LetName(Some(b_t), b_n),
+        ], Some(In::Symbol('}' | ','))
+        ) => {
+            let top = Pat::TypedLetNameSeq(vec![
+                (a_n.clone(), *a_t.clone()),
+                (b_n.clone(), *b_t.clone()),
+            ]);
             stack.reduce(3, top)
         }
-        // `{` LetNameWithType `}` -> ProductType
+        // TypedLetNameSeq `,` LetName :`}`|`,` -> TypedLetNameSeq
+        // where LetName is typed
+        ([..,
+        Pat::TypedLetNameSeq(seq), Pat::Mark(','),
+        Pat::LetName(Some(t), n),
+        ], Some(In::Symbol('}' | ','))
+        ) => {
+            let top = Pat::TypedLetNameSeq(seq.push_to_new(
+                (n.clone(), *t.clone())
+            ));
+            stack.reduce(3, top)
+        }
+        // `{` TypedLetNameSeq `}` -> ProductType
         ([..,
         Pat::Mark('{'),
-        Pat::LetNameWithType(n, t),
+        Pat::TypedLetNameSeq(seq),
+        Pat::Mark('}')], _
+        ) => {
+            let top = Pat::ProductType(seq.clone());
+            stack.reduce(3, top)
+        }
+        // `{` TypedLetNameSeq `,` `}` -> ProductType
+        ([..,
+        Pat::Mark('{'),
+        Pat::TypedLetNameSeq(seq),
+        Pat::Mark(','), Pat::Mark('}')], _
+        ) => {
+            let top = Pat::ProductType(seq.clone());
+            stack.reduce(4, top)
+        }
+        // `{` LetName `}` -> ProductType
+        // where LetName is typed
+        ([..,
+        Pat::Mark('{'),
+        Pat::LetName(Some(t), n),
         Pat::Mark('}')], _
         ) => {
             let top = Pat::ProductType(vec![
@@ -466,37 +492,17 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
             ]);
             stack.reduce(3, top)
         }
-        // LetNameWithType LetNameWithType -> LetNameWithTypeSeq
-        ([..,
-        Pat::LetNameWithType(a_n, a_t),
-        Pat::LetNameWithType(b_n, b_t),
-        ], _
-        ) => {
-            let top = Pat::LetNameWithTypeSeq(vec![
-                (a_n.clone(), *a_t.clone()),
-                (b_n.clone(), *b_t.clone()),
-            ]);
-            stack.reduce(2, top)
-        }
-        // LetNameWithTypeSeq LetNameWithType -> LetNameWithTypeSeq
-        ([..,
-        Pat::LetNameWithTypeSeq(seq),
-        Pat::LetNameWithType(n, t),
-        ], _
-        ) => {
-            let top = Pat::LetNameWithTypeSeq(seq.push_to_new(
-                (n.clone(), *t.clone())
-            ));
-            stack.reduce(2, top)
-        }
-        // "{ " LetNameWithTypeSeq " }" -> ProductType
+        // `{` LetName `,` `}` -> ProductType
+        // where LetName is typed
         ([..,
         Pat::Mark('{'),
-        Pat::LetNameWithTypeSeq(seq),
-        Pat::Mark('}')], _
+        Pat::LetName(Some(t), n),
+        Pat::Mark(','), Pat::Mark('}')], _
         ) => {
-            let top = Pat::ProductType(seq.clone());
-            stack.reduce(3, top)
+            let top = Pat::ProductType(vec![
+                (n.clone(), *t.clone())
+            ]);
+            stack.reduce(4, top)
         }
 
         // Can not parse
