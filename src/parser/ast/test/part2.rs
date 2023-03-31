@@ -1,4 +1,4 @@
-use std::collections::BTreeSet;
+use crate::btree_set;
 use crate::parser::ast::test::f;
 use crate::parser::define::Define;
 use crate::parser::expr::Expr;
@@ -23,6 +23,7 @@ fn test_parse_ast_part2() {
     );
     let d1 = Define::ExprDef(
         "bar".to_string(),
+        None,
         Expr::Match(
             None,
             Expr::EnvRef(None, "x".to_string()).boxed(),
@@ -139,15 +140,16 @@ fn test_parse_ast_part2() {
     );
     let t2 = Define::TypeDef(
         "Love".to_string(),
-        Type::SumType(BTreeSet::from([
+        Type::SumType(btree_set![
             Type::TypeEnvRef("A".to_string()),
             Type::TypeEnvRef("Unit".to_string()),
             Type::TypeEnvRef("C".to_string()),
             Type::TypeEnvRef("Int".to_string()),
-        ])),
+        ]),
     );
     let d2 = Define::ExprDef(
         "main".to_string(),
+        None,
         Expr::Let(
             None,
             "a".to_string(),

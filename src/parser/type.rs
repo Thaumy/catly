@@ -7,7 +7,6 @@ use crate::parser::r#type::r#fn::go;
 mod pat;
 mod r#fn;
 
-// TODO
 #[derive(Debug)]
 #[derive(Clone)]
 #[derive(PartialEq, Eq)]

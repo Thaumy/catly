@@ -1,5 +1,6 @@
 use crate::parser::define::pat::Pat;
 use crate::parser::expr::parse_expr;
+use crate::parser::infra::option::AnyExt;
 use crate::parser::infra::vec::{Ext, vec_get_head_tail_follow};
 use crate::parser::keyword::Keyword;
 use crate::parser::r#type::parse_type;
@@ -9,8 +10,17 @@ type In = crate::parser::preprocess::Out;
 fn move_in(stack: &Vec<Pat>, head: Option<In>) -> Pat {
     match head {
         Some(o) => match (&stack[..], o) {
+            // (KwDef LetName `:`): _ -> AnyInSeq
+            // where LetName is untyped
+            ([..,
+            Pat::Kw(Keyword::Def),
+            Pat::LetName(None, _), Pat::Mark(':')], x
+            ) => Pat::AnyInSeq(vec![x]),
+            // AnyInSeq: _ -> AnyIn
+            ([.., Pat::AnyInSeq(_)], x) => Pat::AnyIn(x),
+
             // .. -> LetName
-            (_, In::LetName(n)) => Pat::LetName(n),
+            (_, In::LetName(n)) => Pat::LetName(None, n),
             // .. -> TypeName
             (_, In::TypeName(n)) => Pat::TypeName(n),
             // .. -> Kw
@@ -20,6 +30,8 @@ fn move_in(stack: &Vec<Pat>, head: Option<In>) -> Pat {
             (_, In::Symbol(s)) => match s {
                 // '=' -> `=`
                 '=' => Pat::Mark('='),
+                // ':' -> `:`
+                ':' => Pat::Mark(':'),
 
                 // _ -> Err
                 c => {
@@ -47,7 +59,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
             return vec![p.clone()];
         }
 
-        // KwDef LetName `=` -> TypeDefHead End
+        // KwType TypeName `=` -> TypeDefHead End
         ([..,
         Pat::Kw(Keyword::Type),
         Pat::TypeName(n), Pat::Mark('=')], _
@@ -57,12 +69,38 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
             stack.push(Pat::End)
         }
 
+        // AnyInSeq AnyIn -> AnyInSeq
+        ([..,// TODO: Owned pattern matching in Rust?
+        Pat::AnyInSeq(seq),
+        Pat::AnyIn(x)], _
+        ) => {
+            let seq = seq.push_to_new(x.clone());
+            let top = Pat::AnyInSeq(seq);
+            stack.reduce(2, top);
+        }
+        // AnyInSeq :`=` -> Type
+        ([..,// TODO: Owned pattern matching in Rust?
+        Pat::AnyInSeq(seq)], Some(In::Symbol('='))
+        ) => match parse_type(seq.clone()) {
+            Some(t) => stack.reduce(1, Pat::Type(t)),
+            None => return vec![Pat::Err]
+        }
+        // KwDef: LetName `:` Type -> LetName
+        // where LetName is untyped
+        ([.., Pat::Kw(Keyword::Def),// TODO: Owned pattern matching in Rust?
+        Pat::LetName(None, n), Pat::Mark(':'),
+        Pat::Type(t)], _
+        ) => {
+            let top = Pat::LetName(t.clone().some(), n.clone());
+            stack.reduce(1, top);
+        }
+
         // KwDef LetName `=` -> ExprDefHead End
         ([..,
         Pat::Kw(Keyword::Def),
-        Pat::LetName(n), Pat::Mark('=')], _
+        Pat::LetName(t, n), Pat::Mark('=')], _
         ) => {
-            let top = Pat::ExprDefHead(n.to_string());
+            let top = Pat::ExprDefHead(t.clone(), n.to_string());
             stack.reduce(3, top);
             stack.push(Pat::End)
         }
@@ -99,14 +137,16 @@ pub fn go(mut stack: Vec<Pat>, seq: Vec<In>) -> Pat {
             let head = p.clone();
 
             let r = match head {
-                Pat::TypeDefHead(n) => match parse_type(tail) {
-                    Some(t) => Pat::TypeDef(n, t),
-                    _ => Pat::Err
-                },
-                Pat::ExprDefHead(n) => match parse_expr(tail) {
-                    Some(e) => Pat::ExprDef(n, e),
-                    _ => Pat::Err
-                },
+                Pat::TypeDefHead(n) =>
+                    match parse_type(tail) {
+                        Some(t) => Pat::TypeDef(n, t),
+                        _ => Pat::Err
+                    },
+                Pat::ExprDefHead(t, n) =>
+                    match parse_expr(tail) {
+                        Some(e) => Pat::ExprDef(n, t, e),
+                        _ => Pat::Err
+                    },
                 _ => Pat::Err
             };
 

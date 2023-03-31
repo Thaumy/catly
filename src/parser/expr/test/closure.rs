@@ -154,3 +154,33 @@ fn test_parse_closure_part4() {
     let seq = "(a: A) -> (((b: B) -> ((((c: C) -> (((add (123: Int) ccc): Int)))))))";
     assert_eq!(f(seq), r);
 }
+
+#[test]
+fn test_parse_closure_part5() {
+    let r = Expr::Closure(
+        Type::ClosureType(
+            Type::TypeEnvRef("A".to_string()).boxed(),
+            Type::TypeEnvRef("B".to_string()).boxed(),
+        ).some(),
+        "a".to_string(),
+        None,
+        Expr::Closure(
+            None,
+            "b".to_string(),
+            None,
+            Expr::Apply(
+                None,
+                Expr::Apply(
+                    None,
+                    Expr::EnvRef(None, "add".to_string()).boxed(),
+                    Expr::EnvRef(None, "a".to_string()).boxed(),
+                ).boxed(),
+                Expr::EnvRef(None, "b".to_string()).boxed(),
+            ).boxed(),
+        ).boxed(),
+    );
+    let r = Some(r);
+
+    let seq = "(a -> b -> add a b): A -> B";
+    assert_eq!(f(seq), r);
+}

@@ -7,6 +7,7 @@ use crate::parser::infra::r#box::Ext;
 fn test_parse_expr_def_part1() {
     let r = Define::ExprDef(
         "a".to_string(),
+        None,
         Expr::EnvRef(None, "b".to_string()),
     );
     let r = Some(r);
@@ -101,7 +102,7 @@ fn test_parse_expr_def_part2() {
         ).boxed(),
     );
 
-    let r = Define::ExprDef("a".to_string(), e);
+    let r = Define::ExprDef("a".to_string(), None, e);
     let r = Some(r);
 
 

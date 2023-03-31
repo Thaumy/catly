@@ -1,4 +1,4 @@
-use crate::btree_map;
+use crate::btree_set;
 use crate::parser::expr::Expr;
 use crate::parser::expr::test::f;
 use crate::parser::infra::option::AnyExt;
@@ -33,7 +33,7 @@ fn test_parse_env_ref_part2() {
 #[test]
 fn test_parse_env_ref_part3() {
     let r = Expr::EnvRef(
-        Type::SumType(btree_map![
+        Type::SumType(btree_set![
             Type::TypeEnvRef("A".to_string()),
             Type::TypeEnvRef("Unit".to_string()),
             Type::TypeEnvRef("Int".to_string()),

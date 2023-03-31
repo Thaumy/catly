@@ -1,4 +1,4 @@
-use crate::btree_map;
+use crate::btree_set;
 use crate::parser::expr::Expr;
 use crate::parser::expr::test::f;
 use crate::parser::infra::option::AnyExt;
@@ -293,7 +293,7 @@ fn test_parse_match_part3() {
                      Expr::Int(None, 3)),
                 ]),
              Expr::Struct(
-                 Type::SumType(btree_map![
+                 Type::SumType(btree_set![
                     Type::TypeEnvRef("Int".to_string()),
                     Type::TypeEnvRef("Unit".to_string()),
                  ]).some(),
@@ -305,7 +305,7 @@ fn test_parse_match_part3() {
                       None,
                       Expr::EnvRef(None, "c".to_string())),
                  ])),
-            (Expr::Discard(None),
+            (Expr::Discard(Type::TypeEnvRef("Int".to_string()).some()),
              Expr::Match(
                  Type::TypeEnvRef("Int".to_string()).some(),
                  Expr::EnvRef(None, "y".to_string()).boxed(),
@@ -375,7 +375,7 @@ fn test_parse_match_part3() {
          | v -> a -> b -> add a b \
          | { a = _, b = { foo = _, bar = _ }, c = 3 } -> \
              ({ x = 123, y = c }: Int | Unit) \
-         | _ -> \
+         | (_: Int) -> \
             (match y with \
             | 1 -> () \
             | () -> \

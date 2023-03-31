@@ -12,3 +12,15 @@ macro_rules! maybe_fold {
         )
     }
 }
+
+#[macro_export]
+macro_rules! btree_set {
+    ($($v:expr,)*) => ({
+        use std::collections::BTreeSet;
+        let mut bt = BTreeSet::new();
+        $(
+            bt.insert($v);
+        )*
+        bt
+    })
+}

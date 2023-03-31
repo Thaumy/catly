@@ -1,4 +1,4 @@
-use crate::btree_map;
+use crate::btree_set;
 use crate::parser::expr::Expr;
 use crate::parser::expr::test::f;
 use crate::parser::infra::option::AnyExt;
@@ -239,12 +239,12 @@ fn test_parse_struct_part4() {
                  ("a".to_string(),
                   Type::TypeEnvRef("Int".to_string())),
                  ("b".to_string(),
-                  Type::SumType(btree_map![
+                  Type::SumType(btree_set![
                     Type::TypeEnvRef("A".to_string()),
                     Type::TypeEnvRef("B".to_string()),
                   ])),
                  ("c".to_string(),
-                  Type::SumType(btree_map![
+                  Type::SumType(btree_set![
                     Type::TypeEnvRef("A".to_string()),
                     Type::TypeEnvRef("B".to_string()),
                     Type::TypeEnvRef("C".to_string()),

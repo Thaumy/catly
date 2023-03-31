@@ -336,7 +336,11 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
         /* TODO: 1. 类型标注的结合优先级低于 Apply
                  2. 当类型标注发生于 Closure body 时, 类型会优先标注到 Closure body,
                     需要对其合理性进行评估
-                 4. SumType 与 Case 在存在归约冲突
+                 4. SumType 与 Case 在存在归约冲突, 表现为:
+                 当 Case value 后存在类型标注时:
+                 | a: Int ->
+                 需要显式限定类型标注的优先级, 从而使其归约终结:
+                 | (a: Int) ->
                  5. ClosureType 与 Closure, Case 在归约上存在二义性, 表现为:
                  当 Type 后存在 `->` 时:
                  x: A -> <closure_body>
