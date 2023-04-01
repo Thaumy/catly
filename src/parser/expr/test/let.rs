@@ -87,11 +87,11 @@ fn test_parse_let_part3() {
                 None,
                 Expr::Closure(
                     None,
-                    "i".to_string(),
+                    "i".to_string().some(),
                     None,
                     Expr::Closure(
                         None,
-                        "j".to_string(),
+                        "j".to_string().some(),
                         None,
                         Expr::EnvRef(None, "k".to_string()).boxed(),
                     ).boxed(),
@@ -213,11 +213,11 @@ fn test_parse_let_part4() {
                 None,
                 Expr::Closure(
                     None,
-                    "i".to_string(),
+                    "i".to_string().some(),
                     None,
                     Expr::Closure(
                         None,
-                        "j".to_string(),
+                        "j".to_string().some(),
                         None,
                         Expr::EnvRef(None, "k".to_string()).boxed(),
                     ).boxed(),

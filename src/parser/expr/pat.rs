@@ -36,8 +36,8 @@ pub enum Pat {
     Cond(OptBoxPat, Box<Pat>, Box<Pat>, Box<Pat>),// Expr::Cond
 
     Arrow,
-    ClosurePara(String, OptBoxPat),
-    Closure(OptBoxPat, String, OptBoxPat, Box<Pat>),// Expr::Closure
+    ClosurePara(Option<String>, OptBoxPat),
+    Closure(OptBoxPat, Option<String>, OptBoxPat, Box<Pat>),// Expr::Closure
 
     Assign(String, OptBoxPat, Box<Pat>),
     AssignSeq(Vec<(String, OptBoxPat, Pat)>),

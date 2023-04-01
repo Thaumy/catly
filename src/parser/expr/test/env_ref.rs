@@ -49,3 +49,21 @@ fn test_parse_env_ref_part3() {
     assert_eq!(f("(a: (((A | Unit)) | Int))"), r);
     assert_eq!(f("(((a: (((A | ((Unit | Int))))))))"), r);
 }
+
+#[test]
+fn test_parse_env_ref_part4() {
+    let r = Expr::EnvRef(
+        Type::SumType(btree_set![
+            Type::TypeEnvRef("A".to_string()),
+            Type::TypeEnvRef("B".to_string()),
+            Type::TypeEnvRef("C".to_string()),
+            Type::TypeEnvRef("D".to_string()),
+        ]).some(),
+        "a".to_string(),
+    );
+    let r = Some(r);
+
+    assert_eq!(f("a: (A | B) | (C | D)"), r);
+    assert_eq!(f("a: ((((A | B) | (C | D))))"), r);
+    assert_eq!(f("(((a: (((A | B) | (C | D))))))"), r);
+}

@@ -49,11 +49,11 @@ fn test_parse_struct_part2() {
         ]);
     let fun = Expr::Closure(
         None,
-        "x".to_string(),
+        "x".to_string().some(),
         None,
         Expr::Closure(
             None,
-            "y".to_string(),
+            "y".to_string().some(),
             None,
             Expr::Apply(
                 None,
@@ -125,11 +125,11 @@ fn test_parse_struct_part3() {
         ]);
     let fun = Expr::Closure(
         None,
-        "x".to_string(),
+        "x".to_string().some(),
         None,
         Expr::Closure(
             None,
-            "y".to_string(),
+            "y".to_string().some(),
             None,
             Expr::Apply(
                 None,

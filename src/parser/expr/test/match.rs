@@ -79,11 +79,11 @@ fn test_parse_match_part2() {
             (Expr::EnvRef(None, "v".to_string()),
              Expr::Closure(
                  None,
-                 "a".to_string(),
+                 "a".to_string().some(),
                  None,
                  Expr::Closure(
                      None,
-                     "b".to_string(),
+                     "b".to_string().some(),
                      None,
                      Expr::Apply(
                          None,
@@ -132,11 +132,11 @@ fn test_parse_match_part2() {
                      (Expr::Int(None, 1), Expr::Unit(None)),
                      (Expr::Unit(None), Expr::Closure(
                          None,
-                         "a".to_string(),
+                         "a".to_string().some(),
                          None,
                          Expr::Closure(
                              None,
-                             "b".to_string(),
+                             "b".to_string().some(),
                              None,
                              Expr::Match(
                                  None,
@@ -147,11 +147,11 @@ fn test_parse_match_part2() {
                                      (Expr::EnvRef(None, "a".to_string()),
                                       Expr::Closure(
                                           None,
-                                          "x".to_string(),
+                                          "x".to_string().some(),
                                           None,
                                           Expr::Closure(
                                               None,
-                                              "y".to_string(),
+                                              "y".to_string().some(),
                                               None,
                                               Expr::Apply(
                                                   None,
@@ -257,11 +257,11 @@ fn test_parse_match_part3() {
             (Expr::EnvRef(None, "v".to_string()),
              Expr::Closure(
                  None,
-                 "a".to_string(),
+                 "a".to_string().some(),
                  None,
                  Expr::Closure(
                      None,
-                     "b".to_string(),
+                     "b".to_string().some(),
                      None,
                      Expr::Apply(
                          None,
@@ -313,11 +313,11 @@ fn test_parse_match_part3() {
                      (Expr::Int(None, 1), Expr::Unit(None)),
                      (Expr::Unit(None), Expr::Closure(
                          None,
-                         "a".to_string(),
+                         "a".to_string().some(),
                          None,
                          Expr::Closure(
                              None,
-                             "b".to_string(),
+                             "b".to_string().some(),
                              None,
                              Expr::Match(
                                  None,
@@ -331,11 +331,11 @@ fn test_parse_match_part3() {
                                      (Expr::EnvRef(None, "a".to_string()),
                                       Expr::Closure(
                                           None,
-                                          "x".to_string(),
+                                          "x".to_string().some(),
                                           None,
                                           Expr::Closure(
                                               None,
-                                              "y".to_string(),
+                                              "y".to_string().some(),
                                               None,
                                               Expr::Apply(
                                                   None,

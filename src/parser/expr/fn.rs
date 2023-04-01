@@ -1,6 +1,6 @@
 use std::collections::BTreeSet;
 use crate::parser::expr::pat::{OptBoxPat, Pat};
-use crate::parser::infra::option::FollowExt;
+use crate::parser::infra::option::{AnyExt, FollowExt};
 use crate::parser::infra::r#box::Ext as BoxExt;
 use crate::parser::infra::vec::{Ext, vec_get_head_tail_follow};
 use crate::parser::keyword::Keyword;
@@ -77,40 +77,59 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
         /* expression productions */
 
         // `(` Expr `)` -> Expr
-        ([.., Pat::Mark('('), p, Pat::Mark(')')], _) if p.is_expr() =>
+        ([.., Pat::Mark('('), p, Pat::Mark(')')], _)
+        if p.is_expr() =>
             stack.reduce(3, p.clone()),
 
         // KwIf Expr KwThen Expr KwElse Expr ... -> Cond
         ([..,
         Pat::Kw(Keyword::If), a,
         Pat::Kw(Keyword::Then), b,
-        Pat::Kw(Keyword::Else), c
-        ], follow)
-        if follow.is_expr_end_pat() && a.is_expr() && b.is_expr() && c.is_expr() =>
-            stack.reduce(6, Pat::Cond(
-                None,
-                a.clone().boxed(),
-                b.clone().boxed(),
-                c.clone().boxed(),
-            )),
+        Pat::Kw(Keyword::Else), c], follow
+        )
+        if follow.is_expr_end_pat()
+            && a.is_expr()
+            && b.is_expr()
+            && c.is_expr()
+        => stack.reduce(6, Pat::Cond(
+            None,
+            a.clone().boxed(),
+            b.clone().boxed(),
+            c.clone().boxed(),
+        )),
 
         // `-` `>` -> Arrow
         ([.., Pat::Mark('-'), Pat::Mark('>')], _) =>
             stack.reduce(2, Pat::Arrow),
-        // LetName Arrow -> ClosurePara
-        ([.., Pat::LetName(t, n), Pat::Arrow], _) => {
+        // Discard Arrow -> ClosurePara
+        ([..,
+        Pat::Discard(t), Pat::Arrow], _
+        ) => {
             let top = Pat::ClosurePara(
-                n.to_string(),
+                None,
+                t.clone(),
+            );
+            stack.reduce(2, top)
+        }
+        // LetName Arrow -> ClosurePara
+        ([..,
+        Pat::LetName(t, n), Pat::Arrow], _
+        ) => {
+            let top = Pat::ClosurePara(
+                n.to_string().some(),
                 t.clone(),
             );
             stack.reduce(2, top)
         }
         // ClosurePara Expr :ExprEndPat -> Closure
-        ([.., Pat::ClosurePara(n, t), p], follow)
+        ([..,
+        Pat::ClosurePara(n, t),
+        p], follow
+        )
         if follow.is_expr_end_pat() && p.is_expr() => {
             let top = Pat::Closure(
                 None,
-                n.to_string(),
+                n.clone(),
                 t.clone(),
                 p.clone().boxed(),
             );
@@ -167,10 +186,13 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
         // `{` AssignSeq `}` -> Struct
         ([..,
         Pat::Mark('{'),
-        Pat::AssignSeq(a_seq),
+        Pat::AssignSeq(seq),
         Pat::Mark('}')], _
         ) => {
-            let top = Pat::Struct(None, a_seq.clone());
+            let top = Pat::Struct(
+                None,
+                seq.clone(),
+            );
             stack.reduce(3, top)
         }
         // `{` Assign `}` -> Struct
@@ -299,18 +321,19 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
         }
         // KwLet AssignSeq KwIn Expr :ExprEndPat -> Let
         ([.., Pat::Kw(Keyword::Let),
-        Pat::AssignSeq(a_seq), Pat::Kw(Keyword::In),
+        Pat::AssignSeq(seq), Pat::Kw(Keyword::In),
         p], follow)
         if follow.is_expr_end_pat() && p.is_expr() => {
             type F = fn(Pat, &(String, OptBoxPat, Pat)) -> Pat;
-            let f: F = |acc, (n, t, e)| Pat::Let(
-                None,
-                n.to_string(),
-                t.clone(),
-                e.clone().boxed(),
-                acc.boxed(),
-            );
-            let top = a_seq
+            let f: F = |acc, (n, t, e)|
+                Pat::Let(
+                    None,
+                    n.to_string(),
+                    t.clone(),
+                    e.clone().boxed(),
+                    acc.boxed(),
+                );
+            let top = seq
                 .iter()
                 .rev()
                 .fold(p.clone(), f);

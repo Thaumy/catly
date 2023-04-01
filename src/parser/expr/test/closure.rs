@@ -8,7 +8,7 @@ use crate::parser::r#type::Type;
 fn test_parse_closure_part1() {
     let r = Expr::Closure(
         None,
-        "a".to_string(),
+        "a".to_string().some(),
         None,
         Expr::Apply(
             None,
@@ -34,15 +34,15 @@ fn test_parse_closure_part1() {
 fn test_parse_closure_part2() {
     let r = Expr::Closure(
         None,
-        "a".to_string(),
+        "a".to_string().some(),
         None,
         Expr::Closure(
             None,
-            "b".to_string(),
+            "b".to_string().some(),
             None,
             Expr::Closure(
                 None,
-                "c".to_string(),
+                None,
                 None,
                 Expr::Apply(
                     None,
@@ -66,11 +66,11 @@ fn test_parse_closure_part2() {
     );
     let r = Some(r);
 
-    let seq = "a -> b -> c -> add (add a b) c";
+    let seq = "a -> b -> _ -> add (add a b) c";
     assert_eq!(f(seq), r);
-    let seq = "((a -> ((b -> ((c -> ((add (((add (a) (b)))) (c)))))))))";
+    let seq = "((a -> ((b -> ((_ -> ((add (((add (a) (b)))) (c)))))))))";
     assert_eq!(f(seq), r);
-    let seq = "((((((a))) -> (((b -> (((c))) -> (((add))) (add a b) c))))))";
+    let seq = "((((((a))) -> (((b -> (((_))) -> (((add))) (add a b) c))))))";
     assert_eq!(f(seq), r);
 }
 
@@ -78,15 +78,15 @@ fn test_parse_closure_part2() {
 fn test_parse_closure_part3() {
     let r = Expr::Closure(
         None,
-        "aaa".to_string(),
+        "aaa".to_string().some(),
         None,
         Expr::Closure(
             None,
-            "bbb".to_string(),
+            None,
             None,
             Expr::Closure(
                 None,
-                "ccc".to_string(),
+                "ccc".to_string().some(),
                 None,
                 Expr::Apply(
                     None,
@@ -110,11 +110,11 @@ fn test_parse_closure_part3() {
     );
     let r = Some(r);
 
-    let seq = "aaa -> bbb -> ccc -> add (add aaa 123) ccc";
+    let seq = "aaa -> _ -> ccc -> add (add aaa 123) ccc";
     assert_eq!(f(seq), r);
-    let seq = "(((aaa -> ((bbb -> (ccc -> ((((((add (add aaa 123)))) ccc)))))))))";
+    let seq = "(((aaa -> ((_ -> (ccc -> ((((((add (add aaa 123)))) ccc)))))))))";
     assert_eq!(f(seq), r);
-    let seq = "(((aaa -> (((((bbb))) -> (((ccc)) -> ((((((add (add (((aaa))) 123)))) ccc)))))))))";
+    let seq = "(((aaa -> (((((_))) -> (((ccc)) -> ((((((add (add (((aaa))) 123)))) ccc)))))))))";
     assert_eq!(f(seq), r);
 }
 
@@ -122,15 +122,15 @@ fn test_parse_closure_part3() {
 fn test_parse_closure_part4() {
     let r = Expr::Closure(
         None,
-        "a".to_string(),
+        None,
         Type::TypeEnvRef("A".to_string()).some(),
         Expr::Closure(
             None,
-            "b".to_string(),
+            "b".to_string().some(),
             Type::TypeEnvRef("B".to_string()).some(),
             Expr::Closure(
                 None,
-                "c".to_string(),
+                "c".to_string().some(),
                 Type::TypeEnvRef("C".to_string()).some(),
                 Expr::Apply(
                     Type::TypeEnvRef("Int".to_string()).some(),
@@ -149,9 +149,9 @@ fn test_parse_closure_part4() {
     );
     let r = Some(r);
 
-    let seq = "(a: A) -> (b: B) -> (c: C) -> (add (123: Int) ccc): Int";
+    let seq = "(_: A) -> (b: B) -> (c: C) -> (add (123: Int) ccc): Int";
     assert_eq!(f(seq), r);
-    let seq = "(a: A) -> (((b: B) -> ((((c: C) -> (((add (123: Int) ccc): Int)))))))";
+    let seq = "(_: A) -> (((b: B) -> ((((c: C) -> (((add (123: Int) ccc): Int)))))))";
     assert_eq!(f(seq), r);
 }
 
@@ -162,11 +162,11 @@ fn test_parse_closure_part5() {
             Type::TypeEnvRef("A".to_string()).boxed(),
             Type::TypeEnvRef("B".to_string()).boxed(),
         ).some(),
-        "a".to_string(),
+        "a".to_string().some(),
         None,
         Expr::Closure(
             None,
-            "b".to_string(),
+            "b".to_string().some(),
             None,
             Expr::Apply(
                 None,
