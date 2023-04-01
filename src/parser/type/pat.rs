@@ -26,9 +26,8 @@ pub enum Pat {
 
     SumType(BTreeSet<Pat>),// Type::SumType
 
-    LetName(String),
-    LetNameWithType(String, Box<Pat>),
-    LetNameWithTypeSeq(Vec<(String, Pat)>),
+    LetName(Option<Box<Pat>>, String),
+    TypedLetNameSeq(Vec<(String, Pat)>),
     ProductType(Vec<(String, Pat)>),// Type::ProductType
 }
 

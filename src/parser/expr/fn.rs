@@ -348,11 +348,6 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
                  | x: A -> <case_then>
                  | g: A -> B -> <case_then>
                  Type 必须由括号显示终结:
-                 x: (A) -> <closure_body>
-                 f: (A -> B) -> <closure_body>
-                 | x: (A) -> <case_then>
-                 | g: (A -> B) -> <case_then>
-                 或:
                  (x: A) -> <closure_body>
                  (f: A -> B) -> <closure_body>
                  | (x: A) -> <case_then>
