@@ -11,9 +11,9 @@ n ->
   | _ -> add (fib (sub n 1)) (fib (sub n 2))
 
 type True = Unit
-def true = (): True
+def true = 1: True
 type False = Unit
-def false = (): False
+def false = 0: False
 type Bool = True | False
 
 type EmptyList = Unit
