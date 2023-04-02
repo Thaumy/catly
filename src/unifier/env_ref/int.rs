@@ -6,7 +6,7 @@ pub fn lift(
 ) -> bool {
     println!("Uplift Int to {:?}", derive);
 
-    match &derive {
+    match derive {
         // Derive is Base
         Type::TypeEnvRef(n)
         if n == "Int" => true,

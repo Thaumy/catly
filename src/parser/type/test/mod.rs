@@ -12,4 +12,4 @@ mod int;
 mod env_ref;
 mod closure;
 mod sum;
-mod product;
+mod prod;

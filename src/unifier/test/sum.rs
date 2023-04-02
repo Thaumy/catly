@@ -1,7 +1,9 @@
 use crate::btree_set;
-use crate::parser::infra::r#box::Ext;
+use crate::parser::infra::option::AnyExt;
 use crate::parser::r#type::Type;
-use crate::unifier::sum::lift;
+use crate::unifier::lift;
+use crate::unifier::sum::lift as lift_sum;
+use crate::unifier::unify;
 
 fn env() -> Vec<(String, Type)> {
     /* env:
@@ -38,8 +40,11 @@ fn test_lift_part1() {
         Type::TypeEnvRef("B".to_string()),
     ];
     let derive = &Type::TypeEnvRef("AB".to_string());
+    assert!(lift_sum(env, s, derive));
 
-    assert!(lift(env, s, derive));
+    let base = &Type::SumType(s.clone());
+    assert!(lift(env, base, derive));
+    assert_eq!(unify(env, base, derive), derive.clone().some());
 }
 
 #[test]
@@ -50,8 +55,11 @@ fn test_lift_part2() {
         Type::TypeEnvRef("B".to_string()),
     ];
     let derive = &Type::TypeEnvRef("ABC".to_string());
+    assert!(lift_sum(env, s, derive));
 
-    assert!(lift(env, s, derive));
+    let base = &Type::SumType(s.clone());
+    assert!(lift(env, base, derive));
+    assert_eq!(unify(env, base, derive), derive.clone().some());
 }
 
 #[test]
@@ -62,8 +70,11 @@ fn test_lift_part3() {
         Type::TypeEnvRef("B".to_string()),
     ];
     let derive = &Type::TypeEnvRef("S".to_string());
+    assert!(lift_sum(env, s, derive));
 
-    assert!(lift(env, s, derive));
+    let base = &Type::SumType(s.clone());
+    assert!(lift(env, base, derive));
+    assert_eq!(unify(env, base, derive), derive.clone().some());
 }
 
 #[test]
@@ -74,6 +85,9 @@ fn test_lift_part4() {
         Type::TypeEnvRef("B".to_string()),
     ];
     let derive = &Type::TypeEnvRef("S2".to_string());
+    assert!(!lift_sum(env, s, derive));
 
-    assert!(!lift(env, s, derive));
+    let base = &Type::SumType(s.clone());
+    assert!(!lift(env, base, derive));
+    assert_eq!(unify(env, base, derive), None);
 }

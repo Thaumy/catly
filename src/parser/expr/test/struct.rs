@@ -159,7 +159,7 @@ fn test_parse_struct_part3() {
                  Expr::Int(None, 1).boxed(),
              )),
             ("fun".to_string(),
-             Type::ProductType(vec![
+             Type::ProdType(vec![
                  ("a".to_string(),
                   Type::TypeEnvRef("Int".to_string())),
                  ("b".to_string(),
@@ -167,9 +167,9 @@ fn test_parse_struct_part3() {
              ]).some(),
              fun),
             ("y".to_string(),
-             Type::ProductType(vec![
+             Type::ProdType(vec![
                  ("a".to_string(),
-                  Type::ProductType(vec![
+                  Type::ProdType(vec![
                       ("a".to_string(),
                        Type::TypeEnvRef("Int".to_string())),
                       ("b".to_string(),
@@ -192,19 +192,19 @@ fn test_parse_struct_part3() {
 
 #[test]
 fn test_parse_struct_part4() {
-    let ab = Type::ProductType(vec![
+    let ab = Type::ProdType(vec![
         ("a".to_string(),
          Type::TypeEnvRef("Int".to_string())),
     ]).some();
 
-    let cd = Type::ProductType(vec![
+    let cd = Type::ProdType(vec![
         ("a".to_string(),
          Type::TypeEnvRef("Int".to_string())),
         ("b".to_string(),
          Type::TypeEnvRef("Int".to_string())),
     ]).some();
 
-    let ef = Type::ProductType(vec![
+    let ef = Type::ProdType(vec![
         ("a".to_string(),
          Type::TypeEnvRef("Int".to_string())),
         ("b".to_string(),
@@ -235,7 +235,7 @@ fn test_parse_struct_part4() {
              ef.clone(),
              Expr::Unit(Type::TypeEnvRef("Unit".to_string()).some())),
             ("g".to_string(),
-             Type::ProductType(vec![
+             Type::ProdType(vec![
                  ("a".to_string(),
                   Type::TypeEnvRef("Int".to_string())),
                  ("b".to_string(),

@@ -68,7 +68,7 @@ pub enum Pat {
     SumType(BTreeSet<Pat>),// Type::SumType
 
     TypedLetNameSeq(Vec<(String, Pat)>),
-    ProductType(Vec<(String, Pat)>),// Type::ProductType
+    ProdType(Vec<(String, Pat)>),// Type::ProdType
 }
 
 impl Pat {
@@ -147,7 +147,7 @@ impl Pat {
             Pat::TypeApply(_, _) |
             Pat::ClosureType(_, _) |
             Pat::SumType(_) |
-            Pat::ProductType(_)
+            Pat::ProdType(_)
             => true,
             _ => false,
         }
@@ -305,7 +305,7 @@ impl From<Pat> for MaybeType {
                     _ => return None,
                 }
             }
-            Pat::ProductType(vec) => {
+            Pat::ProdType(vec) => {
                 let f = |(n, p): &(String, Pat)|
                     (p.clone().into(): Option<Type>).map(|t| (n.to_string(), t));
 
@@ -317,7 +317,7 @@ impl From<Pat> for MaybeType {
                 );
 
                 match vec {
-                    Some(vec) => Type::ProductType(vec),
+                    Some(vec) => Type::ProdType(vec),
                     _ => return None,
                 }
             }

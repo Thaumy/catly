@@ -8,7 +8,7 @@ pub fn lift(
 ) -> bool {
     println!("Uplift {:?} -> {:?} to {:?}", i_t, o_t, derive);
 
-    match &derive {
+    match derive {
         // Derive is Base
         Type::ClosureType(x, y)
         => &**x == i_t && &**y == o_t,

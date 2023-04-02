@@ -2,15 +2,14 @@ use crate::parser::r#type::Type;
 
 pub fn lift(
     env: &Vec<(String, Type)>,
-    vec: &Vec<(String, Type)>,
     derive: &Type,
 ) -> bool {
-    println!("Uplift ProductType{:?} to {:?}", vec, derive);
+    println!("Uplift Unit to {:?}", derive);
 
-    match &derive {
+    match derive {
         // Derive is Base
-        Type::ProductType(v)
-        => v == vec,
+        Type::TypeEnvRef(n)
+        if n == "Unit" => true,
 
         // type Derive = T
         // where Base can be lifted to T
@@ -18,7 +17,7 @@ pub fn lift(
         => env
             .iter()
             .rev()
-            .find(|(n, t)| n == a && lift(env, vec, t))
+            .find(|(n, t)| n == a && lift(env, t))
             .is_some(),
 
         // type Derive = .. | T | ..
@@ -26,7 +25,7 @@ pub fn lift(
         Type::SumType(s)
         => s
             .iter()
-            .any(|t| lift(env, vec, t)),
+            .any(|t| lift(env, t)),
 
         _ => false
     }

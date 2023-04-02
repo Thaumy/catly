@@ -8,7 +8,7 @@ pub fn lift(
 ) -> bool {
     println!("Uplift SumType{:?} to {:?}", set, derive);
 
-    match &derive {
+    match derive {
         // Derive is superset of Base
         Type::SumType(s)
         if s.is_superset(set) => true,

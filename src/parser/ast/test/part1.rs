@@ -36,7 +36,7 @@ fn test_parse_ast_part1() {
     );
     let d22 = Define::ExprDef(
         "b1".to_string(),
-        Type::ProductType(vec![
+        Type::ProdType(vec![
             ("x".to_string(),
              Type::TypeEnvRef("Int".to_string())),
             ("y".to_string(),

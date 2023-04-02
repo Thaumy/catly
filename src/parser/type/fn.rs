@@ -173,44 +173,44 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
             ));
             stack.reduce(3, top)
         }
-        // `{` TypedLetNameSeq `}` -> ProductType
+        // `{` TypedLetNameSeq `}` -> ProdType
         ([..,
         Pat::Mark('{'),
         Pat::TypedLetNameSeq(seq),
         Pat::Mark('}')], _
         ) => {
-            let top = Pat::ProductType(seq.clone());
+            let top = Pat::ProdType(seq.clone());
             stack.reduce(3, top)
         }
-        // `{` TypedLetNameSeq `,` `}` -> ProductType
+        // `{` TypedLetNameSeq `,` `}` -> ProdType
         ([..,
         Pat::Mark('{'),
         Pat::TypedLetNameSeq(seq),
         Pat::Mark(','), Pat::Mark('}')], _
         ) => {
-            let top = Pat::ProductType(seq.clone());
+            let top = Pat::ProdType(seq.clone());
             stack.reduce(4, top)
         }
-        // `{` LetName `}` -> ProductType
+        // `{` LetName `}` -> ProdType
         // where LetName is typed
         ([..,
         Pat::Mark('{'),
         Pat::LetName(Some(t), n),
         Pat::Mark('}')], _
         ) => {
-            let top = Pat::ProductType(vec![
+            let top = Pat::ProdType(vec![
                 (n.clone(), *t.clone())
             ]);
             stack.reduce(3, top)
         }
-        // `{` LetName `,` `}` -> ProductType
+        // `{` LetName `,` `}` -> ProdType
         // where LetName is typed
         ([..,
         Pat::Mark('{'),
         Pat::LetName(Some(t), n),
         Pat::Mark(','), Pat::Mark('}')], _
         ) => {
-            let top = Pat::ProductType(vec![
+            let top = Pat::ProdType(vec![
                 (n.clone(), *t.clone())
             ]);
             stack.reduce(4, top)

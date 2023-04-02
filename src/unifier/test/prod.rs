@@ -1,7 +1,9 @@
 use crate::btree_set;
-use crate::parser::infra::r#box::Ext;
+use crate::parser::infra::option::AnyExt;
 use crate::parser::r#type::Type;
-use crate::unifier::product::lift;
+use crate::unifier::lift;
+use crate::unifier::prod::lift as lift_prod;
+use crate::unifier::unify;
 
 fn env() -> Vec<(String, Type)> {
     /* env:
@@ -11,7 +13,7 @@ fn env() -> Vec<(String, Type)> {
     */
     vec![
         ("S".to_string(),
-         Type::ProductType(vec![
+         Type::ProdType(vec![
              ("a".to_string(), Type::TypeEnvRef("A".to_string())),
          ])),
         ("SA".to_string(),
@@ -33,11 +35,14 @@ fn test_lift_part1() {
     let v = &vec![
         ("a".to_string(), Type::TypeEnvRef("A".to_string())),
     ];
-    let derive = &Type::ProductType(vec![
+    let derive = &Type::ProdType(vec![
         ("a".to_string(), Type::TypeEnvRef("A".to_string())),
     ]);
+    assert!(lift_prod(env, v, derive));
 
-    assert!(lift(env, v, derive));
+    let base = &Type::ProdType(v.clone());
+    assert!(lift(env, base, derive));
+    assert_eq!(unify(env, base, derive), derive.clone().some());
 }
 
 #[test]
@@ -47,8 +52,11 @@ fn test_lift_part2() {
         ("a".to_string(), Type::TypeEnvRef("A".to_string())),
     ];
     let derive = &Type::TypeEnvRef("S".to_string());
+    assert!(lift_prod(env, v, derive));
 
-    assert!(lift(env, v, derive));
+    let base = &Type::ProdType(v.clone());
+    assert!(lift(env, base, derive));
+    assert_eq!(unify(env, base, derive), derive.clone().some());
 }
 
 #[test]
@@ -58,8 +66,11 @@ fn test_lift_part3() {
         ("a".to_string(), Type::TypeEnvRef("A".to_string())),
     ];
     let derive = &Type::TypeEnvRef("SA".to_string());
+    assert!(lift_prod(env, v, derive));
 
-    assert!(lift(env, v, derive));
+    let base = &Type::ProdType(v.clone());
+    assert!(lift(env, base, derive));
+    assert_eq!(unify(env, base, derive), derive.clone().some());
 }
 
 #[test]
@@ -69,6 +80,9 @@ fn test_lift_part4() {
         ("a".to_string(), Type::TypeEnvRef("A".to_string())),
     ];
     let derive = &Type::TypeEnvRef("BA".to_string());
+    assert!(!lift_prod(env, v, derive));
 
-    assert!(!lift(env, v, derive));
+    let base = &Type::ProdType(v.clone());
+    assert!(!lift(env, base, derive));
+    assert_eq!(unify(env, base, derive), None);
 }

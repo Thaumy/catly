@@ -15,7 +15,7 @@ pub enum Type {
     TypeEnvRef(String),
     ClosureType(Box<Type>, Box<Type>),
     SumType(BTreeSet<Type>),
-    ProductType(Vec<(String, Type)>),
+    ProdType(Vec<(String, Type)>),
 }
 
 type In = crate::parser::preprocess::Out;

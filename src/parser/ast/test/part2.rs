@@ -10,13 +10,13 @@ use crate::parser::r#type::Type;
 fn test_parse_ast_part2() {
     let t1 = Define::TypeDef(
         "Foo".to_string(),
-        Type::ProductType(vec![
+        Type::ProdType(vec![
             ("abc".to_string(),
              Type::TypeEnvRef("A".to_string())),
             ("uuu".to_string(),
              Type::TypeEnvRef("IntList".to_string())),
             ("intList".to_string(),
-             Type::ProductType(vec![
+             Type::ProdType(vec![
                  ("x".to_string(), Type::TypeEnvRef("X".to_string())),
                  ("y".to_string(), Type::TypeEnvRef("Y".to_string())),
              ])),

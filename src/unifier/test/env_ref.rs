@@ -1,78 +1,73 @@
 use crate::btree_set;
+use crate::parser::infra::option::AnyExt;
 use crate::parser::r#type::Type;
-use crate::unifier::env_ref::lift;
+use crate::unifier::env_ref::lift as lift_env_ref;
+use crate::unifier::lift;
+use crate::unifier::unify;
 
 fn env() -> Vec<(String, Type)> {
     /* env:
-    type A = Unit
     type B = A
     type C = B
-    type D = C
-    type A_B = A | B
-    type B_C_D = B | C | D
+    type AB = A | B
     */
 
     vec![
-        ("A".to_string(),
-         Type::TypeEnvRef("Unit".to_string())),
         ("B".to_string(),
          Type::TypeEnvRef("A".to_string())),
         ("C".to_string(),
          Type::TypeEnvRef("B".to_string())),
-        ("D".to_string(),
-         Type::TypeEnvRef("C".to_string())),
         ("AB".to_string(),
          Type::SumType(btree_set![
-                Type::TypeEnvRef("A".to_string()),
-                Type::TypeEnvRef("B".to_string()),
-            ])),
-        ("ABC".to_string(),
-         Type::SumType(btree_set![
-                Type::TypeEnvRef("A".to_string()),
-                Type::TypeEnvRef("B".to_string()),
-                Type::TypeEnvRef("C".to_string()),
-            ])),
+            Type::TypeEnvRef("A".to_string()),
+            Type::TypeEnvRef("B".to_string()),
+        ])),
     ]
 }
 
 #[test]
 fn test_lift_part1() {
     let env = &env();
-    assert!(lift(env, "A", "B"));
+    let derive = &Type::TypeEnvRef("A".to_string());
+    assert!(lift_env_ref(env, "A", derive));
+
+    let base = &Type::TypeEnvRef("A".to_string());
+    assert!(lift(env, base, derive));
+    assert_eq!(unify(env, base, derive), derive.clone().some());
 }
 
 #[test]
 fn test_lift_part2() {
     let env = &env();
-    assert!(lift(env, "B", "C"));
+    let derive = &Type::TypeEnvRef("B".to_string());
+    assert!(!lift_env_ref(env, "A", derive));
+
+    let base = &Type::TypeEnvRef("A".to_string());
+    assert!(!lift(env, base, derive));
+    assert_eq!(unify(env, base, derive), None);
 }
 
 #[test]
 fn test_lift_part3() {
     let env = &env();
-    assert!(!lift(env, "B", "D"));
+    let derive = &Type::TypeEnvRef("AB".to_string());
+    assert!(!lift_env_ref(env, "A", derive));
+
+    let base = &Type::TypeEnvRef("A".to_string());
+    assert!(!lift(env, base, derive));
+    assert_eq!(unify(env, base, derive), None);
 }
 
 #[test]
 fn test_lift_part4() {
     let env = &env();
-    assert!(!lift(env, "B", "A"));
-}
+    let derive = &Type::SumType(btree_set![
+        Type::TypeEnvRef("A".to_string()),
+        Type::TypeEnvRef("B".to_string()),
+    ]);
+    assert!(lift_env_ref(env, "A", derive));
 
-#[test]
-fn test_lift_part5() {
-    let env = &env();
-    assert!(lift(env, "A", "AB"));
-}
-
-#[test]
-fn test_lift_part6() {
-    let env = &env();
-    assert!(lift(env, "B", "ABC"));
-}
-
-#[test]
-fn test_lift_part7() {
-    let env = &env();
-    assert!(!lift(env, "BC", "ABC"));
+    let base = &Type::TypeEnvRef("A".to_string());
+    assert!(lift(env, base, derive));
+    assert_eq!(unify(env, base, derive), derive.clone().some());
 }
