@@ -65,7 +65,7 @@ pub fn parse_let_name(seq: &str) -> Option<String> {
 mod tests {
     #[test]
     fn test_parse_let_name() {
-        use crate::parser::name::let_name::parse_let_name;
+        use crate::parser::name::parse_let_name;
 
         assert_eq!(parse_let_name("a1B2C3"), Some("a1B2C3".to_string()));
         assert_eq!(parse_let_name("A1b2c3"), None);

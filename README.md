@@ -141,6 +141,14 @@ a -> (b -> (add a) b)
 (a -> b -> add a b) 1 2
 ```
 
+λ 表达式的参数支持弃元，被弃元的参数不能在表达式体中被引用：
+
+```Catly
+# The value of this expression is 1
+(_ -> 1) 0
+```
+
+
 ### Struture
 
 结构
@@ -231,6 +239,34 @@ def i =
   j
 ```
 
+### Type annotation
+
+类型标注
+
+Catly 是强类型的，当 Catly 无法推断某个值的类型时，需要使用类型标注。
+
+例如，函数 `f` 适用于任何参数类型，Catly 会在类型检查期间对其进行推导：
+
+```Catly
+def f = x -> ()
+```
+
+使用类型标注限定 `f` 的参数类型，使其只能作用于 `Int` 类型的参数：
+
+```Catly
+def f = (x: Int) -> ()
+```
+
+在模式匹配中类型标注可用作类型匹配，例如：
+
+```Catly
+match b with
+| (_: True) -> 123
+| (_: False) -> 456
+```
+
+类型标注适用于所有表达式。
+
 ### Type definition
 
 类型定义
@@ -256,7 +292,7 @@ type IntPair = { l: Int, r: Int }
 def newIntPair: IntPair = l -> r -> { l = l, r = r }
 ```
 
-结构类型在 Catly 中被视作**积类型**，Catly 还支持及**和类型**，和类型是几种类型之一的类型，例如：
+结构类型在 Catly 中被视作**积类型**，Catly 还支持**和类型**，和类型是几种类型之一的类型，例如：
 
 ```Catly
 type IntOrUnit = Int | Unit
@@ -276,29 +312,11 @@ match x: IntOrUnit with
 Catly 内置了用于 If 表达式的布尔类型：
 
 ```Catly
-type True = Unit
-def true = (): True
-type False = Unit
-def false = (): False
+type True = Int
+def true = 1: True
+type False = Int
+def false = 0: False
 type Bool = True | False
-```
-
-### Type constructor
-
-类型构造器
-
-类型构造器其实是类型定义的一部分，它允许用一种类型去构造另一种类型。
-
-例如，可用如下方式构造列表：
-
-```
-type Cons = H -> T -> { head: H, tail: T }
-def newCons = h: H -> t: T -> { head = h, tail = t }: Cons H T
-type EmptyList = Unit
-def newEmptyList = (): EmptyList
-type List = T -> (Cons T (List T)) | EmptyList
-
-def listFor123: List Int = newCons 1 (newCons 2 (newCons 3 newEmptyList))
 ```
 
 ### Built-in function

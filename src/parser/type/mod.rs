@@ -4,8 +4,8 @@ use crate::parser::infra::alias::MaybeType;
 use crate::parser::r#type::pat::Pat;
 use crate::parser::r#type::r#fn::go;
 
-mod pat;
 mod r#fn;
+mod pat;
 
 #[derive(Debug)]
 #[derive(Clone)]

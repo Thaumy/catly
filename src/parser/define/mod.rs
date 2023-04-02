@@ -4,8 +4,8 @@ use crate::parser::expr::Expr;
 use crate::parser::infra::alias::MaybeType;
 use crate::parser::r#type::Type;
 
-mod pat;
 mod r#fn;
+mod pat;
 
 #[derive(Debug)]
 #[derive(PartialEq)]

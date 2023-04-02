@@ -7,12 +7,12 @@ use crate::parser::preprocess::name::pp_name;
 use crate::parser::preprocess::r#const::pp_const;
 use crate::parser::preprocess::remove_blank::pp_remove_blank;
 
-mod keyword;
+mod chunk;
 mod comment;
+mod r#const;
+mod keyword;
 mod merge_blank;
 mod name;
-mod chunk;
-mod r#const;
 mod remove_blank;
 
 #[derive(Debug)]
