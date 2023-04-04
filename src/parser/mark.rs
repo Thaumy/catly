@@ -1,6 +1,4 @@
-#[derive(Clone)]
-#[derive(Debug)]
-#[derive(PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Mark {
     Underline,
     Dash,
@@ -78,14 +76,14 @@ pub fn parse_mark(x: &char) -> Option<Mark> {
         '=' => Mark::Equal,
         '-' => Mark::Dash,
         '>' => Mark::RightAngleBracket,
-        _ => return None
+        _ => return None,
     };
     Some(r)
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::parser::mark::{*};
+    use crate::parser::mark::*;
 
     #[test]
     fn test_parse_mark_part1() {
@@ -118,7 +116,7 @@ mod tests {
 
     #[test]
     fn test_parse_mark_part2() {
-        use crate::parser::mark::{Mark, parse_mark};
+        use crate::parser::mark::{parse_mark, Mark};
 
         assert_eq!(parse_mark(&'_'), Some(Mark::Underline));
         assert_eq!(parse_mark(&'('), Some(Mark::LeftPar));

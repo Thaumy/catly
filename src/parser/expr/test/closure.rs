@@ -1,7 +1,7 @@
-use crate::parser::expr::Expr;
+use crate::infra::option::AnyExt;
+use crate::infra::r#box::Ext;
 use crate::parser::expr::test::f;
-use crate::parser::infra::option::AnyExt;
-use crate::parser::infra::r#box::Ext;
+use crate::parser::expr::Expr;
 use crate::parser::r#type::Type;
 
 #[test]
@@ -16,9 +16,11 @@ fn test_parse_closure_part1() {
                 None,
                 Expr::EnvRef(None, "add".to_string()).boxed(),
                 Expr::Int(None, 123).boxed(),
-            ).boxed(),
+            )
+            .boxed(),
             Expr::Unit(None).boxed(),
-        ).boxed(),
+        )
+        .boxed(),
     );
     let r = Some(r);
 
@@ -55,14 +57,20 @@ fn test_parse_closure_part2() {
                                 None,
                                 Expr::EnvRef(None, "add".to_string()).boxed(),
                                 Expr::EnvRef(None, "a".to_string()).boxed(),
-                            ).boxed(),
+                            )
+                            .boxed(),
                             Expr::EnvRef(None, "b".to_string()).boxed(),
-                        ).boxed(),
-                    ).boxed(),
+                        )
+                        .boxed(),
+                    )
+                    .boxed(),
                     Expr::EnvRef(None, "c".to_string()).boxed(),
-                ).boxed(),
-            ).boxed(),
-        ).boxed(),
+                )
+                .boxed(),
+            )
+            .boxed(),
+        )
+        .boxed(),
     );
     let r = Some(r);
 
@@ -99,14 +107,20 @@ fn test_parse_closure_part3() {
                                 None,
                                 Expr::EnvRef(None, "add".to_string()).boxed(),
                                 Expr::EnvRef(None, "aaa".to_string()).boxed(),
-                            ).boxed(),
+                            )
+                            .boxed(),
                             Expr::Int(None, 123).boxed(),
-                        ).boxed(),
-                    ).boxed(),
+                        )
+                        .boxed(),
+                    )
+                    .boxed(),
                     Expr::EnvRef(None, "ccc".to_string()).boxed(),
-                ).boxed(),
-            ).boxed(),
-        ).boxed(),
+                )
+                .boxed(),
+            )
+            .boxed(),
+        )
+        .boxed(),
     );
     let r = Some(r);
 
@@ -137,15 +151,16 @@ fn test_parse_closure_part4() {
                     Expr::Apply(
                         None,
                         Expr::EnvRef(None, "add".to_string()).boxed(),
-                        Expr::Int(
-                            Type::TypeEnvRef("Int".to_string()).some(),
-                            123,
-                        ).boxed(),
-                    ).boxed(),
+                        Expr::Int(Type::TypeEnvRef("Int".to_string()).some(), 123).boxed(),
+                    )
+                    .boxed(),
                     Expr::EnvRef(None, "ccc".to_string()).boxed(),
-                ).boxed(),
-            ).boxed(),
-        ).boxed(),
+                )
+                .boxed(),
+            )
+            .boxed(),
+        )
+        .boxed(),
     );
     let r = Some(r);
 
@@ -161,7 +176,8 @@ fn test_parse_closure_part5() {
         Type::ClosureType(
             Type::TypeEnvRef("A".to_string()).boxed(),
             Type::TypeEnvRef("B".to_string()).boxed(),
-        ).some(),
+        )
+        .some(),
         "a".to_string().some(),
         None,
         Expr::Closure(
@@ -174,10 +190,13 @@ fn test_parse_closure_part5() {
                     None,
                     Expr::EnvRef(None, "add".to_string()).boxed(),
                     Expr::EnvRef(None, "a".to_string()).boxed(),
-                ).boxed(),
+                )
+                .boxed(),
                 Expr::EnvRef(None, "b".to_string()).boxed(),
-            ).boxed(),
-        ).boxed(),
+            )
+            .boxed(),
+        )
+        .boxed(),
     );
     let r = Some(r);
 

@@ -1,17 +1,13 @@
-use crate::parser::define::Define;
+use crate::infra::option::AnyExt;
+use crate::infra::r#box::Ext;
 use crate::parser::define::test::f;
+use crate::parser::define::Define;
 use crate::parser::expr::Expr;
-use crate::parser::infra::option::AnyExt;
-use crate::parser::infra::r#box::Ext;
 use crate::parser::r#type::Type;
 
 #[test]
 fn test_parse_expr_def_part1() {
-    let r = Define::ExprDef(
-        "a".to_string(),
-        None,
-        Expr::EnvRef(None, "b".to_string()),
-    );
+    let r = Define::ExprDef("a".to_string(), None, Expr::EnvRef(None, "b".to_string()));
     let r = Some(r);
 
     let seq = "def a = b";
@@ -38,7 +34,8 @@ fn test_parse_expr_def_part3() {
         Type::ClosureType(
             Type::TypeEnvRef("Int".to_string()).boxed(),
             Type::TypeEnvRef("Int".to_string()).boxed(),
-        ).some(),
+        )
+        .some(),
         Expr::EnvRef(None, "b".to_string()),
     );
     let r = Some(r);
@@ -71,8 +68,10 @@ fn test_parse_expr_def_part4() {
                         "j".to_string().some(),
                         None,
                         Expr::EnvRef(None, "k".to_string()).boxed(),
-                    ).boxed(),
-                ).boxed(),
+                    )
+                    .boxed(),
+                )
+                .boxed(),
                 Expr::Let(
                     None,
                     "y".to_string(),
@@ -84,9 +83,12 @@ fn test_parse_expr_def_part4() {
                         None,
                         Expr::Unit(None).boxed(),
                         Expr::EnvRef(None, "a".to_string()).boxed(),
-                    ).boxed(),
-                ).boxed(),
-            ).boxed(),
+                    )
+                    .boxed(),
+                )
+                .boxed(),
+            )
+            .boxed(),
             Expr::Let(
                 None,
                 "d".to_string(),
@@ -95,7 +97,8 @@ fn test_parse_expr_def_part4() {
                     None,
                     Expr::EnvRef(None, "neg".to_string()).boxed(),
                     Expr::Int(None, 1).boxed(),
-                ).boxed(),
+                )
+                .boxed(),
                 Expr::Let(
                     None,
                     "e".to_string(),
@@ -122,23 +125,29 @@ fn test_parse_expr_def_part4() {
                                         None,
                                         Expr::EnvRef(None, "add".to_string()).boxed(),
                                         Expr::Unit(None).boxed(),
-                                    ).boxed(),
+                                    )
+                                    .boxed(),
                                     Expr::Int(None, 456).boxed(),
-                                ).boxed(),
-                            ).boxed(),
-                        ).boxed(),
-                    ).boxed(),
-                ).boxed(),
-            ).boxed(),
-        ).boxed(),
+                                )
+                                .boxed(),
+                            )
+                            .boxed(),
+                        )
+                        .boxed(),
+                    )
+                    .boxed(),
+                )
+                .boxed(),
+            )
+            .boxed(),
+        )
+        .boxed(),
     );
 
     let r = Define::ExprDef("a".to_string(), None, e);
     let r = Some(r);
 
-
-    let seq =
-        "def a = \
+    let seq = "def a = \
             let a = 123, \
                 b = \
                 let x = i -> j -> k, \

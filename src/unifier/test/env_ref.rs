@@ -1,5 +1,5 @@
 use crate::btree_set;
-use crate::parser::infra::option::AnyExt;
+use crate::infra::option::AnyExt;
 use crate::parser::r#type::Type;
 use crate::unifier::env_ref::lift as lift_env_ref;
 use crate::unifier::lift;
@@ -7,21 +7,23 @@ use crate::unifier::unify;
 
 fn env() -> Vec<(String, Type)> {
     /* env:
+    type A = Int
     type B = A
     type C = B
     type AB = A | B
     */
 
     vec![
-        ("B".to_string(),
-         Type::TypeEnvRef("A".to_string())),
-        ("C".to_string(),
-         Type::TypeEnvRef("B".to_string())),
-        ("AB".to_string(),
-         Type::SumType(btree_set![
-            Type::TypeEnvRef("A".to_string()),
-            Type::TypeEnvRef("B".to_string()),
-        ])),
+        ("A".to_string(), Type::TypeEnvRef("Int".to_string())),
+        ("B".to_string(), Type::TypeEnvRef("A".to_string())),
+        ("C".to_string(), Type::TypeEnvRef("B".to_string())),
+        (
+            "AB".to_string(),
+            Type::SumType(btree_set![
+                Type::TypeEnvRef("A".to_string()),
+                Type::TypeEnvRef("B".to_string()),
+            ]),
+        ),
     ]
 }
 

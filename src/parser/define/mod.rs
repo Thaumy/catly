@@ -1,14 +1,13 @@
+use crate::infra::alias::MaybeType;
 use crate::parser::define::pat::Pat;
 use crate::parser::define::r#fn::go;
 use crate::parser::expr::Expr;
-use crate::parser::infra::alias::MaybeType;
 use crate::parser::r#type::Type;
 
 mod r#fn;
 mod pat;
 
-#[derive(Debug)]
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum Define {
     TypeDef(String, Type),
     ExprDef(String, MaybeType, Expr),

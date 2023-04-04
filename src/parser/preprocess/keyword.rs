@@ -1,8 +1,6 @@
 use crate::parser::keyword::Keyword;
 
-#[derive(Debug)]
-#[derive(Clone)]
-#[derive(PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Out {
     Symbol(char),
     DigitChunk(String),
@@ -36,7 +34,7 @@ impl From<In> for Out {
                 // "with" -> With
                 c if c == "with" => Self::Kw(Keyword::With),
 
-                _ => Self::LowerStartChunk(c)
+                _ => Self::LowerStartChunk(c),
             },
             In::UpperStartChunk(c) => Self::UpperStartChunk(c),
             In::Symbol(c) => Self::Symbol(c),
@@ -47,12 +45,10 @@ impl From<In> for Out {
 type In = crate::parser::preprocess::chunk::Out;
 
 pub fn pp_keyword(seq: &[In]) -> Vec<Out> {
-    let r = seq
-        .iter()
-        .fold(vec![], |mut acc, x| {
-            acc.push(Out::from(x.clone()));
-            acc
-        });
+    let r = seq.iter().fold(vec![], |mut acc, x| {
+        acc.push(Out::from(x.clone()));
+        acc
+    });
     println!("Keyword pp out: {:?}", r);
     r
 }
@@ -60,7 +56,7 @@ pub fn pp_keyword(seq: &[In]) -> Vec<Out> {
 #[cfg(test)]
 mod tests {
     use crate::parser::keyword::Keyword;
-    use crate::parser::preprocess::keyword::{Out, pp_keyword};
+    use crate::parser::preprocess::keyword::{pp_keyword, Out};
 
     type In = crate::parser::preprocess::chunk::Out;
 

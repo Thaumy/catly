@@ -1,4 +1,4 @@
-use crate::parser::define::{Define, parse_define};
+use crate::parser::define::{parse_define, Define};
 use crate::parser::preprocess::preprocess;
 
 fn f(seq: &str) -> Option<Define> {
@@ -6,5 +6,5 @@ fn f(seq: &str) -> Option<Define> {
     parse_define(seq)
 }
 
-mod type_def;
 mod expr_def;
+mod type_def;

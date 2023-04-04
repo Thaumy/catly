@@ -1,5 +1,5 @@
 use crate::btree_set;
-use crate::parser::infra::option::AnyExt;
+use crate::infra::option::AnyExt;
 use crate::parser::r#type::Type;
 use crate::unifier::lift;
 use crate::unifier::sum::lift as lift_sum;
@@ -13,22 +13,28 @@ fn env() -> Vec<(String, Type)> {
     type S2 = B | C
     */
     vec![
-        ("AB".to_string(),
-         Type::SumType(btree_set![
-             Type::TypeEnvRef("A".to_string()),
-             Type::TypeEnvRef("B".to_string()),
-         ])),
-        ("ABC".to_string(),
-         Type::SumType(btree_set![
-             Type::TypeEnvRef("A".to_string()),
-             Type::TypeEnvRef("B".to_string()),
-             Type::TypeEnvRef("C".to_string()),
-         ])),
-        ("S".to_string(),
-         Type::SumType(btree_set![
-             Type::TypeEnvRef("AB".to_string()),
-             Type::TypeEnvRef("C".to_string()),
-         ])),
+        (
+            "AB".to_string(),
+            Type::SumType(btree_set![
+                Type::TypeEnvRef("A".to_string()),
+                Type::TypeEnvRef("B".to_string()),
+            ]),
+        ),
+        (
+            "ABC".to_string(),
+            Type::SumType(btree_set![
+                Type::TypeEnvRef("A".to_string()),
+                Type::TypeEnvRef("B".to_string()),
+                Type::TypeEnvRef("C".to_string()),
+            ]),
+        ),
+        (
+            "S".to_string(),
+            Type::SumType(btree_set![
+                Type::TypeEnvRef("AB".to_string()),
+                Type::TypeEnvRef("C".to_string()),
+            ]),
+        ),
     ]
 }
 

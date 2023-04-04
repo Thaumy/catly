@@ -1,8 +1,8 @@
 use std::collections::BTreeSet;
 
-use crate::parser::infra::option::{AnyExt, FollowExt};
-use crate::parser::infra::r#box::Ext as BoxExt;
-use crate::parser::infra::vec::{Ext, vec_get_head_tail_follow};
+use crate::infra::option::{AnyExt, FollowExt};
+use crate::infra::r#box::Ext as BoxExt;
+use crate::infra::vec::{vec_get_head_tail_follow, Ext};
 use crate::parser::r#type::pat::Pat;
 
 type In = crate::parser::preprocess::Out;
@@ -51,7 +51,7 @@ fn move_in(stack: &Vec<Pat>, head: Option<In>) -> Pat {
                 println!("Invalid head Pat: {:?}", p);
                 Pat::Err
             }
-        }
+        },
 
         // ɛ -> End
         None => Pat::End,
@@ -65,46 +65,32 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
 
         // LetName `:` Type :TypeEndPat -> LetName
         // where LetName is untyped
-        ([..,
-        Pat::LetName(None, n), Pat::Mark(':'),
-        p], follow)
-        if follow.is_type_end_pat() && p.is_type() => {
-            let top = Pat::LetName(
-                p.clone().boxed().some(),
-                n.to_string(),
-            );
+        ([.., Pat::LetName(None, n), Pat::Mark(':'), p], follow)
+            if follow.is_type_end_pat() && p.is_type() =>
+        {
+            let top = Pat::LetName(p.clone().boxed().some(), n.to_string());
             stack.reduce(3, top)
         }
 
         // `-` `>` -> Arrow
-        ([.., Pat::Mark('-'), Pat::Mark('>')], _) =>
-            stack.reduce(2, Pat::Arrow),
+        ([.., Pat::Mark('-'), Pat::Mark('>')], _) => stack.reduce(2, Pat::Arrow),
 
         // `(` Type `)` -> Type
-        ([.., Pat::Mark('('), p, Pat::Mark(')')], _) if p.is_type() =>
-            stack.reduce(3, p.clone()),
+        ([.., Pat::Mark('('), p, Pat::Mark(')')], _) if p.is_type() => stack.reduce(3, p.clone()),
 
         // Type Arrow -> ClosureTypeHead
-        ([.., p, Pat::Arrow, ], _)
-        if p.is_type() => {
+        ([.., p, Pat::Arrow], _) if p.is_type() => {
             let top = Pat::ClosureTypeHead(p.clone().boxed());
             stack.reduce(2, top)
         }
         // ClosureTypeHead Type :TypeEndPat -> ClosureType
-        ([.., Pat::ClosureTypeHead(t), p], follow)
-        if follow.is_type_end_pat() && p.is_type() => {
-            let top = Pat::ClosureType(
-                t.clone(),
-                p.clone().boxed(),
-            );
+        ([.., Pat::ClosureTypeHead(t), p], follow) if follow.is_type_end_pat() && p.is_type() => {
+            let top = Pat::ClosureType(t.clone(), p.clone().boxed());
             stack.reduce(2, top)
         }
 
         // SumType `|` SumType -> SumType
-        ([..,
-        Pat::SumType(l), Pat::Mark('|'),
-        Pat::SumType(r)], _
-        ) => {
+        ([.., Pat::SumType(l), Pat::Mark('|'), Pat::SumType(r)], _) => {
             let mut set = BTreeSet::new();
             set.extend(l.clone());
             set.extend(r.clone());
@@ -113,11 +99,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
             stack.reduce(3, top)
         }
         // Type `|` SumType -> SumType
-        ([..,
-        p, Pat::Mark('|'),
-        Pat::SumType(vec)], _
-        )
-        if p.is_type() => {
+        ([.., p, Pat::Mark('|'), Pat::SumType(vec)], _) if p.is_type() => {
             let mut set = BTreeSet::new();
             set.extend(vec.clone());
             set.insert(p.clone());
@@ -126,11 +108,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
             stack.reduce(3, top)
         }
         // SumType `|` Type -> SumType
-        ([..,
-        Pat::SumType(vec), Pat::Mark('|'),
-        p], _
-        )
-        if p.is_type() => {
+        ([.., Pat::SumType(vec), Pat::Mark('|'), p], _) if p.is_type() => {
             let mut set = BTreeSet::new();
             set.extend(vec.clone());
             set.insert(p.clone());
@@ -139,8 +117,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
             stack.reduce(3, top)
         }
         // Type `|` Type -> SumType
-        ([.., a, Pat::Mark('|'), b], _)
-        if a.is_type() && b.is_type() => {
+        ([.., a, Pat::Mark('|'), b], _) if a.is_type() && b.is_type() => {
             let mut set = BTreeSet::new();
             set.insert(a.clone());
             set.insert(b.clone());
@@ -150,10 +127,9 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
         }
         // LetName `,` LetName :`}`|`,` -> TypedLetNameSeq
         // where LetName is typed
-        ([..,
-        Pat::LetName(Some(a_t), a_n), Pat::Mark(','),
-        Pat::LetName(Some(b_t), b_n),
-        ], Some(In::Symbol('}' | ','))
+        (
+            [.., Pat::LetName(Some(a_t), a_n), Pat::Mark(','), Pat::LetName(Some(b_t), b_n)],
+            Some(In::Symbol('}' | ',')),
         ) => {
             let top = Pat::TypedLetNameSeq(vec![
                 (a_n.clone(), *a_t.clone()),
@@ -163,56 +139,33 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
         }
         // TypedLetNameSeq `,` LetName :`}`|`,` -> TypedLetNameSeq
         // where LetName is typed
-        ([..,
-        Pat::TypedLetNameSeq(seq), Pat::Mark(','),
-        Pat::LetName(Some(t), n),
-        ], Some(In::Symbol('}' | ','))
+        (
+            [.., Pat::TypedLetNameSeq(seq), Pat::Mark(','), Pat::LetName(Some(t), n)],
+            Some(In::Symbol('}' | ',')),
         ) => {
-            let top = Pat::TypedLetNameSeq(seq.push_to_new(
-                (n.clone(), *t.clone())
-            ));
+            let top = Pat::TypedLetNameSeq(seq.push_to_new((n.clone(), *t.clone())));
             stack.reduce(3, top)
         }
         // `{` TypedLetNameSeq `}` -> ProdType
-        ([..,
-        Pat::Mark('{'),
-        Pat::TypedLetNameSeq(seq),
-        Pat::Mark('}')], _
-        ) => {
+        ([.., Pat::Mark('{'), Pat::TypedLetNameSeq(seq), Pat::Mark('}')], _) => {
             let top = Pat::ProdType(seq.clone());
             stack.reduce(3, top)
         }
         // `{` TypedLetNameSeq `,` `}` -> ProdType
-        ([..,
-        Pat::Mark('{'),
-        Pat::TypedLetNameSeq(seq),
-        Pat::Mark(','), Pat::Mark('}')], _
-        ) => {
+        ([.., Pat::Mark('{'), Pat::TypedLetNameSeq(seq), Pat::Mark(','), Pat::Mark('}')], _) => {
             let top = Pat::ProdType(seq.clone());
             stack.reduce(4, top)
         }
         // `{` LetName `}` -> ProdType
         // where LetName is typed
-        ([..,
-        Pat::Mark('{'),
-        Pat::LetName(Some(t), n),
-        Pat::Mark('}')], _
-        ) => {
-            let top = Pat::ProdType(vec![
-                (n.clone(), *t.clone())
-            ]);
+        ([.., Pat::Mark('{'), Pat::LetName(Some(t), n), Pat::Mark('}')], _) => {
+            let top = Pat::ProdType(vec![(n.clone(), *t.clone())]);
             stack.reduce(3, top)
         }
         // `{` LetName `,` `}` -> ProdType
         // where LetName is typed
-        ([..,
-        Pat::Mark('{'),
-        Pat::LetName(Some(t), n),
-        Pat::Mark(','), Pat::Mark('}')], _
-        ) => {
-            let top = Pat::ProdType(vec![
-                (n.clone(), *t.clone())
-            ]);
+        ([.., Pat::Mark('{'), Pat::LetName(Some(t), n), Pat::Mark(','), Pat::Mark('}')], _) => {
+            let top = Pat::ProdType(vec![(n.clone(), *t.clone())]);
             stack.reduce(4, top)
         }
 
@@ -224,7 +177,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
             return vec![Pat::Err];
         }
         // keep move in
-        _ => return stack
+        _ => return stack,
     };
 
     let reduced_stack = stack;
@@ -235,8 +188,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
 }
 
 pub fn go(mut stack: Vec<Pat>, seq: Vec<In>) -> Pat {
-    let (head, tail, follow) =
-        vec_get_head_tail_follow(seq);
+    let (head, tail, follow) = vec_get_head_tail_follow(seq);
 
     stack.push(move_in(&stack, head));
     println!("Move in result: {:?} follow: {:?}", stack, follow);
@@ -249,6 +201,6 @@ pub fn go(mut stack: Vec<Pat>, seq: Vec<In>) -> Pat {
             println!("Success with: {:?}", r);
             return r;
         }
-        _ => go(reduced_stack, tail)
+        _ => go(reduced_stack, tail),
     }
 }

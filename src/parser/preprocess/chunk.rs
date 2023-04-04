@@ -1,11 +1,9 @@
+use crate::infra::str::str_get_head_tail_follow;
+use crate::infra::vec::Ext;
 use crate::maybe_fold;
 use crate::parser::alphanum::{parse_alphanum, parse_digit, parse_lower, parse_upper};
-use crate::parser::infra::str::str_get_head_tail_follow;
-use crate::parser::infra::vec::Ext;
 
-#[derive(Debug)]
-#[derive(Clone)]
-#[derive(PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Out {
     Symbol(char),
     DigitChunk(String),
@@ -13,9 +11,7 @@ pub enum Out {
     UpperStartChunk(String),
 }
 
-#[derive(Debug)]
-#[derive(Clone)]
-#[derive(PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 enum Pat {
     Start,
     End,
@@ -24,44 +20,54 @@ enum Pat {
 
     Digit(char),
     DigitStart(char),
-    DigitChunk(String),//Out::DigitStartChunk
+    DigitChunk(String), //Out::DigitStartChunk
 
     Alphanum(char),
 
     LowerStart(char),
-    LowerStartChunk(String),//Out::LowerStartChunk
+    LowerStartChunk(String), //Out::LowerStartChunk
 
     UpperStart(char),
-    UpperStartChunk(String),//Out::UpperStartChunk
+    UpperStartChunk(String), //Out::UpperStartChunk
 }
 
 fn move_in(stack: &Vec<Pat>, head: Option<char>) -> Pat {
     match head {
         Some(c) => match (&stack[..], c) {
             // Char|Start: [0-9] -> DigitStart
-            ([.., Pat::Symbol(_) | Pat::Start], c)
-            if parse_digit(&c).is_some() => Pat::DigitStart(c),
+            ([.., Pat::Symbol(_) | Pat::Start], c) if parse_digit(&c).is_some() => {
+                Pat::DigitStart(c)
+            }
             // DigitStart|DigitStartChunk: [0-9] -> Digit
-            ([.., Pat::DigitStart(_) | Pat::DigitChunk(_)], c)
-            if parse_digit(&c).is_some() => Pat::Digit(c),
+            ([.., Pat::DigitStart(_) | Pat::DigitChunk(_)], c) if parse_digit(&c).is_some() => {
+                Pat::Digit(c)
+            }
 
             // Char|Start: [a-z] -> LowerStart
-            ([.., Pat::Symbol(_) | Pat::Start], c)
-            if parse_lower(&c).is_some() => Pat::LowerStart(c),
+            ([.., Pat::Symbol(_) | Pat::Start], c) if parse_lower(&c).is_some() => {
+                Pat::LowerStart(c)
+            }
             // LowerStart|LowerStartChunk: [0-9a-zA-Z] -> Alphanum
             ([.., Pat::LowerStart(_) | Pat::LowerStartChunk(_)], c)
-            if parse_alphanum(&c).is_some() => Pat::Alphanum(c),
+                if parse_alphanum(&c).is_some() =>
+            {
+                Pat::Alphanum(c)
+            }
 
             // Char|Start: [A-Z] -> UpperStart
-            ([.., Pat::Symbol(_) | Pat::Start], c)
-            if parse_upper(&c).is_some() => Pat::UpperStart(c),
+            ([.., Pat::Symbol(_) | Pat::Start], c) if parse_upper(&c).is_some() => {
+                Pat::UpperStart(c)
+            }
             // UpperStart|UpperStartChunk: [0-9a-zA-Z] -> Alphanum
             ([.., Pat::UpperStart(_) | Pat::UpperStartChunk(_)], c)
-            if parse_alphanum(&c).is_some() => Pat::Alphanum(c),
+                if parse_alphanum(&c).is_some() =>
+            {
+                Pat::Alphanum(c)
+            }
 
             // _ -> Char
             (_, c) => Pat::Symbol(c),
-        }
+        },
         _ => Pat::End,
     }
 }
@@ -102,24 +108,33 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<char>) -> Vec<Pat> {
 
         // DigitStart :!Digit -> DigitStartChunk
         ([.., Pat::DigitStart(c)], follow)
-        if match follow {
-            Some(c) => parse_digit(&c).is_none(),
-            None => true,
-        } => stack.reduce(1, Pat::DigitChunk(c.to_string())),
+            if match follow {
+                Some(c) => parse_digit(&c).is_none(),
+                None => true,
+            } =>
+        {
+            stack.reduce(1, Pat::DigitChunk(c.to_string()))
+        }
         // LowerStart :!Alphanum -> LowerStartChunk
         ([.., Pat::LowerStart(c)], follow)
-        if match follow {
-            Some(c) => parse_alphanum(&c).is_none(),
-            None => true,
-        } => stack.reduce(1, Pat::LowerStartChunk(c.to_string())),
+            if match follow {
+                Some(c) => parse_alphanum(&c).is_none(),
+                None => true,
+            } =>
+        {
+            stack.reduce(1, Pat::LowerStartChunk(c.to_string()))
+        }
         // UpperStart :!Alphanum -> UpperStartChunk
         ([.., Pat::UpperStart(c)], follow)
-        if match follow {
-            Some(c) => parse_alphanum(&c).is_none(),
-            None => true,
-        } => stack.reduce(1, Pat::UpperStartChunk(c.to_string())),
+            if match follow {
+                Some(c) => parse_alphanum(&c).is_none(),
+                None => true,
+            } =>
+        {
+            stack.reduce(1, Pat::UpperStartChunk(c.to_string()))
+        }
 
-        _ => return stack
+        _ => return stack,
     };
 
     let reduced_stack = stack;
@@ -141,11 +156,11 @@ fn go(mut stack: Vec<Pat>, tail: &str) -> Vec<Pat> {
     match reduced_stack[..] {
         [Pat::Start, .., Pat::End] => {
             let mut stack = reduced_stack.clone();
-            stack.remove(0);// remove Start
-            stack.pop();// remove End
+            stack.remove(0); // remove Start
+            stack.pop(); // remove End
             return stack;
         }
-        _ => go(reduced_stack, tail)
+        _ => go(reduced_stack, tail),
     }
 }
 
@@ -156,7 +171,7 @@ impl From<Pat> for Option<Out> {
             Pat::LowerStartChunk(c) => Out::LowerStartChunk(c.to_string()),
             Pat::UpperStartChunk(c) => Out::UpperStartChunk(c.to_string()),
             Pat::Symbol(s) => Out::Symbol(s.clone()),
-            _ => return None
+            _ => return None,
         };
         Some(r)
     }
@@ -164,19 +179,14 @@ impl From<Pat> for Option<Out> {
 
 pub fn pp_chunk(seq: &str) -> Option<Vec<Out>> {
     let vec = go(vec![Pat::Start], seq);
-    let r = maybe_fold!(
-        vec.iter(),
-        vec![],
-        push,
-        |p: &Pat| p.clone().into()
-    );
+    let r = maybe_fold!(vec.iter(), vec![], push, |p: &Pat| p.clone().into());
     println!("Chunk pp out: {:?}", r);
     r
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::parser::preprocess::chunk::{Out, pp_chunk};
+    use crate::parser::preprocess::chunk::{pp_chunk, Out};
 
     #[test]
     fn test_pp_chunk() {

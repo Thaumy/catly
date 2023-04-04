@@ -1,8 +1,8 @@
-use crate::parser::infra::either::Either;
-use crate::parser::infra::str::str_get_head_tail;
-use crate::parser::infra::vec::Ext;
-use crate::parser::preprocess::comment::Either::{*};
-use crate::parser::preprocess::comment::Pat::{*};
+use crate::infra::either::Either;
+use crate::infra::str::str_get_head_tail;
+use crate::infra::vec::Ext;
+use crate::parser::preprocess::comment::Either::*;
+use crate::parser::preprocess::comment::Pat::*;
 
 #[derive(Clone)]
 enum Pat {
@@ -14,25 +14,19 @@ enum Pat {
 fn reduce_stack(mut stack: Vec<Either<char, Pat>>) -> Vec<Either<char, Pat>> {
     match stack[..] {
         // "# " -> CommentStart
-        [.., L('#'), L(' ')] =>
-            stack.reduce(2, R(CommentStart)),
+        [.., L('#'), L(' ')] => stack.reduce(2, R(CommentStart)),
         // CommentStart: (!\n) -> CommentBody
-        [.., R(CommentStart), L(c)] if c != '\n' =>
-            stack.reduce(1, R(CommentBody)),
+        [.., R(CommentStart), L(c)] if c != '\n' => stack.reduce(1, R(CommentBody)),
         // CommentBody (!\n) -> CommentBody
-        [.., R(CommentBody), L(c)] if c != '\n' =>
-            stack.reduce(2, R(CommentBody)),
+        [.., R(CommentBody), L(c)] if c != '\n' => stack.reduce(2, R(CommentBody)),
         // CommentStart '\n' -> Comment
-        [.., R(CommentStart), L('\n')] =>
-            stack.reduce(2, R(Comment)),
+        [.., R(CommentStart), L('\n')] => stack.reduce(2, R(Comment)),
         // CommentStart CommentBody '\n' -> Comment
-        [.., R(CommentStart), R(CommentBody), L('\n')] =>
-            stack.reduce(3, R(Comment)),
+        [.., R(CommentStart), R(CommentBody), L('\n')] => stack.reduce(3, R(Comment)),
         // CommentStart CommentBody End -> Comment
-        [.., R(CommentStart), R(CommentBody)] =>
-            stack.reduce(3, R(Comment)),
+        [.., R(CommentStart), R(CommentBody)] => stack.reduce(3, R(Comment)),
 
-        _ => return stack
+        _ => return stack,
     }
 
     stack
@@ -53,15 +47,13 @@ fn go(mut stack: Vec<Either<char, Pat>>, tail: &str) -> Vec<Either<char, Pat>> {
 pub fn pp_comment(seq: &str) -> String {
     let r = go(vec![], seq)
         .iter()
-        .fold("".to_string(), |mut acc, p|
-            match p {
-                L(c) => {
-                    acc.push(*c);
-                    acc
-                }
-                _ => acc,
-            },
-        );
+        .fold("".to_string(), |mut acc, p| match p {
+            L(c) => {
+                acc.push(*c);
+                acc
+            }
+            _ => acc,
+        });
     println!("Comment pp out: {:?}", r);
     r
 }
@@ -72,8 +64,7 @@ mod tests {
 
     #[test]
     fn test_comment_pp_part1() {
-        let seq =
-            "match x with# Comment 123# Comment 123
+        let seq = "match x with# Comment 123# Comment 123
 \
              | 1 -> if a then b else c\
              | v -> a -> b -> add a b# Comment 123 Comment 123
@@ -104,8 +95,7 @@ mod tests {
                        )\
                 | _ -> baz# Comment 123 Comment 123";
 
-        let r =
-            "match x with\
+        let r = "match x with\
              | 1 -> if a then b else c\
              | v -> a -> b -> add a b\
              | { a = _, b = { foo = _, bar = _ }, c = 3 } -> \
@@ -127,8 +117,7 @@ mod tests {
 
     #[test]
     fn test_comment_pp_part2() {
-        let seq =
-            "# Comment 123# Comment 123
+        let seq = "# Comment 123# Comment 123
 \
             let a = 123, # Comment 123 Comment 123
 \
@@ -154,8 +143,7 @@ mod tests {
 \
              add () 456# Comment 123";
 
-        let r =
-            "let a = 123, \
+        let r = "let a = 123, \
                  b = \
                  let x = i -> j -> k, \
                      y = a \

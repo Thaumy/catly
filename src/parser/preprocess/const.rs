@@ -1,12 +1,10 @@
+use crate::infra::slice::slice_get_head_tail;
+use crate::infra::vec::Ext;
 use crate::maybe_fold;
-use crate::parser::infra::slice::slice_get_head_tail;
-use crate::parser::infra::vec::Ext;
 use crate::parser::keyword::Keyword;
 use crate::parser::value::int::parse_int;
 
-#[derive(Debug)]
-#[derive(Clone)]
-#[derive(PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Out {
     Symbol(char),
     LowerStartChunk(String),
@@ -18,9 +16,7 @@ pub enum Out {
     DiscardValue,
 }
 
-#[derive(Debug)]
-#[derive(Clone)]
-#[derive(PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Pat {
     Start,
     End,
@@ -42,18 +38,16 @@ fn reduce_stack(mut stack: Vec<Pat>) -> Vec<Pat> {
         // DigitChunk -> IntValue
         [.., Pat::DigitChunk(c)] => match parse_int(c) {
             Some(i) => stack.reduce(1, Pat::IntValue(i)),
-            None => return vec![Pat::Err]
-        }
+            None => return vec![Pat::Err],
+        },
 
         // '(' ')' -> UnitValue
-        [.., Pat::Symbol('('), Pat::Symbol(')')] =>
-            stack.reduce(2, Pat::UnitValue),
+        [.., Pat::Symbol('('), Pat::Symbol(')')] => stack.reduce(2, Pat::UnitValue),
 
         // '_' -> DiscardValue
-        [.., Pat::Symbol('_')] =>
-            stack.reduce(1, Pat::DiscardValue),
+        [.., Pat::Symbol('_')] => stack.reduce(1, Pat::DiscardValue),
 
-        _ => return stack
+        _ => return stack,
     };
     let reduced_stack = stack;
 
@@ -86,7 +80,7 @@ impl From<Pat> for Option<Out> {
             Pat::UnitValue => Out::UnitValue,
             Pat::DiscardValue => Out::DiscardValue,
 
-            _ => return None
+            _ => return None,
         };
         Some(r)
     }
@@ -108,12 +102,7 @@ type In = crate::parser::preprocess::keyword::Out;
 
 pub fn pp_const(seq: &[In]) -> Option<Vec<Out>> {
     let vec = go(vec![], seq);
-    let r = maybe_fold!(
-        vec.iter(),
-        vec![],
-        push,
-        |p: &Pat| p.clone().into()
-    );
+    let r = maybe_fold!(vec.iter(), vec![], push, |p: &Pat| p.clone().into());
     println!("Const pp out: {:?}", r);
     r
 }
@@ -121,7 +110,7 @@ pub fn pp_const(seq: &[In]) -> Option<Vec<Out>> {
 #[cfg(test)]
 mod tests {
     use crate::parser::keyword::Keyword;
-    use crate::parser::preprocess::r#const::{Out, pp_const};
+    use crate::parser::preprocess::r#const::{pp_const, Out};
 
     type In = crate::parser::preprocess::keyword::Out;
 

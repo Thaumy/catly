@@ -1,4 +1,4 @@
-use crate::parser::infra::r#box::Ext;
+use crate::infra::r#box::Ext;
 use crate::parser::r#type::test::f;
 use crate::parser::r#type::Type;
 
@@ -23,7 +23,8 @@ fn test_parse_closure_type_part2() {
         Type::ClosureType(
             Type::TypeEnvRef("U".to_string()).boxed(),
             Type::TypeEnvRef("TUEither".to_string()).boxed(),
-        ).boxed(),
+        )
+        .boxed(),
     );
     let r = Some(r);
 
@@ -39,7 +40,8 @@ fn test_parse_closure_type_part3() {
         Type::ClosureType(
             Type::TypeEnvRef("T".to_string()).boxed(),
             Type::TypeEnvRef("U".to_string()).boxed(),
-        ).boxed(),
+        )
+        .boxed(),
         Type::TypeEnvRef("TUEither".to_string()).boxed(),
     );
     let r = Some(r);

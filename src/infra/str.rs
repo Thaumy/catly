@@ -10,4 +10,3 @@ pub fn str_get_head_tail_follow(seq: &str) -> (Option<char>, &str, Option<char>)
     let (follow, _) = str_get_head_tail(tail);
     (head, tail, follow)
 }
-

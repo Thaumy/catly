@@ -1,6 +1,6 @@
-use crate::parser::expr::Expr;
+use crate::infra::option::AnyExt;
 use crate::parser::expr::test::f;
-use crate::parser::infra::option::AnyExt;
+use crate::parser::expr::Expr;
 use crate::parser::r#type::Type;
 
 #[test]
@@ -15,9 +15,7 @@ fn test_parse_unit_part1() {
 
 #[test]
 fn test_parse_unit_part2() {
-    let r = Expr::Unit(
-        Type::TypeEnvRef("Unit".to_string()).some()
-    );
+    let r = Expr::Unit(Type::TypeEnvRef("Unit".to_string()).some());
     let r = Some(r);
 
     assert_eq!(f("(): Unit"), r);

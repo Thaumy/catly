@@ -1,9 +1,6 @@
-use crate::parser::infra::str::str_get_head_tail;
+use crate::infra::str::str_get_head_tail;
 
-#[derive(Copy)]
-#[derive(Debug)]
-#[derive(Clone)]
-#[derive(PartialEq)]
+#[derive(Copy, Debug, Clone, PartialEq)]
 enum Pat {
     Start,
     End,
@@ -19,26 +16,24 @@ fn go(stack: Vec<Pat>, seq: &str) -> Option<i64> {
 
     let move_in = match head {
         // _ -> Digit|Err
-        Some(c) =>
-            match crate::parser::alphanum::parse_digit(&c) {
-                // [0-9] -> Digit
-                Some(d) => Pat::Digit(d),
-                // ɛ -> Err
-                None => {
-                    println!("Invalid head Pat: {:?}", c);
-                    Pat::Err
-                }
-            },
+        Some(c) => match crate::parser::alphanum::parse_digit(&c) {
+            // [0-9] -> Digit
+            Some(d) => Pat::Digit(d),
+            // ɛ -> Err
+            None => {
+                println!("Invalid head Pat: {:?}", c);
+                Pat::Err
+            }
+        },
         // ɛ -> End
-        None => Pat::End
+        None => Pat::End,
     };
 
     let reduced_stack = match (&stack[..], move_in) {
         // Start Digit -> Int
         ([Pat::Start], Pat::Digit(a)) => vec![Pat::Int(a as i64)],
         // Int Digit -> Int
-        ([Pat::Int(a)], Pat::Digit(b)) =>
-            vec![Pat::Int(a * 10 + (b as i64))],
+        ([Pat::Int(a)], Pat::Digit(b)) => vec![Pat::Int(a * 10 + (b as i64))],
 
         // Success
         ([Pat::Int(a)], Pat::End) => return Some(*a),

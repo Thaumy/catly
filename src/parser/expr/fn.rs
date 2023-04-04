@@ -1,9 +1,9 @@
-use std::collections::BTreeSet;
+use crate::infra::option::{AnyExt, FollowExt};
+use crate::infra::r#box::Ext as BoxExt;
+use crate::infra::vec::{vec_get_head_tail_follow, Ext};
 use crate::parser::expr::pat::{OptBoxPat, Pat};
-use crate::parser::infra::option::{AnyExt, FollowExt};
-use crate::parser::infra::r#box::Ext as BoxExt;
-use crate::parser::infra::vec::{Ext, vec_get_head_tail_follow};
 use crate::parser::keyword::Keyword;
+use std::collections::BTreeSet;
 
 type In = crate::parser::preprocess::Out;
 
@@ -48,21 +48,19 @@ fn move_in(stack: &Vec<Pat>, head: Option<In>) -> Pat {
                 '|' => Pat::Mark('|'),
 
                 // ':' -> `:`
-                ':' => Pat::Mark(':'),// type annotation usage
+                ':' => Pat::Mark(':'), // type annotation usage
 
                 // _ -> Err
                 c => {
                     println!("Invalid head Pat: {:?}", c);
                     Pat::Err
                 }
-            }
-
-            //// _ -> Err
-            //(_, p) => {
-            //    println!("Invalid head Pat: {:?}", p);
-            //    Pat::Err
-            //}
-        }
+            }, //// _ -> Err
+               //(_, p) => {
+               //    println!("Invalid head Pat: {:?}", p);
+               //    Pat::Err
+               //}
+        },
 
         // ɛ -> End
         None => Pat::End,
@@ -546,8 +544,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
 }
 
 pub fn go(mut stack: Vec<Pat>, seq: Vec<In>) -> Pat {
-    let (head, tail, follow) =
-        vec_get_head_tail_follow(seq);
+    let (head, tail, follow) = vec_get_head_tail_follow(seq);
 
     stack.push(move_in(&stack, head));
     println!("Move in result: {:?} follow: {:?}", stack, follow);
@@ -560,6 +557,6 @@ pub fn go(mut stack: Vec<Pat>, seq: Vec<In>) -> Pat {
             println!("Success with: {:?}", r);
             return r;
         }
-        _ => go(reduced_stack, tail)
+        _ => go(reduced_stack, tail),
     }
 }

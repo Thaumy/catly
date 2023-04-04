@@ -1,16 +1,13 @@
 use std::collections::BTreeSet;
 
-use crate::parser::infra::alias::MaybeType;
+use crate::infra::alias::MaybeType;
 use crate::parser::r#type::pat::Pat;
 use crate::parser::r#type::r#fn::go;
 
 mod r#fn;
 mod pat;
 
-#[derive(Debug)]
-#[derive(Clone)]
-#[derive(PartialEq, Eq)]
-#[derive(PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Type {
     TypeEnvRef(String),
     ClosureType(Box<Type>, Box<Type>),

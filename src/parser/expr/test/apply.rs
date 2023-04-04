@@ -1,17 +1,13 @@
-use crate::parser::expr::Expr;
+use crate::infra::option::AnyExt;
+use crate::infra::r#box::Ext;
 use crate::parser::expr::test::f;
-use crate::parser::infra::option::AnyExt;
-use crate::parser::infra::r#box::Ext;
+use crate::parser::expr::Expr;
 use crate::parser::r#type::Type;
 
 #[test]
 fn test_parse_apply_part1() {
     // Apply(Unit, Int)
-    let r = Expr::Apply(
-        None,
-        Expr::Unit(None).boxed(),
-        Expr::Int(None, 123).boxed(),
-    );
+    let r = Expr::Apply(None, Expr::Unit(None).boxed(), Expr::Int(None, 123).boxed());
     let r = Some(r);
 
     assert_eq!(f("() 123"), r);
@@ -65,7 +61,8 @@ fn test_parse_apply_part4() {
             None,
             Expr::EnvRef(None, "abc".to_string()).boxed(),
             Expr::Unit(None).boxed(),
-        ).boxed(),
+        )
+        .boxed(),
     );
     let r = Some(r);
 
@@ -89,8 +86,10 @@ fn test_parse_apply_part5() {
                 None,
                 Expr::EnvRef(None, "abc".to_string()).boxed(),
                 Expr::Unit(None).boxed(),
-            ).boxed(),
-        ).boxed(),
+            )
+            .boxed(),
+        )
+        .boxed(),
     );
     let r = Some(r);
 
@@ -110,16 +109,19 @@ fn test_parse_apply_part6() {
             None,
             Expr::EnvRef(None, "abc".to_string()).boxed(),
             Expr::Int(None, 123).boxed(),
-        ).boxed(),
+        )
+        .boxed(),
         Expr::Apply(
             None,
             Expr::Apply(
                 None,
                 Expr::EnvRef(None, "add".to_string()).boxed(),
                 Expr::Int(None, 123).boxed(),
-            ).boxed(),
+            )
+            .boxed(),
             Expr::Int(None, 456).boxed(),
-        ).boxed(),
+        )
+        .boxed(),
     );
     let r = Some(r);
 
@@ -142,10 +144,13 @@ fn test_parse_apply_part7() {
                     None,
                     Expr::EnvRef(None, "add".to_string()).boxed(),
                     Expr::Int(None, 123).boxed(),
-                ).boxed(),
+                )
+                .boxed(),
                 Expr::Int(None, 456).boxed(),
-            ).boxed(),
-        ).boxed(),
+            )
+            .boxed(),
+        )
+        .boxed(),
         Expr::Int(None, 123).boxed(),
     );
     let r = Some(r);
@@ -167,21 +172,15 @@ fn test_parse_apply_part8() {
                 Expr::Apply(
                     Type::TypeEnvRef("Int".to_string()).some(),
                     Expr::EnvRef(None, "add".to_string()).boxed(),
-                    Expr::Int(
-                        Type::TypeEnvRef("Int".to_string()).some(),
-                        123,
-                    ).boxed(),
-                ).boxed(),
-                Expr::Int(
-                    Type::TypeEnvRef("Int".to_string()).some(),
-                    456,
-                ).boxed(),
-            ).boxed(),
-        ).boxed(),
-        Expr::Int(
-            Type::TypeEnvRef("Int".to_string()).some(),
-            123,
-        ).boxed(),
+                    Expr::Int(Type::TypeEnvRef("Int".to_string()).some(), 123).boxed(),
+                )
+                .boxed(),
+                Expr::Int(Type::TypeEnvRef("Int".to_string()).some(), 456).boxed(),
+            )
+            .boxed(),
+        )
+        .boxed(),
+        Expr::Int(Type::TypeEnvRef("Int".to_string()).some(), 123).boxed(),
     );
     let r = Some(r);
 
@@ -193,7 +192,6 @@ fn test_parse_apply_part8() {
     ): Int";
     assert_eq!(f(seq), r);
 }
-
 
 #[test]
 fn test_parse_apply_part9() {
@@ -207,21 +205,15 @@ fn test_parse_apply_part9() {
                 Expr::Apply(
                     None,
                     Expr::EnvRef(None, "add".to_string()).boxed(),
-                    Expr::Int(
-                        Type::TypeEnvRef("Int".to_string()).some(),
-                        123,
-                    ).boxed(),
-                ).boxed(),
-                Expr::Int(
-                    Type::TypeEnvRef("Int".to_string()).some(),
-                    456,
-                ).boxed(),
-            ).boxed(),
-        ).boxed(),
-        Expr::Int(
-            Type::TypeEnvRef("Int".to_string()).some(),
-            123,
-        ).boxed(),
+                    Expr::Int(Type::TypeEnvRef("Int".to_string()).some(), 123).boxed(),
+                )
+                .boxed(),
+                Expr::Int(Type::TypeEnvRef("Int".to_string()).some(), 456).boxed(),
+            )
+            .boxed(),
+        )
+        .boxed(),
+        Expr::Int(Type::TypeEnvRef("Int".to_string()).some(), 123).boxed(),
     );
     let r = Some(r);
 

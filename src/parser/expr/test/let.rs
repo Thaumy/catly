@@ -1,7 +1,7 @@
-use crate::parser::expr::Expr;
+use crate::infra::option::AnyExt;
+use crate::infra::r#box::Ext;
 use crate::parser::expr::test::f;
-use crate::parser::infra::option::AnyExt;
-use crate::parser::infra::r#box::Ext;
+use crate::parser::expr::Expr;
 use crate::parser::r#type::Type;
 
 #[test]
@@ -17,9 +17,11 @@ fn test_parse_let_part1() {
                 None,
                 Expr::EnvRef(None, "add".to_string()).boxed(),
                 Expr::EnvRef(None, "a".to_string()).boxed(),
-            ).boxed(),
+            )
+            .boxed(),
             Expr::Int(None, 456).boxed(),
-        ).boxed(),
+        )
+        .boxed(),
     );
     let r = Some(r);
 
@@ -50,19 +52,24 @@ fn test_parse_let_part2() {
                     None,
                     Expr::EnvRef(None, "add".to_string()).boxed(),
                     Expr::EnvRef(None, "c".to_string()).boxed(),
-                ).boxed(),
+                )
+                .boxed(),
                 Expr::EnvRef(None, "d".to_string()).boxed(),
-            ).boxed(),
+            )
+            .boxed(),
             Expr::Apply(
                 None,
                 Expr::Apply(
                     None,
                     Expr::EnvRef(None, "add".to_string()).boxed(),
                     Expr::Unit(None).boxed(),
-                ).boxed(),
+                )
+                .boxed(),
                 Expr::Int(None, 456).boxed(),
-            ).boxed(),
-        ).boxed(),
+            )
+            .boxed(),
+        )
+        .boxed(),
     );
     let r = Some(r);
 
@@ -94,8 +101,10 @@ fn test_parse_let_part3() {
                         "j".to_string().some(),
                         None,
                         Expr::EnvRef(None, "k".to_string()).boxed(),
-                    ).boxed(),
-                ).boxed(),
+                    )
+                    .boxed(),
+                )
+                .boxed(),
                 Expr::Let(
                     None,
                     "y".to_string(),
@@ -107,9 +116,12 @@ fn test_parse_let_part3() {
                         None,
                         Expr::Unit(None).boxed(),
                         Expr::EnvRef(None, "a".to_string()).boxed(),
-                    ).boxed(),
-                ).boxed(),
-            ).boxed(),
+                    )
+                    .boxed(),
+                )
+                .boxed(),
+            )
+            .boxed(),
             Expr::Let(
                 None,
                 "d".to_string(),
@@ -118,7 +130,8 @@ fn test_parse_let_part3() {
                     None,
                     Expr::EnvRef(None, "neg".to_string()).boxed(),
                     Expr::Int(None, 1).boxed(),
-                ).boxed(),
+                )
+                .boxed(),
                 Expr::Let(
                     None,
                     "e".to_string(),
@@ -145,20 +158,27 @@ fn test_parse_let_part3() {
                                         None,
                                         Expr::EnvRef(None, "add".to_string()).boxed(),
                                         Expr::Unit(None).boxed(),
-                                    ).boxed(),
+                                    )
+                                    .boxed(),
                                     Expr::Int(None, 456).boxed(),
-                                ).boxed(),
-                            ).boxed(),
-                        ).boxed(),
-                    ).boxed(),
-                ).boxed(),
-            ).boxed(),
-        ).boxed(),
+                                )
+                                .boxed(),
+                            )
+                            .boxed(),
+                        )
+                        .boxed(),
+                    )
+                    .boxed(),
+                )
+                .boxed(),
+            )
+            .boxed(),
+        )
+        .boxed(),
     );
     let r = Some(r);
 
-    let seq =
-        "let a = 123, \
+    let seq = "let a = 123, \
              b = \
              let x = i -> j -> k, \
                  y = a \
@@ -169,8 +189,7 @@ fn test_parse_let_part3() {
          let m = (), n = 4 in \
          add () 456";
     assert_eq!(f(seq), r);
-    let seq =
-        "let a = (((123))), \
+    let seq = "let a = (((123))), \
              b = \
              (((\
                  let x = ((((((i))) -> ((((((j))) -> (((k))))))))), \
@@ -220,8 +239,10 @@ fn test_parse_let_part4() {
                         "j".to_string().some(),
                         None,
                         Expr::EnvRef(None, "k".to_string()).boxed(),
-                    ).boxed(),
-                ).boxed(),
+                    )
+                    .boxed(),
+                )
+                .boxed(),
                 Expr::Let(
                     None,
                     "y".to_string(),
@@ -233,9 +254,12 @@ fn test_parse_let_part4() {
                         None,
                         Expr::Unit(None).boxed(),
                         Expr::EnvRef(None, "a".to_string()).boxed(),
-                    ).boxed(),
-                ).boxed(),
-            ).boxed(),
+                    )
+                    .boxed(),
+                )
+                .boxed(),
+            )
+            .boxed(),
             Expr::Let(
                 None,
                 "d".to_string(),
@@ -244,7 +268,8 @@ fn test_parse_let_part4() {
                     None,
                     Expr::EnvRef(None, "neg".to_string()).boxed(),
                     Expr::Int(None, 1).boxed(),
-                ).boxed(),
+                )
+                .boxed(),
                 Expr::Let(
                     Type::TypeEnvRef("Int".to_string()).some(),
                     "e".to_string(),
@@ -254,16 +279,12 @@ fn test_parse_let_part4() {
                         None,
                         "k".to_string(),
                         None,
-                        Expr::Unit(
-                            Type::TypeEnvRef("Unit".to_string()).some()
-                        ).boxed(),
+                        Expr::Unit(Type::TypeEnvRef("Unit".to_string()).some()).boxed(),
                         Expr::Let(
                             None,
                             "m".to_string(),
                             Type::TypeEnvRef("Unit".to_string()).some(),
-                            Expr::Unit(
-                                Type::TypeEnvRef("Unit".to_string()).some()
-                            ).boxed(),
+                            Expr::Unit(Type::TypeEnvRef("Unit".to_string()).some()).boxed(),
                             Expr::Let(
                                 None,
                                 "n".to_string(),
@@ -275,20 +296,27 @@ fn test_parse_let_part4() {
                                         None,
                                         Expr::EnvRef(None, "add".to_string()).boxed(),
                                         Expr::Unit(None).boxed(),
-                                    ).boxed(),
+                                    )
+                                    .boxed(),
                                     Expr::Int(None, 456).boxed(),
-                                ).boxed(),
-                            ).boxed(),
-                        ).boxed(),
-                    ).boxed(),
-                ).boxed(),
-            ).boxed(),
-        ).boxed(),
+                                )
+                                .boxed(),
+                            )
+                            .boxed(),
+                        )
+                        .boxed(),
+                    )
+                    .boxed(),
+                )
+                .boxed(),
+            )
+            .boxed(),
+        )
+        .boxed(),
     );
     let r = Some(r);
 
-    let seq =
-        "(let a: Int = 123, \
+    let seq = "(let a: Int = 123, \
              b: Int = \
              (let x = i -> j -> k, \
                  y = a \

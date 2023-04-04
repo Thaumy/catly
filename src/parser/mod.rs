@@ -1,11 +1,10 @@
+pub mod alphanum;
 pub mod ast;
 pub mod define;
 pub mod expr;
-pub mod infra;
+pub mod keyword;
+pub mod mark;
 pub mod name;
 pub mod preprocess;
 pub mod r#type;
 pub mod value;
-pub mod alphanum;
-pub mod keyword;
-pub mod mark;

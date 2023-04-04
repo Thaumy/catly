@@ -1,7 +1,7 @@
+use crate::infra::option::AnyExt;
+use crate::infra::vec::{vec_get_head_tail_follow, Ext};
 use crate::parser::define::pat::Pat;
 use crate::parser::expr::parse_expr;
-use crate::parser::infra::option::AnyExt;
-use crate::parser::infra::vec::{Ext, vec_get_head_tail_follow};
 use crate::parser::keyword::Keyword;
 use crate::parser::r#type::parse_type;
 
@@ -12,10 +12,9 @@ fn move_in(stack: &Vec<Pat>, head: Option<In>) -> Pat {
         Some(o) => match (&stack[..], o) {
             // (KwDef LetName `:`): _ -> AnyInSeq
             // where LetName is untyped
-            ([..,
-            Pat::Kw(Keyword::Def),
-            Pat::LetName(None, _), Pat::Mark(':')], x
-            ) => Pat::AnyInSeq(vec![x]),
+            ([.., Pat::Kw(Keyword::Def), Pat::LetName(None, _), Pat::Mark(':')], x) => {
+                Pat::AnyInSeq(vec![x])
+            }
             // AnyInSeq: _ -> AnyIn
             ([.., Pat::AnyInSeq(_)], x) => Pat::AnyIn(x),
 
@@ -38,14 +37,14 @@ fn move_in(stack: &Vec<Pat>, head: Option<In>) -> Pat {
                     println!("Invalid head Pat: {:?}", c);
                     Pat::Err
                 }
-            }
+            },
 
             // _ -> Err
             (_, p) => {
                 println!("Invalid head Pat: {:?}", p);
                 Pat::Err
             }
-        }
+        },
 
         // ɛ -> End
         None => Pat::End,
@@ -124,8 +123,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
 }
 
 pub fn go(mut stack: Vec<Pat>, seq: Vec<In>) -> Pat {
-    let (head, tail, follow) =
-        vec_get_head_tail_follow(seq);
+    let (head, tail, follow) = vec_get_head_tail_follow(seq);
 
     stack.push(move_in(&stack, head));
     println!("Move in result: {:?} follow: {:?}", stack, follow);
@@ -137,23 +135,21 @@ pub fn go(mut stack: Vec<Pat>, seq: Vec<In>) -> Pat {
             let head = p.clone();
 
             let r = match head {
-                Pat::TypeDefHead(n) =>
-                    match parse_type(tail) {
-                        Some(t) => Pat::TypeDef(n, t),
-                        _ => Pat::Err
-                    },
-                Pat::ExprDefHead(t, n) =>
-                    match parse_expr(tail) {
-                        Some(e) => Pat::ExprDef(n, t, e),
-                        _ => Pat::Err
-                    },
-                _ => Pat::Err
+                Pat::TypeDefHead(n) => match parse_type(tail) {
+                    Some(t) => Pat::TypeDef(n, t),
+                    _ => Pat::Err,
+                },
+                Pat::ExprDefHead(t, n) => match parse_expr(tail) {
+                    Some(e) => Pat::ExprDef(n, t, e),
+                    _ => Pat::Err,
+                },
+                _ => Pat::Err,
             };
 
             println!("Success with: {:?}", r);
 
             return r;
         }
-        _ => go(reduced_stack, tail)
+        _ => go(reduced_stack, tail),
     }
 }

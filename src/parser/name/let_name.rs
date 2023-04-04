@@ -1,9 +1,7 @@
+use crate::infra::str::str_get_head_tail;
 use crate::parser::alphanum::{parse_alphanum, parse_lower};
-use crate::parser::infra::str::str_get_head_tail;
 
-#[derive(Debug)]
-#[derive(Clone)]
-#[derive(PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 enum Pat {
     Start,
     End,
@@ -19,11 +17,9 @@ fn go(stack: &Pat, seq: &str) -> Option<String> {
 
     let move_in = match (&stack, head) {
         // LetName: [0-9a-zA-Z] -> Alphanum
-        (Pat::LetName(_), Some(c)) if parse_alphanum(&c).is_some() =>
-            Pat::Alphanum(c),
+        (Pat::LetName(_), Some(c)) if parse_alphanum(&c).is_some() => Pat::Alphanum(c),
         // Start: [a-z] -> Lower
-        (Pat::Start, Some(c)) if parse_lower(&c).is_some() =>
-            Pat::Lower(c),
+        (Pat::Start, Some(c)) if parse_lower(&c).is_some() => Pat::Lower(c),
 
         // ɛ -> End
         (_, None) => Pat::End,
@@ -36,11 +32,9 @@ fn go(stack: &Pat, seq: &str) -> Option<String> {
 
     let reduced_stack = match (stack, move_in) {
         // Start Lower -> LetName
-        (Pat::Start, Pat::Lower(c)) =>
-            Pat::LetName(c.to_string()),
+        (Pat::Start, Pat::Lower(c)) => Pat::LetName(c.to_string()),
         // LetName Alphanum -> LetName
-        (Pat::LetName(n), Pat::Alphanum(c)) =>
-            Pat::LetName(format!("{}{}", n, c)),
+        (Pat::LetName(n), Pat::Alphanum(c)) => Pat::LetName(format!("{}{}", n, c)),
 
         // Success
         (Pat::LetName(n), Pat::End) => return Some(n.to_string()),

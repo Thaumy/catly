@@ -19,7 +19,7 @@ pub fn parse_name(str: &str) -> Option<Name> {
         match parse_let_name(str) {
             // _ -> LetName
             Some(n) => Some(Name::LetName(n.to_string())),
-            _ => None
+            _ => None,
         }
     }
 }

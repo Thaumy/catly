@@ -15,9 +15,7 @@ mod merge_blank;
 mod name;
 mod remove_blank;
 
-#[derive(Debug)]
-#[derive(Clone)]
-#[derive(PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Out {
     Symbol(char),
     LetName(String),
@@ -53,10 +51,7 @@ pub fn preprocess(seq: &str) -> Option<Vec<Out>> {
     let r = pp_const(&r)?;
     let r = pp_name(&r)?;
     let r = pp_remove_blank(&r);
-    let r = r
-        .iter()
-        .map(|x| Out::from(x.clone()))
-        .collect();
+    let r = r.iter().map(|x| Out::from(x.clone())).collect();
 
     Some(r)
 }

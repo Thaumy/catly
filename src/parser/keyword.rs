@@ -1,7 +1,4 @@
-#[derive(Clone)]
-#[derive(Debug)]
-#[derive(PartialEq, Eq)]
-#[derive(PartialOrd, Ord)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Keyword {
     Type,
     Def,
@@ -80,7 +77,7 @@ pub fn parse_keyword(x: &str) -> Option<Keyword> {
 mod tests {
     #[test]
     fn test_parse_keyword() {
-        use crate::parser::keyword::{Keyword, parse_keyword};
+        use crate::parser::keyword::{parse_keyword, Keyword};
 
         assert_eq!(parse_keyword("type"), Some(Keyword::Type));
         assert_eq!(parse_keyword("def"), Some(Keyword::Def));

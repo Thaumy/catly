@@ -1,5 +1,5 @@
+use crate::infra::alias::MaybeExpr;
 use crate::parser::expr::parse_expr;
-use crate::parser::infra::alias::MaybeExpr;
 use crate::parser::preprocess::preprocess;
 
 pub fn f(seq: &str) -> MaybeExpr {
@@ -7,12 +7,12 @@ pub fn f(seq: &str) -> MaybeExpr {
     parse_expr(seq)
 }
 
-mod unit;
-mod int;
-mod env_ref;
 mod apply;
-mod cond;
 mod closure;
-mod r#struct;
-mod r#match;
+mod cond;
+mod env_ref;
+mod int;
 mod r#let;
+mod r#match;
+mod r#struct;
+mod unit;

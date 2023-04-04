@@ -1,7 +1,7 @@
 use crate::btree_set;
-use crate::parser::expr::Expr;
+use crate::infra::option::AnyExt;
 use crate::parser::expr::test::f;
-use crate::parser::infra::option::AnyExt;
+use crate::parser::expr::Expr;
 use crate::parser::r#type::Type;
 
 #[test]
@@ -37,7 +37,8 @@ fn test_parse_env_ref_part3() {
             Type::TypeEnvRef("A".to_string()),
             Type::TypeEnvRef("Unit".to_string()),
             Type::TypeEnvRef("Int".to_string()),
-        ]).some(),
+        ])
+        .some(),
         "a".to_string(),
     );
     let r = Some(r);
@@ -58,7 +59,8 @@ fn test_parse_env_ref_part4() {
             Type::TypeEnvRef("B".to_string()),
             Type::TypeEnvRef("C".to_string()),
             Type::TypeEnvRef("D".to_string()),
-        ]).some(),
+        ])
+        .some(),
         "a".to_string(),
     );
     let r = Some(r);

@@ -1,9 +1,7 @@
 use crate::parser::r#type::Type;
 
-pub fn lift(
-    env: &Vec<(String, Type)>,
-    derive: &Type,
-) -> bool {
-    println!("Uplift Discard to {:?}", derive);
+pub fn lift(derive: &Type) -> bool {
+    println!("Uplift {:?} to {:?}", "Discard", derive);
+
     true
 }

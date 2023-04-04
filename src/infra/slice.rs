@@ -5,4 +5,3 @@ pub fn slice_get_head_tail<T>(slice: &[T]) -> (Option<&T>, &[T]) {
         (slice.first(), &[])
     }
 }
-

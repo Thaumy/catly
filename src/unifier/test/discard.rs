@@ -1,5 +1,5 @@
 use crate::btree_set;
-use crate::parser::infra::option::AnyExt;
+use crate::infra::option::AnyExt;
 use crate::parser::r#type::Type;
 use crate::unifier::env_ref::lift as lift_env_ref;
 use crate::unifier::lift;
@@ -13,15 +13,15 @@ fn env() -> Vec<(String, Type)> {
     type S0 = D | X
     */
     vec![
-        ("A".to_string(),
-         Type::TypeEnvRef("X".to_string())),
-        ("B".to_string(),
-         Type::TypeEnvRef("A".to_string())),
-        ("S0".to_string(),
-         Type::SumType(btree_set![
-            Type::TypeEnvRef("D".to_string()),
-            Type::TypeEnvRef("X".to_string()),
-        ])),
+        ("A".to_string(), Type::TypeEnvRef("X".to_string())),
+        ("B".to_string(), Type::TypeEnvRef("A".to_string())),
+        (
+            "S0".to_string(),
+            Type::SumType(btree_set![
+                Type::TypeEnvRef("D".to_string()),
+                Type::TypeEnvRef("X".to_string()),
+            ]),
+        ),
     ]
 }
 

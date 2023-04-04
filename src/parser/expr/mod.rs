@@ -1,15 +1,13 @@
 use std::vec;
 
+use crate::infra::alias::{MaybeExpr, MaybeType};
 use crate::parser::expr::pat::Pat;
 use crate::parser::expr::r#fn::go;
-use crate::parser::infra::alias::{MaybeExpr, MaybeType};
 
 mod r#fn;
 mod pat;
 
-#[derive(Debug)]
-#[derive(Clone)]
-#[derive(PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Expr {
     Unit(MaybeType),
     Int(MaybeType, i64),

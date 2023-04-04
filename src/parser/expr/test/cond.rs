@@ -1,7 +1,7 @@
-use crate::parser::expr::Expr;
+use crate::infra::option::AnyExt;
+use crate::infra::r#box::Ext;
 use crate::parser::expr::test::f;
-use crate::parser::infra::option::AnyExt;
-use crate::parser::infra::r#box::Ext;
+use crate::parser::expr::Expr;
 use crate::parser::r#type::Type;
 
 #[test]
@@ -28,11 +28,7 @@ fn test_parse_cond_part2() {
     let e = Expr::Cond(
         None,
         Expr::EnvRef(None, "abc".to_string()).boxed(),
-        Expr::Apply(
-            None,
-            Expr::Int(None, 123).boxed(),
-            Expr::Unit(None).boxed(),
-        ).boxed(),
+        Expr::Apply(None, Expr::Int(None, 123).boxed(), Expr::Unit(None).boxed()).boxed(),
         Expr::Int(None, 456).boxed(),
     );
     let r = Some(Expr::Cond(
@@ -60,11 +56,7 @@ fn test_parse_cond_part3() {
     // while: b = Cond(a, a, a)
     let a = Expr::Cond(
         None,
-        Expr::Apply(
-            None,
-            Expr::Int(None, 123).boxed(),
-            Expr::Unit(None).boxed(),
-        ).boxed(),
+        Expr::Apply(None, Expr::Int(None, 123).boxed(), Expr::Unit(None).boxed()).boxed(),
         Expr::Int(None, 123).boxed(),
         Expr::EnvRef(None, "abc".to_string()).boxed(),
     );
@@ -99,11 +91,7 @@ fn test_parse_cond_part4() {
     // while: b = Cond(a, a, a)
     let a = Expr::Cond(
         None,
-        Expr::Apply(
-            None,
-            Expr::Int(None, 123).boxed(),
-            Expr::Unit(None).boxed(),
-        ).boxed(),
+        Expr::Apply(None, Expr::Int(None, 123).boxed(), Expr::Unit(None).boxed()).boxed(),
         Expr::Int(None, 123).boxed(),
         Expr::EnvRef(None, "abc".to_string()).boxed(),
     );
@@ -136,11 +124,9 @@ fn test_parse_cond_part5() {
             Type::TypeEnvRef("Int".to_string()).some(),
             Expr::Int(None, 123).boxed(),
             Expr::Unit(None).boxed(),
-        ).boxed(),
-        Expr::Int(
-            Type::TypeEnvRef("Int".to_string()).some(),
-            123,
-        ).boxed(),
+        )
+        .boxed(),
+        Expr::Int(Type::TypeEnvRef("Int".to_string()).some(), 123).boxed(),
         Expr::EnvRef(None, "abc".to_string()).boxed(),
     );
     let b = Expr::Cond(
