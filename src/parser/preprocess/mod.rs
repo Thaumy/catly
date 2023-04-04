@@ -24,7 +24,7 @@ pub enum Out {
 
     IntValue(i64),
     UnitValue,
-    DiscardValue,
+    DiscardValue
 }
 
 type In = name::Out;
@@ -38,7 +38,7 @@ impl From<In> for Out {
             In::Kw(kw) => Out::Kw(kw),
             In::IntValue(i) => Out::IntValue(i),
             In::UnitValue => Out::UnitValue,
-            In::DiscardValue => Out::DiscardValue,
+            In::DiscardValue => Out::DiscardValue
         }
     }
 }
@@ -51,7 +51,10 @@ pub fn preprocess(seq: &str) -> Option<Vec<Out>> {
     let r = pp_const(&r)?;
     let r = pp_name(&r)?;
     let r = pp_remove_blank(&r);
-    let r = r.iter().map(|x| Out::from(x.clone())).collect();
+    let r = r
+        .iter()
+        .map(|x| Out::from(x.clone()))
+        .collect();
 
     Some(r)
 }

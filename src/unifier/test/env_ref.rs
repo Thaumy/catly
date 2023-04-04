@@ -10,7 +10,10 @@ fn env() -> Vec<(String, Type)> {
     type A = Int
     type B = A
     type C = B
-    type AB = A | B
+
+    type True = Int
+    type False = Int
+    type Bool = True | False
     */
 
     vec![
@@ -22,7 +25,16 @@ fn env() -> Vec<(String, Type)> {
             Type::SumType(btree_set![
                 Type::TypeEnvRef("A".to_string()),
                 Type::TypeEnvRef("B".to_string()),
-            ]),
+            ])
+        ),
+        ("True".to_string(), Type::TypeEnvRef("Int".to_string())),
+        ("False".to_string(), Type::TypeEnvRef("Int".to_string())),
+        (
+            "Bool".to_string(),
+            Type::SumType(btree_set![
+                Type::TypeEnvRef("True".to_string()),
+                Type::TypeEnvRef("False".to_string()),
+            ])
         ),
     ]
 }
@@ -52,17 +64,6 @@ fn test_lift_part2() {
 #[test]
 fn test_lift_part3() {
     let env = &env();
-    let derive = &Type::TypeEnvRef("AB".to_string());
-    assert!(!lift_env_ref(env, "A", derive));
-
-    let base = &Type::TypeEnvRef("A".to_string());
-    assert!(!lift(env, base, derive));
-    assert_eq!(unify(env, base, derive), None);
-}
-
-#[test]
-fn test_lift_part4() {
-    let env = &env();
     let derive = &Type::SumType(btree_set![
         Type::TypeEnvRef("A".to_string()),
         Type::TypeEnvRef("B".to_string()),
@@ -70,6 +71,18 @@ fn test_lift_part4() {
     assert!(lift_env_ref(env, "A", derive));
 
     let base = &Type::TypeEnvRef("A".to_string());
+    assert!(lift(env, base, derive));
+    assert_eq!(unify(env, base, derive), derive.clone().some());
+}
+
+#[test]
+fn test_lift_part4() {
+    let env = &env();
+    let derive = &Type::TypeEnvRef("Bool".to_string());
+
+    assert!(lift_env_ref(env, "True", derive));
+
+    let base = &Type::TypeEnvRef("True".to_string());
     assert!(lift(env, base, derive));
     assert_eq!(unify(env, base, derive), derive.clone().some());
 }

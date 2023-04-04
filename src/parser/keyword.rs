@@ -8,53 +8,35 @@ pub enum Keyword {
     Then,
     Else,
     Match,
-    With,
+    With
 }
 
 impl Keyword {
     pub fn is_top_level(&self) -> bool {
         match self {
             Keyword::Type | Keyword::Def => true,
-            _ => false,
+            _ => false
         }
     }
 }
 
-pub fn parse_type(x: &str) -> bool {
-    x == "type"
-}
+pub fn parse_type(x: &str) -> bool { x == "type" }
 
-pub fn parse_def(x: &str) -> bool {
-    x == "def"
-}
+pub fn parse_def(x: &str) -> bool { x == "def" }
 
-pub fn parse_let(x: &str) -> bool {
-    x == "let"
-}
+pub fn parse_let(x: &str) -> bool { x == "let" }
 
-pub fn parse_in(x: &str) -> bool {
-    x == "in"
-}
+pub fn parse_in(x: &str) -> bool { x == "in" }
 
-pub fn parse_if(x: &str) -> bool {
-    x == "if"
-}
+pub fn parse_if(x: &str) -> bool { x == "if" }
 
-pub fn parse_then(x: &str) -> bool {
-    x == "then"
-}
+pub fn parse_then(x: &str) -> bool { x == "then" }
 
-pub fn parse_else(x: &str) -> bool {
-    x == "else"
-}
+pub fn parse_else(x: &str) -> bool { x == "else" }
 
-pub fn parse_match(x: &str) -> bool {
-    x == "match"
-}
+pub fn parse_match(x: &str) -> bool { x == "match" }
 
-pub fn parse_with(x: &str) -> bool {
-    x == "with"
-}
+pub fn parse_with(x: &str) -> bool { x == "with" }
 
 pub fn parse_keyword(x: &str) -> Option<Keyword> {
     let map: [(fn(&str) -> bool, Keyword); 9] = [
@@ -66,7 +48,7 @@ pub fn parse_keyword(x: &str) -> Option<Keyword> {
         (parse_then, Keyword::Then),
         (parse_else, Keyword::Else),
         (parse_match, Keyword::Match),
-        (parse_with, Keyword::With),
+        (parse_with, Keyword::With)
     ];
     map.iter()
         .find(|kv| kv.0(x))

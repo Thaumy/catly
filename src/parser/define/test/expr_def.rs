@@ -7,7 +7,11 @@ use crate::parser::r#type::Type;
 
 #[test]
 fn test_parse_expr_def_part1() {
-    let r = Define::ExprDef("a".to_string(), None, Expr::EnvRef(None, "b".to_string()));
+    let r = Define::ExprDef(
+        "a".to_string(),
+        None,
+        Expr::EnvRef(None, "b".to_string())
+    );
     let r = Some(r);
 
     let seq = "def a = b";
@@ -19,7 +23,7 @@ fn test_parse_expr_def_part2() {
     let r = Define::ExprDef(
         "a".to_string(),
         Type::TypeEnvRef("Int".to_string()).some(),
-        Expr::EnvRef(None, "b".to_string()),
+        Expr::EnvRef(None, "b".to_string())
     );
     let r = Some(r);
 
@@ -33,10 +37,10 @@ fn test_parse_expr_def_part3() {
         "a".to_string(),
         Type::ClosureType(
             Type::TypeEnvRef("Int".to_string()).boxed(),
-            Type::TypeEnvRef("Int".to_string()).boxed(),
+            Type::TypeEnvRef("Int".to_string()).boxed()
         )
         .some(),
-        Expr::EnvRef(None, "b".to_string()),
+        Expr::EnvRef(None, "b".to_string())
     );
     let r = Some(r);
 
@@ -67,9 +71,9 @@ fn test_parse_expr_def_part4() {
                         None,
                         "j".to_string().some(),
                         None,
-                        Expr::EnvRef(None, "k".to_string()).boxed(),
+                        Expr::EnvRef(None, "k".to_string()).boxed()
                     )
-                    .boxed(),
+                    .boxed()
                 )
                 .boxed(),
                 Expr::Let(
@@ -82,11 +86,11 @@ fn test_parse_expr_def_part4() {
                         "z".to_string(),
                         None,
                         Expr::Unit(None).boxed(),
-                        Expr::EnvRef(None, "a".to_string()).boxed(),
+                        Expr::EnvRef(None, "a".to_string()).boxed()
                     )
-                    .boxed(),
+                    .boxed()
                 )
-                .boxed(),
+                .boxed()
             )
             .boxed(),
             Expr::Let(
@@ -96,7 +100,7 @@ fn test_parse_expr_def_part4() {
                 Expr::Apply(
                     None,
                     Expr::EnvRef(None, "neg".to_string()).boxed(),
-                    Expr::Int(None, 1).boxed(),
+                    Expr::Int(None, 1).boxed()
                 )
                 .boxed(),
                 Expr::Let(
@@ -123,25 +127,29 @@ fn test_parse_expr_def_part4() {
                                     None,
                                     Expr::Apply(
                                         None,
-                                        Expr::EnvRef(None, "add".to_string()).boxed(),
-                                        Expr::Unit(None).boxed(),
+                                        Expr::EnvRef(
+                                            None,
+                                            "add".to_string()
+                                        )
+                                        .boxed(),
+                                        Expr::Unit(None).boxed()
                                     )
                                     .boxed(),
-                                    Expr::Int(None, 456).boxed(),
+                                    Expr::Int(None, 456).boxed()
                                 )
-                                .boxed(),
+                                .boxed()
                             )
-                            .boxed(),
+                            .boxed()
                         )
-                        .boxed(),
+                        .boxed()
                     )
-                    .boxed(),
+                    .boxed()
                 )
-                .boxed(),
+                .boxed()
             )
-            .boxed(),
+            .boxed()
         )
-        .boxed(),
+        .boxed()
     );
 
     let r = Define::ExprDef("a".to_string(), None, e);

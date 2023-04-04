@@ -1,3 +1,1 @@
-pub fn id<T>(x: T) -> T {
-    x
-}
+pub fn id<T>(x: T) -> T { x }

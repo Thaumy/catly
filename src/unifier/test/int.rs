@@ -25,28 +25,28 @@ fn env() -> Vec<(String, Type)> {
             Type::SumType(btree_set![
                 Type::TypeEnvRef("D".to_string()),
                 Type::TypeEnvRef("Int".to_string()),
-            ]),
+            ])
         ),
         (
             "S1".to_string(),
             Type::SumType(btree_set![
                 Type::TypeEnvRef("D".to_string()),
                 Type::TypeEnvRef("A".to_string()),
-            ]),
+            ])
         ),
         (
             "S2".to_string(),
             Type::SumType(btree_set![
                 Type::TypeEnvRef("D".to_string()),
                 Type::TypeEnvRef("C".to_string()),
-            ]),
+            ])
         ),
         (
             "S3".to_string(),
             Type::SumType(btree_set![
                 Type::TypeEnvRef("D".to_string()),
                 Type::TypeEnvRef("E".to_string()),
-            ]),
+            ])
         ),
     ]
 }

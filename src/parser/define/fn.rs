@@ -12,9 +12,10 @@ fn move_in(stack: &Vec<Pat>, head: Option<In>) -> Pat {
         Some(o) => match (&stack[..], o) {
             // (KwDef LetName `:`): _ -> AnyInSeq
             // where LetName is untyped
-            ([.., Pat::Kw(Keyword::Def), Pat::LetName(None, _), Pat::Mark(':')], x) => {
-                Pat::AnyInSeq(vec![x])
-            }
+            (
+                [.., Pat::Kw(Keyword::Def), Pat::LetName(None, _), Pat::Mark(':')],
+                x
+            ) => Pat::AnyInSeq(vec![x]),
             // AnyInSeq: _ -> AnyIn
             ([.., Pat::AnyInSeq(_)], x) => Pat::AnyIn(x),
 
@@ -47,7 +48,7 @@ fn move_in(stack: &Vec<Pat>, head: Option<In>) -> Pat {
         },
 
         // ɛ -> End
-        None => Pat::End,
+        None => Pat::End
     }
 }
 
@@ -137,19 +138,19 @@ pub fn go(mut stack: Vec<Pat>, seq: Vec<In>) -> Pat {
             let r = match head {
                 Pat::TypeDefHead(n) => match parse_type(tail) {
                     Some(t) => Pat::TypeDef(n, t),
-                    _ => Pat::Err,
+                    _ => Pat::Err
                 },
                 Pat::ExprDefHead(t, n) => match parse_expr(tail) {
                     Some(e) => Pat::ExprDef(n, t, e),
-                    _ => Pat::Err,
+                    _ => Pat::Err
                 },
-                _ => Pat::Err,
+                _ => Pat::Err
             };
 
             println!("Success with: {:?}", r);
 
             return r;
         }
-        _ => go(reduced_stack, tail),
+        _ => go(reduced_stack, tail)
     }
 }

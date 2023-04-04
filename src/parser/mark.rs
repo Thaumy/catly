@@ -11,56 +11,32 @@ pub enum Mark {
     Star,
     Comma,
     VerticalBar,
-    Equal,
+    Equal
 }
 
-pub fn parse_underline(x: &char) -> bool {
-    x == &'_'
-}
+pub fn parse_underline(x: &char) -> bool { x == &'_' }
 
-pub fn parse_l_par(x: &char) -> bool {
-    x == &'('
-}
+pub fn parse_l_par(x: &char) -> bool { x == &'(' }
 
-pub fn parse_r_par(x: &char) -> bool {
-    x == &')'
-}
+pub fn parse_r_par(x: &char) -> bool { x == &')' }
 
-pub fn parse_l_curly_bracket(x: &char) -> bool {
-    x == &'{'
-}
+pub fn parse_l_curly_bracket(x: &char) -> bool { x == &'{' }
 
-pub fn parse_r_curly_bracket(x: &char) -> bool {
-    x == &'}'
-}
+pub fn parse_r_curly_bracket(x: &char) -> bool { x == &'}' }
 
-pub fn parse_colon(x: &char) -> bool {
-    x == &':'
-}
+pub fn parse_colon(x: &char) -> bool { x == &':' }
 
-pub fn parse_star(x: &char) -> bool {
-    x == &'*'
-}
+pub fn parse_star(x: &char) -> bool { x == &'*' }
 
-pub fn parse_comma(x: &char) -> bool {
-    x == &','
-}
+pub fn parse_comma(x: &char) -> bool { x == &',' }
 
-pub fn parse_vertical_bar(x: &char) -> bool {
-    x == &'|'
-}
+pub fn parse_vertical_bar(x: &char) -> bool { x == &'|' }
 
-pub fn parse_equal(x: &char) -> bool {
-    x == &'='
-}
+pub fn parse_equal(x: &char) -> bool { x == &'=' }
 
-pub fn parse_dash(x: &char) -> bool {
-    x == &'-'
-}
+pub fn parse_dash(x: &char) -> bool { x == &'-' }
 
-pub fn parse_r_angle_bracket(x: &char) -> bool {
-    x == &'>'
-}
+pub fn parse_r_angle_bracket(x: &char) -> bool { x == &'>' }
 
 pub fn parse_mark(x: &char) -> Option<Mark> {
     let r = match x {
@@ -76,7 +52,7 @@ pub fn parse_mark(x: &char) -> Option<Mark> {
         '=' => Mark::Equal,
         '-' => Mark::Dash,
         '>' => Mark::RightAngleBracket,
-        _ => return None,
+        _ => return None
     };
     Some(r)
 }

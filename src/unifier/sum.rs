@@ -1,25 +1,33 @@
-use crate::parser::r#type::Type;
 use std::collections::BTreeSet;
 
-pub fn lift(type_env: &Vec<(String, Type)>, set: &BTreeSet<Type>, derive: &Type) -> bool {
+use crate::parser::r#type::Type;
+
+pub fn lift(
+    type_env: &Vec<(String, Type)>,
+    set: &BTreeSet<Type>,
+    derive: &Type
+) -> bool {
     println!("Uplift SumType{:?} to {:?}", set, derive);
 
     match derive {
-        // Derive is superset of Base
+        // Superset of Base
         Type::SumType(s) if s.is_superset(set) => true,
 
-        // type Derive = T
+        // T
         // where Base can be lifted to T
-        Type::TypeEnvRef(a) => type_env
+        Type::TypeEnvRef(ref_name) => type_env
             .iter()
             .rev()
-            .find(|(n, t)| n == a && lift(type_env, set, t))
+            .find(|(n, t)| n == ref_name && lift(type_env, set, t))
             .is_some(),
 
-        // type Derive = .. | T | ..
+        // .. | T | ..
         // where Base can be lifted to T
-        Type::SumType(s) => s.iter().rev().any(|t| lift(type_env, set, t)),
+        Type::SumType(s) => s
+            .iter()
+            .rev()
+            .any(|t| lift(type_env, set, t)),
 
-        _ => false,
+        _ => false
     }
 }

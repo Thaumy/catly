@@ -8,35 +8,44 @@ use crate::parser::preprocess::comment::Pat::*;
 enum Pat {
     CommentStart,
     CommentBody,
-    Comment,
+    Comment
 }
 
-fn reduce_stack(mut stack: Vec<Either<char, Pat>>) -> Vec<Either<char, Pat>> {
+fn reduce_stack(
+    mut stack: Vec<Either<char, Pat>>
+) -> Vec<Either<char, Pat>> {
     match stack[..] {
         // "# " -> CommentStart
         [.., L('#'), L(' ')] => stack.reduce(2, R(CommentStart)),
         // CommentStart: (!\n) -> CommentBody
-        [.., R(CommentStart), L(c)] if c != '\n' => stack.reduce(1, R(CommentBody)),
+        [.., R(CommentStart), L(c)] if c != '\n' =>
+            stack.reduce(1, R(CommentBody)),
         // CommentBody (!\n) -> CommentBody
-        [.., R(CommentBody), L(c)] if c != '\n' => stack.reduce(2, R(CommentBody)),
+        [.., R(CommentBody), L(c)] if c != '\n' =>
+            stack.reduce(2, R(CommentBody)),
         // CommentStart '\n' -> Comment
         [.., R(CommentStart), L('\n')] => stack.reduce(2, R(Comment)),
         // CommentStart CommentBody '\n' -> Comment
-        [.., R(CommentStart), R(CommentBody), L('\n')] => stack.reduce(3, R(Comment)),
+        [.., R(CommentStart), R(CommentBody), L('\n')] =>
+            stack.reduce(3, R(Comment)),
         // CommentStart CommentBody End -> Comment
-        [.., R(CommentStart), R(CommentBody)] => stack.reduce(3, R(Comment)),
+        [.., R(CommentStart), R(CommentBody)] =>
+            stack.reduce(3, R(Comment)),
 
-        _ => return stack,
+        _ => return stack
     }
 
     stack
 }
 
-fn go(mut stack: Vec<Either<char, Pat>>, tail: &str) -> Vec<Either<char, Pat>> {
+fn go(
+    mut stack: Vec<Either<char, Pat>>,
+    tail: &str
+) -> Vec<Either<char, Pat>> {
     let (head, tail) = str_get_head_tail(tail);
     let move_in = match head {
         Some(c) => L(c),
-        _ => return stack,
+        _ => return stack
     };
 
     stack.push(move_in);
@@ -45,15 +54,16 @@ fn go(mut stack: Vec<Either<char, Pat>>, tail: &str) -> Vec<Either<char, Pat>> {
 }
 
 pub fn pp_comment(seq: &str) -> String {
-    let r = go(vec![], seq)
-        .iter()
-        .fold("".to_string(), |mut acc, p| match p {
-            L(c) => {
-                acc.push(*c);
-                acc
-            }
-            _ => acc,
-        });
+    let r =
+        go(vec![], seq)
+            .iter()
+            .fold("".to_string(), |mut acc, p| match p {
+                L(c) => {
+                    acc.push(*c);
+                    acc
+                }
+                _ => acc
+            });
     println!("Comment pp out: {:?}", r);
     r
 }

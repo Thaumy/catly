@@ -1,7 +1,7 @@
 pub trait Ext<T> {
     fn boxed(self) -> Box<Self>
     where
-        Self: Sized,
+        Self: Sized
     {
         Box::new(self)
     }

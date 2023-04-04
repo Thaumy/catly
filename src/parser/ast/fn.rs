@@ -1,11 +1,12 @@
 use crate::infra::r#fn::id;
-use crate::maybe_fold;
+use crate::maybe_fold_to;
 use crate::parser::define::{parse_define, Define};
 
 type In = crate::parser::preprocess::Out;
 
 pub fn split_to_top_levels(seq: Vec<In>) -> Vec<Vec<In>> {
-    type F = fn((Vec<Vec<In>>, Vec<In>), &In) -> (Vec<Vec<In>>, Vec<In>);
+    type F =
+        fn((Vec<Vec<In>>, Vec<In>), &In) -> (Vec<Vec<In>>, Vec<In>);
     let f: F = |(mut acc_a, mut acc_p), x| match x {
         In::Kw(kw) if kw.is_top_level() => {
             if acc_p.is_empty() {
@@ -24,7 +25,9 @@ pub fn split_to_top_levels(seq: Vec<In>) -> Vec<Vec<In>> {
             (acc_a, acc_p)
         }
     };
-    let (mut acc_a, acc_p) = seq.iter().fold((vec![], vec![]), f);
+    let (mut acc_a, acc_p) = seq
+        .iter()
+        .fold((vec![], vec![]), f);
 
     if acc_p.is_empty() {
         acc_a
@@ -35,7 +38,9 @@ pub fn split_to_top_levels(seq: Vec<In>) -> Vec<Vec<In>> {
 }
 
 pub fn parse_to_defines(seq: Vec<Vec<In>>) -> Option<Vec<Define>> {
-    let iter = seq.iter().map(|vec| parse_define(vec.clone()));
+    let iter = seq
+        .iter()
+        .map(|vec| parse_define(vec.clone()));
 
-    maybe_fold!(iter, vec![], push, id)
+    maybe_fold_to!(iter, vec![], push, id)
 }

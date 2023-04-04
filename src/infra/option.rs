@@ -21,30 +21,28 @@ impl FollowExt<In> for Option<In> {
     }
     fn is_type_end_pat(&self) -> bool {
         match self {
-            None
-            | Some(In::Symbol(')'))
-            | Some(In::Symbol('}'))
-            | Some(In::Symbol(','))
-            | Some(In::Symbol('='))
-            | Some(In::Kw(_))
-            | Some(In::LetName(_))
-            | Some(In::TypeName(_))
-            | Some(In::IntValue(_))
-            | Some(In::UnitValue)
-            | Some(In::DiscardValue) => true,
+            None |
+            Some(In::Symbol(')')) |
+            Some(In::Symbol('}')) |
+            Some(In::Symbol(',')) |
+            Some(In::Symbol('=')) |
+            Some(In::Kw(_)) |
+            Some(In::LetName(_)) |
+            Some(In::TypeName(_)) |
+            Some(In::IntValue(_)) |
+            Some(In::UnitValue) |
+            Some(In::DiscardValue) => true,
 
-            _ => false,
+            _ => false
         }
     }
 }
 
 pub trait AnyExt
 where
-    Self: Sized,
+    Self: Sized
 {
-    fn some(self) -> Option<Self> {
-        Some(self)
-    }
+    fn some(self) -> Option<Self> { Some(self) }
 }
 
 impl<T> AnyExt for T {}

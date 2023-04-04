@@ -1,4 +1,7 @@
-use crate::parser::ast::r#fn::{parse_to_defines, split_to_top_levels};
+use crate::parser::ast::r#fn::{
+    parse_to_defines,
+    split_to_top_levels
+};
 use crate::parser::define::Define;
 
 mod r#fn;

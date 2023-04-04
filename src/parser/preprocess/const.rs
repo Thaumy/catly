@@ -1,6 +1,6 @@
 use crate::infra::slice::slice_get_head_tail;
 use crate::infra::vec::Ext;
-use crate::maybe_fold;
+use crate::maybe_fold_to;
 use crate::parser::keyword::Keyword;
 use crate::parser::value::int::parse_int;
 
@@ -13,7 +13,7 @@ pub enum Out {
 
     IntValue(i64),
     UnitValue,
-    DiscardValue,
+    DiscardValue
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -30,7 +30,7 @@ pub enum Pat {
 
     IntValue(i64),
     UnitValue,
-    DiscardValue,
+    DiscardValue
 }
 
 fn reduce_stack(mut stack: Vec<Pat>) -> Vec<Pat> {
@@ -38,16 +38,17 @@ fn reduce_stack(mut stack: Vec<Pat>) -> Vec<Pat> {
         // DigitChunk -> IntValue
         [.., Pat::DigitChunk(c)] => match parse_int(c) {
             Some(i) => stack.reduce(1, Pat::IntValue(i)),
-            None => return vec![Pat::Err],
+            None => return vec![Pat::Err]
         },
 
         // '(' ')' -> UnitValue
-        [.., Pat::Symbol('('), Pat::Symbol(')')] => stack.reduce(2, Pat::UnitValue),
+        [.., Pat::Symbol('('), Pat::Symbol(')')] =>
+            stack.reduce(2, Pat::UnitValue),
 
         // '_' -> DiscardValue
         [.., Pat::Symbol('_')] => stack.reduce(1, Pat::DiscardValue),
 
-        _ => return stack,
+        _ => return stack
     };
     let reduced_stack = stack;
 
@@ -63,7 +64,7 @@ impl From<In> for Pat {
             In::Kw(kw) => Self::Kw(kw),
             In::DigitChunk(c) => Self::DigitChunk(c),
             In::LowerStartChunk(c) => Self::LowerStartChunk(c),
-            In::UpperStartChunk(c) => Self::UpperStartChunk(c),
+            In::UpperStartChunk(c) => Self::UpperStartChunk(c)
         }
     }
 }
@@ -72,15 +73,17 @@ impl From<Pat> for Option<Out> {
     fn from(value: Pat) -> Self {
         let r = match value {
             Pat::Symbol(c) => Out::Symbol(c.clone()),
-            Pat::LowerStartChunk(c) => Out::LowerStartChunk(c.clone()),
-            Pat::UpperStartChunk(c) => Out::UpperStartChunk(c.clone()),
+            Pat::LowerStartChunk(c) =>
+                Out::LowerStartChunk(c.clone()),
+            Pat::UpperStartChunk(c) =>
+                Out::UpperStartChunk(c.clone()),
             Pat::Kw(kw) => Out::Kw(kw.clone()),
 
             Pat::IntValue(i) => Out::IntValue(i.clone()),
             Pat::UnitValue => Out::UnitValue,
             Pat::DiscardValue => Out::DiscardValue,
 
-            _ => return None,
+            _ => return None
         };
         Some(r)
     }
@@ -90,7 +93,7 @@ fn go(mut stack: Vec<Pat>, tail: &[In]) -> Vec<Pat> {
     let (head, tail) = slice_get_head_tail(tail);
     let move_in = match head {
         Some(x) => x.clone().into(),
-        _ => return stack,
+        _ => return stack
     };
 
     stack.push(move_in);
@@ -102,7 +105,9 @@ type In = crate::parser::preprocess::keyword::Out;
 
 pub fn pp_const(seq: &[In]) -> Option<Vec<Out>> {
     let vec = go(vec![], seq);
-    let r = maybe_fold!(vec.iter(), vec![], push, |p: &Pat| p.clone().into());
+    let r = maybe_fold_to!(vec.iter(), vec![], push, |p: &Pat| p
+        .clone()
+        .into());
     println!("Const pp out: {:?}", r);
     r
 }

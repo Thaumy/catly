@@ -20,7 +20,7 @@ fn env() -> Vec<(String, Type)> {
             Type::SumType(btree_set![
                 Type::TypeEnvRef("D".to_string()),
                 Type::TypeEnvRef("X".to_string()),
-            ]),
+            ])
         ),
     ]
 }

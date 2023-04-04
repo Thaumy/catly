@@ -24,7 +24,7 @@ pub enum Pat {
     TypeDef(String, Type), // Define::TypeDef
 
     ExprDefHead(MaybeType, String),
-    ExprDef(String, MaybeType, Expr), // Define::ExprDef
+    ExprDef(String, MaybeType, Expr) // Define::ExprDef
 }
 
 impl From<Pat> for Option<Define> {
@@ -32,7 +32,7 @@ impl From<Pat> for Option<Define> {
         let r = match pat {
             Pat::TypeDef(d, t) => Define::TypeDef(d, t),
             Pat::ExprDef(d, t, e) => Define::ExprDef(d, t, e),
-            _ => return None,
+            _ => return None
         };
         Some(r)
     }

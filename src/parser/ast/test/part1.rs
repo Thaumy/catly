@@ -7,8 +7,12 @@ use crate::parser::r#type::Type;
 
 #[test]
 fn test_parse_ast_part1() {
-    let t1 = Define::TypeDef("A".to_string(), Type::TypeEnvRef("B".to_string()));
-    let d1 = Define::ExprDef("a".to_string(), None, Expr::Int(None, 1));
+    let t1 = Define::TypeDef(
+        "A".to_string(),
+        Type::TypeEnvRef("B".to_string())
+    );
+    let d1 =
+        Define::ExprDef("a".to_string(), None, Expr::Int(None, 1));
     let d11 = Define::ExprDef(
         "a1".to_string(),
         Type::SumType(btree_set![
@@ -17,9 +21,12 @@ fn test_parse_ast_part1() {
             Type::TypeEnvRef("C".to_string()),
         ])
         .some(),
-        Expr::Int(None, 1),
+        Expr::Int(None, 1)
     );
-    let t2 = Define::TypeDef("C".to_string(), Type::TypeEnvRef("D".to_string()));
+    let t2 = Define::TypeDef(
+        "C".to_string(),
+        Type::TypeEnvRef("D".to_string())
+    );
     let d2 = Define::ExprDef("b".to_string(), None, Expr::Unit(None));
     let d22 = Define::ExprDef(
         "b1".to_string(),
@@ -28,7 +35,7 @@ fn test_parse_ast_part1() {
             ("y".to_string(), Type::TypeEnvRef("Unit".to_string())),
         ])
         .some(),
-        Expr::Unit(None),
+        Expr::Unit(None)
     );
     let r = vec![t1, d1, d11, t2, d2, d22];
     let r = Some(r);

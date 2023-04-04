@@ -2,28 +2,36 @@
 pub enum Alphanum {
     Digit(u8),
     Lower(char),
-    Upper(char),
+    Upper(char)
 }
 
 pub fn parse_digit(x: &char) -> Option<u8> {
     let map = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-    map.iter().position(|c| c == x).map(|d| d as u8)
+    map.iter()
+        .position(|c| c == x)
+        .map(|d| d as u8)
 }
 
 pub fn parse_lower(x: &char) -> Option<char> {
     let map = [
-        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r',
-        's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
+        'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x',
+        'y', 'z'
     ];
-    map.iter().find(|c| c == &x).copied()
+    map.iter()
+        .find(|c| c == &x)
+        .copied()
 }
 
 pub fn parse_upper(x: &char) -> Option<char> {
     let map = [
-        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
-        'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
+        'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
+        'Y', 'Z'
     ];
-    map.iter().find(|c| c == &x).copied()
+    map.iter()
+        .find(|c| c == &x)
+        .copied()
 }
 
 pub fn parse_letter(x: &char) -> Option<Alphanum> {

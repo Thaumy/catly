@@ -2,13 +2,9 @@ use crate::infra::either::Either;
 use crate::infra::str::str_get_head_tail;
 use crate::infra::vec::Ext;
 
-fn any(c: char) -> AnyOrBlank {
-    Either::L(c)
-}
+fn any(c: char) -> AnyOrBlank { Either::L(c) }
 
-fn blank() -> AnyOrBlank {
-    Either::R(())
-}
+fn blank() -> AnyOrBlank { Either::R(()) }
 
 type AnyOrBlank = Either<char, ()>;
 
@@ -17,7 +13,7 @@ fn reduce_stack(mut stack: Vec<AnyOrBlank>) -> Vec<AnyOrBlank> {
     match &stack[..] {
         // Blank Blank -> Blank
         [.., R(()), R(())] => stack.reduce(2, blank()),
-        _ => return stack,
+        _ => return stack
     }
     stack
 }
@@ -27,7 +23,7 @@ fn go(mut stack: Vec<AnyOrBlank>, tail: &str) -> Vec<AnyOrBlank> {
     let move_in = match head {
         Some(' ' | '\t' | '\n' | '\r') => blank(),
         Some(c) => any(c),
-        _ => return stack,
+        _ => return stack
     };
 
     stack.push(move_in);
@@ -36,13 +32,16 @@ fn go(mut stack: Vec<AnyOrBlank>, tail: &str) -> Vec<AnyOrBlank> {
 }
 
 pub fn pp_merge_blank(seq: &str) -> String {
-    let r = go(vec![], seq).iter().fold("".to_string(), |mut acc, c| {
-        match c {
-            Either::L(c) => acc.push(*c),
-            _ => acc.push(' '),
-        }
-        acc
-    });
+    let r =
+        go(vec![], seq)
+            .iter()
+            .fold("".to_string(), |mut acc, c| {
+                match c {
+                    Either::L(c) => acc.push(*c),
+                    _ => acc.push(' ')
+                }
+                acc
+            });
     println!("MergeBlank pp out: {:?}", r);
     r
 }

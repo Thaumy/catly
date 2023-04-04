@@ -1,4 +1,4 @@
-use crate::maybe_fold;
+use crate::maybe_fold_to;
 use crate::parser::keyword::Keyword;
 use crate::parser::name::let_name::parse_let_name;
 use crate::parser::name::type_name::parse_type_name;
@@ -12,7 +12,7 @@ pub enum Out {
 
     IntValue(i64),
     UnitValue,
-    DiscardValue,
+    DiscardValue
 }
 
 impl From<In> for Option<Out> {
@@ -21,16 +21,16 @@ impl From<In> for Option<Out> {
             In::Symbol(c) => Out::Symbol(c),
             In::LowerStartChunk(c) => match parse_let_name(&c) {
                 Some(n) => Out::LetName(n),
-                None => return None,
+                None => return None
             },
             In::UpperStartChunk(c) => match parse_type_name(&c) {
                 Some(n) => Out::TypeName(n),
-                None => return None,
+                None => return None
             },
             In::Kw(kw) => Out::Kw(kw),
             In::IntValue(i) => Out::IntValue(i),
             In::UnitValue => Out::UnitValue,
-            In::DiscardValue => Out::DiscardValue,
+            In::DiscardValue => Out::DiscardValue
         };
         Some(r)
     }
@@ -39,7 +39,9 @@ impl From<In> for Option<Out> {
 type In = crate::parser::preprocess::r#const::Out;
 
 pub fn pp_name(seq: &[In]) -> Option<Vec<Out>> {
-    let r = maybe_fold!(seq.iter(), vec![], push, |p: &In| p.clone().into());
+    let r = maybe_fold_to!(seq.iter(), vec![], push, |p: &In| p
+        .clone()
+        .into());
     println!("Name pp out: {:?}", r);
     r
 }

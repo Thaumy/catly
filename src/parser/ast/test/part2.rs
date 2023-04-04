@@ -12,15 +12,24 @@ fn test_parse_ast_part2() {
         "Foo".to_string(),
         Type::ProdType(vec![
             ("abc".to_string(), Type::TypeEnvRef("A".to_string())),
-            ("uuu".to_string(), Type::TypeEnvRef("IntList".to_string())),
+            (
+                "uuu".to_string(),
+                Type::TypeEnvRef("IntList".to_string())
+            ),
             (
                 "intList".to_string(),
                 Type::ProdType(vec![
-                    ("x".to_string(), Type::TypeEnvRef("X".to_string())),
-                    ("y".to_string(), Type::TypeEnvRef("Y".to_string())),
-                ]),
+                    (
+                        "x".to_string(),
+                        Type::TypeEnvRef("X".to_string())
+                    ),
+                    (
+                        "y".to_string(),
+                        Type::TypeEnvRef("Y".to_string())
+                    ),
+                ])
             ),
-        ]),
+        ])
     );
     let d1 = Define::ExprDef(
         "bar".to_string(),
@@ -29,67 +38,9 @@ fn test_parse_ast_part2() {
             None,
             Expr::EnvRef(None, "x".to_string()).boxed(),
             vec![
-                (
-                    Expr::Int(None, 1),
-                    Expr::Cond(
-                        None,
-                        Expr::EnvRef(None, "a".to_string()).boxed(),
-                        Expr::EnvRef(None, "b".to_string()).boxed(),
-                        Expr::EnvRef(None, "c".to_string()).boxed(),
-                    ),
-                ),
-                (
-                    Expr::EnvRef(None, "v".to_string()),
-                    Expr::Closure(
-                        None,
-                        "a".to_string().some(),
-                        None,
-                        Expr::Closure(
-                            None,
-                            "b".to_string().some(),
-                            None,
-                            Expr::Apply(
-                                None,
-                                Expr::Apply(
-                                    None,
-                                    Expr::EnvRef(None, "add".to_string()).boxed(),
-                                    Expr::EnvRef(None, "a".to_string()).boxed(),
-                                )
-                                .boxed(),
-                                Expr::EnvRef(None, "b".to_string()).boxed(),
-                            )
-                            .boxed(),
-                        )
-                        .boxed(),
-                    ),
-                ),
-                (
-                    Expr::Struct(
-                        None,
-                        vec![
-                            ("a".to_string(), None, Expr::Discard(None)),
-                            (
-                                "b".to_string(),
-                                None,
-                                Expr::Struct(
-                                    None,
-                                    vec![
-                                        ("foo".to_string(), None, Expr::Discard(None)),
-                                        ("bar".to_string(), None, Expr::Discard(None)),
-                                    ],
-                                ),
-                            ),
-                            ("c".to_string(), None, Expr::Int(None, 3)),
-                        ],
-                    ),
-                    Expr::Struct(
-                        None,
-                        vec![
-                            ("x".to_string(), None, Expr::Int(None, 123)),
-                            ("y".to_string(), None, Expr::EnvRef(None, "c".to_string())),
-                        ],
-                    ),
-                ),
+                (Expr::Int(None, 1), Expr::Cond(None, Expr::EnvRef(None, "a".to_string()).boxed(), Expr::EnvRef(None, "b".to_string()).boxed(), Expr::EnvRef(None, "c".to_string()).boxed())),
+                (Expr::EnvRef(None, "v".to_string()), Expr::Closure(None, "a".to_string().some(), None, Expr::Closure(None, "b".to_string().some(), None, Expr::Apply(None, Expr::Apply(None, Expr::EnvRef(None, "add".to_string()).boxed(), Expr::EnvRef(None, "a".to_string()).boxed()).boxed(), Expr::EnvRef(None, "b".to_string()).boxed()).boxed()).boxed())),
+                (Expr::Struct(None, vec![("a".to_string(), None, Expr::Discard(None)), ("b".to_string(), None, Expr::Struct(None, vec![("foo".to_string(), None, Expr::Discard(None)), ("bar".to_string(), None, Expr::Discard(None))])), ("c".to_string(), None, Expr::Int(None, 3))]), Expr::Struct(None, vec![("x".to_string(), None, Expr::Int(None, 123)), ("y".to_string(), None, Expr::EnvRef(None, "c".to_string()))])),
                 (
                     Expr::Discard(None),
                     Expr::Match(
@@ -110,39 +61,7 @@ fn test_parse_ast_part2() {
                                         Expr::Match(
                                             None,
                                             Expr::EnvRef(None, "z".to_string()).boxed(),
-                                            vec![
-                                                (Expr::Discard(None), Expr::Int(None, 114514)),
-                                                (
-                                                    Expr::EnvRef(None, "a".to_string()),
-                                                    Expr::Closure(
-                                                        None,
-                                                        "x".to_string().some(),
-                                                        None,
-                                                        Expr::Closure(
-                                                            None,
-                                                            "y".to_string().some(),
-                                                            None,
-                                                            Expr::Apply(
-                                                                None,
-                                                                Expr::Apply(
-                                                                    None,
-                                                                    Expr::EnvRef(
-                                                                        None,
-                                                                        "add".to_string(),
-                                                                    )
-                                                                    .boxed(),
-                                                                    Expr::Unit(None).boxed(),
-                                                                )
-                                                                .boxed(),
-                                                                Expr::EnvRef(None, "y".to_string())
-                                                                    .boxed(),
-                                                            )
-                                                            .boxed(),
-                                                        )
-                                                        .boxed(),
-                                                    ),
-                                                ),
-                                            ],
+                                            vec![(Expr::Discard(None), Expr::Int(None, 114514)), (Expr::EnvRef(None, "a".to_string()), Expr::Closure(None, "x".to_string().some(), None, Expr::Closure(None, "y".to_string().some(), None, Expr::Apply(None, Expr::Apply(None, Expr::EnvRef(None, "add".to_string()).boxed(), Expr::Unit(None).boxed()).boxed(), Expr::EnvRef(None, "y".to_string()).boxed()).boxed()).boxed()))],
                                         )
                                         .boxed(),
                                     )
@@ -163,18 +82,18 @@ fn test_parse_ast_part2() {
             Type::TypeEnvRef("Unit".to_string()),
             Type::TypeEnvRef("C".to_string()),
             Type::TypeEnvRef("Int".to_string()),
-        ]),
+        ])
     );
     let i1 = Define::ExprDef(
         "i".to_string(),
         Type::TypeEnvRef("Int".to_string()).some(),
-        Expr::Int(Type::TypeEnvRef("Int".to_string()).some(), 0),
+        Expr::Int(Type::TypeEnvRef("Int".to_string()).some(), 0)
     );
     let d2 = Define::ExprDef(
         "main".to_string(),
         Type::ClosureType(
             Type::TypeEnvRef("Unit".to_string()).boxed(),
-            Type::TypeEnvRef("Unit".to_string()).boxed(),
+            Type::TypeEnvRef("Unit".to_string()).boxed()
         )
         .some(),
         Expr::Let(
@@ -198,9 +117,10 @@ fn test_parse_ast_part2() {
                             None,
                             "j".to_string().some(),
                             None,
-                            Expr::EnvRef(None, "k".to_string()).boxed(),
+                            Expr::EnvRef(None, "k".to_string())
+                                .boxed()
                         )
-                        .boxed(),
+                        .boxed()
                     )
                     .boxed(),
                     Expr::Let(
@@ -213,11 +133,12 @@ fn test_parse_ast_part2() {
                             "z".to_string(),
                             None,
                             Expr::Unit(None).boxed(),
-                            Expr::EnvRef(None, "a".to_string()).boxed(),
+                            Expr::EnvRef(None, "a".to_string())
+                                .boxed()
                         )
-                        .boxed(),
+                        .boxed()
                     )
-                    .boxed(),
+                    .boxed()
                 )
                 .boxed(),
                 Expr::Let(
@@ -227,7 +148,7 @@ fn test_parse_ast_part2() {
                     Expr::Apply(
                         None,
                         Expr::EnvRef(None, "neg".to_string()).boxed(),
-                        Expr::Int(None, 1).boxed(),
+                        Expr::Int(None, 1).boxed()
                     )
                     .boxed(),
                     Expr::Let(
@@ -254,31 +175,36 @@ fn test_parse_ast_part2() {
                                         None,
                                         Expr::Apply(
                                             None,
-                                            Expr::EnvRef(None, "add".to_string()).boxed(),
-                                            Expr::Unit(None).boxed(),
+                                            Expr::EnvRef(
+                                                None,
+                                                "add".to_string()
+                                            )
+                                            .boxed(),
+                                            Expr::Unit(None).boxed()
                                         )
                                         .boxed(),
-                                        Expr::Int(None, 456).boxed(),
+                                        Expr::Int(None, 456).boxed()
                                     )
-                                    .boxed(),
+                                    .boxed()
                                 )
-                                .boxed(),
+                                .boxed()
                             )
-                            .boxed(),
+                            .boxed()
                         )
-                        .boxed(),
+                        .boxed()
                     )
-                    .boxed(),
+                    .boxed()
                 )
-                .boxed(),
+                .boxed()
             )
-            .boxed(),
-        ),
+            .boxed()
+        )
     );
     let r = vec![t1, d1, t2, i1, d2];
     let r = Some(r);
 
-    let seq = "type Foo = { abc: A, uuu: IntList, intList: { x: X, y: Y } }
+    let seq =
+        "type Foo = { abc: A, uuu: IntList, intList: { x: X, y: Y } }
          def bar =
              match x with
              | 1 -> if a then b else c

@@ -10,7 +10,7 @@ mod pat;
 #[derive(Debug, PartialEq)]
 pub enum Define {
     TypeDef(String, Type),
-    ExprDef(String, MaybeType, Expr),
+    ExprDef(String, MaybeType, Expr)
 }
 
 type In = crate::parser::preprocess::Out;

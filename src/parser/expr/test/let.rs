@@ -16,12 +16,12 @@ fn test_parse_let_part1() {
             Expr::Apply(
                 None,
                 Expr::EnvRef(None, "add".to_string()).boxed(),
-                Expr::EnvRef(None, "a".to_string()).boxed(),
+                Expr::EnvRef(None, "a".to_string()).boxed()
             )
             .boxed(),
-            Expr::Int(None, 456).boxed(),
+            Expr::Int(None, 456).boxed()
         )
-        .boxed(),
+        .boxed()
     );
     let r = Some(r);
 
@@ -29,9 +29,11 @@ fn test_parse_let_part1() {
     assert_eq!(f(seq), r);
     let seq = "let a = 123,in add a 456";
     assert_eq!(f(seq), r);
-    let seq = "(((let (((a))) = (((123))) in (((add a (((456)))))))))";
+    let seq =
+        "(((let (((a))) = (((123))) in (((add a (((456)))))))))";
     assert_eq!(f(seq), r);
-    let seq = "(((let (((a))) = (((123))),in (((add a (((456)))))))))";
+    let seq =
+        "(((let (((a))) = (((123))),in (((add a (((456)))))))))";
     assert_eq!(f(seq), r);
 }
 
@@ -51,10 +53,10 @@ fn test_parse_let_part2() {
                 Expr::Apply(
                     None,
                     Expr::EnvRef(None, "add".to_string()).boxed(),
-                    Expr::EnvRef(None, "c".to_string()).boxed(),
+                    Expr::EnvRef(None, "c".to_string()).boxed()
                 )
                 .boxed(),
-                Expr::EnvRef(None, "d".to_string()).boxed(),
+                Expr::EnvRef(None, "d".to_string()).boxed()
             )
             .boxed(),
             Expr::Apply(
@@ -62,14 +64,14 @@ fn test_parse_let_part2() {
                 Expr::Apply(
                     None,
                     Expr::EnvRef(None, "add".to_string()).boxed(),
-                    Expr::Unit(None).boxed(),
+                    Expr::Unit(None).boxed()
                 )
                 .boxed(),
-                Expr::Int(None, 456).boxed(),
+                Expr::Int(None, 456).boxed()
             )
-            .boxed(),
+            .boxed()
         )
-        .boxed(),
+        .boxed()
     );
     let r = Some(r);
 
@@ -100,9 +102,9 @@ fn test_parse_let_part3() {
                         None,
                         "j".to_string().some(),
                         None,
-                        Expr::EnvRef(None, "k".to_string()).boxed(),
+                        Expr::EnvRef(None, "k".to_string()).boxed()
                     )
-                    .boxed(),
+                    .boxed()
                 )
                 .boxed(),
                 Expr::Let(
@@ -115,11 +117,11 @@ fn test_parse_let_part3() {
                         "z".to_string(),
                         None,
                         Expr::Unit(None).boxed(),
-                        Expr::EnvRef(None, "a".to_string()).boxed(),
+                        Expr::EnvRef(None, "a".to_string()).boxed()
                     )
-                    .boxed(),
+                    .boxed()
                 )
-                .boxed(),
+                .boxed()
             )
             .boxed(),
             Expr::Let(
@@ -129,7 +131,7 @@ fn test_parse_let_part3() {
                 Expr::Apply(
                     None,
                     Expr::EnvRef(None, "neg".to_string()).boxed(),
-                    Expr::Int(None, 1).boxed(),
+                    Expr::Int(None, 1).boxed()
                 )
                 .boxed(),
                 Expr::Let(
@@ -156,25 +158,29 @@ fn test_parse_let_part3() {
                                     None,
                                     Expr::Apply(
                                         None,
-                                        Expr::EnvRef(None, "add".to_string()).boxed(),
-                                        Expr::Unit(None).boxed(),
+                                        Expr::EnvRef(
+                                            None,
+                                            "add".to_string()
+                                        )
+                                        .boxed(),
+                                        Expr::Unit(None).boxed()
                                     )
                                     .boxed(),
-                                    Expr::Int(None, 456).boxed(),
+                                    Expr::Int(None, 456).boxed()
                                 )
-                                .boxed(),
+                                .boxed()
                             )
-                            .boxed(),
+                            .boxed()
                         )
-                        .boxed(),
+                        .boxed()
                     )
-                    .boxed(),
+                    .boxed()
                 )
-                .boxed(),
+                .boxed()
             )
-            .boxed(),
+            .boxed()
         )
-        .boxed(),
+        .boxed()
     );
     let r = Some(r);
 
@@ -238,9 +244,9 @@ fn test_parse_let_part4() {
                         None,
                         "j".to_string().some(),
                         None,
-                        Expr::EnvRef(None, "k".to_string()).boxed(),
+                        Expr::EnvRef(None, "k".to_string()).boxed()
                     )
-                    .boxed(),
+                    .boxed()
                 )
                 .boxed(),
                 Expr::Let(
@@ -253,11 +259,11 @@ fn test_parse_let_part4() {
                         "z".to_string(),
                         None,
                         Expr::Unit(None).boxed(),
-                        Expr::EnvRef(None, "a".to_string()).boxed(),
+                        Expr::EnvRef(None, "a".to_string()).boxed()
                     )
-                    .boxed(),
+                    .boxed()
                 )
-                .boxed(),
+                .boxed()
             )
             .boxed(),
             Expr::Let(
@@ -267,7 +273,7 @@ fn test_parse_let_part4() {
                 Expr::Apply(
                     None,
                     Expr::EnvRef(None, "neg".to_string()).boxed(),
-                    Expr::Int(None, 1).boxed(),
+                    Expr::Int(None, 1).boxed()
                 )
                 .boxed(),
                 Expr::Let(
@@ -279,12 +285,21 @@ fn test_parse_let_part4() {
                         None,
                         "k".to_string(),
                         None,
-                        Expr::Unit(Type::TypeEnvRef("Unit".to_string()).some()).boxed(),
+                        Expr::Unit(
+                            Type::TypeEnvRef("Unit".to_string())
+                                .some()
+                        )
+                        .boxed(),
                         Expr::Let(
                             None,
                             "m".to_string(),
-                            Type::TypeEnvRef("Unit".to_string()).some(),
-                            Expr::Unit(Type::TypeEnvRef("Unit".to_string()).some()).boxed(),
+                            Type::TypeEnvRef("Unit".to_string())
+                                .some(),
+                            Expr::Unit(
+                                Type::TypeEnvRef("Unit".to_string())
+                                    .some()
+                            )
+                            .boxed(),
                             Expr::Let(
                                 None,
                                 "n".to_string(),
@@ -294,25 +309,29 @@ fn test_parse_let_part4() {
                                     None,
                                     Expr::Apply(
                                         None,
-                                        Expr::EnvRef(None, "add".to_string()).boxed(),
-                                        Expr::Unit(None).boxed(),
+                                        Expr::EnvRef(
+                                            None,
+                                            "add".to_string()
+                                        )
+                                        .boxed(),
+                                        Expr::Unit(None).boxed()
                                     )
                                     .boxed(),
-                                    Expr::Int(None, 456).boxed(),
+                                    Expr::Int(None, 456).boxed()
                                 )
-                                .boxed(),
+                                .boxed()
                             )
-                            .boxed(),
+                            .boxed()
                         )
-                        .boxed(),
+                        .boxed()
                     )
-                    .boxed(),
+                    .boxed()
                 )
-                .boxed(),
+                .boxed()
             )
-            .boxed(),
+            .boxed()
         )
-        .boxed(),
+        .boxed()
     );
     let r = Some(r);
 

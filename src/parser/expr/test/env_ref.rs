@@ -18,7 +18,7 @@ fn test_parse_env_ref_part1() {
 fn test_parse_env_ref_part2() {
     let r = Expr::EnvRef(
         Type::TypeEnvRef("Int".to_string()).some(),
-        "abc".to_string(),
+        "abc".to_string()
     );
     let r = Some(r);
 
@@ -39,7 +39,7 @@ fn test_parse_env_ref_part3() {
             Type::TypeEnvRef("Int".to_string()),
         ])
         .some(),
-        "a".to_string(),
+        "a".to_string()
     );
     let r = Some(r);
 
@@ -61,7 +61,7 @@ fn test_parse_env_ref_part4() {
             Type::TypeEnvRef("D".to_string()),
         ])
         .some(),
-        "a".to_string(),
+        "a".to_string()
     );
     let r = Some(r);
 

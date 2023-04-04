@@ -4,21 +4,21 @@ pub fn lift(env: &Vec<(String, Type)>, derive: &Type) -> bool {
     println!("Uplift Unit to {:?}", derive);
 
     match derive {
-        // Derive is Base
-        Type::TypeEnvRef(n) if n == "Unit" => true,
+        // Base
+        Type::TypeEnvRef(ref_name) if ref_name == "Unit" => true,
 
-        // type Derive = T
+        // T
         // where Base can be lifted to T
-        Type::TypeEnvRef(a) => env
+        Type::TypeEnvRef(ref_name) => env
             .iter()
             .rev()
-            .find(|(n, t)| n == a && lift(env, t))
+            .find(|(n, t)| n == ref_name && lift(env, t))
             .is_some(),
 
-        // type Derive = .. | T | ..
+        // .. | T | ..
         // where Base can be lifted to T
         Type::SumType(s) => s.iter().any(|t| lift(env, t)),
 
-        _ => false,
+        _ => false
     }
 }

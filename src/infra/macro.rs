@@ -1,22 +1,22 @@
 #[macro_export]
-macro_rules! maybe_fold {
+macro_rules! maybe_fold_to {
     ($iter:expr, $acc:expr, $do:ident, $f:expr) => {
         $iter.fold(Some($acc), |acc, p| match (acc, $f(p)) {
             (Some(mut vec), Some(v)) => {
                 vec.$do(v);
                 Some(vec)
             }
-            _ => None,
+            _ => None
         })
     };
 }
 
 #[macro_export]
-macro_rules! maybe_fold2 {
+macro_rules! maybe_fold {
     ($iter:expr, $acc:expr, $f:expr) => {
         $iter.fold(Some($acc), |acc, p| match acc {
             Some(acc) => $f(acc.clone(), p),
-            _ => None,
+            _ => None
         })
     };
 }
@@ -24,10 +24,12 @@ macro_rules! maybe_fold2 {
 #[macro_export]
 macro_rules! maybe_reduce {
     ($iter:expr, $f:expr) => {{
-        let first = $iter.next().map(|x| x.clone());
+        let first = $iter
+            .next()
+            .map(|x| x.clone());
         $iter.fold(first, |acc, p| match acc {
             Some(acc) => $f(acc, p),
-            _ => None,
+            _ => None
         })
     }};
 }

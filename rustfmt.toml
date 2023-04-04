@@ -1,0 +1,10 @@
+binop_separator = "Back"
+chain_width = 30
+fn_single_line = true
+format_macro_matchers = true
+group_imports = "StdExternalCrate"
+imports_layout = "HorizontalVertical"
+max_width = 70
+match_arm_blocks = false
+overflow_delimited_expr = true
+trailing_comma = "Never"

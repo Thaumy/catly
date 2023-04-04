@@ -18,7 +18,7 @@ pub enum Expr {
     Struct(MaybeType, Vec<(String, MaybeType, Expr)>),
     Discard(MaybeType),
     Match(MaybeType, Box<Expr>, Vec<(Expr, Expr)>),
-    Let(MaybeType, String, MaybeType, Box<Expr>, Box<Expr>),
+    Let(MaybeType, String, MaybeType, Box<Expr>, Box<Expr>)
 }
 
 type In = crate::parser::preprocess::Out;

@@ -15,12 +15,12 @@ fn test_parse_closure_part1() {
             Expr::Apply(
                 None,
                 Expr::EnvRef(None, "add".to_string()).boxed(),
-                Expr::Int(None, 123).boxed(),
+                Expr::Int(None, 123).boxed()
             )
             .boxed(),
-            Expr::Unit(None).boxed(),
+            Expr::Unit(None).boxed()
         )
-        .boxed(),
+        .boxed()
     );
     let r = Some(r);
 
@@ -55,28 +55,32 @@ fn test_parse_closure_part2() {
                             None,
                             Expr::Apply(
                                 None,
-                                Expr::EnvRef(None, "add".to_string()).boxed(),
-                                Expr::EnvRef(None, "a".to_string()).boxed(),
+                                Expr::EnvRef(None, "add".to_string())
+                                    .boxed(),
+                                Expr::EnvRef(None, "a".to_string())
+                                    .boxed()
                             )
                             .boxed(),
-                            Expr::EnvRef(None, "b".to_string()).boxed(),
+                            Expr::EnvRef(None, "b".to_string())
+                                .boxed()
                         )
-                        .boxed(),
+                        .boxed()
                     )
                     .boxed(),
-                    Expr::EnvRef(None, "c".to_string()).boxed(),
+                    Expr::EnvRef(None, "c".to_string()).boxed()
                 )
-                .boxed(),
+                .boxed()
             )
-            .boxed(),
+            .boxed()
         )
-        .boxed(),
+        .boxed()
     );
     let r = Some(r);
 
     let seq = "a -> b -> _ -> add (add a b) c";
     assert_eq!(f(seq), r);
-    let seq = "((a -> ((b -> ((_ -> ((add (((add (a) (b)))) (c)))))))))";
+    let seq =
+        "((a -> ((b -> ((_ -> ((add (((add (a) (b)))) (c)))))))))";
     assert_eq!(f(seq), r);
     let seq = "((((((a))) -> (((b -> (((_))) -> (((add))) (add a b) c))))))";
     assert_eq!(f(seq), r);
@@ -105,22 +109,24 @@ fn test_parse_closure_part3() {
                             None,
                             Expr::Apply(
                                 None,
-                                Expr::EnvRef(None, "add".to_string()).boxed(),
-                                Expr::EnvRef(None, "aaa".to_string()).boxed(),
+                                Expr::EnvRef(None, "add".to_string())
+                                    .boxed(),
+                                Expr::EnvRef(None, "aaa".to_string())
+                                    .boxed()
                             )
                             .boxed(),
-                            Expr::Int(None, 123).boxed(),
+                            Expr::Int(None, 123).boxed()
                         )
-                        .boxed(),
+                        .boxed()
                     )
                     .boxed(),
-                    Expr::EnvRef(None, "ccc".to_string()).boxed(),
+                    Expr::EnvRef(None, "ccc".to_string()).boxed()
                 )
-                .boxed(),
+                .boxed()
             )
-            .boxed(),
+            .boxed()
         )
-        .boxed(),
+        .boxed()
     );
     let r = Some(r);
 
@@ -151,20 +157,26 @@ fn test_parse_closure_part4() {
                     Expr::Apply(
                         None,
                         Expr::EnvRef(None, "add".to_string()).boxed(),
-                        Expr::Int(Type::TypeEnvRef("Int".to_string()).some(), 123).boxed(),
+                        Expr::Int(
+                            Type::TypeEnvRef("Int".to_string())
+                                .some(),
+                            123
+                        )
+                        .boxed()
                     )
                     .boxed(),
-                    Expr::EnvRef(None, "ccc".to_string()).boxed(),
+                    Expr::EnvRef(None, "ccc".to_string()).boxed()
                 )
-                .boxed(),
+                .boxed()
             )
-            .boxed(),
+            .boxed()
         )
-        .boxed(),
+        .boxed()
     );
     let r = Some(r);
 
-    let seq = "(_: A) -> (b: B) -> (c: C) -> (add (123: Int) ccc): Int";
+    let seq =
+        "(_: A) -> (b: B) -> (c: C) -> (add (123: Int) ccc): Int";
     assert_eq!(f(seq), r);
     let seq = "(_: A) -> (((b: B) -> ((((c: C) -> (((add (123: Int) ccc): Int)))))))";
     assert_eq!(f(seq), r);
@@ -175,7 +187,7 @@ fn test_parse_closure_part5() {
     let r = Expr::Closure(
         Type::ClosureType(
             Type::TypeEnvRef("A".to_string()).boxed(),
-            Type::TypeEnvRef("B".to_string()).boxed(),
+            Type::TypeEnvRef("B".to_string()).boxed()
         )
         .some(),
         "a".to_string().some(),
@@ -189,14 +201,14 @@ fn test_parse_closure_part5() {
                 Expr::Apply(
                     None,
                     Expr::EnvRef(None, "add".to_string()).boxed(),
-                    Expr::EnvRef(None, "a".to_string()).boxed(),
+                    Expr::EnvRef(None, "a".to_string()).boxed()
                 )
                 .boxed(),
-                Expr::EnvRef(None, "b".to_string()).boxed(),
+                Expr::EnvRef(None, "b".to_string()).boxed()
             )
-            .boxed(),
+            .boxed()
         )
-        .boxed(),
+        .boxed()
     );
     let r = Some(r);
 

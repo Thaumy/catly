@@ -1,9 +1,10 @@
+use std::collections::BTreeSet;
+
 use crate::infra::option::{AnyExt, FollowExt};
 use crate::infra::r#box::Ext as BoxExt;
 use crate::infra::vec::{vec_get_head_tail_follow, Ext};
 use crate::parser::expr::pat::{OptBoxPat, Pat};
 use crate::parser::keyword::Keyword;
-use std::collections::BTreeSet;
 
 type In = crate::parser::preprocess::Out;
 
@@ -55,15 +56,11 @@ fn move_in(stack: &Vec<Pat>, head: Option<In>) -> Pat {
                     println!("Invalid head Pat: {:?}", c);
                     Pat::Err
                 }
-            }, //// _ -> Err
-               //(_, p) => {
-               //    println!("Invalid head Pat: {:?}", p);
-               //    Pat::Err
-               //}
+            }
         },
 
         // ɛ -> End
-        None => Pat::End,
+        None => Pat::End
     }
 }
 
@@ -354,27 +351,39 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
 
         /* type annotation productions */
 
-        /* TODO: 1. 类型标注的结合优先级低于 Apply
-                 2. 当类型标注发生于 Closure body 时, 类型会优先标注到 Closure body,
-                    需要对其合理性进行评估
-                 4. SumType 与 Case 在存在归约冲突, 表现为:
-                 当 Case value 后存在类型标注时:
-                 | a: Int ->
-                 需要显式限定类型标注的优先级, 从而使其归约终结:
-                 | (a: Int) ->
-                 5. ClosureType 与 Closure, Case 在归约上存在二义性, 表现为:
-                 当 Type 后存在 `->` 时:
-                 x: A -> <closure_body>
-                 f: A -> B -> <closure_body>
-                 | x: A -> <case_then>
-                 | g: A -> B -> <case_then>
-                 Type 必须由括号显示终结:
-                 (x: A) -> <closure_body>
-                 (f: A -> B) -> <closure_body>
-                 | (x: A) -> <case_then>
-                 | (g: A -> B) -> <case_then>
-                 否则类型标注将无法终结
-                 重新设计 类型归约的终止模式 以解决该问题 */
+        /* TODO:
+        # 1
+        类型标注的结合优先级低于 Apply
+
+        # 2
+        当类型标注发生于 Closure body 时, 类型会优先标注到 Closure body,
+        需要对其合理性进行评估
+
+        # 4
+        SumType 与 Case 在存在归约冲突, 表现为:
+        当 Case value 后存在类型标注时:
+        | a: Int ->
+
+        需要显式限定类型标注的优先级, 从而使其归约终结:
+        | (a: Int) ->
+
+        # 5
+        ClosureType 与 Closure, Case 在归约上存在二义性, 表现为:
+
+        当 Type 后存在 `->` 时:
+        x: A -> <closure_body>
+        f: A -> B -> <closure_body>
+        | x: A -> <case_then>
+        | g: A -> B -> <case_then>
+
+        Type 必须由括号显示终结:
+        (x: A) -> <closure_body>
+        (f: A -> B) -> <closure_body>
+        | (x: A) -> <case_then>
+        | (g: A -> B) -> <case_then>
+
+        否则类型标注将无法终结
+        重新设计 类型归约的终止模式 以解决该问题 */
 
         // Expr `:` -> TypedExprHead
         ([.., p, Pat::Mark(':')], _) if p.is_expr() =>
@@ -557,6 +566,6 @@ pub fn go(mut stack: Vec<Pat>, seq: Vec<In>) -> Pat {
             println!("Success with: {:?}", r);
             return r;
         }
-        _ => go(reduced_stack, tail),
+        _ => go(reduced_stack, tail)
     }
 }

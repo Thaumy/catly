@@ -16,7 +16,8 @@ fn test_parse_int_part1() {
 
 #[test]
 fn test_parse_int_part2() {
-    let r = Expr::Int(Type::TypeEnvRef("Int".to_string()).some(), 123);
+    let r =
+        Expr::Int(Type::TypeEnvRef("Int".to_string()).some(), 123);
     let r = Some(r);
 
     assert_eq!(f("123: Int"), r);
@@ -35,7 +36,7 @@ fn test_parse_int_part3() {
             Type::TypeEnvRef("Unit".to_string()),
         ])
         .some(),
-        123,
+        123
     );
     let r = Some(r);
 
@@ -56,7 +57,7 @@ fn test_parse_int_part4() {
             Type::TypeEnvRef("A".to_string()),
         ])
         .some(),
-        123,
+        123
     );
     let r = Some(r);
 

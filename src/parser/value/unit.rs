@@ -1,6 +1,4 @@
-pub fn parse_unit(x: &str) -> bool {
-    x == "()"
-}
+pub fn parse_unit(x: &str) -> bool { x == "()" }
 
 #[cfg(test)]
 mod tests {

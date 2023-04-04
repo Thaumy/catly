@@ -6,7 +6,7 @@ use crate::parser::r#type::Type;
 fn test_parse_closure_type_part1() {
     let r = Type::ClosureType(
         Type::TypeEnvRef("T".to_string()).boxed(),
-        Type::TypeEnvRef("TList".to_string()).boxed(),
+        Type::TypeEnvRef("TList".to_string()).boxed()
     );
     let r = Some(r);
 
@@ -22,9 +22,9 @@ fn test_parse_closure_type_part2() {
         Type::TypeEnvRef("T".to_string()).boxed(),
         Type::ClosureType(
             Type::TypeEnvRef("U".to_string()).boxed(),
-            Type::TypeEnvRef("TUEither".to_string()).boxed(),
+            Type::TypeEnvRef("TUEither".to_string()).boxed()
         )
-        .boxed(),
+        .boxed()
     );
     let r = Some(r);
 
@@ -39,10 +39,10 @@ fn test_parse_closure_type_part3() {
     let r = Type::ClosureType(
         Type::ClosureType(
             Type::TypeEnvRef("T".to_string()).boxed(),
-            Type::TypeEnvRef("U".to_string()).boxed(),
+            Type::TypeEnvRef("U".to_string()).boxed()
         )
         .boxed(),
-        Type::TypeEnvRef("TUEither".to_string()).boxed(),
+        Type::TypeEnvRef("TUEither".to_string()).boxed()
     );
     let r = Some(r);
 

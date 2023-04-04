@@ -7,7 +7,7 @@ pub enum Out {
     LowerStartChunk(String),
     UpperStartChunk(String),
 
-    Kw(Keyword),
+    Kw(Keyword)
 }
 
 impl From<In> for Out {
@@ -34,10 +34,10 @@ impl From<In> for Out {
                 // "with" -> With
                 c if c == "with" => Self::Kw(Keyword::With),
 
-                _ => Self::LowerStartChunk(c),
+                _ => Self::LowerStartChunk(c)
             },
             In::UpperStartChunk(c) => Self::UpperStartChunk(c),
-            In::Symbol(c) => Self::Symbol(c),
+            In::Symbol(c) => Self::Symbol(c)
         }
     }
 }
@@ -45,10 +45,12 @@ impl From<In> for Out {
 type In = crate::parser::preprocess::chunk::Out;
 
 pub fn pp_keyword(seq: &[In]) -> Vec<Out> {
-    let r = seq.iter().fold(vec![], |mut acc, x| {
-        acc.push(Out::from(x.clone()));
-        acc
-    });
+    let r = seq
+        .iter()
+        .fold(vec![], |mut acc, x| {
+            acc.push(Out::from(x.clone()));
+            acc
+        });
     println!("Keyword pp out: {:?}", r);
     r
 }
