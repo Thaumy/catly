@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 use crate::parser::r#type::Type;
 
 pub fn lift(
-    env: &Vec<(String, Type)>,
+    type_env: &Vec<(String, Type)>,
     set: &BTreeSet<Type>,
     derive: &Type,
 ) -> bool {
@@ -16,10 +16,10 @@ pub fn lift(
         // type Derive = T
         // where Base can be lifted to T
         Type::TypeEnvRef(a)
-        => env
+        => type_env
             .iter()
             .rev()
-            .find(|(n, t)| n == a && lift(env, set, t))
+            .find(|(n, t)| n == a && lift(type_env, set, t))
             .is_some(),
 
         // type Derive = .. | T | ..
@@ -27,7 +27,8 @@ pub fn lift(
         Type::SumType(s)
         => s
             .iter()
-            .any(|t| lift(env, set, t)),
+            .rev()
+            .any(|t| lift(type_env, set, t)),
 
         _ => false
     }

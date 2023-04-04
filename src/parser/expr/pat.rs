@@ -36,7 +36,7 @@ pub enum Pat {
     Cond(OptBoxPat, Box<Pat>, Box<Pat>, Box<Pat>),// Expr::Cond
 
     Arrow,
-    ClosurePara(Option<String>, OptBoxPat),
+    ClosureInput(Option<String>, OptBoxPat),
     Closure(OptBoxPat, Option<String>, OptBoxPat, Box<Pat>),// Expr::Closure
 
     Assign(String, OptBoxPat, Box<Pat>),
@@ -112,11 +112,11 @@ impl Pat {
                 t,
                 f,
             ),
-            Pat::Closure(_, para_n, para_t, e) => Pat::Closure(
+            Pat::Closure(_, i_n, i_t, o) => Pat::Closure(
                 r#type.boxed().some(),
-                para_n,
-                para_t,
-                e,
+                i_n,
+                i_t,
+                o,
             ),
             Pat::Struct(_, vec) => Pat::Struct(
                 r#type.boxed().some(),
@@ -203,14 +203,14 @@ impl From<Pat> for MaybeExpr {
                         ),
                     _ => return None
                 }
-            Pat::Closure(t, para_n, para_t, e) =>
-                match Self::from(*e) {
-                    Some(e) =>
+            Pat::Closure(t, i_n, i_t, o) =>
+                match Self::from(*o) {
+                    Some(o) =>
                         Expr::Closure(
                             t.map_into(),
-                            para_n,
-                            para_t.map_into(),
-                            e.boxed(),
+                            i_n,
+                            i_t.map_into(),
+                            o.boxed(),
                         ),
                     _ => return None
                 }
@@ -284,11 +284,11 @@ impl From<Pat> for MaybeType {
         let r = match pat {
             Pat::TypeName(n) => Type::TypeEnvRef(n),
 
-            Pat::ClosureType(para, t) =>
-                match (Self::from(*para), Self::from(*t)) {
-                    (Some(para), Some(t)) => Type::ClosureType(
-                        para.boxed(),
-                        t.boxed(),
+            Pat::ClosureType(i, o) =>
+                match (Self::from(*i), Self::from(*o)) {
+                    (Some(i), Some(o)) => Type::ClosureType(
+                        i.boxed(),
+                        o.boxed(),
                     ),
                     _ => return None
                 },

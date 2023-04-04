@@ -101,29 +101,29 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
         // `-` `>` -> Arrow
         ([.., Pat::Mark('-'), Pat::Mark('>')], _) =>
             stack.reduce(2, Pat::Arrow),
-        // Discard Arrow -> ClosurePara
+        // Discard Arrow -> ClosureInput
         ([..,
         Pat::Discard(t), Pat::Arrow], _
         ) => {
-            let top = Pat::ClosurePara(
+            let top = Pat::ClosureInput(
                 None,
                 t.clone(),
             );
             stack.reduce(2, top)
         }
-        // LetName Arrow -> ClosurePara
+        // LetName Arrow -> ClosureInput
         ([..,
         Pat::LetName(t, n), Pat::Arrow], _
         ) => {
-            let top = Pat::ClosurePara(
+            let top = Pat::ClosureInput(
                 n.to_string().some(),
                 t.clone(),
             );
             stack.reduce(2, top)
         }
-        // ClosurePara Expr :ExprEndPat -> Closure
+        // ClosureInput Expr :ExprEndPat -> Closure
         ([..,
-        Pat::ClosurePara(n, t),
+        Pat::ClosureInput(n, t),
         p], follow
         )
         if follow.is_expr_end_pat() && p.is_expr() => {

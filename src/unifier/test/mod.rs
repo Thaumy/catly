@@ -4,3 +4,4 @@ mod int;
 mod prod;
 mod sum;
 mod unit;
+mod discard;

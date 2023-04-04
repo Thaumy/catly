@@ -1,21 +1,25 @@
 use int::lift as lift_int;
 use unit::lift as lift_unit;
+use discard::lift as lift_discard;
 
 use crate::parser::r#type::Type;
 
 mod int;
 mod unit;
+mod discard;
 
 pub fn lift(
-    env: &Vec<(String, Type)>,
+    type_env: &Vec<(String, Type)>,
     base: &str,
     derive: &Type,
 ) -> bool {
     println!("Uplift {:?} to {:?}", base, derive);
 
     match base {
-        "Int" => lift_int(env, derive),
-        "Unit" => lift_unit(env, derive),
+        "Int" => lift_int(type_env, derive),
+        "Unit" => lift_unit(type_env, derive),
+        "Discard" => lift_discard(type_env, derive),
+
         _ => match derive {
             // Derive is Base
             Type::TypeEnvRef(n)
@@ -25,6 +29,7 @@ pub fn lift(
             Type::SumType(s)
             => s
                 .iter()
+                .rev()
                 .any(|t| match t {
                     Type::TypeEnvRef(n) => n == base,
                     _ => false

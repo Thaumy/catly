@@ -50,11 +50,11 @@ impl From<Pat> for MaybeType {
         let r = match pat {
             Pat::TypeName(n) => Type::TypeEnvRef(n),
 
-            Pat::ClosureType(para, t) =>
-                match (Self::from(*para), Self::from(*t)) {
-                    (Some(para), Some(t)) => Type::ClosureType(
-                        para.boxed(),
-                        t.boxed(),
+            Pat::ClosureType(i, o) =>
+                match (Self::from(*i), Self::from(*o)) {
+                    (Some(i), Some(o)) => Type::ClosureType(
+                        i.boxed(),
+                        o.boxed(),
                     ),
                     _ => return None
                 },
