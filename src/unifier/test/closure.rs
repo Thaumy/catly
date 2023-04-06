@@ -62,7 +62,7 @@ fn test_lift_part1() {
 
     let base =
         &Type::ClosureType(a.clone().boxed(), b.clone().boxed());
-    assert!(lift(env, base, derive));
+    assert!(lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), derive.clone().some());
 }
 
@@ -76,7 +76,7 @@ fn test_lift_part2() {
 
     let base =
         &Type::ClosureType(a.clone().boxed(), b.clone().boxed());
-    assert!(lift(env, base, derive));
+    assert!(lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), derive.clone().some());
 }
 
@@ -90,7 +90,7 @@ fn test_lift_part3() {
 
     let base =
         &Type::ClosureType(a.clone().boxed(), b.clone().boxed());
-    assert!(!lift(env, base, derive));
+    assert!(!lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), None);
 }
 
@@ -104,7 +104,7 @@ fn test_lift_part4() {
 
     let base =
         &Type::ClosureType(a.clone().boxed(), b.clone().boxed());
-    assert!(lift(env, base, derive));
+    assert!(lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), derive.clone().some());
 }
 
@@ -118,6 +118,6 @@ fn test_lift_part5() {
 
     let base =
         &Type::ClosureType(a.clone().boxed(), b.clone().boxed());
-    assert!(!lift(env, base, derive));
+    assert!(!lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), None);
 }

@@ -49,7 +49,7 @@ fn test_lift_part1() {
     assert!(lift_sum(env, s, derive));
 
     let base = &Type::SumType(s.clone());
-    assert!(lift(env, base, derive));
+    assert!(lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), derive.clone().some());
 }
 
@@ -64,7 +64,7 @@ fn test_lift_part2() {
     assert!(lift_sum(env, s, derive));
 
     let base = &Type::SumType(s.clone());
-    assert!(lift(env, base, derive));
+    assert!(lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), derive.clone().some());
 }
 
@@ -79,7 +79,7 @@ fn test_lift_part3() {
     assert!(lift_sum(env, s, derive));
 
     let base = &Type::SumType(s.clone());
-    assert!(lift(env, base, derive));
+    assert!(lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), derive.clone().some());
 }
 
@@ -94,6 +94,6 @@ fn test_lift_part4() {
     assert!(!lift_sum(env, s, derive));
 
     let base = &Type::SumType(s.clone());
-    assert!(!lift(env, base, derive));
+    assert!(!lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), None);
 }

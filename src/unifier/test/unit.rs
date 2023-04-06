@@ -58,7 +58,7 @@ fn test_lift_part1() {
     assert!(lift_env_ref(env, "Unit", derive));
 
     let base = &Type::TypeEnvRef("Unit".to_string());
-    assert!(lift(env, base, derive));
+    assert!(lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), derive.clone().some());
 }
 
@@ -69,7 +69,7 @@ fn test_lift_part2() {
     assert!(lift_env_ref(env, "Unit", derive));
 
     let base = &Type::TypeEnvRef("Unit".to_string());
-    assert!(lift(env, base, derive));
+    assert!(lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), derive.clone().some());
 }
 
@@ -80,7 +80,7 @@ fn test_lift_part3() {
     assert!(lift_env_ref(env, "Unit", derive));
 
     let base = &Type::TypeEnvRef("Unit".to_string());
-    assert!(lift(env, base, derive));
+    assert!(lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), derive.clone().some());
 }
 
@@ -91,7 +91,7 @@ fn test_lift_part4() {
     assert!(lift_env_ref(env, "Unit", derive));
 
     let base = &Type::TypeEnvRef("Unit".to_string());
-    assert!(lift(env, base, derive));
+    assert!(lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), derive.clone().some());
 }
 
@@ -102,7 +102,7 @@ fn test_lift_part5() {
     assert!(!lift_env_ref(env, "Unit", derive));
 
     let base = &Type::TypeEnvRef("Unit".to_string());
-    assert!(!lift(env, base, derive));
+    assert!(!lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), None);
 }
 
@@ -113,7 +113,7 @@ fn test_lift_part6() {
     assert!(lift_env_ref(env, "Unit", derive));
 
     let base = &Type::TypeEnvRef("Unit".to_string());
-    assert!(lift(env, base, derive));
+    assert!(lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), derive.clone().some());
 }
 
@@ -124,7 +124,7 @@ fn test_lift_part7() {
     assert!(lift_env_ref(env, "Unit", derive));
 
     let base = &Type::TypeEnvRef("Unit".to_string());
-    assert!(lift(env, base, derive));
+    assert!(lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), derive.clone().some());
 }
 
@@ -135,7 +135,7 @@ fn test_lift_part8() {
     assert!(lift_env_ref(env, "Unit", derive));
 
     let base = &Type::TypeEnvRef("Unit".to_string());
-    assert!(lift(env, base, derive));
+    assert!(lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), derive.clone().some());
 }
 
@@ -146,6 +146,6 @@ fn test_lift_part9() {
     assert!(!lift_env_ref(env, "Unit", derive));
 
     let base = &Type::TypeEnvRef("Unit".to_string());
-    assert!(!lift(env, base, derive));
+    assert!(!lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), None);
 }

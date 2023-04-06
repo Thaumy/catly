@@ -24,25 +24,33 @@ fn ref_exist(type_env: &Vec<(String, Type)>, ref_name: &str) -> bool {
     is_exist
 }
 
-pub fn lift(
+pub fn can_lift(
     type_env: &Vec<(String, Type)>,
-    l: &Type,
-    r: &Type
+    from: &Type,
+    to: &Type
 ) -> bool {
-    if let Type::TypeEnvRef(n) = l
+    if let Type::TypeEnvRef(n) = from
         && !ref_exist(type_env, n) { return false; }
-    if let Type::TypeEnvRef(n) = r
+    if let Type::TypeEnvRef(n) = to
         && !ref_exist(type_env, n) { return false; }
 
-    match l {
-        Type::TypeEnvRef(n) if lift_env_ref(type_env, n, r) => true,
+    match from {
+        Type::TypeEnvRef(n) if lift_env_ref(type_env, n, to) => true,
         Type::ClosureType(i, o)
-            if lift_closure(type_env, i, o, r) =>
+            if lift_closure(type_env, i, o, to) =>
             true,
-        Type::SumType(s) if lift_sum(type_env, s, r) => true,
-        Type::ProdType(v) if lift_prod(type_env, v, r) => true,
+        Type::SumType(s) if lift_sum(type_env, s, to) => true,
+        Type::ProdType(v) if lift_prod(type_env, v, to) => true,
         _ => false
     }
+}
+
+pub fn lift(
+    type_env: &Vec<(String, Type)>,
+    from: &Type,
+    to: &Type
+) -> Option<Type> {
+    can_lift(type_env, from, to).then_some(to.clone())
 }
 
 pub fn unify(
@@ -51,8 +59,8 @@ pub fn unify(
     r: &Type
 ) -> Option<Type> {
     match true {
-        _ if lift(type_env, l, r) => r.clone().some(),
-        _ if lift(type_env, r, l) => l.clone().some(),
+        _ if can_lift(type_env, l, r) => r.clone().some(),
+        _ if can_lift(type_env, r, l) => l.clone().some(),
         _ => None
     }
 }
