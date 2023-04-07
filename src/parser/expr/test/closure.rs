@@ -186,8 +186,12 @@ fn test_parse_closure_part4() {
 fn test_parse_closure_part5() {
     let r = Expr::Closure(
         Type::ClosureType(
-            Type::TypeEnvRef("A".to_string()).boxed(),
-            Type::TypeEnvRef("B".to_string()).boxed()
+            Type::TypeEnvRef("A".to_string())
+                .boxed()
+                .some(),
+            Type::TypeEnvRef("B".to_string())
+                .boxed()
+                .some()
         )
         .some(),
         "a".to_string().some(),

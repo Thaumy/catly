@@ -11,9 +11,12 @@ mod env_ref;
 mod prod;
 mod sum;
 
-fn ref_exist(type_env: &Vec<(String, Type)>, ref_name: &str) -> bool {
+pub fn ref_exist(
+    type_env: &Vec<(String, Type)>,
+    ref_name: &str
+) -> bool {
     let is_exist = match ref_name {
-        "Int" | "Unit" | "Discard" => true,
+        "Int" | "Unit" => true,
         _ => type_env
             .iter()
             .any(|(n, _)| n == ref_name)
@@ -37,7 +40,12 @@ pub fn can_lift(
     match from {
         Type::TypeEnvRef(n) if lift_env_ref(type_env, n, to) => true,
         Type::ClosureType(i, o)
-            if lift_closure(type_env, i, o, to) =>
+            if lift_closure(
+                type_env,
+                &i.clone().map(|x| *x),
+                &o.clone().map(|x| *x),
+                to
+            ) =>
             true,
         Type::SumType(s) if lift_sum(type_env, s, to) => true,
         Type::ProdType(v) if lift_prod(type_env, v, to) => true,

@@ -8,28 +8,44 @@ use crate::unifier::unify;
 
 fn env() -> Vec<(String, Type)> {
     /* env:
+    type A = Int
+    type B = Int
+
     type F = A -> B
     type G = A -> B -> C
     type FG = F | G
     type AB = A | B
     */
     vec![
+        ("A".to_string(), Type::TypeEnvRef("Int".to_string())),
+        ("B".to_string(), Type::TypeEnvRef("Int".to_string())),
         (
             "F".to_string(),
             Type::ClosureType(
-                Type::TypeEnvRef("A".to_string()).boxed(),
-                Type::TypeEnvRef("B".to_string()).boxed()
+                Type::TypeEnvRef("A".to_string())
+                    .boxed()
+                    .some(),
+                Type::TypeEnvRef("B".to_string())
+                    .boxed()
+                    .some()
             )
         ),
         (
             "G".to_string(),
             Type::ClosureType(
-                Type::TypeEnvRef("A".to_string()).boxed(),
+                Type::TypeEnvRef("A".to_string())
+                    .boxed()
+                    .some(),
                 Type::ClosureType(
-                    Type::TypeEnvRef("B".to_string()).boxed(),
-                    Type::TypeEnvRef("C".to_string()).boxed()
+                    Type::TypeEnvRef("B".to_string())
+                        .boxed()
+                        .some(),
+                    Type::TypeEnvRef("C".to_string())
+                        .boxed()
+                        .some()
                 )
                 .boxed()
+                .some()
             )
         ),
         (
@@ -55,13 +71,24 @@ fn test_lift_part1() {
     let a = &Type::TypeEnvRef("A".to_string());
     let b = &Type::TypeEnvRef("B".to_string());
     let derive = &Type::ClosureType(
-        Type::TypeEnvRef("A".to_string()).boxed(),
-        Type::TypeEnvRef("B".to_string()).boxed()
+        Type::TypeEnvRef("A".to_string())
+            .boxed()
+            .some(),
+        Type::TypeEnvRef("B".to_string())
+            .boxed()
+            .some()
     );
-    assert!(lift_closure(env, a, b, derive));
+    assert!(lift_closure(
+        env,
+        &a.clone().some(),
+        &b.clone().some(),
+        derive
+    ));
 
-    let base =
-        &Type::ClosureType(a.clone().boxed(), b.clone().boxed());
+    let base = &Type::ClosureType(
+        a.clone().boxed().some(),
+        b.clone().boxed().some()
+    );
     assert!(lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), derive.clone().some());
 }
@@ -72,10 +99,17 @@ fn test_lift_part2() {
     let a = &Type::TypeEnvRef("A".to_string());
     let b = &Type::TypeEnvRef("B".to_string());
     let derive = &Type::TypeEnvRef("F".to_string());
-    assert!(lift_closure(env, a, b, derive));
+    assert!(lift_closure(
+        env,
+        &a.clone().some(),
+        &b.clone().some(),
+        derive
+    ));
 
-    let base =
-        &Type::ClosureType(a.clone().boxed(), b.clone().boxed());
+    let base = &Type::ClosureType(
+        a.clone().boxed().some(),
+        b.clone().boxed().some()
+    );
     assert!(lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), derive.clone().some());
 }
@@ -86,10 +120,17 @@ fn test_lift_part3() {
     let a = &Type::TypeEnvRef("A".to_string());
     let b = &Type::TypeEnvRef("B".to_string());
     let derive = &Type::TypeEnvRef("G".to_string());
-    assert!(!lift_closure(env, a, b, derive));
+    assert!(!lift_closure(
+        env,
+        &a.clone().some(),
+        &b.clone().some(),
+        derive
+    ));
 
-    let base =
-        &Type::ClosureType(a.clone().boxed(), b.clone().boxed());
+    let base = &Type::ClosureType(
+        a.clone().boxed().some(),
+        b.clone().boxed().some()
+    );
     assert!(!lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), None);
 }
@@ -100,10 +141,17 @@ fn test_lift_part4() {
     let a = &Type::TypeEnvRef("A".to_string());
     let b = &Type::TypeEnvRef("B".to_string());
     let derive = &Type::TypeEnvRef("FG".to_string());
-    assert!(lift_closure(env, a, b, derive));
+    assert!(lift_closure(
+        env,
+        &a.clone().some(),
+        &b.clone().some(),
+        derive
+    ));
 
-    let base =
-        &Type::ClosureType(a.clone().boxed(), b.clone().boxed());
+    let base = &Type::ClosureType(
+        a.clone().boxed().some(),
+        b.clone().boxed().some()
+    );
     assert!(lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), derive.clone().some());
 }
@@ -114,10 +162,17 @@ fn test_lift_part5() {
     let a = &Type::TypeEnvRef("A".to_string());
     let b = &Type::TypeEnvRef("B".to_string());
     let derive = &Type::TypeEnvRef("AB".to_string());
-    assert!(!lift_closure(env, a, b, derive));
+    assert!(!lift_closure(
+        env,
+        &a.clone().some(),
+        &b.clone().some(),
+        derive
+    ));
 
-    let base =
-        &Type::ClosureType(a.clone().boxed(), b.clone().boxed());
+    let base = &Type::ClosureType(
+        a.clone().boxed().some(),
+        b.clone().boxed().some()
+    );
     assert!(!lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), None);
 }

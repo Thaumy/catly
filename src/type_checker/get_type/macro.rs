@@ -15,14 +15,6 @@ macro_rules! unit_type {
 }
 
 #[macro_export]
-macro_rules! discard_type {
-    () => {{
-        use crate::parser::r#type::Type;
-        Type::TypeEnvRef("Discard".to_string())
-    }};
-}
-
-#[macro_export]
 macro_rules! true_type {
     () => {{
         use crate::parser::r#type::Type;
@@ -71,10 +63,13 @@ macro_rules! require_constraint {
 
 #[macro_export]
 macro_rules! require_info {
-    () => {{
+    ($ref_name:expr) => {{
         use crate::infra::quad::AnyExt as QuadAnyExt;
         use crate::type_checker::get_type::r#type::RequireInfo;
-        (RequireInfo {}).mr()
+        (RequireInfo {
+            ref_name: $ref_name
+        })
+        .mr()
     }};
 }
 

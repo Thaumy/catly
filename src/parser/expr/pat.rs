@@ -227,8 +227,10 @@ impl From<Pat> for MaybeType {
 
             Pat::ClosureType(i, o) => {
                 match (Self::from(*i), Self::from(*o)) {
-                    (Some(i), Some(o)) =>
-                        Type::ClosureType(i.boxed(), o.boxed()),
+                    (Some(i), Some(o)) => Type::ClosureType(
+                        i.boxed().some(),
+                        o.boxed().some()
+                    ),
                     _ => return None
                 }
             }
