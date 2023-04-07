@@ -1,9 +1,10 @@
 use std::collections::BTreeSet;
 
 use crate::parser::r#type::Type;
+use crate::type_checker::get_type::r#type::TypeEnv;
 
 pub fn lift(
-    type_env: &Vec<(String, Type)>,
+    type_env: &TypeEnv,
     set: &BTreeSet<Type>,
     derive: &Type
 ) -> bool {

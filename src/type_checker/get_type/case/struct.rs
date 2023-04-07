@@ -1,27 +1,22 @@
 use crate::infra::alias::MaybeType;
-use crate::infra::either::Either;
 use crate::infra::option::AnyExt as OptExt;
 use crate::infra::quad::Quad;
 use crate::infra::r#fn::id;
 use crate::infra::result::AnyExt;
-use crate::infra::triple::Triple;
 use crate::parser::expr::Expr;
 use crate::parser::r#type::Type;
+use crate::type_checker::get_type::get_type;
 use crate::type_checker::get_type::r#fn::{
     destruct_type_env_ref,
-    lift_or_left,
     with_constraint_lift_or_left
 };
 use crate::type_checker::get_type::r#type::{
     ExprEnv,
     GetTypeReturn,
-    RequireInfo,
-    TypeEnv,
-    TypeMissMatch
+    TypeEnv
 };
-use crate::type_checker::get_type::{get_type, get_type_with_hint};
+use crate::type_miss_match;
 use crate::unifier::can_lift;
-use crate::{has_type, require_constraint, type_miss_match};
 
 pub fn case(
     type_env: &TypeEnv,
@@ -40,7 +35,7 @@ pub fn case(
                     t_vec
                         .iter()
                         .zip(vec.iter())
-                        .map(|((n, t), (v_n, v_t, v_e))| {
+                        .map(|((n, t), (v_n, v_t, _))| {
                             // 名称相等判断
                             n == v_n &&
                             // 类型相容判断

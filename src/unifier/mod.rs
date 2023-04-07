@@ -5,16 +5,14 @@ use sum::lift as lift_sum;
 
 use crate::infra::option::AnyExt;
 use crate::parser::r#type::Type;
+use crate::type_checker::get_type::r#type::TypeEnv;
 
 mod closure;
 mod env_ref;
 mod prod;
 mod sum;
 
-pub fn ref_exist(
-    type_env: &Vec<(String, Type)>,
-    ref_name: &str
-) -> bool {
+pub fn ref_exist(type_env: &TypeEnv, ref_name: &str) -> bool {
     let is_exist = match ref_name {
         "Int" | "Unit" => true,
         _ => type_env
@@ -27,11 +25,7 @@ pub fn ref_exist(
     is_exist
 }
 
-pub fn can_lift(
-    type_env: &Vec<(String, Type)>,
-    from: &Type,
-    to: &Type
-) -> bool {
+pub fn can_lift(type_env: &TypeEnv, from: &Type, to: &Type) -> bool {
     if let Type::TypeEnvRef(n) = from
         && !ref_exist(type_env, n) { return false; }
     if let Type::TypeEnvRef(n) = to
@@ -54,18 +48,14 @@ pub fn can_lift(
 }
 
 pub fn lift(
-    type_env: &Vec<(String, Type)>,
+    type_env: &TypeEnv,
     from: &Type,
     to: &Type
 ) -> Option<Type> {
     can_lift(type_env, from, to).then_some(to.clone())
 }
 
-pub fn unify(
-    type_env: &Vec<(String, Type)>,
-    l: &Type,
-    r: &Type
-) -> Option<Type> {
+pub fn unify(type_env: &TypeEnv, l: &Type, r: &Type) -> Option<Type> {
     match true {
         _ if can_lift(type_env, l, r) => r.clone().some(),
         _ if can_lift(type_env, r, l) => l.clone().some(),

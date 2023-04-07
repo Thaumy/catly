@@ -1,4 +1,5 @@
 use crate::infra::alias::MaybeType;
+use crate::infra::vec::Ext;
 use crate::parser::r#type::Type;
 use crate::type_checker::get_type::r#type::{
     ExprEnv,
@@ -77,4 +78,18 @@ pub fn destruct_type_env_ref(
         }
         x => Some(x.clone())
     }
+}
+
+pub fn inject_to_new_env(
+    old_expr_env: &ExprEnv,
+    name: &str,
+    r#type: &MaybeType
+) -> ExprEnv {
+    old_expr_env.push_to_new((
+        name.to_string(),
+        r#type
+            .as_ref()
+            .map(|t| TypeConstraint::Constraint(t.clone()))
+            .unwrap_or_else(|| TypeConstraint::Free)
+    ))
 }

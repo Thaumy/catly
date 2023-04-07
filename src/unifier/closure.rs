@@ -1,9 +1,10 @@
 use crate::infra::alias::MaybeType;
 use crate::parser::r#type::Type;
+use crate::type_checker::get_type::r#type::TypeEnv;
 use crate::unifier::can_lift;
 
 pub fn lift(
-    type_env: &Vec<(String, Type)>,
+    type_env: &TypeEnv,
     i_t: &MaybeType,
     o_t: &MaybeType,
     derive: &Type

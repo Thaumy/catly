@@ -1,7 +1,7 @@
 use crate::infra::alias::MaybeType;
 use crate::parser::r#type::Type;
 use crate::type_checker::get_type::r#type::{GetTypeReturn, TypeEnv};
-use crate::unifier::{lift, ref_exist};
+use crate::unifier::ref_exist;
 use crate::{has_type, require_info, type_miss_match};
 
 pub fn case(type_env: &TypeEnv, t: &MaybeType) -> GetTypeReturn {

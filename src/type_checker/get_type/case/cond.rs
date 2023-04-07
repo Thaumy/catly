@@ -70,16 +70,14 @@ pub fn case(
             mr_r => return mr_r.clone()
         };
 
-    let t = {
-        match match t {
-            Some(t) => lift(type_env, &then_expr_type, t)
-                .and_then(|t| lift(type_env, &else_expr_type, &t)),
-            _ => unify(type_env, &then_expr_type, &else_expr_type)
-        } {
-            Some(t) => t,
-            // 提升或合一失败, 类型不匹配
-            _ => return type_miss_match!()
-        }
+    let t = match match t {
+        Some(t) => lift(type_env, &then_expr_type, t)
+            .and_then(|t| lift(type_env, &else_expr_type, &t)),
+        _ => unify(type_env, &then_expr_type, &else_expr_type)
+    } {
+        Some(t) => t,
+        // 提升或合一失败, 类型不匹配
+        _ => return type_miss_match!()
     };
 
     if constraint.is_empty() {

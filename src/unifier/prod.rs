@@ -1,7 +1,8 @@
 use crate::parser::r#type::Type;
+use crate::type_checker::get_type::r#type::TypeEnv;
 
 pub fn lift(
-    type_env: &Vec<(String, Type)>,
+    type_env: &TypeEnv,
     vec: &Vec<(String, Type)>,
     derive: &Type
 ) -> bool {
