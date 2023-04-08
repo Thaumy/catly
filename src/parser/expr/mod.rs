@@ -12,7 +12,7 @@ mod pat;
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expr {
     Unit(MaybeType),
-    Int(MaybeType, i64),
+    Int(MaybeType, u64),
     EnvRef(MaybeType, String),
     Apply(MaybeType, Box<Expr>, Box<Expr>),
     Cond(MaybeType, Box<Expr>, Box<Expr>, Box<Expr>),
@@ -62,6 +62,22 @@ impl Expr {
         match r#type {
             Some(t) => self.with_fallback_type(t),
             None => self
+        }
+    }
+
+    pub fn is_no_type_annotation(&self) -> bool {
+        match self {
+            Expr::Unit(None) |
+            Expr::Int(None, _) |
+            Expr::EnvRef(None, _) |
+            Expr::Apply(None, _, _) |
+            Expr::Cond(None, _, _, _) |
+            Expr::Closure(None, _, _, _) |
+            Expr::Struct(None, _) |
+            Expr::Discard(None) |
+            Expr::Match(None, _, _) |
+            Expr::Let(None, _, _, _, _) => true,
+            _ => false
         }
     }
 }

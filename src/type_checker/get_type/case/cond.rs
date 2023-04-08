@@ -20,7 +20,7 @@ use crate::{
 pub fn case(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
-    t: &MaybeType,
+    expect_type: &MaybeType,
     bool_expr: &Expr,
     then_expr: &Expr,
     else_expr: &Expr
@@ -51,26 +51,34 @@ pub fn case(
         mr_r => return mr_r.clone()
     };
 
-    let then_expr_type =
-        match get_type_with_hint(type_env, expr_env, then_expr, t) {
-            Quad::L(t) => t,
-            Quad::ML(rc) => {
-                constraint.append(&mut rc.constraint.clone());
-                rc.r#type
-            }
-            mr_r => return mr_r.clone()
-        };
-    let else_expr_type =
-        match get_type_with_hint(type_env, expr_env, else_expr, t) {
-            Quad::L(t) => t,
-            Quad::ML(rc) => {
-                constraint.append(&mut rc.constraint.clone());
-                rc.r#type
-            }
-            mr_r => return mr_r.clone()
-        };
+    let then_expr_type = match get_type_with_hint(
+        type_env,
+        expr_env,
+        then_expr,
+        expect_type
+    ) {
+        Quad::L(t) => t,
+        Quad::ML(rc) => {
+            constraint.append(&mut rc.constraint.clone());
+            rc.r#type
+        }
+        mr_r => return mr_r.clone()
+    };
+    let else_expr_type = match get_type_with_hint(
+        type_env,
+        expr_env,
+        else_expr,
+        expect_type
+    ) {
+        Quad::L(t) => t,
+        Quad::ML(rc) => {
+            constraint.append(&mut rc.constraint.clone());
+            rc.r#type
+        }
+        mr_r => return mr_r.clone()
+    };
 
-    let t = match match t {
+    let t = match match expect_type {
         Some(t) => lift(type_env, &then_expr_type, t)
             .and_then(|t| lift(type_env, &else_expr_type, &t)),
         _ => unify(type_env, &then_expr_type, &else_expr_type)

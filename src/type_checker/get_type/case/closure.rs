@@ -7,7 +7,7 @@ use crate::parser::r#type::Type;
 use crate::type_checker::get_type::get_type_with_hint;
 use crate::type_checker::get_type::r#fn::{
     destruct_type_env_ref,
-    inject_to_new_env,
+    inject_to_new_expr_env,
     lift_or_left,
     with_constraint_lift_or_left
 };
@@ -48,7 +48,7 @@ pub fn case(
     // Inject parameter to env
     let expr_env = match input_name {
         Some(input_name) =>
-            inject_to_new_env(expr_env, input_name, &input_type),
+            inject_to_new_expr_env(expr_env, input_name, &input_type),
         _ => expr_env.clone()
     };
 

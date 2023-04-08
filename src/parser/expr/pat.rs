@@ -23,7 +23,7 @@ pub enum Pat {
     // Expr::Unit
     Unit(OptBoxPat),
     // Expr::Int
-    Int(OptBoxPat, i64),
+    Int(OptBoxPat, u64),
 
     LetName(OptBoxPat, String), // Expr::EnvRef
 

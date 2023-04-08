@@ -2,15 +2,12 @@ use int::lift as lift_int;
 use unit::lift as lift_unit;
 
 use crate::parser::r#type::Type;
+use crate::type_checker::get_type::r#type::TypeEnv;
 
 mod int;
 mod unit;
 
-pub fn lift(
-    type_env: &Vec<(String, Type)>,
-    base: &str,
-    derive: &Type
-) -> bool {
+pub fn lift(type_env: &TypeEnv, base: &str, derive: &Type) -> bool {
     println!("Uplift {:?} to {:?}", base, derive);
 
     match base {

@@ -19,28 +19,28 @@ use crate::{
 pub fn case(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
-    t: &MaybeType,
+    expect_type: &MaybeType,
     ref_name: &str
 ) -> GetTypeReturn {
     // 直接获取环境类型, 不再进行推导
     match find_ref_type(expr_env, ref_name) {
-        None => match t {
+        None => match expect_type {
             // 环境类型缺失, 但可以通过建立约束修复
-            Some(t) =>
-                return require_constraint!(t.clone(), vec![(
-                    ref_name.to_string(),
-                    t.clone()
-                )]),
+            Some(expect_type) =>
+                return require_constraint!(
+                    expect_type.clone(),
+                    vec![(ref_name.to_string(), expect_type.clone())]
+                ),
             // 缺乏推导信息
             None => return require_info!(ref_name.to_string())
         },
         // 成功获取到环境类型
         Some(ref_type) => match ref_type {
-            TypeConstraint::Free => match t {
-                Some(t) => require_constraint!(t.clone(), vec![(
-                    ref_name.to_string(),
-                    t.clone()
-                )]),
+            TypeConstraint::Free => match expect_type {
+                Some(expect_type) => require_constraint!(
+                    expect_type.clone(),
+                    vec![(ref_name.to_string(), expect_type.clone())]
+                ),
                 // 信息不足以进行类型推导
                 // 例如:
                 // f -> a -> f a
@@ -51,8 +51,8 @@ pub fn case(
                 None => require_info!(ref_name.to_string())
             },
             TypeConstraint::Constraint(ct) =>
-                match lift_or_left(type_env, ct, t) {
-                    Some(t) => has_type!(t),
+                match lift_or_left(type_env, ct, expect_type) {
+                    Some(expect_type) => has_type!(expect_type),
                     None => type_miss_match!()
                 },
         }

@@ -1,164 +1,111 @@
-mod r#macro;
+pub mod case;
+pub mod r#fn;
+pub mod r#macro;
+pub mod r#type;
 
-use crate::infra::option::AnyExt;
-use crate::infra::r#fn::id;
-use crate::infra::vec::Ext;
+use crate::infra::alias::MaybeType;
 use crate::parser::expr::Expr;
-use crate::parser::r#type::Type;
-use crate::unifier::unify;
-use crate::{
-    bool_type,
-    btree_set,
-    discard_type,
-    false_type,
-    int_type,
-    maybe_fold,
-    maybe_fold_to,
-    maybe_reduce,
-    true_type,
-    unit_type
+use crate::type_checker::get_type::r#type::{
+    ExprEnv,
+    GetTypeReturn,
+    TypeEnv
 };
 
+pub fn get_type_with_hint(
+    type_env: &TypeEnv,
+    expr_env: &ExprEnv,
+    expr: &Expr,
+    hint: &MaybeType
+) -> GetTypeReturn {
+    let expr = expr
+        .clone()
+        .try_with_fallback_type(hint);
+
+    get_type(type_env, expr_env, &expr)
+}
+
 pub fn get_type(
-    type_env: &Vec<(String, Type)>,
-    expr_env: &Vec<(String, Type)>,
+    type_env: &TypeEnv,
+    expr_env: &ExprEnv,
     expr: &Expr
-) -> Option<Type> {
+) -> GetTypeReturn {
+    use crate::type_checker::get_type;
     match expr {
-        Expr::Int(t, _) => t
-            .clone()
-            .and_then(|t| unify(type_env, &int_type!(), &t))
-            .or_else(|| int_type!().some()),
-
-        Expr::Unit(t) => t
-            .clone()
-            .and_then(|t| unify(type_env, &unit_type!(), &t))
-            .or_else(|| unit_type!().some()),
-
-        Expr::Discard(t) => t
-            .clone()
-            .or_else(|| discard_type!().some()),
-
-        // TODO: 实施类型的反向约束
-        Expr::Let(t, assign_name, assign_type, assign_expr, e) => {
-            let assign_expr_type =
-                get_type(type_env, expr_env, assign_expr)?;
-            let assign_type = assign_type
-                .clone()
-                .and_then(|t| unify(type_env, &t, &assign_expr_type))
-                .or_else(|| assign_expr_type.some())?;
-
-            let expr_env = expr_env
-                .push_to_new((assign_name.to_string(), assign_type));
-            let e_t = get_type(type_env, &expr_env, e)?;
-
-            t.clone()
-                .and_then(|t| unify(type_env, &t, &e_t))
-                .or_else(|| e_t.some())
+        Expr::Int(t, _) => {
+            use case::int::case;
+            case(type_env, t)
         }
-
-        Expr::Cond(t, bool_expr, true_expr, false_expr) => {
-            match get_type(type_env, expr_env, bool_expr) {
-                Some(bool_e_t)
-                // Only Boolean types will be allowed
-                if bool_e_t == bool_type!()
-                    || bool_e_t == true_type!()
-                    || bool_e_t == false_type!()
-                => {
-                    let ture_expr_type = get_type(type_env, expr_env, true_expr)?;
-                    let false_expr_type = get_type(type_env, expr_env, false_expr)?;
-                    match t.clone() {
-                        Some(t) => unify(type_env, &ture_expr_type, &t)
-                            .and_then(|t| unify(type_env, &false_expr_type, &t)),
-                        _ => unify(type_env, &ture_expr_type, &false_expr_type)
-                    }
-                }
-                _ => None
-            }
+        Expr::Unit(t) => {
+            use case::unit::case;
+            case(type_env, t)
         }
-
-        // TODO: 实施类型的反向约束
-        Expr::Closure(t, input_name, input_type, output_expr) =>
-            match (input_name, input_type) {
-                (Some(input_name), Some(input_type)) => {
-                    let expr_env = expr_env.push_to_new((
-                        input_name.to_string(),
-                        input_type.clone()
-                    ));
-                    let output_expr_type =
-                        get_type(type_env, &expr_env, output_expr)?;
-
-                    t.clone()
-                        .and_then(|t| {
-                            unify(type_env, &output_expr_type, &t)
-                        })
-                        .or_else(|| output_expr_type.some())
-                }
-                _ => None
-            },
+        Expr::Discard(t) => {
+            use case::discard::case;
+            case(type_env, t)
+        }
 
         Expr::EnvRef(t, ref_name) => {
-            // 直接获取环境类型, 不再进行推导
-            let ref_type = expr_env
-                .iter()
-                .rev()
-                .find(|(n, _)| n == ref_name)
-                .map(|(_, t)| t)?;
-
-            t.clone()
-                .and_then(|t| unify(type_env, ref_type, &t))
-                .or_else(|| ref_type.clone().some())
+            use case::env_ref::case;
+            case(type_env, expr_env, t, ref_name)
         }
 
+        // 推导提示
+        Expr::Cond(t, bool_expr, then_expr, else_expr) => {
+            use case::cond::case;
+            case(
+                type_env, expr_env, t, bool_expr, then_expr,
+                else_expr
+            )
+        }
+
+        // 推导提示 + 类型解构 + 反向约束 + 约束消减
+        Expr::Closure(t, input_name, input_type, output_expr) => {
+            use case::closure::case;
+            case(
+                type_env,
+                expr_env,
+                t,
+                input_name,
+                input_type,
+                output_expr
+            )
+        }
+
+        // 推导提示 + 反向约束 + 约束消减 + 约束传播
+        Expr::Let(
+            t,
+            assign_name,
+            assign_type,
+            assign_expr,
+            scope_expr
+        ) => {
+            use case::r#let::case;
+            case(
+                type_env,
+                expr_env,
+                t,
+                assign_name,
+                assign_type,
+                assign_expr,
+                scope_expr
+            )
+        }
+
+        // 推导提示 + 类型解构 + 反向约束
         Expr::Struct(t, vec) => {
-            let iter = vec
-                .iter()
-                .map(|(n, t, e)| {
-                    (n, t, get_type(type_env, expr_env, e))
-                })
-                .map(|(n, t, e_t)| {
-                    let e_t = e_t?;
-                    let unified_type = t
-                        .clone()
-                        .and_then(|t| unify(type_env, &e_t, &t))
-                        .or_else(|| e_t.some())?;
-                    Some((n.to_string(), unified_type))
-                });
-            let vec = maybe_fold_to!(iter, vec![], push, id)?;
-            let prod_type = Type::ProdType(vec);
-
-            t.clone()
-                .and_then(|t| unify(type_env, &t, &prod_type))
-                .or_else(|| prod_type.some())
+            use case::r#struct::case;
+            case(type_env, expr_env, t, vec)
         }
 
-        // TODO: 对 Case 常量的类型检查
-        // TODO: 实施类型的反向约束
-        Expr::Match(t, _, vec) => {
-            let iter = vec
-                .iter()
-                .map(|(_, then_expr)| {
-                    get_type(type_env, expr_env, then_expr)
-                });
-            let vec: Vec<Type> =
-                maybe_fold_to!(iter, vec![], push, id)?;
-
-            match t {
-                Some(t) => {
-                    let f = |acc: Type, then_expr_type: &Type| {
-                        unify(type_env, &acc, &then_expr_type)
-                    };
-                    maybe_fold!(vec.iter(), t.clone(), f)
-                }
-                _ => {
-                    let f = |acc: Type, t: &Type| {
-                        unify(type_env, &acc, t)
-                    };
-                    maybe_reduce!(vec.iter(), f)
-                }
-            }
+        Expr::Apply(t, lhs, rhs) => {
+            use case::apply::case;
+            case(t, lhs, rhs)
         }
 
-        _ => Type::TypeEnvRef("".to_string()).some()
+        // 推导提示 + 反向约束 + 旁路推导 + 穿透推导
+        Expr::Match(t, match_expr, vec) => {
+            use case::r#match::case;
+            case(t, match_expr, vec)
+        }
     }
 }

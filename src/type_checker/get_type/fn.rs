@@ -80,7 +80,7 @@ pub fn destruct_type_env_ref(
     }
 }
 
-pub fn inject_to_new_env(
+pub fn inject_to_new_expr_env(
     old_expr_env: &ExprEnv,
     name: &str,
     r#type: &MaybeType

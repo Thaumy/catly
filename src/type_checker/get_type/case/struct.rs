@@ -21,34 +21,35 @@ use crate::unifier::can_lift;
 pub fn case(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
-    t: &MaybeType,
+    expect_type: &MaybeType,
     vec: &Vec<(String, MaybeType, Expr)>
 ) -> GetTypeReturn {
     // 解构 t 并判断与 vec 的相容性
-    let t_vec = match t {
-        Some(t) => match destruct_type_env_ref(type_env, t) {
-            // 解构合法, 当且仅当由 t 解构出的 ProdType 的字段数和 vec 相等
-            // 且对于二者 zip 后的每一对字段, 其名称相同
-            // 且 vec 字段的类型可以被提升到 ProdType 字段的类型(如果 vec 字段类型存在的话)
-            Some(Type::ProdType(t_vec))
-                if t_vec.len() == vec.len() &&
-                    t_vec
-                        .iter()
-                        .zip(vec.iter())
-                        .map(|((n, t), (v_n, v_t, _))| {
-                            // 名称相等判断
-                            n == v_n &&
+    let t_vec = match expect_type {
+        Some(expect_type) =>
+            match destruct_type_env_ref(type_env, expect_type) {
+                // 解构合法, 当且仅当由 t 解构出的 ProdType 的字段数和 vec 相等
+                // 且对于二者 zip 后的每一对字段, 其名称相同
+                // 且 vec 字段的类型可以被提升到 ProdType 字段的类型(如果 vec 字段类型存在的话)
+                Some(Type::ProdType(t_vec))
+                    if t_vec.len() == vec.len() &&
+                        t_vec
+                            .iter()
+                            .zip(vec.iter())
+                            .map(|((n, t), (v_n, v_t, _))| {
+                                // 名称相等判断
+                                n == v_n &&
                             // 类型相容判断
                             v_t.clone()
                                 .map(|v_t| {
                                     can_lift(type_env, &v_t, t)
                                 })
                                 .unwrap_or(true)
-                        })
-                        .all(id) =>
-                t_vec.some(),
-            _ => return type_miss_match!()
-        },
+                            })
+                            .all(id) =>
+                    t_vec.some(),
+                _ => return type_miss_match!()
+            },
         None => None
     };
 
@@ -114,5 +115,10 @@ pub fn case(
         Err(e) => return e
     };
 
-    with_constraint_lift_or_left(constraint, type_env, &prod_type, t)
+    with_constraint_lift_or_left(
+        constraint,
+        type_env,
+        &prod_type,
+        expect_type
+    )
 }
