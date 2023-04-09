@@ -43,41 +43,39 @@ macro_rules! bool_type {
 #[macro_export]
 macro_rules! has_type {
     ($e:expr) => {{
-        use crate::infra::quad::AnyExt as QuadAnyExt;
-        $e.l()
+        use crate::infra::quad::Quad;
+        Quad::L($e)
     }};
 }
 
 #[macro_export]
 macro_rules! require_constraint {
     ($t:expr, $vec:expr) => {{
-        use crate::infra::quad::AnyExt as QuadAnyExt;
+        use crate::infra::quad::Quad;
         use crate::type_checker::get_type::r#type::RequireConstraint;
-        (RequireConstraint {
+        Quad::ML(RequireConstraint {
             r#type: $t,
             constraint: $vec
         })
-        .ml()
     }};
 }
 
 #[macro_export]
 macro_rules! require_info {
     ($ref_name:expr) => {{
-        use crate::infra::quad::AnyExt as QuadAnyExt;
+        use crate::infra::quad::Quad;
         use crate::type_checker::get_type::r#type::RequireInfo;
-        (RequireInfo {
+        Quad::MR(RequireInfo {
             ref_name: $ref_name
         })
-        .mr()
     }};
 }
 
 #[macro_export]
 macro_rules! type_miss_match {
     () => {{
-        use crate::infra::quad::AnyExt as QuadAnyExt;
+        use crate::infra::quad::Quad;
         use crate::type_checker::get_type::r#type::TypeMissMatch;
-        (TypeMissMatch {}).r()
+        Quad::R(TypeMissMatch {})
     }};
 }

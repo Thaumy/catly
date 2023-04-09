@@ -60,9 +60,9 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
         }
 
         // KwType TypeName `=` -> TypeDefHead End
-        ([..,
-        Pat::Kw(Keyword::Type),
-        Pat::TypeName(n), Pat::Mark('=')], _
+        (
+            [.., Pat::Kw(Keyword::Type), Pat::TypeName(n), Pat::Mark('=')],
+            _
         ) => {
             let top = Pat::TypeDefHead(n.to_string());
             stack.reduce(3, top);
@@ -70,35 +70,31 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
         }
 
         // AnyInSeq AnyIn -> AnyInSeq
-        ([..,// TODO: Owned pattern matching in Rust?
-        Pat::AnyInSeq(seq),
-        Pat::AnyIn(x)], _
-        ) => {
+        ([.., Pat::AnyInSeq(seq), Pat::AnyIn(x)], _) => {
             let seq = seq.push_to_new(x.clone());
             let top = Pat::AnyInSeq(seq);
             stack.reduce(2, top);
         }
         // AnyInSeq :`=` -> Type
-        ([..,// TODO: Owned pattern matching in Rust?
-        Pat::AnyInSeq(seq)], Some(In::Symbol('='))
-        ) => match parse_type(seq.clone()) {
-            Some(t) => stack.reduce(1, Pat::Type(t)),
-            None => return vec![Pat::Err]
-        }
+        ([.., Pat::AnyInSeq(seq)], Some(In::Symbol('='))) =>
+            match parse_type(seq.clone()) {
+                Some(t) => stack.reduce(1, Pat::Type(t)),
+                None => return vec![Pat::Err]
+            },
         // KwDef: LetName `:` Type -> LetName
         // where LetName is untyped
-        ([.., Pat::Kw(Keyword::Def),// TODO: Owned pattern matching in Rust?
-        Pat::LetName(None, n), Pat::Mark(':'),
-        Pat::Type(t)], _
+        (
+            [.., Pat::Kw(Keyword::Def), Pat::LetName(None, n), Pat::Mark(':'), Pat::Type(t)],
+            _
         ) => {
             let top = Pat::LetName(t.clone().some(), n.clone());
             stack.reduce(3, top);
         }
 
         // KwDef LetName `=` -> ExprDefHead End
-        ([..,
-        Pat::Kw(Keyword::Def),
-        Pat::LetName(t, n), Pat::Mark('=')], _
+        (
+            [.., Pat::Kw(Keyword::Def), Pat::LetName(t, n), Pat::Mark('=')],
+            _
         ) => {
             let top = Pat::ExprDefHead(t.clone(), n.to_string());
             stack.reduce(3, top);

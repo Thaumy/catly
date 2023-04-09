@@ -4,6 +4,8 @@ pub mod r#macro;
 pub mod r#type;
 
 use crate::infra::alias::MaybeType;
+use crate::infra::option::AnyExt;
+use crate::infra::quad::Quad;
 use crate::parser::expr::Expr;
 use crate::type_checker::get_type::r#type::{
     ExprEnv,
@@ -71,7 +73,7 @@ pub fn get_type(
             )
         }
 
-        // 推导提示 + 反向约束 + 约束消减 + 约束传播
+        // 推导提示 + 反向约束 + 约束消减 + 约束传播 + 旁路推导
         Expr::Let(
             t,
             assign_name,
@@ -99,13 +101,21 @@ pub fn get_type(
 
         Expr::Apply(t, lhs, rhs) => {
             use case::apply::case;
-            case(t, lhs, rhs)
+            case(type_env, expr_env, t, lhs, rhs)
         }
 
-        // 推导提示 + 反向约束 + 旁路推导 + 穿透推导
+        // 推导提示 + 反向约束 + 旁路推导
         Expr::Match(t, match_expr, vec) => {
             use case::r#match::case;
-            case(t, match_expr, vec)
+            case(type_env, expr_env, t, match_expr, vec)
         }
+    }
+}
+
+pub fn get_const_type(type_env: &TypeEnv, expr: &Expr) -> MaybeType {
+    // 表达式为常量当且仅当它不使用外部环境
+    match get_type(type_env, &vec![], expr) {
+        Quad::L(t) => t.some(),
+        _ => None
     }
 }

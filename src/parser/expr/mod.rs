@@ -5,6 +5,7 @@ use crate::infra::option::AnyExt;
 use crate::parser::expr::pat::Pat;
 use crate::parser::expr::r#fn::go;
 use crate::parser::r#type::Type;
+use crate::type_checker::get_type::get_type_with_hint;
 
 mod r#fn;
 mod pat;
@@ -13,6 +14,7 @@ mod pat;
 pub enum Expr {
     Unit(MaybeType),
     Int(MaybeType, u64),
+    // TODO: Handle int overflow
     EnvRef(MaybeType, String),
     Apply(MaybeType, Box<Expr>, Box<Expr>),
     Cond(MaybeType, Box<Expr>, Box<Expr>, Box<Expr>),
@@ -31,6 +33,7 @@ pub fn parse_expr(seq: Vec<In>) -> MaybeExpr {
 }
 
 impl Expr {
+    // TODO: &self
     pub fn with_fallback_type(self, r#type: &Type) -> Expr {
         match self {
             Expr::Unit(None) => Expr::Unit(r#type.clone().some()),

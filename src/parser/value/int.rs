@@ -10,7 +10,6 @@ enum Pat {
     Digit(u8)
 }
 
-//TODO: handle int overflow
 fn go(stack: Vec<Pat>, seq: &str) -> Option<u64> {
     let (head, tail) = str_get_head_tail(seq);
 

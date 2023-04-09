@@ -101,7 +101,7 @@ pub fn case(
             }
             err => err.clone().err()
         })
-        .fold(Ok(vec![]), |acc, x| match (acc, x) {
+        .fold(vec![].ok(), |acc, x| match (acc, x) {
             (Ok(mut acc), Ok(x)) => {
                 acc.push(x);
                 acc.ok()

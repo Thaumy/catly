@@ -41,11 +41,11 @@ pub fn case(
             // 合并处理是为了节省代码量
             let (assign_expr_type, constraint) =
                 match assign_expr_type {
-                    Quad::L(assign_expr_type) =>
-                        (assign_expr_type, vec![]),
+                    Quad::L(t) => (t, vec![]),
                     // 需传播额外携带的约束
                     Quad::ML(rc) => (rc.r#type, rc.constraint),
-                    _ => todo!()
+                    x =>
+                        panic!("Impossible assign_expr_type: {:?}", x),
                 };
 
             // Lift assign_expr_type to assign_type
@@ -84,11 +84,7 @@ pub fn case(
                 },
                 // 由于 assign_type 存在, 所以此处的约束作用于外层环境, 传播之
                 Quad::ML(rc) => with_constraint_lift_or_left(
-                    constraint
-                        .iter()
-                        .chain(rc.constraint.iter())
-                        .map(|x| x.clone())
-                        .collect(),
+                    vec![constraint, rc.constraint].concat(),
                     type_env,
                     &rc.r#type,
                     expect_type
