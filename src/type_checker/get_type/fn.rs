@@ -1,27 +1,20 @@
 use crate::infra::alias::MaybeType;
-use crate::infra::option::AnyExt as OptAnyExt;
-use crate::infra::quad::Quad;
-use crate::infra::triple::AnyExt as TriAnyExt;
 use crate::infra::vec::Ext;
-use crate::parser::expr::Expr;
 use crate::parser::r#type::Type;
-use crate::type_checker::get_type::get_type;
 use crate::type_checker::get_type::r#type::{
     ExprEnv,
     GetTypeReturn,
     TypeConstraint,
     TypeEnv
 };
-use crate::unifier::{can_lift, lift};
+use crate::unifier::lift;
 use crate::{
     bool_type,
     false_type,
     has_type,
-    int_type,
     require_constraint,
     true_type,
-    type_miss_match,
-    unit_type
+    type_miss_match
 };
 
 pub fn of_boolean_types(t: &Type) -> bool {
@@ -99,32 +92,4 @@ pub fn inject_to_new_expr_env(
             .map(|t| TypeConstraint::Constraint(t.clone()))
             .unwrap_or_else(|| TypeConstraint::Free)
     ))
-}
-
-pub fn inject_const_expr_destruction_to_new_expr_env(
-    type_env: &TypeEnv,
-    old_expr_env: &ExprEnv,
-    expr: &Expr
-) -> ExprEnv {
-    todo!()
-    /*    match expr {
-            Expr::EnvRef(t, n) => {
-                let t = t
-                    .map(|t| TypeConstraint::Constraint(t))
-                    .unwrap_or_else(TypeConstraint::Free);
-                old_expr_env.push_to_new((n.to_string(), t))
-            }
-            Expr::Struct(_, vec) => {
-                vec.iter().map(|(s, mt, e)| {
-                    match mt {
-                        Some(t) => (s, TypeConstraint::Constraint(t.clone())),
-                        None => {
-                            todo!()
-                        }
-                    }
-                })
-            }
-            _ => todo!()
-        }
-    */
 }

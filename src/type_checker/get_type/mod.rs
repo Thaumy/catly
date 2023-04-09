@@ -31,7 +31,6 @@ pub fn get_type(
     expr_env: &ExprEnv,
     expr: &Expr
 ) -> GetTypeReturn {
-    use crate::type_checker::get_type;
     match expr {
         Expr::Int(t, _) => {
             use case::int::case;

@@ -5,7 +5,6 @@ use crate::infra::option::AnyExt;
 use crate::parser::expr::pat::Pat;
 use crate::parser::expr::r#fn::go;
 use crate::parser::r#type::Type;
-use crate::type_checker::get_type::get_type_with_hint;
 
 mod r#fn;
 mod pat;
