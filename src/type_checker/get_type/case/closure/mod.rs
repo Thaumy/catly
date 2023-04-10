@@ -1,4 +1,5 @@
 mod case_rc;
+mod case_ri;
 mod case_t;
 
 use crate::infra::alias::MaybeType;
@@ -8,7 +9,8 @@ use crate::parser::r#type::Type;
 use crate::type_checker::env::expr_env::ExprEnv;
 use crate::type_checker::env::type_env::TypeEnv;
 use crate::type_checker::get_type::case::closure::case_rc::case_rc;
-use crate::type_checker::get_type::case::closure::case_t::case_type;
+use crate::type_checker::get_type::case::closure::case_ri::case_ri;
+use crate::type_checker::get_type::case::closure::case_t::case_t;
 use crate::type_checker::get_type::get_type_with_hint;
 use crate::type_checker::get_type::r#fn::destruct_type_env_ref;
 use crate::type_checker::get_type::r#type::GetTypeReturn;
@@ -61,7 +63,7 @@ pub fn case(
     // 而且提前返回带来的性能提升并不显著
 
     match output_expr_type {
-        Quad::L(output_expr_type) => case_type(
+        Quad::L(output_expr_type) => case_t(
             type_env,
             expect_type,
             input_type,
@@ -69,6 +71,13 @@ pub fn case(
         ),
         Quad::ML(rc) =>
             case_rc(rc, type_env, expect_type, input_name, input_type),
+
+        // 这种情况只会出现在 output_expr 为无类型标注的弃元时
+        // 例如: x -> _
+        // 允许这种特例会让编写 Catly 代码更容易
+        // 同时它使得返回类型为 None 的 Closure 成为可能
+        Quad::MR(ri) if ri.ref_name == "_" =>
+            case_ri(type_env, expect_type, &input_type),
 
         // get_type 不能推导出输出类型(即便进行了类型提示), 或推导错误
         // 推导错误是由类型不匹配导致的, 这种错误无法解决

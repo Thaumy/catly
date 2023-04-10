@@ -62,9 +62,11 @@ pub fn case_ri(
                         })
                         .all(id)
                     {
-                        // 无需收集约束
-                        // 如果所有 case_expr 都能取得类型, 说明它们即使被 hint 也能产生相同的约束
-                        // 因而无需担心以合一的结果 hint target_expr 会产生不同的 case_expr 约束的问题
+                        // 以合一的结果 hint target_expr 可能会产生不同的 case_expr 约束
+                        // 这些不同的约束将全部作用于用于捕获匹配值的 EnvRef
+                        // 这些 EnvRef 会首先尝试提升到 hint...
+                        // 总之, 所有的努力都是对某种可能的推导结果的合法尝试, 因此无需收集约束
+                        // 相反, 收集约束并判断这些约束是否与 hint 后产生的约束等同, 可能会限制某些推导可能
                         rc.r#type.ok()
                     } else {
                         // 虽然本质上是 case_expr 非模式匹配常量

@@ -26,6 +26,7 @@ pub fn lift(
                 (None, _) => true,
                 _ => false
             }),
+
         // T
         // where Base can be lifted to T
         Type::TypeEnvRef(ref_name) => type_env

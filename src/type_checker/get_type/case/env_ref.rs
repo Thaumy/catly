@@ -19,7 +19,7 @@ pub fn case(
 ) -> GetTypeReturn {
     match expr_env.find_type(ref_name) {
         None => match expect_type {
-            // 环境类型缺失, 但可以通过建立约束修复
+            // 环境约束缺失, 但可以通过建立约束修复
             Some(expect_type) =>
                 return require_constraint!(
                     expect_type.clone(),
@@ -28,7 +28,7 @@ pub fn case(
             // 缺乏推导信息
             None => return require_info!(ref_name.to_string())
         },
-        // 成功获取到环境类型
+        // 成功获取到环境约束
         Some(ref_type) => match ref_type {
             TypeConstraint::Free => match expect_type {
                 Some(expect_type) => require_constraint!(
