@@ -1,18 +1,19 @@
 use crate::btree_set;
 use crate::infra::option::AnyExt;
 use crate::parser::r#type::Type;
+use crate::type_checker::env::type_env::TypeEnv;
 use crate::unifier::lift;
 use crate::unifier::sum::lift as lift_sum;
 use crate::unifier::unify;
 
-fn env() -> Vec<(String, Type)> {
+fn env() -> TypeEnv {
     /* env:
     type AB = A | B
     type ABC = A | B | C
     type S = AB | C
     type S2 = B | C
     */
-    vec![
+    let vec = vec![
         (
             "AB".to_string(),
             Type::SumType(btree_set![
@@ -35,7 +36,9 @@ fn env() -> Vec<(String, Type)> {
                 Type::TypeEnvRef("C".to_string()),
             ])
         ),
-    ]
+    ];
+
+    TypeEnv::new(vec)
 }
 
 #[test]

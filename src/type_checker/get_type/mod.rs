@@ -7,11 +7,9 @@ use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
 use crate::parser::expr::Expr;
-use crate::type_checker::get_type::r#type::{
-    ExprEnv,
-    GetTypeReturn,
-    TypeEnv
-};
+use crate::type_checker::env::expr_env::ExprEnv;
+use crate::type_checker::env::type_env::TypeEnv;
+use crate::type_checker::get_type::r#type::GetTypeReturn;
 
 pub fn get_type_with_hint(
     type_env: &TypeEnv,
@@ -111,9 +109,10 @@ pub fn get_type(
     }
 }
 
+// 获取非模式匹配意义上的常量类型
 pub fn get_const_type(type_env: &TypeEnv, expr: &Expr) -> MaybeType {
     // 表达式为常量当且仅当它不使用外部环境
-    match get_type(type_env, &vec![], expr) {
+    match get_type(type_env, &ExprEnv::new(vec![]), expr) {
         Quad::L(t) => t.some(),
         _ => None
     }

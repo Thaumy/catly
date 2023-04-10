@@ -5,16 +5,14 @@ use crate::infra::r#fn::id;
 use crate::infra::result::AnyExt;
 use crate::parser::expr::Expr;
 use crate::parser::r#type::Type;
+use crate::type_checker::env::expr_env::ExprEnv;
+use crate::type_checker::env::type_env::TypeEnv;
 use crate::type_checker::get_type::get_type;
 use crate::type_checker::get_type::r#fn::{
     destruct_type_env_ref,
     with_constraint_lift_or_left
 };
-use crate::type_checker::get_type::r#type::{
-    ExprEnv,
-    GetTypeReturn,
-    TypeEnv
-};
+use crate::type_checker::get_type::r#type::GetTypeReturn;
 use crate::type_miss_match;
 use crate::unifier::can_lift;
 
@@ -91,7 +89,7 @@ pub fn case(
     let vec = vec
         .iter()
         .map(|(n, _, e)| {
-            (n.to_string(), get_type(type_env, expr_env, e))
+            (n.to_string(), get_type(type_env, &expr_env, e))
         })
         .map(|(n, x)| match x {
             Quad::L(t) => (n, t).ok(),

@@ -70,15 +70,15 @@ impl Expr {
     pub fn is_no_type_annotation(&self) -> bool {
         match self {
             Expr::Unit(None) |
-            Expr::Int(None, _) |
-            Expr::EnvRef(None, _) |
-            Expr::Apply(None, _, _) |
-            Expr::Cond(None, _, _, _) |
-            Expr::Closure(None, _, _, _) |
-            Expr::Struct(None, _) |
+            Expr::Int(None, ..) |
+            Expr::EnvRef(None, ..) |
+            Expr::Apply(None, ..) |
+            Expr::Cond(None, ..) |
+            Expr::Closure(None, ..) |
+            Expr::Struct(None, ..) |
             Expr::Discard(None) |
-            Expr::Match(None, _, _) |
-            Expr::Let(None, _, _, _, _) => true,
+            Expr::Match(None, ..) |
+            Expr::Let(None, ..) => true,
             _ => false
         }
     }

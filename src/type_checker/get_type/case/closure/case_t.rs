@@ -2,8 +2,9 @@ use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext;
 use crate::parser::r#type::Type;
+use crate::type_checker::env::type_env::TypeEnv;
 use crate::type_checker::get_type::r#fn::lift_or_left;
-use crate::type_checker::get_type::r#type::{GetTypeReturn, TypeEnv};
+use crate::type_checker::get_type::r#type::GetTypeReturn;
 use crate::{has_type, type_miss_match};
 
 pub fn case_type(

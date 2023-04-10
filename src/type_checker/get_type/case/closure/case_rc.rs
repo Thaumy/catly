@@ -2,11 +2,11 @@ use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext;
 use crate::parser::r#type::Type;
+use crate::type_checker::env::type_env::TypeEnv;
 use crate::type_checker::get_type::r#fn::with_constraint_lift_or_left;
 use crate::type_checker::get_type::r#type::{
     GetTypeReturn,
-    RequireConstraint,
-    TypeEnv
+    RequireConstraint
 };
 
 pub fn case_rc(

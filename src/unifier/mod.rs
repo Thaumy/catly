@@ -5,31 +5,18 @@ use sum::lift as lift_sum;
 
 use crate::infra::option::AnyExt;
 use crate::parser::r#type::Type;
-use crate::type_checker::get_type::r#type::TypeEnv;
+use crate::type_checker::env::type_env::TypeEnv;
 
 mod closure;
 mod env_ref;
 mod prod;
 mod sum;
 
-pub fn ref_exist(type_env: &TypeEnv, ref_name: &str) -> bool {
-    let is_exist = match ref_name {
-        "Int" | "Unit" => true,
-        _ => type_env
-            .iter()
-            .any(|(n, _)| n == ref_name)
-    };
-    if !is_exist {
-        println!("TypeEnvRef {:?} not exist in type env", ref_name);
-    }
-    is_exist
-}
-
 pub fn can_lift(type_env: &TypeEnv, from: &Type, to: &Type) -> bool {
     if let Type::TypeEnvRef(n) = from
-        && !ref_exist(type_env, n) { return false; }
+        && !type_env.exist_ref( n) { return false; }
     if let Type::TypeEnvRef(n) = to
-        && !ref_exist(type_env, n) { return false; }
+        && !type_env.exist_ref( n) { return false; }
 
     match from {
         Type::TypeEnvRef(n) if lift_env_ref(type_env, n, to) => true,

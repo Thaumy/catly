@@ -4,14 +4,12 @@ mod case_t_rc;
 use crate::infra::alias::MaybeType;
 use crate::infra::quad::Quad;
 use crate::parser::expr::Expr;
+use crate::type_checker::env::expr_env::ExprEnv;
+use crate::type_checker::env::type_env::TypeEnv;
 use crate::type_checker::get_type::case::r#let::case_ri::case_ri;
 use crate::type_checker::get_type::case::r#let::case_t_rc::case_t_rc;
 use crate::type_checker::get_type::get_type_with_hint;
-use crate::type_checker::get_type::r#type::{
-    ExprEnv,
-    GetTypeReturn,
-    TypeEnv
-};
+use crate::type_checker::get_type::r#type::GetTypeReturn;
 
 pub fn case(
     type_env: &TypeEnv,
@@ -37,7 +35,7 @@ pub fn case(
         // L 与 ML 的唯一区别是 ML 额外携带了一些对外层环境的约束, 需要传播这些约束
         Quad::L(_) | Quad::ML(_) => case_t_rc(
             type_env,
-            expr_env,
+            &expr_env,
             assign_expr_type,
             expect_type,
             assign_name,
@@ -54,7 +52,7 @@ pub fn case(
                 assign_expr.is_no_type_annotation() =>
             case_ri(
                 type_env,
-                expr_env,
+                &expr_env,
                 expect_type,
                 assign_name,
                 assign_expr,

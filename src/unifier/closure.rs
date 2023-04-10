@@ -1,6 +1,6 @@
 use crate::infra::alias::MaybeType;
 use crate::parser::r#type::Type;
-use crate::type_checker::get_type::r#type::TypeEnv;
+use crate::type_checker::env::type_env::TypeEnv;
 use crate::unifier::can_lift;
 
 pub fn lift(
@@ -29,12 +29,9 @@ pub fn lift(
         // T
         // where Base can be lifted to T
         Type::TypeEnvRef(ref_name) => type_env
-            .iter()
-            .rev()
-            .find(|(n, t)| {
-                n == ref_name && lift(type_env, i_t, o_t, t)
-            })
-            .is_some(),
+            .find_type(ref_name)
+            .map(|t| lift(type_env, i_t, o_t, t))
+            .unwrap_or(false),
 
         // .. | T | ..
         // where Base can be lifted to T

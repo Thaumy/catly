@@ -2,11 +2,12 @@ use crate::btree_set;
 use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext;
 use crate::parser::r#type::Type;
+use crate::type_checker::env::type_env::TypeEnv;
 use crate::unifier::closure::lift as lift_closure;
 use crate::unifier::lift;
 use crate::unifier::unify;
 
-fn env() -> Vec<(String, Type)> {
+fn env() -> TypeEnv {
     /* env:
     type A = Int
     type B = Int
@@ -16,7 +17,7 @@ fn env() -> Vec<(String, Type)> {
     type FG = F | G
     type AB = A | B
     */
-    vec![
+    let vec = vec![
         ("A".to_string(), Type::TypeEnvRef("Int".to_string())),
         ("B".to_string(), Type::TypeEnvRef("Int".to_string())),
         (
@@ -62,7 +63,9 @@ fn env() -> Vec<(String, Type)> {
                 Type::TypeEnvRef("B".to_string()),
             ])
         ),
-    ]
+    ];
+
+    TypeEnv::new(vec)
 }
 
 #[test]
@@ -82,7 +85,7 @@ fn test_lift_part1() {
         env,
         &a.clone().some(),
         &b.clone().some(),
-        derive
+        derive,
     ));
 
     let base = &Type::ClosureType(
@@ -103,7 +106,7 @@ fn test_lift_part2() {
         env,
         &a.clone().some(),
         &b.clone().some(),
-        derive
+        derive,
     ));
 
     let base = &Type::ClosureType(
@@ -124,7 +127,7 @@ fn test_lift_part3() {
         env,
         &a.clone().some(),
         &b.clone().some(),
-        derive
+        derive,
     ));
 
     let base = &Type::ClosureType(
@@ -145,7 +148,7 @@ fn test_lift_part4() {
         env,
         &a.clone().some(),
         &b.clone().some(),
-        derive
+        derive,
     ));
 
     let base = &Type::ClosureType(
@@ -166,7 +169,7 @@ fn test_lift_part5() {
         env,
         &a.clone().some(),
         &b.clone().some(),
-        derive
+        derive,
     ));
 
     let base = &Type::ClosureType(

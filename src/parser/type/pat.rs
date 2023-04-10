@@ -32,11 +32,11 @@ pub enum Pat {
 impl Pat {
     pub(crate) fn is_type(&self) -> bool {
         match self {
-            Pat::TypeName(_) |
-            Pat::TypeApply(_, _) |
-            Pat::ClosureType(_, _) |
-            Pat::SumType(_) |
-            Pat::ProdType(_) => true,
+            Pat::TypeName(..) |
+            Pat::TypeApply(..) |
+            Pat::ClosureType(..) |
+            Pat::SumType(..) |
+            Pat::ProdType(..) => true,
             _ => false
         }
     }

@@ -5,18 +5,13 @@ use crate::infra::alias::MaybeType;
 use crate::infra::quad::Quad;
 use crate::parser::expr::Expr;
 use crate::parser::r#type::Type;
+use crate::type_checker::env::expr_env::ExprEnv;
+use crate::type_checker::env::type_env::TypeEnv;
 use crate::type_checker::get_type::case::closure::case_rc::case_rc;
 use crate::type_checker::get_type::case::closure::case_t::case_type;
 use crate::type_checker::get_type::get_type_with_hint;
-use crate::type_checker::get_type::r#fn::{
-    destruct_type_env_ref,
-    inject_to_new_expr_env
-};
-use crate::type_checker::get_type::r#type::{
-    ExprEnv,
-    GetTypeReturn,
-    TypeEnv
-};
+use crate::type_checker::get_type::r#fn::destruct_type_env_ref;
+use crate::type_checker::get_type::r#type::GetTypeReturn;
 use crate::type_miss_match;
 
 pub fn case(
@@ -48,8 +43,8 @@ pub fn case(
 
     // Inject parameter to env
     let expr_env = match input_name {
-        Some(input_name) =>
-            inject_to_new_expr_env(expr_env, input_name, &input_type),
+        Some(input_name) => expr_env
+            .extend_new(input_name.clone(), input_type.clone()),
         _ => expr_env.clone()
     };
 

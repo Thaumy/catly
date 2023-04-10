@@ -1,17 +1,18 @@
 use crate::btree_set;
 use crate::infra::option::AnyExt;
 use crate::parser::r#type::Type;
+use crate::type_checker::env::type_env::TypeEnv;
 use crate::unifier::lift;
 use crate::unifier::prod::lift as lift_prod;
 use crate::unifier::unify;
 
-fn env() -> Vec<(String, Type)> {
+fn env() -> TypeEnv {
     /* env:
     type S = { a: A }
     type SA = S | A
     type BA = B | A
     */
-    vec![
+    let vec = vec![
         (
             "S".to_string(),
             Type::ProdType(vec![(
@@ -33,7 +34,9 @@ fn env() -> Vec<(String, Type)> {
                 Type::TypeEnvRef("A".to_string()),
             ])
         ),
-    ]
+    ];
+
+    TypeEnv::new(vec)
 }
 
 #[test]

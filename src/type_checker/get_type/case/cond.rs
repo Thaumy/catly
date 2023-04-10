@@ -2,13 +2,11 @@ use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
 use crate::parser::expr::Expr;
+use crate::type_checker::env::expr_env::ExprEnv;
+use crate::type_checker::env::type_env::TypeEnv;
 use crate::type_checker::get_type::get_type_with_hint;
 use crate::type_checker::get_type::r#fn::of_boolean_types;
-use crate::type_checker::get_type::r#type::{
-    ExprEnv,
-    GetTypeReturn,
-    TypeEnv
-};
+use crate::type_checker::get_type::r#type::GetTypeReturn;
 use crate::unifier::{lift, unify};
 use crate::{
     bool_type,

@@ -1,6 +1,7 @@
 use crate::parser::r#type::Type;
+use crate::type_checker::env::type_env::TypeEnv;
 
-pub fn lift(env: &Vec<(String, Type)>, derive: &Type) -> bool {
+pub fn lift(env: &TypeEnv, derive: &Type) -> bool {
     println!("Uplift Int to {:?}", derive);
 
     match derive {
@@ -10,10 +11,9 @@ pub fn lift(env: &Vec<(String, Type)>, derive: &Type) -> bool {
         // T
         // where Base can be lifted to T
         Type::TypeEnvRef(ref_name) => env
-            .iter()
-            .rev()
-            .find(|(n, t)| n == ref_name && lift(env, t))
-            .is_some(),
+            .find_type(ref_name)
+            .map(|t| lift(env, t))
+            .unwrap_or(false),
 
         // .. | T | ..
         // where Base can be lifted to T

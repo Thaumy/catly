@@ -70,16 +70,16 @@ pub enum Pat {
 impl Pat {
     pub fn is_expr(&self) -> bool {
         match self {
-            Pat::Unit(_) |
-            Pat::Int(_, _) |
-            Pat::LetName(_, _) |
-            Pat::Apply(_, _, _) |
-            Pat::Cond(_, _, _, _) |
-            Pat::Closure(_, _, _, _) |
-            Pat::Struct(_, _) |
-            Pat::Discard(_) |
-            Pat::Match(_, _, _) |
-            Pat::Let(_, _, _, _, _) => true,
+            Pat::Unit(..) |
+            Pat::Int(..) |
+            Pat::LetName(..) |
+            Pat::Apply(..) |
+            Pat::Cond(..) |
+            Pat::Closure(..) |
+            Pat::Struct(..) |
+            Pat::Discard(..) |
+            Pat::Match(..) |
+            Pat::Let(..) => true,
             _ => false
         }
     }
@@ -108,11 +108,11 @@ impl Pat {
     }
     pub fn is_type(&self) -> bool {
         match self {
-            Pat::TypeName(_) |
-            Pat::TypeApply(_, _) |
-            Pat::ClosureType(_, _) |
-            Pat::SumType(_) |
-            Pat::ProdType(_) => true,
+            Pat::TypeName(..) |
+            Pat::TypeApply(..) |
+            Pat::ClosureType(..) |
+            Pat::SumType(..) |
+            Pat::ProdType(..) => true,
             _ => false
         }
     }

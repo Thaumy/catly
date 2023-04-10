@@ -6,12 +6,12 @@ use crate::infra::r#fn::id;
 use crate::infra::result::AnyExt as ResAnyExt;
 use crate::parser::expr::Expr;
 use crate::parser::r#type::Type;
-use crate::type_checker::get_type::case::r#match::r#fn::destruct_const_to_expr_env;
+use crate::type_checker::env::expr_env::ExprEnv;
+use crate::type_checker::env::type_env::TypeEnv;
+use crate::type_checker::get_type::case::r#match::r#fn::destruct_const_to_expr_env_inject;
 use crate::type_checker::get_type::r#type::{
-    ExprEnv,
     GetTypeReturn,
-    RequireInfo,
-    TypeEnv
+    RequireInfo
 };
 use crate::type_checker::get_type::{get_type, get_type_with_hint};
 use crate::type_miss_match;
@@ -34,8 +34,11 @@ pub fn case_ri(
     let iter = vec
         .iter()
         .map(|(case_expr, then_expr)| {
-            let case_expr_env =
-                destruct_const_to_expr_env(type_env, &case_expr);
+            let case_expr_env_inject =
+                destruct_const_to_expr_env_inject(
+                    type_env, &case_expr
+                );
+            let case_expr_env = ExprEnv::new(case_expr_env_inject);
             (case_expr, case_expr_env, then_expr)
         });
 
@@ -53,11 +56,7 @@ pub fn case_ri(
                     if rc
                         .constraint
                         .iter()
-                        .map(|(n, _)| {
-                            case_expr_env
-                                .iter()
-                                .any(|(x, _)| n == x)
-                        })
+                        .map(|(n, _)| case_expr_env.exist_ref(n))
                         .all(id)
                     {
                         // 无需收集约束
@@ -104,11 +103,12 @@ pub fn case_ri(
             // 那么在求 then_expr 时可能对产生针对 match_expr 的类型约束
             // 以合一后的约束目标为 hint 求 match 表达式类型
 
-            // 过滤出所有不受到 case_expr 解构常量环境同名 EnvRef 影响的 then_expr
-            // 因为这些同名 EnvRef 会覆盖对 match 表达式匹配对象的环境引用
             let hint = iter
                 .filter(|(_, case_expr_env, _)|
-                    case_expr_env.iter().all(|(n, _)| n != ref_name)
+                    // 过滤出所有不受到 case_expr 解构常量环境同名 EnvRef 影响的 then_expr
+                    // 因为这些同名 EnvRef 会覆盖对 match 表达式匹配对象的环境引用
+                    // 如果常量环境中不存在名为 ref_name 的注入, 那么 then_expr 约束的 ref_name 便是匹配目标
+                    !case_expr_env.exist_ref(ref_name)
                 )
                 .map(|(_, _, then_expr)|
                     match get_type_with_hint(type_env, expr_env, then_expr, expect_type) {

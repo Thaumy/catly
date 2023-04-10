@@ -2,17 +2,14 @@ use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
 use crate::parser::expr::Expr;
+use crate::type_checker::env::expr_env::ExprEnv;
+use crate::type_checker::env::type_env::TypeEnv;
 use crate::type_checker::get_type::get_type_with_hint;
 use crate::type_checker::get_type::r#fn::{
-    inject_to_new_expr_env,
     lift_or_left,
     with_constraint_lift_or_left
 };
-use crate::type_checker::get_type::r#type::{
-    ExprEnv,
-    GetTypeReturn,
-    TypeEnv
-};
+use crate::type_checker::get_type::r#type::GetTypeReturn;
 use crate::{has_type, type_miss_match};
 
 pub fn case_t_rc(
@@ -43,11 +40,8 @@ pub fn case_t_rc(
     };
 
     // Env inject
-    let expr_env = inject_to_new_expr_env(
-        expr_env,
-        assign_name,
-        &assign_type.some()
-    );
+    let expr_env = expr_env
+        .extend_new(assign_name.to_string(), assign_type.some());
 
     // Hint scope_expr with expect_type and get scope_expr_type
     let scope_expr_type = get_type_with_hint(

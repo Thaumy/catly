@@ -1,14 +1,9 @@
 use crate::infra::alias::MaybeType;
-use crate::type_checker::get_type::r#fn::{
-    find_ref_type,
-    lift_or_left
-};
-use crate::type_checker::get_type::r#type::{
-    ExprEnv,
-    GetTypeReturn,
-    TypeConstraint,
-    TypeEnv
-};
+use crate::type_checker::env::expr_env::ExprEnv;
+use crate::type_checker::env::type_env::TypeEnv;
+use crate::type_checker::get_type::r#fn::lift_or_left;
+use crate::type_checker::get_type::r#type::GetTypeReturn;
+use crate::type_checker::r#type::TypeConstraint;
 use crate::{
     has_type,
     require_constraint,
@@ -22,8 +17,7 @@ pub fn case(
     expect_type: &MaybeType,
     ref_name: &str
 ) -> GetTypeReturn {
-    // 直接获取环境类型, 不再进行推导
-    match find_ref_type(expr_env, ref_name) {
+    match expr_env.find_type(ref_name) {
         None => match expect_type {
             // 环境类型缺失, 但可以通过建立约束修复
             Some(expect_type) =>

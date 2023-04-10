@@ -6,13 +6,11 @@ use crate::infra::quad::Quad;
 use crate::infra::r#fn::id;
 use crate::infra::result::AnyExt as ResAnyExt;
 use crate::parser::expr::Expr;
-use crate::type_checker::get_type::case::r#match::r#fn::destruct_const_to_expr_env;
+use crate::type_checker::env::expr_env::ExprEnv;
+use crate::type_checker::env::type_env::TypeEnv;
+use crate::type_checker::get_type::case::r#match::r#fn::destruct_const_to_expr_env_inject;
 use crate::type_checker::get_type::get_type;
-use crate::type_checker::get_type::r#type::{
-    ExprEnv,
-    GetTypeReturn,
-    TypeEnv
-};
+use crate::type_checker::get_type::r#type::GetTypeReturn;
 use crate::unifier::{can_lift, unify};
 use crate::{has_type, require_constraint, type_miss_match};
 
@@ -27,7 +25,7 @@ pub fn case_t_rc(
         match match_expr_type {
             Quad::L(t) => (t, vec![]),
             Quad::ML(rc) => (rc.r#type, rc.constraint),
-            x => panic!("Impossible assign_expr_type: {:?}", x)
+            x => panic!("Impossible match_expr_type: {:?}", x)
         };
 
     // 统一进行提示, 并求出 case_expr 解构出的常量环境
@@ -44,19 +42,25 @@ pub fn case_t_rc(
                 .try_with_fallback_type(expect_type);
 
             // 将 case_expr 解构到常量环境, 该环境将在 then_expr 中被使用
-            let case_expr_env =
-                destruct_const_to_expr_env(type_env, &case_expr);
+            let case_expr_env_inject =
+                destruct_const_to_expr_env_inject(
+                    type_env, &case_expr
+                );
 
-            (case_expr, case_expr_env, then_expr)
+            (case_expr, case_expr_env_inject, then_expr)
         });
 
     // 逐一确认 case_expr_type 与 match_expr_type 的相容性
     // 同时确保 case_expr 是模式匹配意义上的常量
     if hinted_cases
         .clone()
-        .map(|(case_expr, case_expr_env, _)| {
+        .map(|(case_expr, case_expr_env_inject, _)| {
             // 使用空表达式环境提取 case_expr_type, 这样能让所有对外界的约束得以暴露
-            match get_type(type_env, &vec![], &case_expr) {
+            match get_type(
+                type_env,
+                &ExprEnv::new(vec![]),
+                &case_expr
+            ) {
                 Quad::L(case_expr_type) => can_lift(
                     type_env,
                     &case_expr_type,
@@ -66,13 +70,13 @@ pub fn case_t_rc(
                 Quad::ML(rc) =>
                     rc.constraint
                         .iter()
-                        .map(|(n, _)| {
+                        .map(|(capture_name, _)| {
                             // 这些约束应该全部存在于从常量解构出来的环境中
                             // 它们代表了匹配到的值的捕获
                             // 这些捕获将在 then_expr 的环境中被使用
-                            case_expr_env
+                            case_expr_env_inject
                                 .iter()
-                                .any(|(x, _)| n == x)
+                                .any(|(n, _)| n == capture_name)
                         })
                         // 如果产生了不存在于常量环境中的约束
                         // 则表明这些约束试图作用于真实的外层环境
@@ -111,8 +115,7 @@ pub fn case_t_rc(
                 let then_expr_type = get_type(
                     type_env,
                     // then_expr 需要在原环境和常量环境的拼接中求类型
-                    &vec![expr_env.clone(), case_expr_env.clone()]
-                        .concat(),
+                    &expr_env.extend_vec_new(case_expr_env),
                     &then_expr
                 );
 
@@ -179,8 +182,7 @@ pub fn case_t_rc(
                 // 此部分与上方原理相同
                 let then_expr_type = get_type(
                     type_env,
-                    &vec![expr_env.clone(), case_expr_env.clone()]
-                        .concat(),
+                    &expr_env.extend_vec_new(case_expr_env),
                     &then_expr
                 );
 

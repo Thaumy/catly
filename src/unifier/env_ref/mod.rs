@@ -2,7 +2,7 @@ use int::lift as lift_int;
 use unit::lift as lift_unit;
 
 use crate::parser::r#type::Type;
-use crate::type_checker::get_type::r#type::TypeEnv;
+use crate::type_checker::env::type_env::TypeEnv;
 
 mod int;
 mod unit;
@@ -25,11 +25,7 @@ pub fn lift(type_env: &TypeEnv, base: &str, derive: &Type) -> bool {
             type Bool = True | False
             将 True 和 Bool 合一是可行的, 这会产生 Bool */
             // type Derive = .. | Base | ..
-            Type::TypeEnvRef(ref_name) if let Some(t) = type_env
-                .iter()
-                .rev()
-                .find(|(n, _)| n == ref_name)
-                .map(|(_, t)| t)
+            Type::TypeEnvRef(ref_name) if let Some(t) = type_env.find_type(ref_name)
                 && let Type::SumType(s) = t
                 && s.iter().rev().any(|t| match t {
                 Type::TypeEnvRef(n) => n == base,
