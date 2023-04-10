@@ -17,25 +17,25 @@ use crate::{has_type, require_constraint, type_miss_match};
 pub fn case_t_rc(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
-    match_expr_type: GetTypeReturn,
+    target_expr_type: GetTypeReturn,
     expect_type: &MaybeType,
     vec: &Vec<(Expr, Expr)>
 ) -> GetTypeReturn {
-    let (match_expr_type, constraint_of_match_expr_type) =
-        match match_expr_type {
+    let (target_expr_type, constraint_of_target_expr_type) =
+        match target_expr_type {
             Quad::L(t) => (t, vec![]),
             Quad::ML(rc) => (rc.r#type, rc.constraint),
-            x => panic!("Impossible match_expr_type: {:?}", x)
+            x => panic!("Impossible target_expr_type: {:?}", x)
         };
 
     // 统一进行提示, 并求出 case_expr 解构出的常量环境
     let hinted_cases = vec
         .iter()
         .map(|(case_expr, then_expr)| {
-            // Hint every case_expr with match_expr_type
+            // Hint every case_expr with target_expr_type
             let case_expr = case_expr
                 .clone()
-                .with_fallback_type(&match_expr_type);
+                .with_fallback_type(&target_expr_type);
             // Hint every then_expr with expect_type
             let then_expr = then_expr
                 .clone()
@@ -50,7 +50,7 @@ pub fn case_t_rc(
             (case_expr, case_expr_env_inject, then_expr)
         });
 
-    // 逐一确认 case_expr_type 与 match_expr_type 的相容性
+    // 逐一确认 case_expr_type 与 target_expr_type 的相容性
     // 同时确保 case_expr 是模式匹配意义上的常量
     if hinted_cases
         .clone()
@@ -64,7 +64,7 @@ pub fn case_t_rc(
                 Quad::L(case_expr_type) => can_lift(
                     type_env,
                     &case_expr_type,
-                    &match_expr_type
+                    &target_expr_type
                 ),
                 // 表达式环境为空却产生了约束
                 Quad::ML(rc) =>
@@ -87,9 +87,9 @@ pub fn case_t_rc(
                         can_lift(
                             type_env,
                             &rc.r#type,
-                            &match_expr_type
+                            &target_expr_type
                         ),
-                // 因为 case_expr 已被 match_expr_type hint
+                // 因为 case_expr 已被 target_expr_type hint
                 // 所以 case_expr_type 一定有足够的信息求得类型(即便求出的类型不相容)
                 // 不可能出现缺乏类型信息的情况
                 // 由此也可推断, case_expr_env 中不存在自由类型
@@ -164,7 +164,7 @@ pub fn case_t_rc(
                     require_constraint!(
                         expect_type.clone(),
                         vec![
-                            constraint_of_match_expr_type,
+                            constraint_of_target_expr_type,
                             constraint
                         ]
                         .concat()
@@ -236,7 +236,7 @@ pub fn case_t_rc(
                     require_constraint!(
                         final_type,
                         vec![
-                            constraint_of_match_expr_type,
+                            constraint_of_target_expr_type,
                             constraint
                         ]
                         .concat()

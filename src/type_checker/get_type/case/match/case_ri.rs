@@ -22,12 +22,12 @@ pub fn case_ri(
     expr_env: &ExprEnv,
     require_info: RequireInfo,
     expect_type: &MaybeType,
-    match_expr: &Expr,
+    target_expr: &Expr,
     vec: &Vec<(Expr, Expr)>
 ) -> GetTypeReturn {
     let original_err = Quad::MR(require_info);
 
-    // 当 case_expr_type 能够合一为某个类型时, 这个类型与 match_expr 将直接相关
+    // 当 case_expr_type 能够合一为某个类型时, 这个类型与 target_expr 将直接相关
     // 此时以该类型为 hint 求 match 表达式类型
 
     // 首先取得 case_expr 产生的常量环境, 用作后续检查 case_expr 是否是模式匹配意义上的常量
@@ -38,8 +38,7 @@ pub fn case_ri(
                 destruct_const_to_expr_env_inject(
                     type_env, &case_expr
                 );
-            let case_expr_env = ExprEnv::new(case_expr_env_inject);
-            (case_expr, case_expr_env, then_expr)
+            (case_expr, case_expr_env_inject, then_expr)
         });
 
     // 因为 case 总是倾向于在最后出现通配, 所以倒序合一更有效
@@ -47,8 +46,8 @@ pub fn case_ri(
     let final_case_expr_type_and_constraint = iter
         .clone()
         .rev()
-        .map(|(case_expr, case_expr_env, _)| {
-            // 不用 hint, 因为 match_expr 此时无法获取类型
+        .map(|(case_expr, case_expr_env_inject, _)| {
+            // 不用 hint case_expr, 因为对 target_expr 的类型获取缺乏信息
             match get_type(type_env, expr_env, case_expr) {
                 Quad::L(case_expr_type) => case_expr_type.ok(),
                 Quad::ML(rc) =>
@@ -56,16 +55,20 @@ pub fn case_ri(
                     if rc
                         .constraint
                         .iter()
-                        .map(|(n, _)| case_expr_env.exist_ref(n))
+                        .map(|(capture_name, _)| {
+                            case_expr_env_inject
+                                .iter()
+                                .any(|(n, _)| n == capture_name)
+                        })
                         .all(id)
                     {
                         // 无需收集约束
                         // 如果所有 case_expr 都能取得类型, 说明它们即使被 hint 也能产生相同的约束
-                        // 因而无需担心以合一的结果 hint match_expr 会产生不同的 case_expr 约束的问题
+                        // 因而无需担心以合一的结果 hint target_expr 会产生不同的 case_expr 约束的问题
                         rc.r#type.ok()
                     } else {
                         // 虽然本质上是 case_expr 非模式匹配常量
-                        // 但是实际上还是 match_expr 信息不足所致, 原错误返回之
+                        // 但是实际上还是 target_expr 信息不足所致, 原错误返回之
                         original_err.clone().err()
                     },
                 _ => original_err.clone().err() // 原理同上
@@ -93,25 +96,36 @@ pub fn case_ri(
         Ok(t) => {
             let expr = Expr::Match(
                 t,
-                match_expr.clone().boxed(),
+                target_expr.clone().boxed(),
                 vec.clone(),
             );
             get_type(type_env, expr_env, &expr)
         }
-        _ if let Expr::EnvRef(.., ref_name) = match_expr => {
-            // 当 case_expr_type 不能合一时, 如果 match_expr 是 EnvRef
-            // 那么在求 then_expr 时可能对产生针对 match_expr 的类型约束
+        _ if let Expr::EnvRef(_, ref_name) = target_expr => {
+            // 当 case_expr_type 不能合一时, 如果 target_expr 是 EnvRef
+            // 那么在求 then_expr 时可能对产生针对 target_expr 的类型约束
             // 以合一后的约束目标为 hint 求 match 表达式类型
 
             let hint = iter
-                .filter(|(_, case_expr_env, _)|
+                .filter(|(_, case_expr_env_inject, _)|
                     // 过滤出所有不受到 case_expr 解构常量环境同名 EnvRef 影响的 then_expr
                     // 因为这些同名 EnvRef 会覆盖对 match 表达式匹配对象的环境引用
                     // 如果常量环境中不存在名为 ref_name 的注入, 那么 then_expr 约束的 ref_name 便是匹配目标
-                    !case_expr_env.exist_ref(ref_name)
+                    case_expr_env_inject
+                        .iter()
+                        .all(|(n, _)| n != ref_name)
                 )
-                .map(|(_, _, then_expr)|
-                    match get_type_with_hint(type_env, expr_env, then_expr, expect_type) {
+                .map(|(_, case_expr_env_inject, then_expr)|
+                    match get_type_with_hint(
+                        type_env,
+                        // 使用 then_expr 的旁路推导需要来自 case_expr 的常量环境注入
+                        // 因为 case_expr 可能包含在 then_expr 中会使用的类型信息
+                        // 如果不进行注入, 推导可能会因为缺乏类型信息而失败
+                        // let case 的旁路推导因为 assign_type 和 assign_expr 均无法提供有效的类型信息, 所以不需要注入
+                        &expr_env.extend_vec_new(case_expr_env_inject),
+                        then_expr,
+                        expect_type
+                    ) {
                         Quad::ML(rc) => rc.constraint
                             .iter()
                             .find(|(n, _)| n == ref_name)
@@ -130,7 +144,7 @@ pub fn case_ri(
                 Some(t) => {
                     let expr = Expr::Match(
                         t.some(),
-                        match_expr.clone().boxed(),
+                        target_expr.clone().boxed(),
                         vec.clone(),
                     );
                     get_type(type_env, expr_env, &expr)

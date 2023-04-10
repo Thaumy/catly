@@ -32,7 +32,6 @@ pub fn case_ri(
     // 因为即使注入了环境也不能提供更多的类型信息(assign_type 是 Free)
     // 而且当找不到 assign_name 的类型信息时, env_ref case 会返回对 assign_name 的约束要求
     // 这种返回与注入 assign_name:Free 后再获取 assign_name 的类型信息时是一致的
-    // 其实, 旁路类型推导的特点就是无需外层的环境注入
     match scope_expr_type {
         // 返回了确定类型, 表明内层环境并没有用到 Let 的环境注入
         // 换言之, Let 表达式可以被直接简化为 scope_expr, 因为 scope_expr 与绑定无关

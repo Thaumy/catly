@@ -102,9 +102,9 @@ pub fn get_type(
         }
 
         // 推导提示 + 反向约束 + 旁路推导
-        Expr::Match(t, match_expr, vec) => {
+        Expr::Match(t, target_expr, vec) => {
             use case::r#match::case;
-            case(type_env, expr_env, t, match_expr, vec)
+            case(type_env, expr_env, t, target_expr, vec)
         }
     }
 }

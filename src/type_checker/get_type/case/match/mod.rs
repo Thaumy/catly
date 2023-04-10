@@ -16,29 +16,33 @@ pub fn case(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
     expect_type: &MaybeType,
-    match_expr: &Expr,
+    target_expr: &Expr,
     vec: &Vec<(Expr, Expr)>
 ) -> GetTypeReturn {
-    let match_expr_type = get_type(type_env, expr_env, match_expr);
+    let target_expr_type = get_type(type_env, expr_env, target_expr);
 
-    match match_expr_type {
+    match target_expr_type {
         // L 与 ML 同样只有是否需要传播对外界环境的约束的区别
         Quad::L(_) | Quad::ML(_) => case_t_rc(
             type_env,
             expr_env,
-            match_expr_type,
+            target_expr_type,
             expect_type,
             vec
         ),
-        // 无法获取 match_expr 类型信息, 启用旁路类型推导
-        Quad::MR(require_info) => case_ri(
-            type_env,
-            expr_env,
-            require_info,
-            expect_type,
-            match_expr,
-            vec
-        ),
+        // 无法获取 target_expr 类型信息, 启用旁路类型推导
+        // 同样, 为了防止内层环境对外层环境造成跨越优先级的约束, 仅当 target_expr 没有类型标注时才能启用旁路推导
+        // 相关讨论参见 let case
+        Quad::MR(require_info)
+            if target_expr.is_no_type_annotation() =>
+            case_ri(
+                type_env,
+                expr_env,
+                require_info,
+                expect_type,
+                target_expr,
+                vec
+            ),
         // 类型不相容
         r => r.clone()
     }
