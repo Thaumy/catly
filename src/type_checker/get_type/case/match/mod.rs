@@ -1,9 +1,11 @@
+mod case_ri;
 mod case_t_rc;
 mod r#fn;
 
 use crate::infra::alias::MaybeType;
 use crate::infra::quad::Quad;
 use crate::parser::expr::Expr;
+use crate::type_checker::get_type::case::r#match::case_ri::case_ri;
 use crate::type_checker::get_type::case::r#match::case_t_rc::case_t_rc;
 use crate::type_checker::get_type::get_type;
 use crate::type_checker::get_type::r#type::{
@@ -30,16 +32,15 @@ pub fn case(
             expect_type,
             vec
         ),
-        // 无法获取 match_expr 类型信息, 启用旁路推导
-        Quad::MR(_) => {
-            // 当 case_expr_type 能够合一为某个类型时, 这个类型与 match_expr 将直接相关
-            // 此时以该类型为 hint 求 match 表达式类型
-
-            // 当 case_expr_type 不能合一时, 如果 match_expr 是 EnvRef
-            // 那么在求 then_expr 时可能对产生针对 match_expr 的类型约束
-            // 以合一后的约束目标为 hint 求 match 表达式类型
-            todo!()
-        }
+        // 无法获取 match_expr 类型信息, 启用旁路类型推导
+        Quad::MR(require_info) => case_ri(
+            type_env,
+            expr_env,
+            require_info,
+            expect_type,
+            match_expr,
+            vec
+        ),
         // 类型不相容
         r => r.clone()
     }
