@@ -1,3 +1,5 @@
+use crate::env::expr_env::ExprEnv;
+use crate::env::type_env::TypeEnv;
 use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt as OptAnyExt;
 use crate::infra::quad::Quad;
@@ -6,8 +8,6 @@ use crate::infra::r#fn::id;
 use crate::infra::result::AnyExt as ResAnyExt;
 use crate::parser::expr::Expr;
 use crate::parser::r#type::Type;
-use crate::type_checker::env::expr_env::ExprEnv;
-use crate::type_checker::env::type_env::TypeEnv;
 use crate::type_checker::get_type::case::r#match::r#fn::destruct_const_to_expr_env_inject;
 use crate::type_checker::get_type::r#type::{
     GetTypeReturn,

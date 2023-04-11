@@ -1,6 +1,6 @@
+use crate::env::type_env::TypeEnv;
 use crate::infra::alias::MaybeType;
 use crate::parser::r#type::Type;
-use crate::type_checker::env::type_env::TypeEnv;
 use crate::type_checker::get_type::r#type::GetTypeReturn;
 use crate::unifier::lift;
 use crate::{

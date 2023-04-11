@@ -1,5 +1,5 @@
+use crate::env::type_env::TypeEnv;
 use crate::parser::expr::Expr;
-use crate::type_checker::env::type_env::TypeEnv;
 use crate::type_checker::r#type::TypeConstraint;
 
 // 将模式匹配意义上的常量表达式解构为表达式环境注入

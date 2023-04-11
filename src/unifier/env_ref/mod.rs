@@ -1,8 +1,8 @@
 use int::lift as lift_int;
 use unit::lift as lift_unit;
 
+use crate::env::type_env::TypeEnv;
 use crate::parser::r#type::Type;
-use crate::type_checker::env::type_env::TypeEnv;
 
 mod int;
 mod unit;

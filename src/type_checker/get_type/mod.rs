@@ -3,12 +3,12 @@ pub mod r#fn;
 pub mod r#macro;
 pub mod r#type;
 
+use crate::env::expr_env::ExprEnv;
+use crate::env::type_env::TypeEnv;
 use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
 use crate::parser::expr::Expr;
-use crate::type_checker::env::expr_env::ExprEnv;
-use crate::type_checker::env::type_env::TypeEnv;
 use crate::type_checker::get_type::r#type::GetTypeReturn;
 
 pub fn get_type_with_hint(

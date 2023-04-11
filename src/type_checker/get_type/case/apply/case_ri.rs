@@ -1,11 +1,11 @@
+use crate::env::expr_env::ExprEnv;
+use crate::env::type_env::TypeEnv;
 use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
 use crate::infra::r#box::Ext;
 use crate::parser::expr::Expr;
 use crate::parser::r#type::Type;
-use crate::type_checker::env::expr_env::ExprEnv;
-use crate::type_checker::env::type_env::TypeEnv;
 use crate::type_checker::get_type::get_type;
 use crate::type_checker::get_type::r#type::{
     GetTypeReturn,

@@ -1,6 +1,6 @@
+use crate::env::expr_env::ExprEnv;
+use crate::env::type_env::TypeEnv;
 use crate::infra::alias::MaybeType;
-use crate::type_checker::env::expr_env::ExprEnv;
-use crate::type_checker::env::type_env::TypeEnv;
 use crate::type_checker::get_type::r#fn::lift_or_left;
 use crate::type_checker::get_type::r#type::GetTypeReturn;
 use crate::type_checker::r#type::TypeConstraint;

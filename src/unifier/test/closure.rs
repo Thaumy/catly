@@ -1,10 +1,10 @@
 use std::ops::Deref;
 
 use crate::btree_set;
+use crate::env::type_env::TypeEnv;
 use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext;
 use crate::parser::r#type::Type;
-use crate::type_checker::env::type_env::TypeEnv;
 use crate::unifier::closure::lift as lift_closure;
 use crate::unifier::lift;
 use crate::unifier::unify;

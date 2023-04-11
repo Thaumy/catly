@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 
+use crate::env::type_env::TypeEnv;
 use crate::parser::r#type::Type;
-use crate::type_checker::env::type_env::TypeEnv;
 
 pub fn lift(
     type_env: &TypeEnv,

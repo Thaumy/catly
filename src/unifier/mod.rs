@@ -5,9 +5,9 @@ use env_ref::lift as lift_env_ref;
 use prod::lift as lift_prod;
 use sum::lift as lift_sum;
 
+use crate::env::type_env::TypeEnv;
 use crate::infra::option::AnyExt;
 use crate::parser::r#type::Type;
-use crate::type_checker::env::type_env::TypeEnv;
 
 mod closure;
 mod env_ref;

@@ -3,6 +3,7 @@
 #![feature(if_let_guard)]
 extern crate core;
 
+mod env;
 mod infra;
 pub mod parser;
 pub mod type_checker;

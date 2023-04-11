@@ -1,11 +1,11 @@
 mod case_ri;
 mod case_t_rc;
 
+use crate::env::expr_env::ExprEnv;
+use crate::env::type_env::TypeEnv;
 use crate::infra::alias::MaybeType;
 use crate::infra::quad::Quad;
 use crate::parser::expr::Expr;
-use crate::type_checker::env::expr_env::ExprEnv;
-use crate::type_checker::env::type_env::TypeEnv;
 use crate::type_checker::get_type::case::r#let::case_ri::case_ri;
 use crate::type_checker::get_type::case::r#let::case_t_rc::case_t_rc;
 use crate::type_checker::get_type::get_type_with_hint;

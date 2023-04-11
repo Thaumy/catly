@@ -1,5 +1,5 @@
+use crate::env::type_env::TypeEnv;
 use crate::infra::alias::MaybeType;
-use crate::type_checker::env::type_env::TypeEnv;
 use crate::type_checker::get_type::r#type::GetTypeReturn;
 use crate::unifier::can_lift;
 use crate::{has_type, int_type};

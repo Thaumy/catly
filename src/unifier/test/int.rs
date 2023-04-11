@@ -1,7 +1,7 @@
 use crate::btree_set;
+use crate::env::type_env::TypeEnv;
 use crate::infra::option::AnyExt;
 use crate::parser::r#type::Type;
-use crate::type_checker::env::type_env::TypeEnv;
 use crate::unifier::env_ref::lift as lift_env_ref;
 use crate::unifier::lift;
 use crate::unifier::unify;
