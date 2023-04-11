@@ -16,7 +16,7 @@ fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
 }
 
 #[test]
-fn test_1() {
+fn test_part1() {
     let (type_env, expr_env) = gen_env();
 
     let expr = Expr::Unit(Type::TypeEnvRef("A".to_string()).some());
@@ -28,7 +28,7 @@ fn test_1() {
 }
 
 #[test]
-fn test_2() {
+fn test_part2() {
     let (type_env, expr_env) = gen_env();
 
     let expr = Expr::Unit(Type::TypeEnvRef("B".to_string()).some());
