@@ -1,6 +1,8 @@
 pub mod case;
 pub mod r#fn;
 pub mod r#macro;
+#[cfg(test)]
+mod test;
 pub mod r#type;
 
 use crate::env::expr_env::ExprEnv;

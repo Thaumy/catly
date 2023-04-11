@@ -8,7 +8,7 @@ pub fn lift(
     o_t: &Type,
     derive: &Type
 ) -> bool {
-    println!("Uplift {:?} -> {:?} to {:?}", i_t, o_t, derive);
+    println!("Lift {:?} -> {:?} to {:?}", i_t, o_t, derive);
 
     match derive {
         // Base

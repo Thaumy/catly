@@ -6,7 +6,7 @@ pub fn lift(
     vec: &Vec<(String, Type)>,
     derive: &Type
 ) -> bool {
-    println!("Uplift ProdType{:?} to {:?}", vec, derive);
+    println!("Lift <ProdType>{:?} to {:?}", vec, derive);
 
     match derive {
         // Base

@@ -8,7 +8,7 @@ pub fn lift(
     set: &BTreeSet<Type>,
     derive: &Type
 ) -> bool {
-    println!("Uplift SumType{:?} to {:?}", set, derive);
+    println!("Lift <SumType>{:?} to {:?}", set, derive);
 
     match derive {
         // Superset of Base

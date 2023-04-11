@@ -30,9 +30,9 @@ impl<'t> ExprEnv<'t> {
     pub fn extend_new(
         &self,
         ref_name: String,
-        tc: MaybeType
+        r#type: MaybeType
     ) -> ExprEnv {
-        let tc = tc
+        let tc = r#type
             .map(|t| TypeConstraint::Constraint(t))
             .unwrap_or(TypeConstraint::Free);
 

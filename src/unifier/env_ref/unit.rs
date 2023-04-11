@@ -2,7 +2,7 @@ use crate::env::type_env::TypeEnv;
 use crate::parser::r#type::Type;
 
 pub fn lift(env: &TypeEnv, derive: &Type) -> bool {
-    println!("Uplift Unit to {:?}", derive);
+    println!("Lift {:?} to {:?}", "Unit", derive);
 
     match derive {
         // Base

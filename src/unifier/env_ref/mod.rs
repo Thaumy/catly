@@ -8,7 +8,7 @@ mod int;
 mod unit;
 
 pub fn lift(type_env: &TypeEnv, base: &str, derive: &Type) -> bool {
-    println!("Uplift {:?} to {:?}", base, derive);
+    println!("Lift {:?} to {:?}", base, derive);
 
     match base {
         "Int" => lift_int(type_env, derive),
