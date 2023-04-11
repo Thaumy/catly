@@ -94,8 +94,9 @@ pub fn case_t_rc(
                 // 不可能出现缺乏类型信息的情况
                 // 由此也可推断, case_expr_env 中不存在自由类型
                 // 所以在下一步取得 then_expr_type 时, 其产生的约束一定作用于外层
-                Quad::MR(x) =>
-                    panic!("Impossible case_expr_type: {:?}", x),
+                ri if let Quad::MR(_) = ri =>
+                    panic!("Impossible branch: {:?}", ri),
+
                 // 类型不相容
                 _ => false
             }

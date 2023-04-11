@@ -25,6 +25,7 @@ pub fn case_ri(
     target_expr: &Expr,
     vec: &Vec<(Expr, Expr)>
 ) -> GetTypeReturn {
+    // 由于以下推导可能产生错误, 而这些错误没有很好的语义对应已有的错误类型, 所以需要返回原错误
     let original_err = Quad::MR(require_info);
 
     // 当 case_expr_type 能够合一为某个类型时, 这个类型与 target_expr 将直接相关
@@ -126,7 +127,7 @@ pub fn case_ri(
                         // let case 的旁路推导因为 assign_type 和 assign_expr 均无法提供有效的类型信息, 所以不需要注入
                         &expr_env.extend_vec_new(case_expr_env_inject),
                         then_expr,
-                        expect_type
+                        expect_type,
                     ) {
                         Quad::ML(rc) => rc.constraint
                             .iter()

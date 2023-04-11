@@ -36,12 +36,8 @@ fn test_parse_expr_def_part3() {
     let r = Define::ExprDef(
         "a".to_string(),
         Type::ClosureType(
-            Type::TypeEnvRef("Int".to_string())
-                .boxed()
-                .some(),
-            Type::TypeEnvRef("Int".to_string())
-                .boxed()
-                .some()
+            Type::TypeEnvRef("Int".to_string()).boxed(),
+            Type::TypeEnvRef("Int".to_string()).boxed()
         )
         .some(),
         Expr::EnvRef(None, "b".to_string())

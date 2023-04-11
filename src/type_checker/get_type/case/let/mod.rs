@@ -58,6 +58,9 @@ pub fn case(
                 assign_expr,
                 scope_expr
             ),
+
+        Quad::MR(x) => Quad::MR(x),
+
         // 类型不匹配, 推导错误
         r => r.clone()
     }

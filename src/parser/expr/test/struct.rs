@@ -156,12 +156,8 @@ fn test_parse_struct_part3() {
             (
                 "ab".to_string(),
                 Type::ClosureType(
-                    Type::TypeEnvRef("Int".to_string())
-                        .boxed()
-                        .some(),
-                    Type::TypeEnvRef("Int".to_string())
-                        .boxed()
-                        .some()
+                    Type::TypeEnvRef("Int".to_string()).boxed(),
+                    Type::TypeEnvRef("Int".to_string()).boxed()
                 )
                 .some(),
                 Expr::Apply(

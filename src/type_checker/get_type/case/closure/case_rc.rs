@@ -1,7 +1,7 @@
 use crate::infra::alias::MaybeType;
-use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext;
 use crate::parser::r#type::Type;
+use crate::require_info;
 use crate::type_checker::env::type_env::TypeEnv;
 use crate::type_checker::get_type::r#fn::with_constraint_lift_or_left;
 use crate::type_checker::get_type::r#type::{
@@ -24,11 +24,8 @@ pub fn case_rc(
             // 此时只需要提升类型, 并将约束传播
             Some(input_type) => {
                 let base = Type::ClosureType(
-                    input_type
-                        .clone()
-                        .boxed()
-                        .some(),
-                    rc.r#type.boxed().some()
+                    input_type.clone().boxed(),
+                    rc.r#type.boxed()
                 );
 
                 (base, rc.constraint)
@@ -60,31 +57,19 @@ pub fn case_rc(
                     let base = Type::ClosureType(
                         input_type_constraint
                             .clone()
-                            .boxed()
-                            .some(),
-                        rc.r#type.boxed().some()
+                            .boxed(),
+                        rc.r#type.boxed()
                     );
 
                     (base, left_constraint)
                 } else {
-                    // 约束不包含输入, 只需将其传播
-                    let base = Type::ClosureType(
-                        None,
-                        rc.r#type.boxed().some()
-                    );
-
-                    (base, rc.constraint)
+                    // 约束不包含输入, 缺乏推导出输入类型的信息
+                    return require_info!(input_name.to_string());
                 }
             }
         },
-        None => {
-            // 输入被弃元, 但 output_expr_type 需要约束
-            // 说明约束目标是外层环境
-            let base =
-                Type::ClosureType(None, rc.r#type.boxed().some());
-
-            (base, rc.constraint)
-        }
+        // 输入被弃元, 说明 output_expr_type 产生的约束全部作用于外层环境
+        None => return require_info!("_ (closure input)".to_string())
     };
 
     with_constraint_lift_or_left(

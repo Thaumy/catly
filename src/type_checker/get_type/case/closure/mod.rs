@@ -1,15 +1,16 @@
 mod case_rc;
-mod case_ri;
 mod case_t;
 
+use std::ops::Deref;
+
 use crate::infra::alias::MaybeType;
+use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
 use crate::parser::expr::Expr;
 use crate::parser::r#type::Type;
 use crate::type_checker::env::expr_env::ExprEnv;
 use crate::type_checker::env::type_env::TypeEnv;
 use crate::type_checker::get_type::case::closure::case_rc::case_rc;
-use crate::type_checker::get_type::case::closure::case_ri::case_ri;
 use crate::type_checker::get_type::case::closure::case_t::case_t;
 use crate::type_checker::get_type::get_type_with_hint;
 use crate::type_checker::get_type::r#fn::destruct_type_env_ref;
@@ -24,13 +25,24 @@ pub fn case(
     input_type: &MaybeType,
     output_expr: &Expr
 ) -> GetTypeReturn {
-    // Destruct t to ClosureType
-    let (expect_i_t, expect_o_t) = match expect_type {
+    // Destruct expect_type to ClosureType
+    let (expect_input_type, expect_output_type) = match expect_type {
         Some(expect_type) =>
+        // 允许将 ClosureType 提升到基于它的 TypeEnvRef
+        // 换言之, 如果 expect_type 是基于 ClosureType 的, 那么它也能够通过类型检查
             match destruct_type_env_ref(type_env, expect_type) {
-                Some(Type::ClosureType(expect_i_t, expect_o_t)) => (
-                    expect_i_t.clone().map(|x| *x),
-                    expect_o_t.clone().map(|x| *x)
+                Some(Type::ClosureType(
+                    expect_input_type,
+                    expect_output_type
+                )) => (
+                    expect_input_type
+                        .deref()
+                        .clone()
+                        .some(),
+                    expect_output_type
+                        .deref()
+                        .clone()
+                        .some()
                 ),
                 _ => return type_miss_match!()
             },
@@ -39,7 +51,7 @@ pub fn case(
 
     // Hint input_type
     let input_type = match input_type {
-        None => expect_i_t,
+        None => expect_input_type,
         _ => input_type.clone()
     };
 
@@ -55,7 +67,7 @@ pub fn case(
         type_env,
         &expr_env,
         output_expr,
-        &expect_o_t
+        &expect_output_type
     );
 
     // 此处并不将 output_expr_type 与 hint 进行相容性判断
@@ -66,18 +78,12 @@ pub fn case(
         Quad::L(output_expr_type) => case_t(
             type_env,
             expect_type,
+            input_name,
             input_type,
             output_expr_type
         ),
         Quad::ML(rc) =>
             case_rc(rc, type_env, expect_type, input_name, input_type),
-
-        // 这种情况只会出现在 output_expr 为无类型标注的弃元时
-        // 例如: x -> _
-        // 允许这种特例会让编写 Catly 代码更容易
-        // 同时它使得返回类型为 None 的 Closure 成为可能
-        Quad::MR(ri) if ri.ref_name == "_" =>
-            case_ri(type_env, expect_type, &input_type),
 
         // get_type 不能推导出输出类型(即便进行了类型提示), 或推导错误
         // 推导错误是由类型不匹配导致的, 这种错误无法解决

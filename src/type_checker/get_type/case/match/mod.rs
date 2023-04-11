@@ -43,6 +43,9 @@ pub fn case(
                 target_expr,
                 vec
             ),
+
+        Quad::MR(x) => Quad::MR(x),
+
         // 类型不相容
         r => r.clone()
     }

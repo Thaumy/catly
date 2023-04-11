@@ -10,8 +10,7 @@ mod pat;
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Type {
     TypeEnvRef(String),
-    // 对 Closure 的类型信息缺失类型设计可以扩展到类型构造器
-    ClosureType(Option<Box<Type>>, Option<Box<Type>>),
+    ClosureType(Box<Type>, Box<Type>),
     SumType(BTreeSet<Type>),
     ProdType(Vec<(String, Type)>)
 }

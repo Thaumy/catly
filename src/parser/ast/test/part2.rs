@@ -92,12 +92,8 @@ fn test_parse_ast_part2() {
     let d2 = Define::ExprDef(
         "main".to_string(),
         Type::ClosureType(
-            Type::TypeEnvRef("Unit".to_string())
-                .boxed()
-                .some(),
-            Type::TypeEnvRef("Unit".to_string())
-                .boxed()
-                .some()
+            Type::TypeEnvRef("Unit".to_string()).boxed(),
+            Type::TypeEnvRef("Unit".to_string()).boxed()
         )
         .some(),
         Expr::Let(
