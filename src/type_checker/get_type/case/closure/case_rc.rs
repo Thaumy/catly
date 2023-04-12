@@ -34,12 +34,8 @@ pub fn case_rc(
             // 如果约束包含了输入, 需把输入类型限定到约束目标, 并将其从约束列表中移除
             // 然后传播剩余约束(仍有剩余约束), 或返回确切类型(不存在剩余约束)
             None => {
-                let input_type_constraint = rc
-                    .constraint
-                    .iter()
-                    .rev()
-                    .find(|(n, _)| n == input_name)
-                    .map(|(_, t)| t);
+                let input_type_constraint =
+                    rc.constraint.find(input_name);
 
                 if let Some(input_type_constraint) =
                     input_type_constraint
@@ -48,11 +44,7 @@ pub fn case_rc(
                     // 将剩余约束过滤出来
                     let left_constraint = rc
                         .constraint
-                        .iter()
-                        .filter(|(n, _)| n != input_name)
-                        .map(|x| x.clone())
-                        .collect():
-                        Vec<_>;
+                        .filter_new(|(n, _)| n != input_name);
 
                     let base = Type::ClosureType(
                         input_type_constraint

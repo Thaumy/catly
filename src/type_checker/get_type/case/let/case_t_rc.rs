@@ -9,8 +9,11 @@ use crate::type_checker::get_type::r#fn::{
     lift_or_left,
     with_constraint_lift_or_left
 };
-use crate::type_checker::get_type::r#type::GetTypeReturn;
-use crate::{has_type, type_miss_match};
+use crate::type_checker::get_type::r#type::{
+    EnvRefConstraint,
+    GetTypeReturn
+};
+use crate::{has_type, require_constraint, type_miss_match};
 
 pub fn case_t_rc(
     type_env: &TypeEnv,
@@ -23,8 +26,8 @@ pub fn case_t_rc(
     scope_expr: &Expr
 ) -> GetTypeReturn {
     // 合并处理是为了节省代码量
-    let (assign_expr_type, constraint) = match assign_expr_type {
-        Quad::L(t) => (t, vec![]),
+    let (assign_expr_type, constraint_acc) = match assign_expr_type {
+        Quad::L(t) => (t, EnvRefConstraint::empty()),
         // 需传播额外携带的约束
         Quad::ML(rc) => (rc.r#type, rc.constraint),
         x => panic!("Impossible assign_expr_type: {:?}", x)
@@ -61,16 +64,25 @@ pub fn case_t_rc(
             &scope_expr_type,
             expect_type
         ) {
-            Some(t) => has_type!(t),
+            Some(t) =>
+                if constraint_acc.is_empty() {
+                    has_type!(t)
+                } else {
+                    require_constraint!(t, constraint_acc)
+                },
             None => type_miss_match!()
         },
         // 由于 assign_type 存在, 所以此处的约束作用于外层环境, 传播之
-        Quad::ML(rc) => with_constraint_lift_or_left(
-            vec![constraint, rc.constraint].concat(),
-            type_env,
-            &rc.r#type,
-            expect_type
-        ),
+        Quad::ML(rc) =>
+            match constraint_acc.extend_new(rc.constraint) {
+                Some(constraint) => with_constraint_lift_or_left(
+                    constraint,
+                    type_env,
+                    &rc.r#type,
+                    expect_type
+                ),
+                None => return type_miss_match!()
+            },
         // 由于 scope_expr 已被 hint, 且环境已被尽力注入, 所以无法处理这些错误
         mr_r => mr_r
     }

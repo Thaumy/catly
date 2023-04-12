@@ -1,5 +1,4 @@
 use crate::parser::r#type::test::f;
-use crate::parser::r#type::Type;
 use crate::unit_type;
 
 #[test]

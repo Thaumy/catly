@@ -9,7 +9,10 @@ use crate::parser::expr::Expr;
 use crate::parser::r#type::Type;
 use crate::type_checker::get_type::get_type_with_hint;
 use crate::type_checker::get_type::r#fn::with_constraint_lift_or_left;
-use crate::type_checker::get_type::r#type::GetTypeReturn;
+use crate::type_checker::get_type::r#type::{
+    EnvRefConstraint,
+    GetTypeReturn
+};
 use crate::type_miss_match;
 use crate::unifier::can_lift;
 
@@ -24,7 +27,7 @@ pub fn case_t_rc(
     let expect_output_type = expect_type;
 
     let (lhs_expr_type, constraint) = match lhs_expr_type {
-        Quad::L(lhs_type) => (lhs_type, vec![]),
+        Quad::L(lhs_type) => (lhs_type, EnvRefConstraint::empty()),
         Quad::ML(rc) => (rc.r#type, rc.constraint),
         _ => panic!("Impossible lhs_expr_type: {:?}", lhs_expr_type)
     };
@@ -38,7 +41,7 @@ pub fn case_t_rc(
             &input_type
                 .deref()
                 .clone()
-                .some()
+                .some(),
         ) {
             Quad::L(rhs_expr_type) => {
                 // 验证输入的类型相容性
@@ -48,19 +51,23 @@ pub fn case_t_rc(
                         constraint,
                         type_env,
                         &output_type,
-                        expect_output_type
+                        expect_output_type,
                     )
                 } else {
                     type_miss_match!()
                 }
             }
             Quad::ML(rc) => {
-                if can_lift(type_env, &rc.r#type, &input_type) {
+                if can_lift(type_env, &rc.r#type, &input_type) &&
+                    let Some(constraint) = rc
+                        .constraint
+                        .extend_new(constraint)
+                {
                     with_constraint_lift_or_left(
-                        vec![constraint, rc.constraint].concat(),
+                        constraint,
                         type_env,
                         &output_type,
-                        expect_output_type
+                        expect_output_type,
                     )
                 } else {
                     type_miss_match!()

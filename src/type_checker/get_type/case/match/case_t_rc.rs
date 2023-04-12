@@ -10,7 +10,10 @@ use crate::infra::result::AnyExt as ResAnyExt;
 use crate::parser::expr::Expr;
 use crate::type_checker::get_type::case::r#match::r#fn::destruct_const_to_expr_env_inject;
 use crate::type_checker::get_type::get_type;
-use crate::type_checker::get_type::r#type::GetTypeReturn;
+use crate::type_checker::get_type::r#type::{
+    EnvRefConstraint,
+    GetTypeReturn
+};
 use crate::unifier::{can_lift, unify};
 use crate::{has_type, require_constraint, type_miss_match};
 
@@ -21,12 +24,11 @@ pub fn case_t_rc(
     expect_type: &MaybeType,
     vec: &Vec<(Expr, Expr)>
 ) -> GetTypeReturn {
-    let (target_expr_type, constraint_of_target_expr_type) =
-        match target_expr_type {
-            Quad::L(t) => (t, vec![]),
-            Quad::ML(rc) => (rc.r#type, rc.constraint),
-            x => panic!("Impossible target_expr_type: {:?}", x)
-        };
+    let (target_expr_type, constraint_acc) = match target_expr_type {
+        Quad::L(t) => (t, EnvRefConstraint::empty()),
+        Quad::ML(rc) => (rc.r#type, rc.constraint),
+        x => panic!("Impossible target_expr_type: {:?}", x)
+    };
 
     // 统一进行提示, 并求出 case_expr 解构出的常量环境
     let hinted_cases = vec
@@ -144,41 +146,48 @@ pub fn case_t_rc(
                     mr_r => Err(mr_r)
                 }
             })
-            .fold(vec![].ok(), |acc, constraint| {
-                match (acc, constraint) {
-                    // 聚合约束
-                    (Ok(mut acc), Ok(constraint)) => {
-                        constraint
-                            .map(|mut vec| acc.append(&mut vec));
-                        acc.ok()
+            .fold(
+                EnvRefConstraint::empty().ok(),
+                |acc, constraint| {
+                    match (acc, constraint) {
+                        // 无约束
+                        (Ok(acc), Ok(None)) => acc.ok(),
+                        // 聚合约束
+                        (Ok(acc), Ok(Some(constraint))) =>
+                            match acc.extend_new(constraint) {
+                                Some(acc) => acc.ok(),
+                                None => Err(type_miss_match!())
+                            },
+                        (Ok(_), Err(e)) => Err(e),
+                        (Err(e), _) => Err(e)
                     }
-                    (Ok(_), Err(e)) => Err(e),
-                    (Err(e), _) => Err(e)
                 }
-            });
+            );
 
         match constraint {
             Ok(constraint) =>
-                if constraint.is_empty() {
+                if constraint_acc.is_empty() && constraint.is_empty()
+                {
                     has_type!(expect_type.clone())
                 } else {
-                    require_constraint!(
-                        expect_type.clone(),
-                        vec![
-                            constraint_of_target_expr_type,
+                    match constraint_acc.extend_new(constraint) {
+                        Some(constraint) => require_constraint!(
+                            expect_type.clone(),
                             constraint
-                        ]
-                        .concat()
-                    )
+                        ),
+                        None => return type_miss_match!()
+                    }
                 },
             Err(e) => e
         }
     }
     // 如果 expect_type 不存在
     else {
+        let mut constraint_acc = constraint_acc;
+
         // 逐一获取 then_expr_type, 并将它们逐个合一, 合一的结果便是 match 表达式的最终类型
         // 同时收集在获取 then_expr_type 的过程中产生的约束
-        let final_type_and_constraint = hinted_cases
+        let final_type = hinted_cases
             .map(|(_, case_expr_env, then_expr)| {
                 // 此部分与上方原理相同
                 let then_expr_type = get_type(
@@ -188,64 +197,37 @@ pub fn case_t_rc(
                 );
 
                 match then_expr_type {
-                    Quad::L(then_expr_type) =>
-                        (then_expr_type, None).ok(),
-                    Quad::ML(rc) =>
-                        (rc.r#type, Some(rc.constraint)).ok(),
+                    Quad::L(then_expr_type) => then_expr_type.ok(),
+                    Quad::ML(rc) => match constraint_acc
+                        .extend_new(rc.constraint)
+                    {
+                        Some(constraint) => {
+                            constraint_acc = constraint;
+                            rc.r#type.ok()
+                        }
+                        None => Err(type_miss_match!())
+                    },
                     mr_r => Err(mr_r)
                 }
             })
-            .fold((None, vec![]).ok(), |acc, type_and_constraint| {
-                match (acc, type_and_constraint) {
-                    // 聚合约束
-                    (
-                        Ok((acc_t, mut acc_vec)),
-                        Ok((t, constraint))
-                    ) => {
-                        match acc_t {
-                            // 对于头一个类型, 只需让它成为初始 acc 类型, 并按需复制约束列表
-                            None => match constraint {
-                                Some(constraint) =>
-                                    (t.clone().some(), constraint),
-                                None => (t.clone().some(), acc_vec)
-                            }
-                            .ok(),
-                            // 对于之后的每一个类型, 让它和之前 acc 类型合一, 并按需累积约束列表
-                            Some(acc_t) =>
-                                match unify(type_env, &acc_t, &t) {
-                                    Some(new_acc_t) => {
-                                        constraint.map(|mut vec| {
-                                            acc_vec.append(&mut vec)
-                                        });
-                                        (new_acc_t.some(), acc_vec)
-                                            .ok()
-                                    }
-                                    None => Err(type_miss_match!())
-                                },
-                        }
-                    }
-                    (Ok(_), Err(e)) => Err(e),
-                    (Err(e), _) => Err(e)
-                }
-            });
+            .reduce(|acc, t| match (acc, t) {
+                (Ok(acc), Ok(t)) => match unify(type_env, &acc, &t) {
+                    Some(acc) => acc.ok(),
+                    None => Err(type_miss_match!())
+                },
+                (Ok(_), Err(e)) => Err(e),
+                (Err(e), _) => Err(e)
+            })
+            // match 表达式至少具备一个 case, 这在 AST 构造期间就被保证
+            .unwrap_or_else(|| panic!("Match expr no cases")); // 所以一定能够成功
 
-        match final_type_and_constraint {
-            Ok((Some(final_type), constraint)) =>
-                if constraint.is_empty() {
+        match final_type {
+            Ok(final_type) =>
+                if constraint_acc.is_empty() {
                     has_type!(final_type)
                 } else {
-                    require_constraint!(
-                        final_type,
-                        vec![
-                            constraint_of_target_expr_type,
-                            constraint
-                        ]
-                        .concat()
-                    )
+                    require_constraint!(final_type, constraint_acc)
                 },
-            // match 表达式必须具备至少一个 case
-            // 此部分在 AST 构造期间就被保证, 所以此情况不可能发生
-            Ok((None, _)) => panic!("Match expr no cases"),
             Err(e) => e
         }
     }

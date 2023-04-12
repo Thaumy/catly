@@ -7,7 +7,6 @@ use crate::infra::r#box::Ext;
 use crate::infra::r#fn::id;
 use crate::infra::result::AnyExt as ResAnyExt;
 use crate::parser::expr::Expr;
-use crate::parser::r#type::Type;
 use crate::type_checker::get_type::case::r#match::r#fn::destruct_const_to_expr_env_inject;
 use crate::type_checker::get_type::r#type::{
     GetTypeReturn,
@@ -44,7 +43,7 @@ pub fn case_ri(
 
     // 因为 case 总是倾向于在最后出现通配, 所以倒序合一更有效
     // 也可以改进对多种类型的合一方法, 使得有最大的机会合一成功
-    let final_case_expr_type_and_constraint = iter
+    let final_case_expr_type = iter
         .clone()
         .rev()
         .map(|(case_expr, case_expr_env_inject, _)| {
@@ -77,8 +76,8 @@ pub fn case_ri(
                 _ => original_err.clone().err() // 原理同上
             }
         })
-        .fold(None.ok(), |acc, type_and_constraint| {
-            match (acc, type_and_constraint) {
+        .fold(None.ok(), |acc, t| {
+            match (acc, t) {
                 (Ok(acc), Ok(t)) => {
                     match acc {
                         // 对于头一个类型, 只需让它成为初始 acc 类型
@@ -95,20 +94,22 @@ pub fn case_ri(
             }
         });
 
-    match final_case_expr_type_and_constraint {
-        Ok(t) => {
+    match final_case_expr_type {
+        // case_expr_type 合一成功, 用该类型 hint target_expr 后 get_type
+        // 不可能出现 Ok(None), 因为 case 的数量在 AST 解析阶段就保证非零
+        Ok(Some(hint)) => {
+            let hinted_target_expr = target_expr.clone().with_fallback_type(&hint);
             let expr = Expr::Match(
-                t,
-                target_expr.clone().boxed(),
+                expect_type.clone(),
+                hinted_target_expr.boxed(),
                 vec.clone(),
             );
             get_type(type_env, expr_env, &expr)
         }
+        // 当 case_expr_type 不能合一时(这包括合一错误或其中一个 case_expr 无法取得类型)
+        // 如果 target_expr 是 EnvRef, 那么在求 then_expr 时可能对产生针对 target_expr 的类型约束
+        // 以合一后的约束目标为 hint 求 match 表达式类型
         _ if let Expr::EnvRef(_, ref_name) = target_expr => {
-            // 当 case_expr_type 不能合一时, 如果 target_expr 是 EnvRef
-            // 那么在求 then_expr 时可能对产生针对 target_expr 的类型约束
-            // 以合一后的约束目标为 hint 求 match 表达式类型
-
             let hint = iter
                 .filter(|(_, case_expr_env_inject, _)|
                     // 过滤出所有不受到 case_expr 解构常量环境同名 EnvRef 影响的 then_expr
@@ -129,25 +130,27 @@ pub fn case_ri(
                         then_expr,
                         expect_type,
                     ) {
-                        Quad::ML(rc) => rc.constraint
-                            .iter()
-                            .find(|(n, _)| n == ref_name)
-                            .map(|(_, t)| t.clone()),
+                        Quad::ML(rc) => rc.constraint.find(ref_name).map(|t| t.clone()),
+                        // 将 L 和错误情况一并视作 None, 相关讨论见下文
                         _ => None
                     }
-                ).fold(None: Option<Type>, |acc, t|
-                match (acc, t) {
+                )
+                // 采用激进的类型推导策略
+                // 该策略认为无法取得 then_expr 的类型可能是由 target_expr 无法取得类型引起的
+                // 所以应该过滤出所有能够得到的类型进行合一并 hint target_expr
+                .filter(|x| x.is_some())
+                .reduce(|acc, t| match (acc, t) {
                     (Some(acc), Some(t)) => unify(type_env, &acc, &t),
-                    (Some(acc), None) => Some(acc),
                     _ => None
-                },
-            );
+                })
+                .flatten();
 
             match hint {
-                Some(t) => {
+                Some(hint) => {
+                    let hinted_target_expr = target_expr.clone().with_fallback_type(&hint);
                     let expr = Expr::Match(
-                        t.some(),
-                        target_expr.clone().boxed(),
+                        expect_type.clone(),
+                        hinted_target_expr.boxed(),
                         vec.clone(),
                     );
                     get_type(type_env, expr_env, &expr)

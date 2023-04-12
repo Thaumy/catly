@@ -3,7 +3,6 @@ use crate::infra::r#box::Ext;
 use crate::int_type;
 use crate::parser::expr::test::f;
 use crate::parser::expr::Expr;
-use crate::parser::r#type::Type;
 
 #[test]
 fn test_parse_cond_part1() {

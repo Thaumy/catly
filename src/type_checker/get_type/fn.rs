@@ -1,16 +1,12 @@
 use crate::env::type_env::TypeEnv;
 use crate::infra::alias::MaybeType;
 use crate::parser::r#type::Type;
-use crate::type_checker::get_type::r#type::GetTypeReturn;
-use crate::unifier::{can_lift, lift};
-use crate::{
-    bool_type,
-    false_type,
-    has_type,
-    require_constraint,
-    true_type,
-    type_miss_match
+use crate::type_checker::get_type::r#type::{
+    EnvRefConstraint,
+    GetTypeReturn
 };
+use crate::unifier::lift;
+use crate::{has_type, require_constraint, type_miss_match};
 
 // Lift l to r if r exist, then return lifting result
 // Return l if r not exist
@@ -26,7 +22,7 @@ pub fn lift_or_left(
 }
 
 pub fn with_constraint_lift_or_left(
-    constraint: Vec<(String, Type)>,
+    constraint: EnvRefConstraint,
     type_env: &TypeEnv,
     base: &Type,
     derive: &MaybeType

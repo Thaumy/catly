@@ -1,7 +1,6 @@
 use crate::infra::option::AnyExt;
 use crate::parser::expr::test::f;
 use crate::parser::expr::Expr;
-use crate::parser::r#type::Type;
 use crate::unit_type;
 
 #[test]

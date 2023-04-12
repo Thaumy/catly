@@ -12,7 +12,10 @@ use crate::type_checker::get_type::r#fn::{
     destruct_type_env_ref,
     with_constraint_lift_or_left
 };
-use crate::type_checker::get_type::r#type::GetTypeReturn;
+use crate::type_checker::get_type::r#type::{
+    EnvRefConstraint,
+    GetTypeReturn
+};
 use crate::type_miss_match;
 use crate::unifier::can_lift;
 
@@ -37,12 +40,12 @@ pub fn case(
                             .map(|((n, t), (v_n, v_t, _))| {
                                 // 名称相等判断
                                 n == v_n &&
-                            // 类型相容判断
-                            v_t.clone()
-                                .map(|v_t| {
-                                    can_lift(type_env, &v_t, t)
-                                })
-                                .unwrap_or(true)
+                                // 类型相容判断
+                                v_t.clone()
+                                    .map(|v_t| {
+                                        can_lift(type_env, &v_t, t)
+                                    })
+                                    .unwrap_or(true)
                             })
                             .all(id) =>
                     t_vec.some(),
@@ -83,7 +86,7 @@ pub fn case(
     };
 
     // TODO: Lazy init
-    let mut constraint = vec![];
+    let mut constraint = EnvRefConstraint::empty();
 
     // 收集约束
     let vec = vec
@@ -93,10 +96,14 @@ pub fn case(
         })
         .map(|(n, x)| match x {
             Quad::L(t) => (n, t).ok(),
-            Quad::ML(rc) => {
-                constraint.append(&mut rc.constraint.clone());
-                (n, rc.r#type).ok()
-            }
+            Quad::ML(rc) =>
+                match constraint.extend_new(rc.constraint) {
+                    Some(c) => {
+                        constraint = c;
+                        (n, rc.r#type).ok()
+                    }
+                    None => Err(type_miss_match!())
+                },
             err => err.clone().err()
         })
         .fold(vec![].ok(), |acc, x| match (acc, x) {

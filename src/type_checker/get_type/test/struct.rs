@@ -1,17 +1,10 @@
 use crate::env::expr_env::ExprEnv;
 use crate::env::type_env::TypeEnv;
-use crate::infra::option::AnyExt;
-use crate::parser::expr::Expr;
 use crate::parser::r#type::Type;
 use crate::type_checker::get_type::get_type;
+use crate::type_checker::get_type::r#type::EnvRefConstraint;
 use crate::type_checker::get_type::test::parse_env;
-use crate::{
-    has_type,
-    int_type,
-    require_constraint,
-    type_miss_match,
-    unit_type
-};
+use crate::{has_type, int_type, require_constraint, unit_type};
 
 fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
     let seq = "
@@ -83,13 +76,12 @@ fn test_part4() {
     let expr = expr_env
         .get_ref("struct4")
         .unwrap();
-
     let r = require_constraint!(
         Type::ProdType(vec![
             ("a".to_string(), int_type!()),
             ("b".to_string(), unit_type!())
         ]),
-        vec![("x".to_string(), unit_type!())]
+        EnvRefConstraint::single("x".to_string(), unit_type!())
     );
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
@@ -102,13 +94,12 @@ fn test_part5() {
     let expr = expr_env
         .get_ref("struct5")
         .unwrap();
-
     let r = require_constraint!(
         Type::ProdType(vec![
             ("a".to_string(), int_type!()),
             ("b".to_string(), unit_type!())
         ]),
-        vec![("x".to_string(), unit_type!())]
+        EnvRefConstraint::single("x".to_string(), unit_type!())
     );
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
@@ -137,13 +128,12 @@ fn test_part7() {
     let expr = expr_env
         .get_ref("struct7")
         .unwrap();
-
     let r = require_constraint!(
         Type::ProdType(vec![(
             "a".to_string(),
             Type::ProdType(vec![("a".to_string(), int_type!()),])
         )]),
-        vec![("x".to_string(), int_type!())]
+        EnvRefConstraint::single("x".to_string(), int_type!())
     );
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)

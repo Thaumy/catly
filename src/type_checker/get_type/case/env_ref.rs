@@ -3,7 +3,10 @@ use crate::env::type_env::TypeEnv;
 use crate::infra::alias::MaybeType;
 use crate::infra::quad::Quad;
 use crate::type_checker::get_type::r#fn::lift_or_left;
-use crate::type_checker::get_type::r#type::GetTypeReturn;
+use crate::type_checker::get_type::r#type::{
+    EnvRefConstraint,
+    GetTypeReturn
+};
 use crate::{
     has_type,
     require_constraint,
@@ -23,7 +26,10 @@ pub fn case(
             Some(expect_type) =>
                 return require_constraint!(
                     expect_type.clone(),
-                    vec![(ref_name.to_string(), expect_type.clone())]
+                    EnvRefConstraint::single(
+                        ref_name.to_string(),
+                        expect_type.clone()
+                    )
                 ),
             // 缺乏推导信息
             None => return require_info!(ref_name.to_string())

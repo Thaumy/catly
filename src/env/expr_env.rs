@@ -7,7 +7,10 @@ use crate::infra::quad::Quad;
 use crate::parser::expr::Expr;
 use crate::type_checker::get_type::get_type_with_hint;
 use crate::type_checker::get_type::r#fn::lift_or_left;
-use crate::type_checker::get_type::r#type::GetTypeReturn;
+use crate::type_checker::get_type::r#type::{
+    EnvRefConstraint,
+    GetTypeReturn
+};
 use crate::{
     has_type,
     require_constraint,
@@ -27,19 +30,23 @@ pub struct ExprEnv<'t> {
 
 impl<'t> ExprEnv<'t> {
     pub fn new(type_env: TypeEnv, vec: Vec<Item>) -> ExprEnv<'t> {
-        ExprEnv {
+        let expr_env = ExprEnv {
             type_env,
             prev_env: None,
             env: vec
-        }
+        };
+        println!("New ExprEnv: {:?}", expr_env.env);
+        expr_env
     }
 
     pub fn extend_vec_new(&self, vec: Vec<Item>) -> ExprEnv {
-        ExprEnv {
+        let expr_env = ExprEnv {
             type_env: self.type_env.clone(),
             prev_env: Some(self),
             env: vec
-        }
+        };
+        println!("New ExprEnv: {:?}", expr_env.env);
+        expr_env
     }
 
     pub fn extend_new(
@@ -67,12 +74,16 @@ impl<'t> ExprEnv<'t> {
             .find(|(n, ..)| n == ref_name)
             .map(|(_, tc, src)| (tc.clone(), src))
         {
-            // 环境引用不存在引用源, 引用名所对应的类型是类型约束的直接类型
+            // 当前环境查找到引用名, 但不存在引用源
             Some((tc, EnvRefSrc::NoSrc)) => match tc {
+                // 引用名所对应的类型是类型约束的直接类型
                 TypeConstraint::Constraint(t) => has_type!(t),
+                // 不存在类型约束, 缺乏类型信息
+                // TODO: 返回类型的合理性或重构
                 TypeConstraint::Free => return None
             },
-            // 环境引用存在引用源
+            // 当前环境查找到引用名, 且存在引用源
+            // 以约束为 hint 获取引用源类型, 并提升到 hint
             Some((tc, EnvRefSrc::Src(src_expr))) =>
                 match get_type_with_hint(
                     &self.type_env,
@@ -101,17 +112,22 @@ impl<'t> ExprEnv<'t> {
                     Quad::MR(ri) if ri.ref_name == "_" =>
                         match hint {
                             // 具备 hint, 可以将引用名约束到 hint, 传播该约束
-                            Some(t) =>
-                                require_constraint!(t.clone(), vec![
-                                    (ref_name.to_string(), t.clone())
-                                ]),
-                            // 不具备 hint, 为了防止无类型弃元信息传播, 修改错误信息
+                            Some(t) => require_constraint!(
+                                t.clone(),
+                                EnvRefConstraint::single(
+                                    ref_name.to_string(),
+                                    t.clone()
+                                )
+                            ),
+                            // 不具备 hint, 为了防止无类型弃元信息被捕获, 改写错误信息
                             None =>
                                 require_info!(ref_name.to_string()),
                         },
+                    // 无法处理其他情况
                     mr_r => mr_r
                 },
             None =>
+            // 当前环境查找不到, 去外层环境查找
                 return match self.prev_env {
                     Some(prev_env) =>
                         prev_env.get_type_with_hint(ref_name, hint),

@@ -33,7 +33,6 @@ macro_rules! false_type {
 #[macro_export]
 macro_rules! bool_type {
     () => {{
-        use crate::btree_set;
         use crate::parser::r#type::Type;
         Type::TypeEnvRef("Bool".to_string())
     }};
@@ -49,12 +48,12 @@ macro_rules! has_type {
 
 #[macro_export]
 macro_rules! require_constraint {
-    ($t:expr, $vec:expr) => {{
+    ($t:expr, $constraint:expr) => {{
         use crate::infra::quad::Quad;
         use crate::type_checker::get_type::r#type::RequireConstraint;
         Quad::ML(RequireConstraint {
             r#type: $t,
-            constraint: $vec
+            constraint: $constraint
         })
     }};
 }

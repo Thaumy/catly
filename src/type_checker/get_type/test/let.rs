@@ -4,45 +4,35 @@ use crate::type_checker::get_type::get_type;
 use crate::type_checker::get_type::r#type::EnvRefConstraint;
 use crate::type_checker::get_type::test::parse_env;
 use crate::{
-    bool_type,
     has_type,
     int_type,
     require_constraint,
-    type_miss_match,
+    require_info,
     unit_type
 };
 
 fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
     let seq = "
-        type False = Int
-        def false: False = 0
+        def let1 = let a = 1 in a
 
-        type True = Int
-        def true: True = 1
+        def x = _
+        def let2 = let a = 1 in x: Int
+        def let3 = let a = x in a: Int
 
-        type Bool = True | False
+        def let4 = let a = 1, b = () in b
 
-        def cond1 = if true then 1 else 0
-        def cond2: Unit = if false then () else ()
-        def cond3 = if () then 1 else 0
-        def cond4 = if true then 1 else ()
-
-        def b = _
-        def cond5 = (if b then _ else _): Unit
-
-        def x = 1
-        def y = _
-        def cond6 = if false then x else y
+        def let5 = let a = _ in 1
+        def let6 = let a = x in 1
     ";
     parse_env(seq)
 }
 
 #[test]
-fn test_part1() {
+pub fn test_part1() {
     let (type_env, expr_env) = gen_env();
 
     let expr = expr_env
-        .get_ref("cond1")
+        .get_ref("let1")
         .unwrap();
 
     let r = has_type!(int_type!());
@@ -51,11 +41,41 @@ fn test_part1() {
 }
 
 #[test]
-fn test_part2() {
+pub fn test_part2() {
     let (type_env, expr_env) = gen_env();
 
     let expr = expr_env
-        .get_ref("cond2")
+        .get_ref("let2")
+        .unwrap();
+    let r = require_constraint!(
+        int_type!(),
+        EnvRefConstraint::single("x".to_string(), int_type!())
+    );
+
+    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+}
+
+#[test]
+pub fn test_part3() {
+    let (type_env, expr_env) = gen_env();
+
+    let expr = expr_env
+        .get_ref("let3")
+        .unwrap();
+    let r = require_constraint!(
+        int_type!(),
+        EnvRefConstraint::single("x".to_string(), int_type!())
+    );
+
+    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+}
+
+#[test]
+pub fn test_part4() {
+    let (type_env, expr_env) = gen_env();
+
+    let expr = expr_env
+        .get_ref("let4")
         .unwrap();
 
     let r = has_type!(unit_type!());
@@ -64,57 +84,27 @@ fn test_part2() {
 }
 
 #[test]
-fn test_part3() {
+pub fn test_part5() {
     let (type_env, expr_env) = gen_env();
 
     let expr = expr_env
-        .get_ref("cond3")
+        .get_ref("let5")
         .unwrap();
 
-    let r = type_miss_match!();
+    let r = require_info!("a".to_string());
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
 }
 
 #[test]
-fn test_part4() {
+pub fn test_part6() {
     let (type_env, expr_env) = gen_env();
 
     let expr = expr_env
-        .get_ref("cond4")
+        .get_ref("let6")
         .unwrap();
 
-    let r = type_miss_match!();
-
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
-}
-
-#[test]
-fn test_part5() {
-    let (type_env, expr_env) = gen_env();
-
-    let expr = expr_env
-        .get_ref("cond5")
-        .unwrap();
-    let r = require_constraint!(
-        unit_type!(),
-        EnvRefConstraint::single("b".to_string(), bool_type!())
-    );
-
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
-}
-
-#[test]
-fn test_part6() {
-    let (type_env, expr_env) = gen_env();
-
-    let expr = expr_env
-        .get_ref("cond6")
-        .unwrap();
-    let r = require_constraint!(
-        int_type!(),
-        EnvRefConstraint::single("y".to_string(), int_type!())
-    );
+    let r = require_info!("x".to_string());
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
 }

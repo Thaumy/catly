@@ -150,7 +150,7 @@ fn go(mut stack: Vec<Pat>, tail: &str) -> Vec<Pat> {
 
     stack.push(move_in(&stack, head));
     // TODO: low performance when printing
-    //println!("Move in result: {:?} follow: {:?}", stack, follow);
+    //println!("Move in to: {:?} follow: {:?}", stack, follow);
     let reduced_stack = reduce_stack(stack, follow);
 
     match reduced_stack[..] {

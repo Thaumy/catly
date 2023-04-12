@@ -123,7 +123,7 @@ pub fn go(mut stack: Vec<Pat>, seq: Vec<In>) -> Pat {
     let (head, tail, follow) = vec_get_head_tail_follow(seq);
 
     stack.push(move_in(&stack, head));
-    println!("Move in result: {:?} follow: {:?}", stack, follow);
+    println!("Move in to: {:?} follow: {:?}", stack, follow);
 
     let reduced_stack = reduce_stack(stack, follow.clone());
 

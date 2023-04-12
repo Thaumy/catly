@@ -1,6 +1,5 @@
 use crate::int_type;
 use crate::parser::r#type::test::f;
-use crate::parser::r#type::Type;
 
 #[test]
 fn test_parse_int_type() {

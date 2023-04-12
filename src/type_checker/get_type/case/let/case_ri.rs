@@ -4,13 +4,21 @@ use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
 use crate::parser::expr::Expr;
-use crate::type_checker::get_type::get_type_with_hint;
 use crate::type_checker::get_type::r#fn::{
     lift_or_left,
     with_constraint_lift_or_left
 };
-use crate::type_checker::get_type::r#type::GetTypeReturn;
-use crate::{has_type, type_miss_match};
+use crate::type_checker::get_type::r#type::{
+    EnvRefConstraint,
+    GetTypeReturn
+};
+use crate::type_checker::get_type::{get_type, get_type_with_hint};
+use crate::{
+    has_type,
+    require_constraint,
+    require_info,
+    type_miss_match
+};
 
 pub fn case_ri(
     type_env: &TypeEnv,
@@ -42,17 +50,35 @@ pub fn case_ri(
             &scope_expr_type,
             expect_type
         ) {
-            Some(t) => has_type!(t),
+            Some(t) => {
+                // 为保证 assign 具备类型并传播约束, 仍需要对其求类型
+                let outer_constraint =
+                    match get_type(type_env, expr_env, assign_expr) {
+                        // 限定相容且未带来约束
+                        Quad::L(_) => EnvRefConstraint::empty(),
+                        // 限定相容且带来了约束, 传播之
+                        Quad::ML(rc) => rc.constraint,
+                        // 拦截无类型弃元信息并改写
+                        Quad::MR(ri) if ri.ref_name == "_" =>
+                            return require_info!(
+                                assign_name.to_string()
+                            ),
+                        // 限定冲突或信息仍然不足, 推导失败
+                        mr_r => return mr_r.clone()
+                    };
+                if outer_constraint.is_empty() {
+                    has_type!(t)
+                } else {
+                    require_constraint!(t, outer_constraint)
+                }
+            }
             None => type_miss_match!()
         },
         // 获取 scope_expr_type 时产生了约束
         Quad::ML(rc) => {
             let assign_type_constraint = rc
                 .constraint
-                .iter()
-                .rev()
-                .find(|(n, _)| n == assign_name)
-                .map(|(_, t)| t);
+                .find(assign_name);
 
             // 如果约束包含了 assign
             let constraint = if let Some(assign_type_constraint) =
@@ -73,7 +99,7 @@ pub fn case_ri(
                         .some()
                 ) {
                     // 限定相容且未带来约束
-                    Quad::L(_) => vec![],
+                    Quad::L(_) => EnvRefConstraint::empty(),
                     // 限定相容且带来了约束, 传播之
                     Quad::ML(rc) => rc.constraint.clone(),
                     // 限定冲突或信息仍然不足, 推导失败
@@ -81,15 +107,33 @@ pub fn case_ri(
                 };
 
                 // 将对 assign 的约束过滤掉, 并拼接起确保限定成立的外层约束作为最终约束
-                rc.constraint
-                    .iter()
-                    .filter(|(n, _)| n != assign_name)
-                    .chain(outer_constraint.iter())
-                    .map(|x| x.clone())
-                    .collect()
+                match rc
+                    .constraint
+                    .filter_new(|(n, _)| n != assign_name)
+                    .extend_new(outer_constraint)
+                {
+                    Some(constraint) => constraint,
+                    None => return type_miss_match!()
+                }
             } else {
-                // 约束未包含 assign, 说明其全部作用于外层环境, 传播之
-                rc.constraint
+                let scope_expr_constraint = rc.constraint;
+
+                // 为保证 assign 具备类型并传播约束, 仍需要对其求类型
+                // scope_expr_type 产生的约束将全部作用于外部环境
+                // 它将与 assign 产生的外部环境约束进行拼接, 并向外传播
+                match get_type(type_env, expr_env, assign_expr) {
+                    // 限定相容且未带来约束
+                    Quad::L(_) => scope_expr_constraint,
+                    // 限定相容且带来了约束, 传播之
+                    Quad::ML(rc) => match scope_expr_constraint
+                        .extend_new(rc.constraint)
+                    {
+                        Some(constraint) => constraint,
+                        None => return type_miss_match!()
+                    },
+                    // 限定冲突或信息仍然不足, 推导失败
+                    mr_r => return mr_r.clone()
+                }
             };
 
             with_constraint_lift_or_left(

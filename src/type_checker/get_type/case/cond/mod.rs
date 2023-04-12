@@ -6,19 +6,16 @@ use crate::env::type_env::TypeEnv;
 use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
-use crate::infra::r#box::Ext;
 use crate::parser::expr::Expr;
 use crate::type_checker::get_type::case::cond::case_ri::case_ri;
 use crate::type_checker::get_type::case::cond::case_t_rc::case_t_rc;
-use crate::type_checker::get_type::r#type::GetTypeReturn;
-use crate::type_checker::get_type::{get_type, get_type_with_hint};
-use crate::unifier::{can_lift, lift, unify};
-use crate::{
-    bool_type,
-    has_type,
-    require_constraint,
-    type_miss_match
+use crate::type_checker::get_type::get_type_with_hint;
+use crate::type_checker::get_type::r#type::{
+    EnvRefConstraint,
+    GetTypeReturn
 };
+use crate::unifier::can_lift;
+use crate::{bool_type, type_miss_match};
 
 pub fn case(
     type_env: &TypeEnv,
@@ -28,9 +25,6 @@ pub fn case(
     then_expr: &Expr,
     else_expr: &Expr
 ) -> GetTypeReturn {
-    // TODO: Lazy init
-    let mut constraint = vec![];
-
     let bool_expr_type = get_type_with_hint(
         type_env,
         expr_env,
@@ -39,17 +33,19 @@ pub fn case(
     );
 
     // bool_expr must be boolean types
-    match &bool_expr_type {
+    let constraint = match &bool_expr_type {
         Quad::L(bool_expr_type) =>
-            if !can_lift(type_env, &bool_expr_type, &bool_type!()) {
+            if can_lift(type_env, &bool_expr_type, &bool_type!()) {
+                EnvRefConstraint::empty()
+            } else {
                 return type_miss_match!();
             },
-        Quad::ML(rc) => {
-            if !can_lift(type_env, &rc.r#type, &bool_type!()) {
+        Quad::ML(rc) =>
+            if can_lift(type_env, &rc.r#type, &bool_type!()) {
+                rc.constraint.clone()
+            } else {
                 return type_miss_match!();
-            }
-            constraint.append(&mut rc.constraint.clone())
-        }
+            },
         // 需要类型信息或者类型不匹配, 由于 Cond 没有环境注入, 不应处理这些情况
         mr_r => return mr_r.clone()
     };

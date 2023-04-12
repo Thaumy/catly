@@ -4,9 +4,11 @@ use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
 use crate::parser::expr::Expr;
-use crate::parser::r#type::Type;
 use crate::type_checker::get_type::get_type_with_hint;
-use crate::type_checker::get_type::r#type::GetTypeReturn;
+use crate::type_checker::get_type::r#type::{
+    EnvRefConstraint,
+    GetTypeReturn
+};
 use crate::unifier::{lift, unify};
 use crate::{has_type, require_constraint, type_miss_match};
 
@@ -14,16 +16,16 @@ pub fn case_t_rc(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
     then_expr_type: GetTypeReturn,
-    mut constraint: Vec<(String, Type)>,
+    constraint: EnvRefConstraint,
     expect_type: &MaybeType,
     else_expr: &Expr
 ) -> GetTypeReturn {
-    let then_expr_type = match then_expr_type {
-        Quad::L(then_expr_type) => then_expr_type,
-        Quad::ML(rc) => {
-            constraint.append(&mut rc.constraint.clone());
-            rc.r#type
-        }
+    let (then_expr_type, constraint) = match then_expr_type {
+        Quad::L(then_expr_type) => (then_expr_type, constraint),
+        Quad::ML(rc) => match constraint.extend_new(rc.constraint) {
+            Some(constraint) => (rc.r#type, constraint),
+            None => return type_miss_match!()
+        },
         _ => panic!("Impossible then_expr_type: {:?}", then_expr_type)
     };
 
@@ -34,17 +36,17 @@ pub fn case_t_rc(
     }
     .some();
 
-    let else_expr_type = match get_type_with_hint(
+    let (else_expr_type, constraint) = match get_type_with_hint(
         type_env,
         expr_env,
         else_expr,
         &expect_type
     ) {
-        Quad::L(t) => t,
-        Quad::ML(rc) => {
-            constraint.append(&mut rc.constraint.clone());
-            rc.r#type
-        }
+        Quad::L(t) => (t, constraint),
+        Quad::ML(rc) => match constraint.extend_new(rc.constraint) {
+            Some(constraint) => (rc.r#type, constraint),
+            None => return type_miss_match!()
+        },
         mr_r => return mr_r.clone()
     };
 
