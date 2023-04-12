@@ -2,7 +2,7 @@ use crate::env::type_env::TypeEnv;
 use crate::infra::alias::MaybeType;
 use crate::parser::r#type::Type;
 use crate::type_checker::get_type::r#type::GetTypeReturn;
-use crate::unifier::lift;
+use crate::unifier::{can_lift, lift};
 use crate::{
     bool_type,
     false_type,
@@ -11,10 +11,6 @@ use crate::{
     true_type,
     type_miss_match
 };
-
-pub fn of_boolean_types(t: &Type) -> bool {
-    t == &bool_type!() || t == &true_type!() || t == &false_type!()
-}
 
 // Lift l to r if r exist, then return lifting result
 // Return l if r not exist

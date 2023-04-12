@@ -8,9 +8,7 @@ pub fn lift(
     o_t: &Type,
     derive: &Type
 ) -> bool {
-    println!("Lift {:?} -> {:?} to {:?}", i_t, o_t, derive);
-
-    match derive {
+    let is_success = match derive {
         // Base
         Type::ClosureType(d_i_t, d_o_t) =>
         // 此处是类型信息的补全关系, 而非针对泛型的类型相容性判断
@@ -32,5 +30,12 @@ pub fn lift(
             .any(|t| lift(type_env, i_t, o_t, t)),
 
         _ => false
-    }
+    };
+
+    println!(
+        "ClosureType lifter: Lift {:?} -> {:?} to {:?} # {:?}",
+        i_t, o_t, derive, is_success
+    );
+
+    is_success
 }

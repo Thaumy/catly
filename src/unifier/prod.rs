@@ -6,9 +6,7 @@ pub fn lift(
     vec: &Vec<(String, Type)>,
     derive: &Type
 ) -> bool {
-    println!("Lift <ProdType>{:?} to {:?}", vec, derive);
-
-    match derive {
+    let is_success = match derive {
         // Base
         Type::ProdType(v) => v == vec,
 
@@ -27,5 +25,12 @@ pub fn lift(
             .any(|t| lift(type_env, vec, t)),
 
         _ => false
-    }
+    };
+
+    println!(
+        "ProdType lifter: Lift {:?} to {:?} # {:?}",
+        vec, derive, is_success
+    );
+
+    is_success
 }

@@ -8,9 +8,7 @@ mod int;
 mod unit;
 
 pub fn lift(type_env: &TypeEnv, base: &str, derive: &Type) -> bool {
-    println!("Lift {:?} to {:?}", base, derive);
-
-    match base {
+    let is_success = match base {
         "Int" => lift_int(type_env, derive),
         "Unit" => lift_unit(type_env, derive),
 
@@ -40,5 +38,12 @@ pub fn lift(type_env: &TypeEnv, base: &str, derive: &Type) -> bool {
             }),
             _ => false,
         },
-    }
+    };
+
+    println!(
+        "TypeEnvRef lifter: Lift {:?} to {:?} # {:?}",
+        base, derive, is_success
+    );
+
+    is_success
 }

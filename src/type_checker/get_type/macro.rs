@@ -18,7 +18,7 @@ macro_rules! unit_type {
 macro_rules! true_type {
     () => {{
         use crate::parser::r#type::Type;
-        Type::TypeEnvRef("Int".to_string())
+        Type::TypeEnvRef("True".to_string())
     }};
 }
 
@@ -26,7 +26,7 @@ macro_rules! true_type {
 macro_rules! false_type {
     () => {{
         use crate::parser::r#type::Type;
-        Type::TypeEnvRef("Int".to_string())
+        Type::TypeEnvRef("False".to_string())
     }};
 }
 
@@ -35,8 +35,7 @@ macro_rules! bool_type {
     () => {{
         use crate::btree_set;
         use crate::parser::r#type::Type;
-        use crate::{false_type, true_type};
-        Type::SumType(btree_set![true_type!(), false_type!(),])
+        Type::TypeEnvRef("Bool".to_string())
     }};
 }
 

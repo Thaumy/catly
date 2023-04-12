@@ -8,9 +8,7 @@ pub fn lift(
     set: &BTreeSet<Type>,
     derive: &Type
 ) -> bool {
-    println!("Lift <SumType>{:?} to {:?}", set, derive);
-
-    match derive {
+    let is_success = match derive {
         // Superset of Base
         Type::SumType(s) if s.is_superset(set) => true,
 
@@ -29,5 +27,12 @@ pub fn lift(
             .any(|t| lift(type_env, set, t)),
 
         _ => false
-    }
+    };
+
+    println!(
+        "SumType lifter: Lift {:?} to {:?} # {:?}",
+        set, derive, is_success
+    );
+
+    is_success
 }

@@ -2,8 +2,6 @@ use crate::env::type_env::TypeEnv;
 use crate::parser::r#type::Type;
 
 pub fn lift(type_env: &TypeEnv, derive: &Type) -> bool {
-    println!("Lift {:?} to {:?}", "Unit", derive);
-
     match derive {
         // Base
         Type::TypeEnvRef(ref_name) if ref_name == "Unit" => true,
