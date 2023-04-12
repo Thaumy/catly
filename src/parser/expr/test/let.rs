@@ -3,6 +3,7 @@ use crate::infra::r#box::Ext;
 use crate::parser::expr::test::f;
 use crate::parser::expr::Expr;
 use crate::parser::r#type::Type;
+use crate::{int_type, unit_type};
 
 #[test]
 fn test_parse_let_part1() {
@@ -224,16 +225,16 @@ fn test_parse_let_part3() {
 #[test]
 fn test_parse_let_part4() {
     let r = Expr::Let(
-        Type::TypeEnvRef("Int".to_string()).some(),
+        int_type!().some(),
         "a".to_string(),
-        Type::TypeEnvRef("Int".to_string()).some(),
+        int_type!().some(),
         Expr::Int(None, 123).boxed(),
         Expr::Let(
             None,
             "b".to_string(),
-            Type::TypeEnvRef("Int".to_string()).some(),
+            int_type!().some(),
             Expr::Let(
-                Type::TypeEnvRef("Int".to_string()).some(),
+                int_type!().some(),
                 "x".to_string(),
                 None,
                 Expr::Closure(
@@ -269,7 +270,7 @@ fn test_parse_let_part4() {
             Expr::Let(
                 None,
                 "d".to_string(),
-                Type::TypeEnvRef("Int".to_string()).some(),
+                int_type!().some(),
                 Expr::Apply(
                     None,
                     Expr::EnvRef(None, "neg".to_string()).boxed(),
@@ -277,7 +278,7 @@ fn test_parse_let_part4() {
                 )
                 .boxed(),
                 Expr::Let(
-                    Type::TypeEnvRef("Int".to_string()).some(),
+                    int_type!().some(),
                     "e".to_string(),
                     None,
                     Expr::Int(None, 6).boxed(),
@@ -285,21 +286,12 @@ fn test_parse_let_part4() {
                         None,
                         "k".to_string(),
                         None,
-                        Expr::Unit(
-                            Type::TypeEnvRef("Unit".to_string())
-                                .some()
-                        )
-                        .boxed(),
+                        Expr::Unit(unit_type!().some()).boxed(),
                         Expr::Let(
                             None,
                             "m".to_string(),
-                            Type::TypeEnvRef("Unit".to_string())
-                                .some(),
-                            Expr::Unit(
-                                Type::TypeEnvRef("Unit".to_string())
-                                    .some()
-                            )
-                            .boxed(),
+                            unit_type!().some(),
+                            Expr::Unit(unit_type!().some()).boxed(),
                             Expr::Let(
                                 None,
                                 "n".to_string(),

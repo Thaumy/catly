@@ -1,10 +1,10 @@
-use crate::btree_set;
 use crate::env::type_env::TypeEnv;
 use crate::infra::option::AnyExt;
 use crate::parser::r#type::Type;
 use crate::unifier::env_ref::lift as lift_env_ref;
 use crate::unifier::lift;
 use crate::unifier::unify;
+use crate::{btree_set, unit_type};
 
 fn env() -> TypeEnv {
     /* env:
@@ -18,14 +18,14 @@ fn env() -> TypeEnv {
     type S3 = D | E
     */
     let vec = vec![
-        ("A".to_string(), Type::TypeEnvRef("Unit".to_string())),
+        ("A".to_string(), unit_type!()),
         ("B".to_string(), Type::TypeEnvRef("A".to_string())),
         ("C".to_string(), Type::TypeEnvRef("B".to_string())),
         (
             "S0".to_string(),
             Type::SumType(btree_set![
                 Type::TypeEnvRef("D".to_string()),
-                Type::TypeEnvRef("Unit".to_string()),
+                unit_type!(),
             ])
         ),
         (
@@ -57,10 +57,10 @@ fn env() -> TypeEnv {
 #[test]
 fn test_lift_part1() {
     let env = &env();
-    let derive = &Type::TypeEnvRef("Unit".to_string());
+    let derive = &unit_type!();
     assert!(lift_env_ref(env, "Unit", derive));
 
-    let base = &Type::TypeEnvRef("Unit".to_string());
+    let base = &unit_type!();
     assert!(lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), derive.clone().some());
 }
@@ -71,7 +71,7 @@ fn test_lift_part2() {
     let derive = &Type::TypeEnvRef("A".to_string());
     assert!(lift_env_ref(env, "Unit", derive));
 
-    let base = &Type::TypeEnvRef("Unit".to_string());
+    let base = &unit_type!();
     assert!(lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), derive.clone().some());
 }
@@ -82,7 +82,7 @@ fn test_lift_part3() {
     let derive = &Type::TypeEnvRef("B".to_string());
     assert!(lift_env_ref(env, "Unit", derive));
 
-    let base = &Type::TypeEnvRef("Unit".to_string());
+    let base = &unit_type!();
     assert!(lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), derive.clone().some());
 }
@@ -93,7 +93,7 @@ fn test_lift_part4() {
     let derive = &Type::TypeEnvRef("C".to_string());
     assert!(lift_env_ref(env, "Unit", derive));
 
-    let base = &Type::TypeEnvRef("Unit".to_string());
+    let base = &unit_type!();
     assert!(lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), derive.clone().some());
 }
@@ -104,7 +104,7 @@ fn test_lift_part5() {
     let derive = &Type::TypeEnvRef("D".to_string());
     assert!(!lift_env_ref(env, "Unit", derive));
 
-    let base = &Type::TypeEnvRef("Unit".to_string());
+    let base = &unit_type!();
     assert!(!lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), None);
 }
@@ -115,7 +115,7 @@ fn test_lift_part6() {
     let derive = &Type::TypeEnvRef("S0".to_string());
     assert!(lift_env_ref(env, "Unit", derive));
 
-    let base = &Type::TypeEnvRef("Unit".to_string());
+    let base = &unit_type!();
     assert!(lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), derive.clone().some());
 }
@@ -126,7 +126,7 @@ fn test_lift_part7() {
     let derive = &Type::TypeEnvRef("S1".to_string());
     assert!(lift_env_ref(env, "Unit", derive));
 
-    let base = &Type::TypeEnvRef("Unit".to_string());
+    let base = &unit_type!();
     assert!(lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), derive.clone().some());
 }
@@ -137,7 +137,7 @@ fn test_lift_part8() {
     let derive = &Type::TypeEnvRef("S2".to_string());
     assert!(lift_env_ref(env, "Unit", derive));
 
-    let base = &Type::TypeEnvRef("Unit".to_string());
+    let base = &unit_type!();
     assert!(lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), derive.clone().some());
 }
@@ -148,7 +148,7 @@ fn test_lift_part9() {
     let derive = &Type::TypeEnvRef("S3".to_string());
     assert!(!lift_env_ref(env, "Unit", derive));
 
-    let base = &Type::TypeEnvRef("Unit".to_string());
+    let base = &unit_type!();
     assert!(!lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), None);
 }

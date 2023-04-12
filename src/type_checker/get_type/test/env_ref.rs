@@ -5,7 +5,7 @@ use crate::parser::expr::Expr;
 use crate::parser::r#type::Type;
 use crate::type_checker::get_type::get_type;
 use crate::type_checker::get_type::test::parse_env;
-use crate::{has_type, require_constraint, require_info};
+use crate::{has_type, int_type, require_constraint, require_info};
 
 fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
     let seq = "
@@ -36,10 +36,10 @@ fn test_part2() {
 
     let expr = expr_env.get_ref("b").unwrap();
 
-    let r = require_constraint!(
-        Type::TypeEnvRef("Int".to_string()),
-        vec![("a".to_string(), Type::TypeEnvRef("Int".to_string()))]
-    );
+    let r = require_constraint!(int_type!(), vec![(
+        "a".to_string(),
+        int_type!()
+    )]);
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
 }
@@ -50,10 +50,10 @@ fn test_part3() {
 
     let expr = expr_env.get_ref("c").unwrap();
 
-    let r = require_constraint!(
-        Type::TypeEnvRef("Int".to_string()),
-        vec![("a".to_string(), Type::TypeEnvRef("Int".to_string()))]
-    );
+    let r = require_constraint!(int_type!(), vec![(
+        "a".to_string(),
+        int_type!()
+    )]);
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
 }
@@ -64,7 +64,7 @@ fn test_part4() {
 
     let expr = expr_env.get_ref("d").unwrap();
 
-    let r = has_type!(Type::TypeEnvRef("Int".to_string()));
+    let r = has_type!(int_type!());
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
 }
@@ -75,7 +75,7 @@ fn test_part5() {
 
     let expr = expr_env.get_ref("e").unwrap();
 
-    let r = has_type!(Type::TypeEnvRef("Int".to_string()));
+    let r = has_type!(int_type!());
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
 }
@@ -86,7 +86,7 @@ fn test_part6() {
 
     let expr = expr_env.get_ref("f").unwrap();
 
-    let r = has_type!(Type::TypeEnvRef("Int".to_string()));
+    let r = has_type!(int_type!());
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
 }

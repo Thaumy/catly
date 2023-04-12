@@ -1,9 +1,9 @@
-use crate::btree_set;
 use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext;
 use crate::parser::expr::test::f;
 use crate::parser::expr::Expr;
 use crate::parser::r#type::Type;
+use crate::{btree_set, int_type, unit_type};
 
 #[test]
 fn test_parse_struct_part1() {
@@ -109,7 +109,7 @@ fn test_parse_struct_part3() {
     let a = Expr::Struct(None, vec![
         (
             "abc".to_string(),
-            Type::TypeEnvRef("Int".to_string()).some(),
+            int_type!().some(),
             Expr::Struct(None, vec![(
                 "efg".to_string(),
                 None,
@@ -145,62 +145,43 @@ fn test_parse_struct_part3() {
         )
         .boxed()
     );
-    let r = Expr::Struct(
-        Type::TypeEnvRef("Int".to_string()).some(),
-        vec![
-            (
+    let r = Expr::Struct(int_type!().some(), vec![
+        ("a".to_string(), int_type!().some(), a),
+        (
+            "ab".to_string(),
+            Type::ClosureType(
+                int_type!().boxed(),
+                int_type!().boxed()
+            )
+            .some(),
+            Expr::Apply(
+                None,
+                Expr::EnvRef(None, "neg".to_string()).boxed(),
+                Expr::Int(None, 1).boxed()
+            )
+        ),
+        (
+            "fun".to_string(),
+            Type::ProdType(vec![
+                ("a".to_string(), int_type!()),
+                ("b".to_string(), unit_type!()),
+            ])
+            .some(),
+            fun
+        ),
+        (
+            "y".to_string(),
+            Type::ProdType(vec![(
                 "a".to_string(),
-                Type::TypeEnvRef("Int".to_string()).some(),
-                a
-            ),
-            (
-                "ab".to_string(),
-                Type::ClosureType(
-                    Type::TypeEnvRef("Int".to_string()).boxed(),
-                    Type::TypeEnvRef("Int".to_string()).boxed()
-                )
-                .some(),
-                Expr::Apply(
-                    None,
-                    Expr::EnvRef(None, "neg".to_string()).boxed(),
-                    Expr::Int(None, 1).boxed()
-                )
-            ),
-            (
-                "fun".to_string(),
                 Type::ProdType(vec![
-                    (
-                        "a".to_string(),
-                        Type::TypeEnvRef("Int".to_string())
-                    ),
-                    (
-                        "b".to_string(),
-                        Type::TypeEnvRef("Unit".to_string())
-                    ),
+                    ("a".to_string(), int_type!()),
+                    ("b".to_string(), unit_type!()),
                 ])
-                .some(),
-                fun
-            ),
-            (
-                "y".to_string(),
-                Type::ProdType(vec![(
-                    "a".to_string(),
-                    Type::ProdType(vec![
-                        (
-                            "a".to_string(),
-                            Type::TypeEnvRef("Int".to_string())
-                        ),
-                        (
-                            "b".to_string(),
-                            Type::TypeEnvRef("Unit".to_string())
-                        ),
-                    ])
-                )])
-                .some(),
-                Expr::Int(None, 0)
-            ),
-        ]
-    );
+            )])
+            .some(),
+            Expr::Int(None, 0)
+        ),
+    ]);
     let r = Some(r);
 
     let seq = "{ \
@@ -214,22 +195,19 @@ fn test_parse_struct_part3() {
 
 #[test]
 fn test_parse_struct_part4() {
-    let ab = Type::ProdType(vec![(
-        "a".to_string(),
-        Type::TypeEnvRef("Int".to_string())
-    )])
-    .some();
+    let ab =
+        Type::ProdType(vec![("a".to_string(), int_type!())]).some();
 
     let cd = Type::ProdType(vec![
-        ("a".to_string(), Type::TypeEnvRef("Int".to_string())),
-        ("b".to_string(), Type::TypeEnvRef("Int".to_string())),
+        ("a".to_string(), int_type!()),
+        ("b".to_string(), int_type!()),
     ])
     .some();
 
     let ef = Type::ProdType(vec![
-        ("a".to_string(), Type::TypeEnvRef("Int".to_string())),
-        ("b".to_string(), Type::TypeEnvRef("Int".to_string())),
-        ("c".to_string(), Type::TypeEnvRef("Int".to_string())),
+        ("a".to_string(), int_type!()),
+        ("b".to_string(), int_type!()),
+        ("c".to_string(), int_type!()),
     ])
     .some();
 
@@ -237,40 +215,37 @@ fn test_parse_struct_part4() {
         (
             "a".to_string(),
             ab.clone(),
-            Expr::Unit(Type::TypeEnvRef("Unit".to_string()).some())
+            Expr::Unit(unit_type!().some())
         ),
         (
             "b".to_string(),
             ab.clone(),
-            Expr::Unit(Type::TypeEnvRef("Unit".to_string()).some())
+            Expr::Unit(unit_type!().some())
         ),
         (
             "c".to_string(),
             cd.clone(),
-            Expr::Unit(Type::TypeEnvRef("Unit".to_string()).some())
+            Expr::Unit(unit_type!().some())
         ),
         (
             "d".to_string(),
             cd.clone(),
-            Expr::Unit(Type::TypeEnvRef("Unit".to_string()).some())
+            Expr::Unit(unit_type!().some())
         ),
         (
             "e".to_string(),
             ef.clone(),
-            Expr::Unit(Type::TypeEnvRef("Unit".to_string()).some())
+            Expr::Unit(unit_type!().some())
         ),
         (
             "f".to_string(),
             ef.clone(),
-            Expr::Unit(Type::TypeEnvRef("Unit".to_string()).some())
+            Expr::Unit(unit_type!().some())
         ),
         (
             "g".to_string(),
             Type::ProdType(vec![
-                (
-                    "a".to_string(),
-                    Type::TypeEnvRef("Int".to_string())
-                ),
+                ("a".to_string(), int_type!()),
                 (
                     "b".to_string(),
                     Type::SumType(btree_set![
@@ -288,7 +263,7 @@ fn test_parse_struct_part4() {
                 ),
             ])
             .some(),
-            Expr::Unit(Type::TypeEnvRef("Unit".to_string()).some())
+            Expr::Unit(unit_type!().some())
         ),
     ]);
     let r = Some(r);

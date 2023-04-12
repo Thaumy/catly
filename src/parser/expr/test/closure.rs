@@ -1,5 +1,6 @@
 use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext;
+use crate::int_type;
 use crate::parser::expr::test::f;
 use crate::parser::expr::Expr;
 use crate::parser::r#type::Type;
@@ -153,16 +154,11 @@ fn test_parse_closure_part4() {
                 "c".to_string().some(),
                 Type::TypeEnvRef("C".to_string()).some(),
                 Expr::Apply(
-                    Type::TypeEnvRef("Int".to_string()).some(),
+                    int_type!().some(),
                     Expr::Apply(
                         None,
                         Expr::EnvRef(None, "add".to_string()).boxed(),
-                        Expr::Int(
-                            Type::TypeEnvRef("Int".to_string())
-                                .some(),
-                            123
-                        )
-                        .boxed()
+                        Expr::Int(int_type!().some(), 123).boxed()
                     )
                     .boxed(),
                     Expr::EnvRef(None, "ccc".to_string()).boxed()

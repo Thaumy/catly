@@ -1,5 +1,6 @@
 use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext;
+use crate::int_type;
 use crate::parser::define::test::f;
 use crate::parser::define::Define;
 use crate::parser::expr::Expr;
@@ -22,7 +23,7 @@ fn test_parse_expr_def_part1() {
 fn test_parse_expr_def_part2() {
     let r = Define::ExprDef(
         "a".to_string(),
-        Type::TypeEnvRef("Int".to_string()).some(),
+        int_type!().some(),
         Expr::EnvRef(None, "b".to_string())
     );
     let r = Some(r);
@@ -35,11 +36,8 @@ fn test_parse_expr_def_part2() {
 fn test_parse_expr_def_part3() {
     let r = Define::ExprDef(
         "a".to_string(),
-        Type::ClosureType(
-            Type::TypeEnvRef("Int".to_string()).boxed(),
-            Type::TypeEnvRef("Int".to_string()).boxed()
-        )
-        .some(),
+        Type::ClosureType(int_type!().boxed(), int_type!().boxed())
+            .some(),
         Expr::EnvRef(None, "b".to_string())
     );
     let r = Some(r);

@@ -1,6 +1,5 @@
 use std::ops::Deref;
 
-use crate::btree_set;
 use crate::env::type_env::TypeEnv;
 use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext;
@@ -8,6 +7,7 @@ use crate::parser::r#type::Type;
 use crate::unifier::closure::lift as lift_closure;
 use crate::unifier::lift;
 use crate::unifier::unify;
+use crate::{btree_set, int_type};
 
 fn env() -> TypeEnv {
     /* env:
@@ -20,8 +20,8 @@ fn env() -> TypeEnv {
     type AB = A | B
     */
     let vec = vec![
-        ("A".to_string(), Type::TypeEnvRef("Int".to_string())),
-        ("B".to_string(), Type::TypeEnvRef("Int".to_string())),
+        ("A".to_string(), int_type!()),
+        ("B".to_string(), int_type!()),
         (
             "F".to_string(),
             Type::ClosureType(

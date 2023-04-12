@@ -1,5 +1,6 @@
 use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext;
+use crate::int_type;
 use crate::parser::expr::test::f;
 use crate::parser::expr::Expr;
 use crate::parser::r#type::Type;
@@ -139,15 +140,14 @@ fn test_parse_cond_part4() {
 #[test]
 fn test_parse_cond_part5() {
     let a = Expr::Cond(
-        Type::TypeEnvRef("Int".to_string()).some(),
+        int_type!().some(),
         Expr::Apply(
-            Type::TypeEnvRef("Int".to_string()).some(),
+            int_type!().some(),
             Expr::Int(None, 123).boxed(),
             Expr::Unit(None).boxed()
         )
         .boxed(),
-        Expr::Int(Type::TypeEnvRef("Int".to_string()).some(), 123)
-            .boxed(),
+        Expr::Int(int_type!().some(), 123).boxed(),
         Expr::EnvRef(None, "abc".to_string()).boxed()
     );
     let b = Expr::Cond(
@@ -157,7 +157,7 @@ fn test_parse_cond_part5() {
         a.clone().boxed()
     );
     let r = Expr::Cond(
-        Type::TypeEnvRef("Int".to_string()).some(),
+        int_type!().some(),
         b.clone().boxed(),
         b.clone().boxed(),
         b.clone().boxed()

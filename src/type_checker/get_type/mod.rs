@@ -13,6 +13,8 @@ use crate::infra::quad::Quad;
 use crate::parser::expr::Expr;
 use crate::type_checker::get_type::r#type::GetTypeReturn;
 
+// TODO: 是否存在重复约束的问题?
+
 pub fn get_type_with_hint(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,

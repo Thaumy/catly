@@ -1,9 +1,10 @@
 use crate::parser::r#type::test::f;
 use crate::parser::r#type::Type;
+use crate::unit_type;
 
 #[test]
 fn test_parse_unit_type() {
-    let r = Type::TypeEnvRef("Unit".to_string());
+    let r = unit_type!();
     let r = Some(r);
 
     let seq = "Unit";

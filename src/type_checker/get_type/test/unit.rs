@@ -3,7 +3,7 @@ use crate::env::type_env::TypeEnv;
 use crate::parser::r#type::Type;
 use crate::type_checker::get_type::get_type;
 use crate::type_checker::get_type::test::parse_env;
-use crate::{has_type, type_miss_match};
+use crate::{has_type, type_miss_match, unit_type};
 
 fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
     let seq = "
@@ -11,6 +11,7 @@ fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
         type B = Int
         def u = (): A
         def i = 10: A
+        def k = ()
     ";
     parse_env(seq)
 }
@@ -40,5 +41,19 @@ fn test_part2() {
     assert_eq!(
         get_type(&type_env, &expr_env, &expr),
         type_miss_match!()
+    )
+}
+
+#[test]
+fn test_part3() {
+    let (type_env, expr_env) = gen_env();
+
+    let expr = expr_env
+        .get_expr("k")
+        .unwrap();
+
+    assert_eq!(
+        get_type(&type_env, &expr_env, &expr),
+        has_type!(unit_type!())
     )
 }

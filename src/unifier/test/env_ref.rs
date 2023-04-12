@@ -1,10 +1,10 @@
-use crate::btree_set;
 use crate::env::type_env::TypeEnv;
 use crate::infra::option::AnyExt;
 use crate::parser::r#type::Type;
 use crate::unifier::env_ref::lift as lift_env_ref;
 use crate::unifier::lift;
 use crate::unifier::unify;
+use crate::{bool_type, btree_set, false_type, int_type, true_type};
 
 fn env() -> TypeEnv {
     /* env:
@@ -18,7 +18,7 @@ fn env() -> TypeEnv {
     */
 
     let vec = vec![
-        ("A".to_string(), Type::TypeEnvRef("Int".to_string())),
+        ("A".to_string(), int_type!()),
         ("B".to_string(), Type::TypeEnvRef("A".to_string())),
         ("C".to_string(), Type::TypeEnvRef("B".to_string())),
         (
@@ -28,14 +28,11 @@ fn env() -> TypeEnv {
                 Type::TypeEnvRef("B".to_string()),
             ])
         ),
-        ("True".to_string(), Type::TypeEnvRef("Int".to_string())),
-        ("False".to_string(), Type::TypeEnvRef("Int".to_string())),
+        ("True".to_string(), int_type!()),
+        ("False".to_string(), int_type!()),
         (
             "Bool".to_string(),
-            Type::SumType(btree_set![
-                Type::TypeEnvRef("True".to_string()),
-                Type::TypeEnvRef("False".to_string()),
-            ])
+            Type::SumType(btree_set![true_type!(), false_type!(),])
         ),
     ];
 
@@ -81,7 +78,7 @@ fn test_lift_part3() {
 #[test]
 fn test_lift_part4() {
     let env = &env();
-    let derive = &Type::TypeEnvRef("Bool".to_string());
+    let derive = &bool_type!();
 
     assert!(lift_env_ref(env, "True", derive));
 

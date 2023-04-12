@@ -1,5 +1,6 @@
 use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext;
+use crate::int_type;
 use crate::parser::expr::test::f;
 use crate::parser::expr::Expr;
 use crate::parser::r#type::Type;
@@ -173,33 +174,24 @@ fn test_parse_apply_part7() {
 #[test]
 fn test_parse_apply_part8() {
     let r = Expr::Apply(
-        Type::TypeEnvRef("Int".to_string()).some(),
+        int_type!().some(),
         Expr::Apply(
-            Type::TypeEnvRef("Int".to_string()).some(),
+            int_type!().some(),
             Expr::EnvRef(None, "abc".to_string()).boxed(),
             Expr::Apply(
-                Type::TypeEnvRef("Int".to_string()).some(),
+                int_type!().some(),
                 Expr::Apply(
-                    Type::TypeEnvRef("Int".to_string()).some(),
+                    int_type!().some(),
                     Expr::EnvRef(None, "add".to_string()).boxed(),
-                    Expr::Int(
-                        Type::TypeEnvRef("Int".to_string()).some(),
-                        123
-                    )
-                    .boxed()
+                    Expr::Int(int_type!().some(), 123).boxed()
                 )
                 .boxed(),
-                Expr::Int(
-                    Type::TypeEnvRef("Int".to_string()).some(),
-                    456
-                )
-                .boxed()
+                Expr::Int(int_type!().some(), 456).boxed()
             )
             .boxed()
         )
         .boxed(),
-        Expr::Int(Type::TypeEnvRef("Int".to_string()).some(), 123)
-            .boxed()
+        Expr::Int(int_type!().some(), 123).boxed()
     );
     let r = Some(r);
 
@@ -215,7 +207,7 @@ fn test_parse_apply_part8() {
 #[test]
 fn test_parse_apply_part9() {
     let r = Expr::Apply(
-        Type::TypeEnvRef("Int".to_string()).some(),
+        int_type!().some(),
         Expr::Apply(
             None,
             Expr::EnvRef(None, "abc".to_string()).boxed(),
@@ -224,24 +216,15 @@ fn test_parse_apply_part9() {
                 Expr::Apply(
                     None,
                     Expr::EnvRef(None, "add".to_string()).boxed(),
-                    Expr::Int(
-                        Type::TypeEnvRef("Int".to_string()).some(),
-                        123
-                    )
-                    .boxed()
+                    Expr::Int(int_type!().some(), 123).boxed()
                 )
                 .boxed(),
-                Expr::Int(
-                    Type::TypeEnvRef("Int".to_string()).some(),
-                    456
-                )
-                .boxed()
+                Expr::Int(int_type!().some(), 456).boxed()
             )
             .boxed()
         )
         .boxed(),
-        Expr::Int(Type::TypeEnvRef("Int".to_string()).some(), 123)
-            .boxed()
+        Expr::Int(int_type!().some(), 123).boxed()
     );
     let r = Some(r);
 

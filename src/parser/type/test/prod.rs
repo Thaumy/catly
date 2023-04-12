@@ -1,12 +1,10 @@
 use crate::parser::r#type::test::f;
 use crate::parser::r#type::Type;
+use crate::{int_type, unit_type};
 
 #[test]
 fn test_parse_prod_type_part1() {
-    let r = Type::ProdType(vec![(
-        "a".to_string(),
-        Type::TypeEnvRef("Int".to_string())
-    )]);
+    let r = Type::ProdType(vec![("a".to_string(), int_type!())]);
     let r = Some(r);
 
     let seq = "{ a: Int }";
@@ -23,7 +21,7 @@ fn test_parse_prod_type_part1() {
 fn test_parse_prod_type_part2() {
     let r = Type::ProdType(vec![
         ("abc".to_string(), Type::TypeEnvRef("A".to_string())),
-        ("uuu".to_string(), Type::TypeEnvRef("Unit".to_string())),
+        ("uuu".to_string(), unit_type!()),
         (
             "intList".to_string(),
             Type::TypeEnvRef("IntList".to_string())

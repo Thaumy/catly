@@ -1,8 +1,8 @@
-use crate::btree_set;
 use crate::infra::option::AnyExt;
 use crate::parser::expr::test::f;
 use crate::parser::expr::Expr;
 use crate::parser::r#type::Type;
+use crate::{btree_set, int_type, unit_type};
 
 #[test]
 fn test_parse_int_part1() {
@@ -16,8 +16,7 @@ fn test_parse_int_part1() {
 
 #[test]
 fn test_parse_int_part2() {
-    let r =
-        Expr::Int(Type::TypeEnvRef("Int".to_string()).some(), 123);
+    let r = Expr::Int(int_type!().some(), 123);
     let r = Some(r);
 
     assert_eq!(f("123: Int"), r);
@@ -31,11 +30,7 @@ fn test_parse_int_part2() {
 #[test]
 fn test_parse_int_part3() {
     let r = Expr::Int(
-        Type::SumType(btree_set![
-            Type::TypeEnvRef("Int".to_string()),
-            Type::TypeEnvRef("Unit".to_string()),
-        ])
-        .some(),
+        Type::SumType(btree_set![int_type!(), unit_type!(),]).some(),
         123
     );
     let r = Some(r);
@@ -52,8 +47,8 @@ fn test_parse_int_part3() {
 fn test_parse_int_part4() {
     let r = Expr::Int(
         Type::SumType(btree_set![
-            Type::TypeEnvRef("Int".to_string()),
-            Type::TypeEnvRef("Unit".to_string()),
+            int_type!(),
+            unit_type!(),
             Type::TypeEnvRef("A".to_string()),
         ])
         .some(),

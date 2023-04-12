@@ -1,10 +1,10 @@
-use crate::btree_set;
 use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext;
 use crate::parser::ast::test::f;
 use crate::parser::define::Define;
 use crate::parser::expr::Expr;
 use crate::parser::r#type::Type;
+use crate::{btree_set, int_type, unit_type};
 
 #[test]
 fn test_parse_ast_part2() {
@@ -79,23 +79,20 @@ fn test_parse_ast_part2() {
         "Love".to_string(),
         Type::SumType(btree_set![
             Type::TypeEnvRef("A".to_string()),
-            Type::TypeEnvRef("Unit".to_string()),
+            unit_type!(),
             Type::TypeEnvRef("C".to_string()),
-            Type::TypeEnvRef("Int".to_string()),
+            int_type!(),
         ])
     );
     let i1 = Define::ExprDef(
         "i".to_string(),
-        Type::TypeEnvRef("Int".to_string()).some(),
-        Expr::Int(Type::TypeEnvRef("Int".to_string()).some(), 0)
+        int_type!().some(),
+        Expr::Int(int_type!().some(), 0)
     );
     let d2 = Define::ExprDef(
         "main".to_string(),
-        Type::ClosureType(
-            Type::TypeEnvRef("Unit".to_string()).boxed(),
-            Type::TypeEnvRef("Unit".to_string()).boxed()
-        )
-        .some(),
+        Type::ClosureType(unit_type!().boxed(), unit_type!().boxed())
+            .some(),
         Expr::Let(
             None,
             "a".to_string(),

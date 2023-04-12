@@ -1,9 +1,9 @@
-use crate::btree_set;
 use crate::infra::option::AnyExt;
 use crate::parser::ast::test::f;
 use crate::parser::define::Define;
 use crate::parser::expr::Expr;
 use crate::parser::r#type::Type;
+use crate::{btree_set, int_type, unit_type};
 
 #[test]
 fn test_parse_ast_part1() {
@@ -31,8 +31,8 @@ fn test_parse_ast_part1() {
     let d22 = Define::ExprDef(
         "b1".to_string(),
         Type::ProdType(vec![
-            ("x".to_string(), Type::TypeEnvRef("Int".to_string())),
-            ("y".to_string(), Type::TypeEnvRef("Unit".to_string())),
+            ("x".to_string(), int_type!()),
+            ("y".to_string(), unit_type!()),
         ])
         .some(),
         Expr::Unit(None)
