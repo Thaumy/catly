@@ -1,3 +1,4 @@
+use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
 use crate::parser::r#type::Type;
 
@@ -21,3 +22,12 @@ pub struct TypeMissMatch {}
 
 pub type GetTypeReturn =
     Quad<Type, RequireConstraint, RequireInfo, TypeMissMatch>;
+
+impl From<GetTypeReturn> for Option<Type> {
+    fn from(value: GetTypeReturn) -> Self {
+        match value {
+            Quad::L(t) => t.some(),
+            _ => None
+        }
+    }
+}

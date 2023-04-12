@@ -20,3 +20,12 @@ impl From<MaybeExpr> for EnvRefSrc {
         }
     }
 }
+
+impl From<EnvRefSrc> for MaybeExpr {
+    fn from(value: EnvRefSrc) -> Self {
+        match value {
+            EnvRefSrc::Src(e) => Some(e),
+            EnvRefSrc::NoSrc => None
+        }
+    }
+}

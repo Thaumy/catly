@@ -4,6 +4,7 @@ use crate::env::type_env::TypeEnv;
 use crate::infra::alias::{MaybeExpr, MaybeType};
 use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
+use crate::parser::expr::Expr;
 use crate::type_checker::get_type::get_type_with_hint;
 use crate::type_checker::get_type::r#fn::lift_or_left;
 use crate::type_checker::get_type::r#type::GetTypeReturn;
@@ -118,6 +119,27 @@ impl<'t> ExprEnv<'t> {
                 },
         }
         .some()
+    }
+
+    pub fn get_type(&self, ref_name: &str) -> Option<GetTypeReturn> {
+        self.get_type_with_hint(ref_name, &None)
+    }
+
+    pub fn get_expr(&self, ref_name: &str) -> Option<Expr> {
+        self.env
+            .iter()
+            .find(|(n, ..)| n == ref_name)
+            .map(|(.., t)| t.clone().into())
+            .flatten()
+    }
+
+    pub fn get_ref(&self, ref_name: &str) -> Option<Expr> {
+        self.env
+            .iter()
+            .find(|(n, ..)| n == ref_name)
+            .map(|(n, tc, _)| {
+                Expr::EnvRef(tc.clone().into(), n.to_string())
+            })
     }
 
     pub fn exist_ref(&self, ref_name: &str) -> bool {
