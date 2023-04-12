@@ -59,7 +59,7 @@ pub fn case_ri(
                         .map(|(capture_name, _)| {
                             case_expr_env_inject
                                 .iter()
-                                .any(|(n, _)| n == capture_name)
+                                .any(|(n, ..)| n == capture_name)
                         })
                         .all(id)
                     {
@@ -116,7 +116,7 @@ pub fn case_ri(
                     // 如果常量环境中不存在名为 ref_name 的注入, 那么 then_expr 约束的 ref_name 便是匹配目标
                     case_expr_env_inject
                         .iter()
-                        .all(|(n, _)| n != ref_name)
+                        .all(|(n, ..)| n != ref_name)
                 )
                 .map(|(_, case_expr_env_inject, then_expr)|
                     match get_type_with_hint(

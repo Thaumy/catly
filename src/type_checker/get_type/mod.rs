@@ -32,49 +32,56 @@ pub fn get_type(
     expr: &Expr
 ) -> GetTypeReturn {
     match expr {
-        Expr::Int(t, _) => {
+        Expr::Int(expect_type, _) => {
             use case::int::case;
-            case(type_env, t)
+            case(type_env, expect_type)
         }
-        Expr::Unit(t) => {
+        Expr::Unit(expect_type) => {
             use case::unit::case;
-            case(type_env, t)
+            case(type_env, expect_type)
         }
-        Expr::Discard(t) => {
+        Expr::Discard(expect_type) => {
             use case::discard::case;
-            case(type_env, t)
+            case(type_env, expect_type)
         }
 
-        Expr::EnvRef(t, ref_name) => {
+        Expr::EnvRef(expect_type, ref_name) => {
             use case::env_ref::case;
-            case(type_env, expr_env, t, ref_name)
+            case(type_env, expr_env, expect_type, ref_name)
         }
 
         // 推导提示
-        Expr::Cond(t, bool_expr, then_expr, else_expr) => {
+        Expr::Cond(expect_type, bool_expr, then_expr, else_expr) => {
             use case::cond::case;
             case(
-                type_env, expr_env, t, bool_expr, then_expr,
+                type_env,
+                expr_env,
+                expect_type,
+                bool_expr,
+                then_expr,
                 else_expr
             )
         }
 
-        // 推导提示 + 类型解构 + 反向约束 + 约束消减
-        Expr::Closure(t, input_name, input_type, output_expr) => {
+        Expr::Closure(
+            expect_type,
+            input_name,
+            input_type,
+            output_expr
+        ) => {
             use case::closure::case;
             case(
                 type_env,
                 expr_env,
-                t,
+                expect_type,
                 input_name,
                 input_type,
                 output_expr
             )
         }
 
-        // 推导提示 + 反向约束 + 约束消减 + 约束传播 + 旁路推导
         Expr::Let(
-            t,
+            expect_type,
             assign_name,
             assign_type,
             assign_expr,
@@ -84,7 +91,7 @@ pub fn get_type(
             case(
                 type_env,
                 expr_env,
-                t,
+                expect_type,
                 assign_name,
                 assign_type,
                 assign_expr,
@@ -92,21 +99,19 @@ pub fn get_type(
             )
         }
 
-        // 推导提示 + 类型解构 + 反向约束
-        Expr::Struct(t, vec) => {
+        Expr::Struct(expect_type, vec) => {
             use case::r#struct::case;
-            case(type_env, expr_env, t, vec)
+            case(type_env, expr_env, expect_type, vec)
         }
 
-        Expr::Apply(t, lhs, rhs) => {
+        Expr::Apply(expect_type, lhs, rhs) => {
             use case::apply::case;
-            case(type_env, expr_env, t, lhs, rhs)
+            case(type_env, expr_env, expect_type, lhs, rhs)
         }
 
-        // 推导提示 + 反向约束 + 旁路推导
-        Expr::Match(t, target_expr, vec) => {
+        Expr::Match(expect_type, target_expr, vec) => {
             use case::r#match::case;
-            case(type_env, expr_env, t, target_expr, vec)
+            case(type_env, expr_env, expect_type, target_expr, vec)
         }
     }
 }
@@ -114,7 +119,11 @@ pub fn get_type(
 // 获取非模式匹配意义上的常量类型
 pub fn get_const_type(type_env: &TypeEnv, expr: &Expr) -> MaybeType {
     // 表达式为常量当且仅当它不使用外部环境
-    match get_type(type_env, &ExprEnv::new(vec![]), expr) {
+    match get_type(
+        type_env,
+        &ExprEnv::new(type_env.clone(), vec![]),
+        expr
+    ) {
         Quad::L(t) => t.some(),
         _ => None
     }

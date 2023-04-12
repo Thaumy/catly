@@ -58,13 +58,13 @@ pub fn case_t_rc(
             // 使用空表达式环境提取 case_expr_type, 这样能让所有对外界的约束得以暴露
             match get_type(
                 type_env,
-                &ExprEnv::new(vec![]),
-                &case_expr
+                &ExprEnv::new(type_env.clone(), vec![]),
+                &case_expr,
             ) {
                 Quad::L(case_expr_type) => can_lift(
                     type_env,
                     &case_expr_type,
-                    &target_expr_type
+                    &target_expr_type,
                 ),
                 // 表达式环境为空却产生了约束
                 Quad::ML(rc) =>
@@ -76,7 +76,7 @@ pub fn case_t_rc(
                             // 这些捕获将在 then_expr 的环境中被使用
                             case_expr_env_inject
                                 .iter()
-                                .any(|(n, _)| n == capture_name)
+                                .any(|(n, ..)| n == capture_name)
                         })
                         // 如果产生了不存在于常量环境中的约束
                         // 则表明这些约束试图作用于真实的外层环境
@@ -87,7 +87,7 @@ pub fn case_t_rc(
                         can_lift(
                             type_env,
                             &rc.r#type,
-                            &target_expr_type
+                            &target_expr_type,
                         ),
                 // 因为 case_expr 已被 target_expr_type hint
                 // 所以 case_expr_type 一定有足够的信息求得类型(即便求出的类型不相容)

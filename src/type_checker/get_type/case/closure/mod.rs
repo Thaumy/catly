@@ -57,8 +57,11 @@ pub fn case(
 
     // Inject parameter to env
     let expr_env = match input_name {
-        Some(input_name) => expr_env
-            .extend_new(input_name.clone(), input_type.clone()),
+        Some(input_name) => expr_env.extend_new(
+            input_name.clone(),
+            input_type.clone(),
+            None
+        ),
         _ => expr_env.clone()
     };
 

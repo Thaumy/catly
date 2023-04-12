@@ -1,21 +1,22 @@
+use crate::env::env_ref_src::EnvRefSrc;
+use crate::env::type_constraint::TypeConstraint;
 use crate::env::type_env::TypeEnv;
 use crate::parser::expr::Expr;
-use crate::type_checker::r#type::TypeConstraint;
 
 // 将模式匹配意义上的常量表达式解构为表达式环境注入
 pub fn destruct_const_to_expr_env_inject<'t>(
     type_env: &TypeEnv,
     expr: &Expr
-) -> Vec<(String, TypeConstraint)> {
+) -> Vec<(String, TypeConstraint, EnvRefSrc)> {
     // TODO: 可使用生命周期优化
     match expr {
         Expr::EnvRef(t, n) => {
             let t = t
                 .clone()
-                .map(|t| TypeConstraint::Constraint(t))
+                .map(|t| t.into())
                 .unwrap_or(TypeConstraint::Free);
 
-            vec![(n.to_string(), t)]
+            vec![(n.to_string(), t, EnvRefSrc::NoSrc)]
         }
         Expr::Struct(_, vec) =>
             vec.iter()

@@ -40,6 +40,7 @@ pub fn case(
             expect_type,
             assign_name,
             assign_type,
+            assign_expr,
             scope_expr
         ),
         // 获取 assign_expr_type 时信息不足, 而 scope_expr 中可能存在对 assign_name 的类型约束

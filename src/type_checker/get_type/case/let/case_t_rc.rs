@@ -19,6 +19,7 @@ pub fn case_t_rc(
     expect_type: &MaybeType,
     assign_name: &str,
     assign_type: &MaybeType,
+    assign_expr: &Expr,
     scope_expr: &Expr
 ) -> GetTypeReturn {
     // 合并处理是为了节省代码量
@@ -40,8 +41,11 @@ pub fn case_t_rc(
     };
 
     // Env inject
-    let expr_env = expr_env
-        .extend_new(assign_name.to_string(), assign_type.some());
+    let expr_env = expr_env.extend_new(
+        assign_name.to_string(),
+        assign_type.some(),
+        assign_expr.clone().some()
+    );
 
     // Hint scope_expr with expect_type and get scope_expr_type
     let scope_expr_type = get_type_with_hint(

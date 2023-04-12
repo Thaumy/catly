@@ -1,13 +1,24 @@
+use std::rc::Rc;
+
 use crate::parser::r#type::Type;
 
 // 顶层类型环境
+#[derive(Debug)]
 pub struct TypeEnv {
-    env: Vec<(String, Type)>
+    env: Rc<Vec<(String, Type)>>
+}
+
+impl Clone for TypeEnv {
+    fn clone(&self) -> Self {
+        TypeEnv {
+            env: self.env.clone()
+        }
+    }
 }
 
 impl TypeEnv {
     pub fn new(vec: Vec<(String, Type)>) -> TypeEnv {
-        TypeEnv { env: vec }
+        TypeEnv { env: Rc::new(vec) }
     }
 
     pub fn find_type(&self, ref_name: &str) -> Option<&Type> {
@@ -32,5 +43,20 @@ impl TypeEnv {
             );
         }
         is_exist
+    }
+
+    pub fn is_type_valid(&self, r#type: &Type) -> bool {
+        match r#type {
+            Type::TypeEnvRef(ref_name) => self.exist_ref(ref_name),
+            Type::ClosureType(input_type, output_type) =>
+                self.is_type_valid(input_type) &&
+                    self.is_type_valid(output_type),
+            Type::ProdType(vec) => vec
+                .iter()
+                .all(|(_, t)| self.is_type_valid(t)),
+            Type::SumType(set) => set
+                .iter()
+                .all(|t| self.is_type_valid(t))
+        }
     }
 }

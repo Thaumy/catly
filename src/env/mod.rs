@@ -1,9 +1,10 @@
 use crate::env::expr_env::ExprEnv;
 use crate::env::type_env::TypeEnv;
 use crate::parser::define::Define;
-use crate::type_checker::r#type::TypeConstraint;
 
+pub mod env_ref_src;
 pub mod expr_env;
+pub mod type_constraint;
 pub mod type_env;
 
 pub fn from_defines<'t>(
@@ -16,16 +17,16 @@ pub fn from_defines<'t>(
                 tev.push((n.clone(), t.clone()));
                 (tev, eev)
             }
-            Define::ExprDef(n, et, _) => {
-                let tc = match et {
-                    Some(t) => TypeConstraint::Constraint(t.clone()),
-                    None => TypeConstraint::Free
-                };
-                eev.push((n.clone(), tc));
+            Define::ExprDef(n, et, ee) => {
+                let tc = et.clone().into();
+                eev.push((n.clone(), tc, ee.clone().into()));
                 (tev, eev)
             }
         }
     );
 
-    (TypeEnv::new(tev), ExprEnv::new(eev))
+    let type_env = TypeEnv::new(tev);
+    let expr_env = ExprEnv::new(type_env.clone(), eev);
+
+    (type_env.clone(), expr_env)
 }
