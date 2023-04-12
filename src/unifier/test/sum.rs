@@ -1,10 +1,10 @@
-use crate::btree_set;
 use crate::env::type_env::TypeEnv;
 use crate::infra::option::AnyExt;
 use crate::parser::r#type::Type;
 use crate::unifier::lift;
 use crate::unifier::sum::lift as lift_sum;
 use crate::unifier::unify;
+use crate::{btree_set, namely_type};
 
 fn env() -> TypeEnv {
     /* env:
@@ -17,23 +17,23 @@ fn env() -> TypeEnv {
         (
             "AB".to_string(),
             Type::SumType(btree_set![
-                Type::TypeEnvRef("A".to_string()),
-                Type::TypeEnvRef("B".to_string()),
+                namely_type!("A"),
+                namely_type!("B"),
             ])
         ),
         (
             "ABC".to_string(),
             Type::SumType(btree_set![
-                Type::TypeEnvRef("A".to_string()),
-                Type::TypeEnvRef("B".to_string()),
-                Type::TypeEnvRef("C".to_string()),
+                namely_type!("A"),
+                namely_type!("B"),
+                namely_type!("C"),
             ])
         ),
         (
             "S".to_string(),
             Type::SumType(btree_set![
-                Type::TypeEnvRef("AB".to_string()),
-                Type::TypeEnvRef("C".to_string()),
+                namely_type!("AB"),
+                namely_type!("C"),
             ])
         ),
     ];
@@ -44,11 +44,8 @@ fn env() -> TypeEnv {
 #[test]
 fn test_lift_part1() {
     let env = &env();
-    let s = &btree_set![
-        Type::TypeEnvRef("A".to_string()),
-        Type::TypeEnvRef("B".to_string()),
-    ];
-    let derive = &Type::TypeEnvRef("AB".to_string());
+    let s = &btree_set![namely_type!("A"), namely_type!("B"),];
+    let derive = &namely_type!("AB");
     assert!(lift_sum(env, s, derive));
 
     let base = &Type::SumType(s.clone());
@@ -59,11 +56,8 @@ fn test_lift_part1() {
 #[test]
 fn test_lift_part2() {
     let env = &env();
-    let s = &btree_set![
-        Type::TypeEnvRef("A".to_string()),
-        Type::TypeEnvRef("B".to_string()),
-    ];
-    let derive = &Type::TypeEnvRef("ABC".to_string());
+    let s = &btree_set![namely_type!("A"), namely_type!("B"),];
+    let derive = &namely_type!("ABC");
     assert!(lift_sum(env, s, derive));
 
     let base = &Type::SumType(s.clone());
@@ -74,11 +68,8 @@ fn test_lift_part2() {
 #[test]
 fn test_lift_part3() {
     let env = &env();
-    let s = &btree_set![
-        Type::TypeEnvRef("A".to_string()),
-        Type::TypeEnvRef("B".to_string()),
-    ];
-    let derive = &Type::TypeEnvRef("S".to_string());
+    let s = &btree_set![namely_type!("A"), namely_type!("B"),];
+    let derive = &namely_type!("S");
     assert!(lift_sum(env, s, derive));
 
     let base = &Type::SumType(s.clone());
@@ -89,11 +80,8 @@ fn test_lift_part3() {
 #[test]
 fn test_lift_part4() {
     let env = &env();
-    let s = &btree_set![
-        Type::TypeEnvRef("A".to_string()),
-        Type::TypeEnvRef("B".to_string()),
-    ];
-    let derive = &Type::TypeEnvRef("S2".to_string());
+    let s = &btree_set![namely_type!("A"), namely_type!("B"),];
+    let derive = &namely_type!("S2");
     assert!(!lift_sum(env, s, derive));
 
     let base = &Type::SumType(s.clone());

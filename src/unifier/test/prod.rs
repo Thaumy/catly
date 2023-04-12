@@ -1,10 +1,10 @@
-use crate::btree_set;
 use crate::env::type_env::TypeEnv;
 use crate::infra::option::AnyExt;
 use crate::parser::r#type::Type;
 use crate::unifier::lift;
 use crate::unifier::prod::lift as lift_prod;
 use crate::unifier::unify;
+use crate::{btree_set, namely_type};
 
 fn env() -> TypeEnv {
     /* env:
@@ -17,21 +17,21 @@ fn env() -> TypeEnv {
             "S".to_string(),
             Type::ProdType(vec![(
                 "a".to_string(),
-                Type::TypeEnvRef("A".to_string())
+                namely_type!("A")
             )])
         ),
         (
             "SA".to_string(),
             Type::SumType(btree_set![
-                Type::TypeEnvRef("S".to_string()),
-                Type::TypeEnvRef("A".to_string()),
+                namely_type!("S"),
+                namely_type!("A"),
             ])
         ),
         (
             "BA".to_string(),
             Type::SumType(btree_set![
-                Type::TypeEnvRef("B".to_string()),
-                Type::TypeEnvRef("A".to_string()),
+                namely_type!("B"),
+                namely_type!("A"),
             ])
         ),
     ];
@@ -42,12 +42,9 @@ fn env() -> TypeEnv {
 #[test]
 fn test_lift_part1() {
     let env = &env();
-    let v =
-        &vec![("a".to_string(), Type::TypeEnvRef("A".to_string()))];
-    let derive = &Type::ProdType(vec![(
-        "a".to_string(),
-        Type::TypeEnvRef("A".to_string())
-    )]);
+    let v = &vec![("a".to_string(), namely_type!("A"))];
+    let derive =
+        &Type::ProdType(vec![("a".to_string(), namely_type!("A"))]);
     assert!(lift_prod(env, v, derive));
 
     let base = &Type::ProdType(v.clone());
@@ -58,9 +55,8 @@ fn test_lift_part1() {
 #[test]
 fn test_lift_part2() {
     let env = &env();
-    let v =
-        &vec![("a".to_string(), Type::TypeEnvRef("A".to_string()))];
-    let derive = &Type::TypeEnvRef("S".to_string());
+    let v = &vec![("a".to_string(), namely_type!("A"))];
+    let derive = &namely_type!("S");
     assert!(lift_prod(env, v, derive));
 
     let base = &Type::ProdType(v.clone());
@@ -71,9 +67,8 @@ fn test_lift_part2() {
 #[test]
 fn test_lift_part3() {
     let env = &env();
-    let v =
-        &vec![("a".to_string(), Type::TypeEnvRef("A".to_string()))];
-    let derive = &Type::TypeEnvRef("SA".to_string());
+    let v = &vec![("a".to_string(), namely_type!("A"))];
+    let derive = &namely_type!("SA");
     assert!(lift_prod(env, v, derive));
 
     let base = &Type::ProdType(v.clone());
@@ -84,9 +79,8 @@ fn test_lift_part3() {
 #[test]
 fn test_lift_part4() {
     let env = &env();
-    let v =
-        &vec![("a".to_string(), Type::TypeEnvRef("A".to_string()))];
-    let derive = &Type::TypeEnvRef("BA".to_string());
+    let v = &vec![("a".to_string(), namely_type!("A"))];
+    let derive = &namely_type!("BA");
     assert!(!lift_prod(env, v, derive));
 
     let base = &Type::ProdType(v.clone());

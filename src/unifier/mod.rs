@@ -15,13 +15,13 @@ mod prod;
 mod sum;
 
 pub fn can_lift(type_env: &TypeEnv, from: &Type, to: &Type) -> bool {
-    if let Type::TypeEnvRef(n) = from
+    if let Type::NamelyType(n) = from
         && !type_env.exist_ref( n) { return false; }
-    if let Type::TypeEnvRef(n) = to
+    if let Type::NamelyType(n) = to
         && !type_env.exist_ref( n) { return false; }
 
     match from {
-        Type::TypeEnvRef(n) if lift_env_ref(type_env, n, to) => true,
+        Type::NamelyType(n) if lift_env_ref(type_env, n, to) => true,
         Type::ClosureType(i, o)
             if lift_closure(type_env, i.deref(), o.deref(), to) =>
             true,

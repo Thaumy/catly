@@ -4,11 +4,11 @@ use crate::parser::r#type::Type;
 pub fn lift(type_env: &TypeEnv, derive: &Type) -> bool {
     match derive {
         // Base
-        Type::TypeEnvRef(ref_name) if ref_name == "Unit" => true,
+        Type::NamelyType(ref_name) if ref_name == "Unit" => true,
 
         // T
         // where Base can be lifted to T
-        Type::TypeEnvRef(ref_name) => type_env
+        Type::NamelyType(ref_name) => type_env
             .find_type(ref_name)
             .map(|t| lift(type_env, t))
             .unwrap_or(false),

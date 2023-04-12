@@ -1,9 +1,8 @@
 use crate::env::expr_env::ExprEnv;
 use crate::env::type_env::TypeEnv;
-use crate::parser::r#type::Type;
 use crate::type_checker::get_type::get_type;
 use crate::type_checker::get_type::test::parse_env;
-use crate::{has_type, int_type, type_miss_match};
+use crate::{has_type, int_type, namely_type, type_miss_match};
 
 fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
     let seq = "
@@ -26,7 +25,7 @@ fn test_part1() {
 
     assert_eq!(
         get_type(&type_env, &expr_env, &expr),
-        has_type!(Type::TypeEnvRef("A".to_string()))
+        has_type!(namely_type!("A"))
     )
 }
 

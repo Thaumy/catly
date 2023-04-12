@@ -1,13 +1,10 @@
 use crate::infra::r#box::Ext;
 use crate::parser::r#type::test::f;
-use crate::parser::r#type::Type;
+use crate::{closure_type, namely_type};
 
 #[test]
 fn test_parse_closure_type_part1() {
-    let r = Type::ClosureType(
-        Type::TypeEnvRef("T".to_string()).boxed(),
-        Type::TypeEnvRef("TList".to_string()).boxed()
-    );
+    let r = closure_type!(namely_type!("T"), namely_type!("TList"));
     let r = Some(r);
 
     let seq = "T -> TList";
@@ -18,13 +15,9 @@ fn test_parse_closure_type_part1() {
 
 #[test]
 fn test_parse_closure_type_part2() {
-    let r = Type::ClosureType(
-        Type::TypeEnvRef("T".to_string()).boxed(),
-        Type::ClosureType(
-            Type::TypeEnvRef("U".to_string()).boxed(),
-            Type::TypeEnvRef("TUEither".to_string()).boxed()
-        )
-        .boxed()
+    let r = closure_type!(
+        namely_type!("T"),
+        closure_type!(namely_type!("U"), namely_type!("TUEither"))
     );
     let r = Some(r);
 
@@ -36,13 +29,9 @@ fn test_parse_closure_type_part2() {
 
 #[test]
 fn test_parse_closure_type_part3() {
-    let r = Type::ClosureType(
-        Type::ClosureType(
-            Type::TypeEnvRef("T".to_string()).boxed(),
-            Type::TypeEnvRef("U".to_string()).boxed()
-        )
-        .boxed(),
-        Type::TypeEnvRef("TUEither".to_string()).boxed()
+    let r = closure_type!(
+        closure_type!(namely_type!("T"), namely_type!("U")),
+        namely_type!("TUEither")
     );
     let r = Some(r);
 

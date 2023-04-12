@@ -38,7 +38,7 @@ impl TypeEnv {
         };
         if !is_exist {
             println!(
-                "TypeEnvRef {:?} not exist in type env",
+                "NamelyType {:?} not exist in type env",
                 ref_name
             );
         }
@@ -47,7 +47,7 @@ impl TypeEnv {
 
     pub fn is_type_valid(&self, r#type: &Type) -> bool {
         match r#type {
-            Type::TypeEnvRef(ref_name) => self.exist_ref(ref_name),
+            Type::NamelyType(ref_name) => self.exist_ref(ref_name),
             Type::ClosureType(input_type, output_type) =>
                 self.is_type_valid(input_type) &&
                     self.is_type_valid(output_type),

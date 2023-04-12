@@ -4,7 +4,13 @@ use crate::parser::r#type::Type;
 use crate::type_checker::get_type::get_type;
 use crate::type_checker::get_type::r#type::EnvRefConstraint;
 use crate::type_checker::get_type::test::parse_env;
-use crate::{has_type, int_type, require_constraint, unit_type};
+use crate::{
+    has_type,
+    int_type,
+    namely_type,
+    require_constraint,
+    unit_type
+};
 
 fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
     let seq = "
@@ -64,7 +70,7 @@ fn test_part3() {
         .get_ref("struct3")
         .unwrap();
 
-    let r = has_type!(Type::TypeEnvRef("Prod".to_string()));
+    let r = has_type!(namely_type!("Prod"));
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
 }

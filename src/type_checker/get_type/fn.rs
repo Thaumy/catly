@@ -44,7 +44,7 @@ pub fn destruct_type_env_ref(
     r#type: &Type
 ) -> Option<Type> {
     match r#type {
-        Type::TypeEnvRef(ref_name) => {
+        Type::NamelyType(ref_name) => {
             let base_type = type_env.find_type(ref_name)?;
             destruct_type_env_ref(type_env, base_type)
         }

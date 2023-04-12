@@ -9,7 +9,7 @@ mod pat;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Type {
-    TypeEnvRef(String),
+    NamelyType(String),
     ClosureType(Box<Type>, Box<Type>),
     SumType(BTreeSet<Type>),
     ProdType(Vec<(String, Type)>)

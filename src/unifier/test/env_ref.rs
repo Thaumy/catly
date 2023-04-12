@@ -4,7 +4,14 @@ use crate::parser::r#type::Type;
 use crate::unifier::env_ref::lift as lift_env_ref;
 use crate::unifier::lift;
 use crate::unifier::unify;
-use crate::{bool_type, btree_set, false_type, int_type, true_type};
+use crate::{
+    bool_type,
+    btree_set,
+    false_type,
+    int_type,
+    namely_type,
+    true_type
+};
 
 fn env() -> TypeEnv {
     /* env:
@@ -19,13 +26,13 @@ fn env() -> TypeEnv {
 
     let vec = vec![
         ("A".to_string(), int_type!()),
-        ("B".to_string(), Type::TypeEnvRef("A".to_string())),
-        ("C".to_string(), Type::TypeEnvRef("B".to_string())),
+        ("B".to_string(), namely_type!("A")),
+        ("C".to_string(), namely_type!("B")),
         (
             "AB".to_string(),
             Type::SumType(btree_set![
-                Type::TypeEnvRef("A".to_string()),
-                Type::TypeEnvRef("B".to_string()),
+                namely_type!("A"),
+                namely_type!("B"),
             ])
         ),
         ("True".to_string(), int_type!()),
@@ -42,10 +49,10 @@ fn env() -> TypeEnv {
 #[test]
 fn test_lift_part1() {
     let env = &env();
-    let derive = &Type::TypeEnvRef("A".to_string());
+    let derive = &namely_type!("A");
     assert!(lift_env_ref(env, "A", derive));
 
-    let base = &Type::TypeEnvRef("A".to_string());
+    let base = &namely_type!("A");
     assert!(lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), derive.clone().some());
 }
@@ -53,10 +60,10 @@ fn test_lift_part1() {
 #[test]
 fn test_lift_part2() {
     let env = &env();
-    let derive = &Type::TypeEnvRef("B".to_string());
+    let derive = &namely_type!("B");
     assert!(!lift_env_ref(env, "A", derive));
 
-    let base = &Type::TypeEnvRef("A".to_string());
+    let base = &namely_type!("A");
     assert!(!lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), None);
 }
@@ -65,12 +72,12 @@ fn test_lift_part2() {
 fn test_lift_part3() {
     let env = &env();
     let derive = &Type::SumType(btree_set![
-        Type::TypeEnvRef("A".to_string()),
-        Type::TypeEnvRef("B".to_string()),
+        namely_type!("A"),
+        namely_type!("B"),
     ]);
     assert!(lift_env_ref(env, "A", derive));
 
-    let base = &Type::TypeEnvRef("A".to_string());
+    let base = &namely_type!("A");
     assert!(lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), derive.clone().some());
 }
@@ -82,7 +89,7 @@ fn test_lift_part4() {
 
     assert!(lift_env_ref(env, "True", derive));
 
-    let base = &Type::TypeEnvRef("True".to_string());
+    let base = &namely_type!("True");
     assert!(lift(env, base, derive).is_some());
     assert_eq!(unify(env, base, derive), derive.clone().some());
 }

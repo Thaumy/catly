@@ -3,7 +3,13 @@ use crate::infra::r#box::Ext;
 use crate::parser::expr::test::f;
 use crate::parser::expr::Expr;
 use crate::parser::r#type::Type;
-use crate::{btree_set, int_type, unit_type};
+use crate::{
+    btree_set,
+    closure_type,
+    int_type,
+    namely_type,
+    unit_type
+};
 
 #[test]
 fn test_parse_struct_part1() {
@@ -149,11 +155,7 @@ fn test_parse_struct_part3() {
         ("a".to_string(), int_type!().some(), a),
         (
             "ab".to_string(),
-            Type::ClosureType(
-                int_type!().boxed(),
-                int_type!().boxed()
-            )
-            .some(),
+            closure_type!(int_type!(), int_type!()).some(),
             Expr::Apply(
                 None,
                 Expr::EnvRef(None, "neg".to_string()).boxed(),
@@ -249,16 +251,16 @@ fn test_parse_struct_part4() {
                 (
                     "b".to_string(),
                     Type::SumType(btree_set![
-                        Type::TypeEnvRef("A".to_string()),
-                        Type::TypeEnvRef("B".to_string()),
+                        namely_type!("A"),
+                        namely_type!("B"),
                     ])
                 ),
                 (
                     "c".to_string(),
                     Type::SumType(btree_set![
-                        Type::TypeEnvRef("A".to_string()),
-                        Type::TypeEnvRef("B".to_string()),
-                        Type::TypeEnvRef("C".to_string()),
+                        namely_type!("A"),
+                        namely_type!("B"),
+                        namely_type!("C"),
                     ])
                 ),
             ])

@@ -3,30 +3,24 @@ use crate::parser::ast::test::f;
 use crate::parser::define::Define;
 use crate::parser::expr::Expr;
 use crate::parser::r#type::Type;
-use crate::{btree_set, int_type, unit_type};
+use crate::{btree_set, int_type, namely_type, unit_type};
 
 #[test]
 fn test_parse_ast_part1() {
-    let t1 = Define::TypeDef(
-        "A".to_string(),
-        Type::TypeEnvRef("B".to_string())
-    );
+    let t1 = Define::TypeDef("A".to_string(), namely_type!("B"));
     let d1 =
         Define::ExprDef("a".to_string(), None, Expr::Int(None, 1));
     let d11 = Define::ExprDef(
         "a1".to_string(),
         Type::SumType(btree_set![
-            Type::TypeEnvRef("A".to_string()),
-            Type::TypeEnvRef("B".to_string()),
-            Type::TypeEnvRef("C".to_string()),
+            namely_type!("A"),
+            namely_type!("B"),
+            namely_type!("C"),
         ])
         .some(),
         Expr::Int(None, 1)
     );
-    let t2 = Define::TypeDef(
-        "C".to_string(),
-        Type::TypeEnvRef("D".to_string())
-    );
+    let t2 = Define::TypeDef("C".to_string(), namely_type!("D"));
     let d2 = Define::ExprDef("b".to_string(), None, Expr::Unit(None));
     let d22 = Define::ExprDef(
         "b1".to_string(),

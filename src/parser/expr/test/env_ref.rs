@@ -2,7 +2,7 @@ use crate::infra::option::AnyExt;
 use crate::parser::expr::test::f;
 use crate::parser::expr::Expr;
 use crate::parser::r#type::Type;
-use crate::{btree_set, int_type, unit_type};
+use crate::{btree_set, int_type, namely_type, unit_type};
 
 #[test]
 fn test_parse_env_ref_part1() {
@@ -31,7 +31,7 @@ fn test_parse_env_ref_part2() {
 fn test_parse_env_ref_part3() {
     let r = Expr::EnvRef(
         Type::SumType(btree_set![
-            Type::TypeEnvRef("A".to_string()),
+            namely_type!("A"),
             unit_type!(),
             int_type!(),
         ])
@@ -52,10 +52,10 @@ fn test_parse_env_ref_part3() {
 fn test_parse_env_ref_part4() {
     let r = Expr::EnvRef(
         Type::SumType(btree_set![
-            Type::TypeEnvRef("A".to_string()),
-            Type::TypeEnvRef("B".to_string()),
-            Type::TypeEnvRef("C".to_string()),
-            Type::TypeEnvRef("D".to_string()),
+            namely_type!("A"),
+            namely_type!("B"),
+            namely_type!("C"),
+            namely_type!("D"),
         ])
         .some(),
         "a".to_string()

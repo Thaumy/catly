@@ -17,7 +17,7 @@ pub fn lift(
 
         // T
         // where Base can be lifted to T
-        Type::TypeEnvRef(ref_name) => type_env
+        Type::NamelyType(ref_name) => type_env
             .find_type(ref_name)
             .map(|t| lift(type_env, i_t, o_t, t))
             .unwrap_or(false),

@@ -28,7 +28,7 @@ pub fn case(
     // Destruct expect_type to ClosureType
     let (expect_input_type, expect_output_type) = match expect_type {
         Some(expect_type) =>
-        // 允许将 ClosureType 提升到基于它的 TypeEnvRef
+        // 允许将 ClosureType 提升到基于它的 NamelyType
         // 换言之, 如果 expect_type 是基于 ClosureType 的, 那么它也能够通过类型检查
             match destruct_type_env_ref(type_env, expect_type) {
                 Some(Type::ClosureType(

@@ -2,7 +2,7 @@ use crate::infra::option::AnyExt;
 use crate::parser::expr::test::f;
 use crate::parser::expr::Expr;
 use crate::parser::r#type::Type;
-use crate::{btree_set, int_type, unit_type};
+use crate::{btree_set, int_type, namely_type, unit_type};
 
 #[test]
 fn test_parse_int_part1() {
@@ -49,7 +49,7 @@ fn test_parse_int_part4() {
         Type::SumType(btree_set![
             int_type!(),
             unit_type!(),
-            Type::TypeEnvRef("A".to_string()),
+            namely_type!("A"),
         ])
         .some(),
         123

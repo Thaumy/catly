@@ -4,6 +4,7 @@ use crate::parser::define::Define;
 
 pub mod env_ref_src;
 pub mod expr_env;
+mod r#macro;
 pub mod type_constraint;
 pub mod type_env;
 

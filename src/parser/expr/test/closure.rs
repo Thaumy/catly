@@ -1,9 +1,8 @@
 use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext;
-use crate::int_type;
 use crate::parser::expr::test::f;
 use crate::parser::expr::Expr;
-use crate::parser::r#type::Type;
+use crate::{closure_type, int_type, namely_type};
 
 #[test]
 fn test_parse_closure_part1() {
@@ -144,15 +143,15 @@ fn test_parse_closure_part4() {
     let r = Expr::Closure(
         None,
         None,
-        Type::TypeEnvRef("A".to_string()).some(),
+        namely_type!("A").some(),
         Expr::Closure(
             None,
             "b".to_string().some(),
-            Type::TypeEnvRef("B".to_string()).some(),
+            namely_type!("B").some(),
             Expr::Closure(
                 None,
                 "c".to_string().some(),
-                Type::TypeEnvRef("C".to_string()).some(),
+                namely_type!("C").some(),
                 Expr::Apply(
                     int_type!().some(),
                     Expr::Apply(
@@ -181,11 +180,7 @@ fn test_parse_closure_part4() {
 #[test]
 fn test_parse_closure_part5() {
     let r = Expr::Closure(
-        Type::ClosureType(
-            Type::TypeEnvRef("A".to_string()).boxed(),
-            Type::TypeEnvRef("B".to_string()).boxed()
-        )
-        .some(),
+        closure_type!(namely_type!("A"), namely_type!("B")).some(),
         "a".to_string().some(),
         None,
         Expr::Closure(

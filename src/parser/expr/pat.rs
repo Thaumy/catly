@@ -54,7 +54,7 @@ pub enum Pat {
     /* type annotation patterns */
     TypedExprHead(Box<Pat>),
 
-    TypeName(String), // Type::TypeEnvRef
+    TypeName(String), // Type::NamelyType
 
     TypeApply(Box<Pat>, Box<Pat>), // Type::TypeApply
 
@@ -223,7 +223,7 @@ impl From<Pat> for MaybeExpr {
 impl From<Pat> for MaybeType {
     fn from(pat: Pat) -> Self {
         let r = match pat {
-            Pat::TypeName(n) => Type::TypeEnvRef(n),
+            Pat::TypeName(n) => Type::NamelyType(n),
 
             Pat::ClosureType(i, o) => {
                 match (Self::from(*i), Self::from(*o)) {

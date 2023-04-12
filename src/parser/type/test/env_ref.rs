@@ -1,9 +1,9 @@
+use crate::namely_type;
 use crate::parser::r#type::test::f;
-use crate::parser::r#type::Type;
 
 #[test]
 fn test_f_env_ref() {
-    let r = Type::TypeEnvRef("A".to_string());
+    let r = namely_type!("A");
     let r = Some(r);
 
     let seq = "A";
@@ -17,7 +17,7 @@ fn test_f_env_ref() {
 
 #[test]
 fn test_f_env_ref_part2() {
-    let r = Type::TypeEnvRef("Abc123".to_string());
+    let r = namely_type!("Abc123");
     let r = Some(r);
 
     let seq = "Abc123";

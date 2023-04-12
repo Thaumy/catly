@@ -1,44 +1,4 @@
 #[macro_export]
-macro_rules! int_type {
-    () => {{
-        use crate::parser::r#type::Type;
-        Type::TypeEnvRef("Int".to_string())
-    }};
-}
-
-#[macro_export]
-macro_rules! unit_type {
-    () => {{
-        use crate::parser::r#type::Type;
-        Type::TypeEnvRef("Unit".to_string())
-    }};
-}
-
-#[macro_export]
-macro_rules! true_type {
-    () => {{
-        use crate::parser::r#type::Type;
-        Type::TypeEnvRef("True".to_string())
-    }};
-}
-
-#[macro_export]
-macro_rules! false_type {
-    () => {{
-        use crate::parser::r#type::Type;
-        Type::TypeEnvRef("False".to_string())
-    }};
-}
-
-#[macro_export]
-macro_rules! bool_type {
-    () => {{
-        use crate::parser::r#type::Type;
-        Type::TypeEnvRef("Bool".to_string())
-    }};
-}
-
-#[macro_export]
 macro_rules! has_type {
     ($e:expr) => {{
         use crate::infra::quad::Quad;

@@ -1,6 +1,6 @@
 use crate::parser::r#type::test::f;
 use crate::parser::r#type::Type;
-use crate::{int_type, unit_type};
+use crate::{int_type, namely_type, unit_type};
 
 #[test]
 fn test_parse_prod_type_part1() {
@@ -20,12 +20,9 @@ fn test_parse_prod_type_part1() {
 #[test]
 fn test_parse_prod_type_part2() {
     let r = Type::ProdType(vec![
-        ("abc".to_string(), Type::TypeEnvRef("A".to_string())),
+        ("abc".to_string(), namely_type!("A")),
         ("uuu".to_string(), unit_type!()),
-        (
-            "intList".to_string(),
-            Type::TypeEnvRef("IntList".to_string())
-        ),
+        ("intList".to_string(), namely_type!("IntList")),
     ]);
     let r = Some(r);
 
@@ -42,18 +39,15 @@ fn test_parse_prod_type_part2() {
 #[test]
 fn test_parse_prod_type_part3() {
     let r = Type::ProdType(vec![
-        ("abc".to_string(), Type::TypeEnvRef("A".to_string())),
+        ("abc".to_string(), namely_type!("A")),
         (
             "uuu".to_string(),
             Type::ProdType(vec![
-                ("x".to_string(), Type::TypeEnvRef("X".to_string())),
-                ("y".to_string(), Type::TypeEnvRef("Y".to_string())),
+                ("x".to_string(), namely_type!("X")),
+                ("y".to_string(), namely_type!("Y")),
             ])
         ),
-        (
-            "intList".to_string(),
-            Type::TypeEnvRef("IntList".to_string())
-        ),
+        ("intList".to_string(), namely_type!("IntList")),
     ]);
     let r = Some(r);
 
@@ -73,15 +67,12 @@ fn test_parse_prod_type_part4() {
         (
             "abc".to_string(),
             Type::ProdType(vec![
-                ("x".to_string(), Type::TypeEnvRef("X".to_string())),
-                ("y".to_string(), Type::TypeEnvRef("Y".to_string())),
+                ("x".to_string(), namely_type!("X")),
+                ("y".to_string(), namely_type!("Y")),
             ])
         ),
-        ("uuu".to_string(), Type::TypeEnvRef("A".to_string())),
-        (
-            "intList".to_string(),
-            Type::TypeEnvRef("IntList".to_string())
-        ),
+        ("uuu".to_string(), namely_type!("A")),
+        ("intList".to_string(), namely_type!("IntList")),
     ]);
     let r = Some(r);
 
@@ -98,13 +89,13 @@ fn test_parse_prod_type_part4() {
 #[test]
 fn test_parse_prod_type_part5() {
     let r = Type::ProdType(vec![
-        ("abc".to_string(), Type::TypeEnvRef("A".to_string())),
-        ("uuu".to_string(), Type::TypeEnvRef("IntList".to_string())),
+        ("abc".to_string(), namely_type!("A")),
+        ("uuu".to_string(), namely_type!("IntList")),
         (
             "s".to_string(),
             Type::ProdType(vec![
-                ("x".to_string(), Type::TypeEnvRef("X".to_string())),
-                ("y".to_string(), Type::TypeEnvRef("Y".to_string())),
+                ("x".to_string(), namely_type!("X")),
+                ("y".to_string(), namely_type!("Y")),
             ])
         ),
     ]);
