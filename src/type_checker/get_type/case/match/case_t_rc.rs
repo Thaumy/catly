@@ -8,7 +8,7 @@ use crate::infra::quad::Quad;
 use crate::infra::r#fn::id;
 use crate::infra::result::AnyExt as ResAnyExt;
 use crate::parser::expr::Expr;
-use crate::type_checker::get_type::case::r#match::r#fn::destruct_const_to_expr_env_inject;
+use crate::type_checker::get_type::case::r#match::r#fn::destruct_match_const_to_expr_env_inject;
 use crate::type_checker::get_type::get_type;
 use crate::type_checker::get_type::r#type::{
     EnvRefConstraint,
@@ -30,7 +30,7 @@ pub fn case_t_rc(
         x => panic!("Impossible target_expr_type: {:?}", x)
     };
 
-    // 统一进行提示, 并求出 case_expr 解构出的常量环境
+    // 统一 hint, 并求出 case_expr 解构出的常量环境
     let hinted_cases = vec
         .iter()
         .map(|(case_expr, then_expr)| {
@@ -45,7 +45,7 @@ pub fn case_t_rc(
 
             // 将 case_expr 解构到常量环境, 该环境将在 then_expr 中被使用
             let case_expr_env_inject =
-                destruct_const_to_expr_env_inject(
+                destruct_match_const_to_expr_env_inject(
                     type_env, &case_expr
                 );
 

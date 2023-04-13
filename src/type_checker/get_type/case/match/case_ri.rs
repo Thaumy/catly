@@ -7,7 +7,7 @@ use crate::infra::r#box::Ext;
 use crate::infra::r#fn::id;
 use crate::infra::result::AnyExt as ResAnyExt;
 use crate::parser::expr::Expr;
-use crate::type_checker::get_type::case::r#match::r#fn::destruct_const_to_expr_env_inject;
+use crate::type_checker::get_type::case::r#match::r#fn::destruct_match_const_to_expr_env_inject;
 use crate::type_checker::get_type::r#type::{
     GetTypeReturn,
     RequireInfo
@@ -35,7 +35,7 @@ pub fn case_ri(
         .iter()
         .map(|(case_expr, then_expr)| {
             let case_expr_env_inject =
-                destruct_const_to_expr_env_inject(
+                destruct_match_const_to_expr_env_inject(
                     type_env, &case_expr
                 );
             (case_expr, case_expr_env_inject, then_expr)
