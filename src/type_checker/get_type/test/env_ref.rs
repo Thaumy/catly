@@ -3,7 +3,13 @@ use crate::env::type_env::TypeEnv;
 use crate::type_checker::get_type::get_type;
 use crate::type_checker::get_type::r#type::EnvRefConstraint;
 use crate::type_checker::get_type::test::parse_env;
-use crate::{has_type, int_type, require_constraint, require_info};
+use crate::{
+    has_type,
+    int_type,
+    require_constraint,
+    require_info,
+    type_miss_match
+};
 
 fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
     let seq = "
@@ -13,6 +19,8 @@ fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
         def d = 1
         def e: Int = _
         def f = _: Int
+        def a7: Unit = d
+        def a8: Unit = c
     ";
     parse_env(seq)
 }
@@ -83,6 +91,32 @@ fn test_part6() {
     let expr = expr_env.get_ref("f").unwrap();
 
     let r = has_type!(int_type!());
+
+    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+}
+
+#[test]
+fn test_part7() {
+    let (type_env, expr_env) = gen_env();
+
+    let expr = expr_env
+        .get_ref("a7")
+        .unwrap();
+
+    let r = type_miss_match!();
+
+    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+}
+
+#[test]
+fn test_part8() {
+    let (type_env, expr_env) = gen_env();
+
+    let expr = expr_env
+        .get_ref("a8")
+        .unwrap();
+
+    let r = type_miss_match!();
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
 }

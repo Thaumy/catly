@@ -33,6 +33,13 @@ fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
         def x = _
         def f9: Int -> Int -> Int = a -> x -> x
         def f10: Int -> (Int -> Int) = a -> (b -> x)
+
+        def b11 = _
+        def f11 = a -> (b11: Int)
+
+        def f12 = _ -> 1
+        def a13 = _
+        def f13 = _ -> (a13: Int)
     ";
     parse_env(seq)
 }
@@ -44,7 +51,6 @@ pub fn test_part1() {
     let expr = expr_env
         .get_ref("f1")
         .unwrap();
-
     let r = require_info!("a".to_string());
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
@@ -57,7 +63,6 @@ pub fn test_part2() {
     let expr = expr_env
         .get_ref("f2")
         .unwrap();
-
     let r = has_type!(closure_type!(int_type!(), int_type!()));
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
@@ -70,7 +75,6 @@ pub fn test_part3() {
     let expr = expr_env
         .get_ref("f3")
         .unwrap();
-
     let r = has_type!(closure_type!(int_type!(), int_type!()));
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
@@ -83,7 +87,6 @@ pub fn test_part4() {
     let expr = expr_env
         .get_ref("f4")
         .unwrap();
-
     let r = has_type!(closure_type!(int_type!(), int_type!()));
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
@@ -111,7 +114,6 @@ pub fn test_part6() {
     let expr = expr_env
         .get_ref("f6")
         .unwrap();
-
     let r = has_type!(closure_type!(
         int_type!(),
         closure_type!(int_type!(), unit_type!())
@@ -127,7 +129,6 @@ pub fn test_part7() {
     let expr = expr_env
         .get_ref("f7")
         .unwrap();
-
     let r = has_type!(namely_type!("F"));
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
@@ -140,7 +141,6 @@ pub fn test_part8() {
     let expr = expr_env
         .get_ref("f8")
         .unwrap();
-
     let r = has_type!(closure_type!(
         closure_type!(int_type!(), unit_type!()),
         int_type!()
@@ -156,7 +156,6 @@ pub fn test_part9() {
     let expr = expr_env
         .get_ref("f9")
         .unwrap();
-
     let r = has_type!(closure_type!(
         int_type!(),
         closure_type!(int_type!(), int_type!())
@@ -172,7 +171,6 @@ pub fn test_part10() {
     let expr = expr_env
         .get_ref("f10")
         .unwrap();
-
     let r = require_constraint!(
         closure_type!(
             int_type!(),
@@ -180,6 +178,42 @@ pub fn test_part10() {
         ),
         EnvRefConstraint::single("x".to_string(), int_type!())
     );
+
+    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+}
+
+#[test]
+pub fn test_part11() {
+    let (type_env, expr_env) = gen_env();
+
+    let expr = expr_env
+        .get_ref("f11")
+        .unwrap();
+    let r = require_info!("a".to_string());
+
+    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+}
+
+#[test]
+pub fn test_part12() {
+    let (type_env, expr_env) = gen_env();
+
+    let expr = expr_env
+        .get_ref("f12")
+        .unwrap();
+    let r = require_info!("_ (closure input)".to_string());
+
+    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+}
+
+#[test]
+pub fn test_part13() {
+    let (type_env, expr_env) = gen_env();
+
+    let expr = expr_env
+        .get_ref("f13")
+        .unwrap();
+    let r = require_info!("_ (closure input)".to_string());
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
 }

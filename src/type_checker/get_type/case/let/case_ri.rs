@@ -10,7 +10,8 @@ use crate::type_checker::get_type::r#fn::{
 };
 use crate::type_checker::get_type::r#type::{
     EnvRefConstraint,
-    GetTypeReturn
+    GetTypeReturn,
+    RequireInfo
 };
 use crate::type_checker::get_type::{get_type, get_type_with_hint};
 use crate::{
@@ -23,6 +24,7 @@ use crate::{
 pub fn case_ri(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
+    require_info: RequireInfo,
     expect_type: &MaybeType,
     assign_name: &str,
     assign_expr: &Expr,
@@ -41,7 +43,7 @@ pub fn case_ri(
     // 而且当找不到 assign_name 的类型信息时, env_ref case 会返回对 assign_name 的约束要求
     // 这种返回与注入 assign_name:Free 后再获取 assign_name 的类型信息时是一致的
     match scope_expr_type {
-        // 返回了确定类型, 表明内层环境并没有用到 Let 的环境注入
+        // 返回了确定类型, 表明内层环境并没有用到 assign 的环境注入
         // 换言之, Let 表达式可以被直接简化为 scope_expr, 因为 scope_expr 与绑定无关
         // 如果改变实现, 也可在分析 assign_expr_type 的 L/ML 情况时得知这种无关性
         // 但这种实现会增加类型检查的复杂性, 应交由优化器实现
@@ -50,29 +52,21 @@ pub fn case_ri(
             &scope_expr_type,
             expect_type
         ) {
-            Some(t) => {
-                // 为保证 assign 具备类型并传播约束, 仍需要对其求类型
-                let outer_constraint =
-                    match get_type(type_env, expr_env, assign_expr) {
-                        // 限定相容且未带来约束
-                        Quad::L(_) => EnvRefConstraint::empty(),
-                        // 限定相容且带来了约束, 传播之
-                        Quad::ML(rc) => rc.constraint,
-                        // 拦截无类型弃元信息并改写
-                        Quad::MR(ri) if ri.ref_name == "_" =>
-                            return require_info!(
-                                assign_name.to_string()
-                            ),
-                        // 限定冲突或信息仍然不足, 推导失败
-                        mr_r => return mr_r.clone()
-                    };
-                if outer_constraint.is_empty() {
-                    has_type!(t)
+            // Some 和 None 分支的设计使得在此处编译器能够逐步提示代码错误
+            // 从而有点编译器教人写代码的感觉(哈哈哈Rust)
+
+            // scope_expr_type 在提升时出现了类型不相容, 优先返回该错误
+            None => type_miss_match!(),
+
+            // 由于 case_ri 分支仅当 assign 缺乏类型信息时才会进入
+            // 因为 scope_expr 没有带来约束, 所以 assign 仍需类型信息
+            // 改写或返回原错误, 改写是为了让无类型弃元错误正确的附加到 assign_name 上, 而不是被其他层级捕获
+            _ =>
+                if require_info.ref_name == "_" {
+                    require_info!(assign_name.to_string())
                 } else {
-                    require_constraint!(t, outer_constraint)
-                }
-            }
-            None => type_miss_match!()
+                    Quad::MR(require_info)
+                },
         },
         // 获取 scope_expr_type 时产生了约束
         Quad::ML(rc) => {
@@ -116,24 +110,20 @@ pub fn case_ri(
                     None => return type_miss_match!()
                 }
             } else {
-                let scope_expr_constraint = rc.constraint;
-
-                // 为保证 assign 具备类型并传播约束, 仍需要对其求类型
-                // scope_expr_type 产生的约束将全部作用于外部环境
-                // 它将与 assign 产生的外部环境约束进行拼接, 并向外传播
-                match get_type(type_env, expr_env, assign_expr) {
-                    // 限定相容且未带来约束
-                    Quad::L(_) => scope_expr_constraint,
-                    // 限定相容且带来了约束, 传播之
-                    Quad::ML(rc) => match scope_expr_constraint
-                        .extend_new(rc.constraint)
-                    {
-                        Some(constraint) => constraint,
-                        None => return type_miss_match!()
-                    },
-                    // 限定冲突或信息仍然不足, 推导失败
-                    mr_r => return mr_r.clone()
-                }
+                // 约束不包含 assign, 关于此处实现的讨论可参见上方的 L 分支
+                return match lift_or_left(
+                    type_env,
+                    &rc.r#type,
+                    expect_type
+                ) {
+                    None => type_miss_match!(),
+                    _ =>
+                        if require_info.ref_name == "_" {
+                            require_info!(assign_name.to_string())
+                        } else {
+                            Quad::MR(require_info)
+                        },
+                };
             };
 
             with_constraint_lift_or_left(

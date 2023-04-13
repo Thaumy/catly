@@ -48,12 +48,13 @@ pub fn case(
         // 旁路类型推导仅在外层信息未知时适用, 因为如果外层信息已知
         // 那么外层信息将具备更高的优先级, 此时使用类型旁路会让内层类型超越外层约束的限制
         // 所以在此处, 仅当 assign_type 和 assign_expr 均无类型信息时, 才能启用旁路类型推导
-        Quad::MR(_)
+        Quad::MR(require_info)
             if assign_type.is_none() &&
                 assign_expr.is_no_type_annotation() =>
             case_ri(
                 type_env,
                 &expr_env,
+                require_info,
                 expect_type,
                 assign_name,
                 assign_expr,
