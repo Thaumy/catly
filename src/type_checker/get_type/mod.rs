@@ -104,9 +104,9 @@ pub fn get_type(
             case(type_env, expr_env, expect_type, vec)
         }
 
-        Expr::Apply(expect_type, lhs, rhs) => {
+        Expr::Apply(expect_type, lhs_expr, rhs_expr) => {
             use case::apply::case;
-            case(type_env, expr_env, expect_type, lhs, rhs)
+            case(type_env, expr_env, expect_type, lhs_expr, rhs_expr)
         }
 
         Expr::Match(expect_type, target_expr, vec) => {

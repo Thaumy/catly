@@ -41,7 +41,7 @@ pub fn case_t_rc(
             &input_type
                 .deref()
                 .clone()
-                .some(),
+                .some()
         ) {
             Quad::L(rhs_expr_type) => {
                 // 验证输入的类型相容性
@@ -51,13 +51,14 @@ pub fn case_t_rc(
                         constraint,
                         type_env,
                         &output_type,
-                        expect_output_type,
+                        expect_output_type
                     )
                 } else {
                     type_miss_match!()
                 }
             }
             Quad::ML(rc) => {
+                // 输入类型相容且约束相容
                 if can_lift(type_env, &rc.r#type, &input_type) &&
                     let Some(constraint) = rc
                         .constraint

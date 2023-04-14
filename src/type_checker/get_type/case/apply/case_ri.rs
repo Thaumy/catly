@@ -23,8 +23,9 @@ pub fn case_ri(
     match lhs_expr {
         // 完全没有附加类型信息的 Closure
         Expr::Closure(None, i_n, None, o_e) => match expect_type {
-            // 可以确定输出类型, 输入输出都能被 hint
+            // 可以确定输出类型
             Some(expect_output_type) =>
+            // 尝试从 rhs_expr 获得输入类型并 hint lhs_expr 的输入类型
                 match get_type(type_env, expr_env, rhs_expr) {
                     Quad::L(rhs_expr_type) => {
                         let closure_type = Type::ClosureType(
@@ -39,7 +40,12 @@ pub fn case_ri(
                             rhs_expr_type.clone().some(),
                             o_e.clone()
                         );
-                        get_type(type_env, expr_env, &lhs_expr)
+                        let apply_expr = Expr::Apply(
+                            expect_type.clone(),
+                            lhs_expr.boxed(),
+                            rhs_expr.clone().boxed()
+                        );
+                        get_type(type_env, expr_env, &apply_expr)
                     }
                     // 约束将在调用 get_type 时被传播, 所以无需处理
                     Quad::ML(rc) => {
@@ -55,12 +61,17 @@ pub fn case_ri(
                             rc.r#type.some(),
                             o_e.clone()
                         );
-                        get_type(type_env, expr_env, &lhs_expr)
+                        let apply_expr = Expr::Apply(
+                            expect_type.clone(),
+                            lhs_expr.boxed(),
+                            rhs_expr.clone().boxed()
+                        );
+                        get_type(type_env, expr_env, &apply_expr)
                     }
                     // 信息不足以获得 rhs_expr_type
                     mr_r => mr_r
                 },
-            // 无法确定输出类型, 仅对输入类型 hint
+            // 无法确定输出类型, 仅尝试获取并 hint 输入类型
             None => match get_type(type_env, expr_env, rhs_expr) {
                 Quad::L(rhs_expr_type) => {
                     let lhs_expr = Expr::Closure(
@@ -69,7 +80,12 @@ pub fn case_ri(
                         rhs_expr_type.clone().some(),
                         o_e.clone()
                     );
-                    get_type(type_env, expr_env, &lhs_expr)
+                    let apply_expr = Expr::Apply(
+                        expect_type.clone(),
+                        lhs_expr.boxed(),
+                        rhs_expr.clone().boxed()
+                    );
+                    get_type(type_env, expr_env, &apply_expr)
                 }
                 // 约束将在调用 get_type 时被传播, 所以无需处理
                 Quad::ML(rc) => {
@@ -79,7 +95,12 @@ pub fn case_ri(
                         rc.r#type.some(),
                         o_e.clone()
                     );
-                    get_type(type_env, expr_env, &lhs_expr)
+                    let apply_expr = Expr::Apply(
+                        expect_type.clone(),
+                        lhs_expr.boxed(),
+                        rhs_expr.clone().boxed()
+                    );
+                    get_type(type_env, expr_env, &apply_expr)
                 }
                 // 信息不足以获得 rhs_expr_type
                 mr_r => mr_r
@@ -102,7 +123,12 @@ pub fn case_ri(
                     i_t.clone().some(),
                     o_e.clone()
                 );
-                get_type(type_env, expr_env, &lhs_expr)
+                let apply_expr = Expr::Apply(
+                    expect_type.clone(),
+                    lhs_expr.boxed(),
+                    rhs_expr.clone().boxed()
+                );
+                get_type(type_env, expr_env, &apply_expr)
             }
             // 无法确定输出类型
             // 由于在输入类型已被确定的情况下仍不能获得 lhs_expr_type, 所以此时已经不能继续推导了

@@ -33,6 +33,9 @@ fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
 
         def b6 = _
         def apply6 = ((a: Int) -> 1) b6
+
+        def apply7: Int = (a -> _) 1
+        def apply8: Int = (a -> b -> c -> 0) 1 2 3
     ";
     parse_env(seq)
 }
@@ -117,6 +120,32 @@ pub fn test_part6() {
             namely_type!("Int")
         )
     );
+
+    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+}
+
+#[test]
+pub fn test_part7() {
+    let (type_env, expr_env) = gen_env();
+
+    let expr = expr_env
+        .get_ref("apply7")
+        .unwrap();
+
+    let r = has_type!(namely_type!("Int"));
+
+    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+}
+
+#[test]
+pub fn test_part8() {
+    let (type_env, expr_env) = gen_env();
+
+    let expr = expr_env
+        .get_ref("apply8")
+        .unwrap();
+
+    let r = has_type!(namely_type!("Int"));
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
 }

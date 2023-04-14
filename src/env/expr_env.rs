@@ -25,25 +25,26 @@ type Item = (String, TypeConstraint, EnvRefSrc);
 pub struct ExprEnv<'t> {
     type_env: TypeEnv,
     prev_env: Option<&'t ExprEnv<'t>>,
+    // TODO: 使用 Option 减少创建空环境时不必要的堆分配
     env: Vec<Item>
 }
 
 impl<'t> ExprEnv<'t> {
-    pub fn new(type_env: TypeEnv, vec: Vec<Item>) -> ExprEnv<'t> {
+    pub fn new(type_env: TypeEnv, env_vec: Vec<Item>) -> ExprEnv<'t> {
         let expr_env = ExprEnv {
             type_env,
             prev_env: None,
-            env: vec
+            env: env_vec
         };
         println!("New ExprEnv: {:?}", expr_env.env);
         expr_env
     }
 
-    pub fn extend_vec_new(&self, vec: Vec<Item>) -> ExprEnv {
+    pub fn extend_vec_new(&self, env_vec: Vec<Item>) -> ExprEnv {
         let expr_env = ExprEnv {
             type_env: self.type_env.clone(),
-            prev_env: Some(self),
-            env: vec
+            prev_env: self.some(),
+            env: env_vec
         };
         println!("New ExprEnv: {:?}", expr_env.env);
         expr_env
@@ -126,8 +127,8 @@ impl<'t> ExprEnv<'t> {
                     // 无法处理其他情况
                     mr_r => mr_r
                 },
-            None =>
             // 当前环境查找不到, 去外层环境查找
+            None =>
                 return match self.prev_env {
                     Some(prev_env) =>
                         prev_env.get_type_with_hint(ref_name, hint),
@@ -142,34 +143,47 @@ impl<'t> ExprEnv<'t> {
     }
 
     pub fn get_expr(&self, ref_name: &str) -> Option<Expr> {
-        self.env
+        let expr = self
+            .env
             .iter()
             .find(|(n, ..)| n == ref_name)
             .map(|(.., t)| t.clone().into())
-            .flatten()
+            .flatten(): Option<Expr>;
+
+        match (expr, self.prev_env) {
+            (Some(expr), _) => expr.some(),
+            (None, Some(prev_env)) => prev_env.get_expr(ref_name),
+            _ => None
+        }
     }
 
     pub fn get_ref(&self, ref_name: &str) -> Option<Expr> {
-        self.env
+        let expr = self
+            .env
             .iter()
             .find(|(n, ..)| n == ref_name)
             .map(|(n, tc, _)| {
                 Expr::EnvRef(tc.clone().into(), n.to_string())
-            })
+            }): Option<Expr>;
+
+        match (expr, self.prev_env) {
+            (Some(expr), _) => expr.some(),
+            (None, Some(prev_env)) => prev_env.get_expr(ref_name),
+            _ => None
+        }
     }
 
     pub fn exist_ref(&self, ref_name: &str) -> bool {
-        match self
+        let is_exist = self
             .env
             .iter()
             .rev()
-            .any(|(n, ..)| n == ref_name)
-        {
-            true => true,
-            false => match self.prev_env {
-                Some(env) => env.exist_ref(ref_name),
-                None => false
-            }
+            .any(|(n, ..)| n == ref_name);
+
+        match (is_exist, self.prev_env) {
+            (true, _) => true,
+            (false, Some(prev_env)) => prev_env.exist_ref(ref_name),
+            _ => false
         }
     }
 }

@@ -20,7 +20,7 @@ pub fn case(
 ) -> GetTypeReturn {
     let lhs_expr_type = get_type(type_env, expr_env, &lhs_expr);
 
-    match get_type(type_env, expr_env, &lhs_expr) {
+    match lhs_expr_type {
         Quad::L(_) | Quad::ML(_) => case_t_rc(
             type_env,
             expr_env,

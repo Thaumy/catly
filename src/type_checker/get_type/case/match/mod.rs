@@ -44,9 +44,6 @@ pub fn case(
                 vec
             ),
 
-        Quad::MR(x) => Quad::MR(x),
-
-        // 类型不相容
-        r => r.clone()
+        mr_r => mr_r.clone()
     }
 }

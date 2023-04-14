@@ -4,6 +4,7 @@ use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
 use crate::parser::expr::Expr;
+use crate::type_checker::get_type::get_type_with_hint;
 use crate::type_checker::get_type::r#fn::{
     lift_or_left,
     with_constraint_lift_or_left
@@ -13,13 +14,7 @@ use crate::type_checker::get_type::r#type::{
     GetTypeReturn,
     RequireInfo
 };
-use crate::type_checker::get_type::{get_type, get_type_with_hint};
-use crate::{
-    has_type,
-    require_constraint,
-    require_info,
-    type_miss_match
-};
+use crate::{require_info, type_miss_match};
 
 pub fn case_ri(
     type_env: &TypeEnv,

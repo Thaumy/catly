@@ -6,7 +6,6 @@ use crate::type_checker::get_type::test::parse_env;
 use crate::{
     has_type,
     int_type,
-    namely_type,
     require_constraint,
     require_info,
     type_miss_match,

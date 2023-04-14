@@ -8,5 +8,4 @@ pub mod quad;
 pub mod result;
 pub mod slice;
 pub mod str;
-pub mod triple;
 pub mod vec;
