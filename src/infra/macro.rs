@@ -36,7 +36,7 @@ macro_rules! maybe_reduce {
 
 #[macro_export]
 macro_rules! btree_set {
-    ($($v:expr,)*) => ({
+    ($($v:expr),* $(,)*) => ({
         use std::collections::BTreeSet;
         let mut bt = BTreeSet::new();
         $(

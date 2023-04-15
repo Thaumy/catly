@@ -10,11 +10,8 @@ use crate::type_checker::get_type::r#fn::{
     require_constraint_or_type,
     with_constraint_lift_or_left
 };
-use crate::type_checker::get_type::r#type::{
-    EnvRefConstraint,
-    GetTypeReturn
-};
-use crate::type_miss_match;
+use crate::type_checker::get_type::r#type::GetTypeReturn;
+use crate::{empty_constraint, type_miss_match};
 
 pub fn case_t_rc(
     type_env: &TypeEnv,
@@ -28,7 +25,7 @@ pub fn case_t_rc(
 ) -> GetTypeReturn {
     // 合并处理是为了节省代码量
     let (assign_expr_type, constraint_acc) = match assign_expr_type {
-        Quad::L(t) => (t, EnvRefConstraint::empty()),
+        Quad::L(t) => (t, empty_constraint!()),
         // 需传播额外携带的约束
         Quad::ML(rc) => (rc.r#type, rc.constraint),
         x => panic!("Impossible assign_expr_type: {:?}", x)

@@ -46,4 +46,3 @@ pub fn case(
         mr_r => mr_r
     }
 }
-// TODO: 是否存在约束重复的现象?

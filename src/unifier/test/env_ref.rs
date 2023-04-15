@@ -1,6 +1,5 @@
 use crate::env::type_env::TypeEnv;
 use crate::infra::option::AnyExt;
-use crate::parser::r#type::Type;
 use crate::unifier::env_ref::lift as lift_env_ref;
 use crate::unifier::lift;
 use crate::unifier::unify;
@@ -10,6 +9,7 @@ use crate::{
     false_type,
     int_type,
     namely_type,
+    sum_type,
     true_type
 };
 
@@ -28,19 +28,13 @@ fn env() -> TypeEnv {
         ("A".to_string(), int_type!()),
         ("B".to_string(), namely_type!("A")),
         ("C".to_string(), namely_type!("B")),
-        (
-            "AB".to_string(),
-            Type::SumType(btree_set![
-                namely_type!("A"),
-                namely_type!("B"),
-            ])
-        ),
+        ("AB".to_string(), sum_type![
+            namely_type!("A"),
+            namely_type!("B"),
+        ]),
         ("True".to_string(), int_type!()),
         ("False".to_string(), int_type!()),
-        (
-            "Bool".to_string(),
-            Type::SumType(btree_set![true_type!(), false_type!(),])
-        ),
+        ("Bool".to_string(), sum_type![true_type!(), false_type!()]),
     ];
 
     TypeEnv::new(vec)
@@ -71,10 +65,7 @@ fn test_lift_part2() {
 #[test]
 fn test_lift_part3() {
     let env = &env();
-    let derive = &Type::SumType(btree_set![
-        namely_type!("A"),
-        namely_type!("B"),
-    ]);
+    let derive = &sum_type![namely_type!("A"), namely_type!("B")];
     assert!(lift_env_ref(env, "A", derive));
 
     let base = &namely_type!("A");

@@ -37,3 +37,19 @@ macro_rules! type_miss_match {
         Quad::R(TypeMissMatch {})
     }};
 }
+
+#[macro_export]
+macro_rules! single_constraint {
+    ($ref_name:expr,$r#type:expr) => {{
+        use crate::type_checker::get_type::r#type::env_ref_constraint::EnvRefConstraint;
+        EnvRefConstraint::single($ref_name, $r#type)
+    }};
+}
+
+#[macro_export]
+macro_rules! empty_constraint {
+    () => {{
+        use crate::type_checker::get_type::r#type::env_ref_constraint::EnvRefConstraint;
+        EnvRefConstraint::empty()
+    }};
+}

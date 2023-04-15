@@ -1,13 +1,13 @@
 use crate::env::expr_env::ExprEnv;
 use crate::env::type_env::TypeEnv;
 use crate::type_checker::get_type::get_type;
-use crate::type_checker::get_type::r#type::EnvRefConstraint;
 use crate::type_checker::get_type::test::parse_env;
 use crate::{
     bool_type,
     has_type,
     int_type,
     require_constraint,
+    single_constraint,
     type_miss_match,
     unit_type
 };
@@ -100,7 +100,7 @@ fn test_part5() {
         .unwrap();
     let r = require_constraint!(
         unit_type!(),
-        EnvRefConstraint::single("b5".to_string(), bool_type!())
+        single_constraint!("b5".to_string(), bool_type!())
     );
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
@@ -115,7 +115,7 @@ fn test_part6() {
         .unwrap();
     let r = require_constraint!(
         int_type!(),
-        EnvRefConstraint::single("y".to_string(), int_type!())
+        single_constraint!("y".to_string(), int_type!())
     );
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
@@ -142,7 +142,7 @@ fn test_part8() {
         .unwrap();
     let r = require_constraint!(
         int_type!(),
-        EnvRefConstraint::single("a8".to_string(), int_type!())
+        single_constraint!("a8".to_string(), int_type!())
     );
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
@@ -157,7 +157,7 @@ fn test_part9() {
         .unwrap();
     let r = require_constraint!(
         int_type!(),
-        EnvRefConstraint::single("a9".to_string(), int_type!())
+        single_constraint!("a9".to_string(), int_type!())
     );
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)

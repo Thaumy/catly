@@ -3,31 +3,26 @@ use crate::infra::r#box::Ext;
 use crate::parser::ast::test::f;
 use crate::parser::define::Define;
 use crate::parser::expr::Expr;
-use crate::parser::r#type::Type;
 use crate::{
     btree_set,
     closure_type,
     int_type,
     namely_type,
+    prod_type,
+    sum_type,
     unit_type
 };
 
 #[test]
 fn test_parse_ast_part2() {
-    let t1 = Define::TypeDef(
-        "Foo".to_string(),
-        Type::ProdType(vec![
-            ("abc".to_string(), namely_type!("A")),
-            ("uuu".to_string(), namely_type!("IntList")),
-            (
-                "intList".to_string(),
-                Type::ProdType(vec![
-                    ("x".to_string(), namely_type!("X")),
-                    ("y".to_string(), namely_type!("Y")),
-                ])
-            ),
-        ])
-    );
+    let t1 = Define::TypeDef("Foo".to_string(), prod_type![
+        ("abc".to_string(), namely_type!("A")),
+        ("uuu".to_string(), namely_type!("IntList")),
+        ("intList".to_string(), prod_type![
+            ("x".to_string(), namely_type!("X")),
+            ("y".to_string(), namely_type!("Y")),
+        ]),
+    ]);
     let d1 = Define::ExprDef(
         "bar".to_string(),
         None,
@@ -72,15 +67,12 @@ fn test_parse_ast_part2() {
             ],
         ),
     );
-    let t2 = Define::TypeDef(
-        "Love".to_string(),
-        Type::SumType(btree_set![
-            namely_type!("A"),
-            unit_type!(),
-            namely_type!("C"),
-            int_type!(),
-        ])
-    );
+    let t2 = Define::TypeDef("Love".to_string(), sum_type![
+        namely_type!("A"),
+        unit_type!(),
+        namely_type!("C"),
+        int_type!(),
+    ]);
     let i1 = Define::ExprDef(
         "i".to_string(),
         int_type!().some(),

@@ -6,10 +6,8 @@ use crate::infra::quad::Quad;
 use crate::parser::expr::Expr;
 use crate::type_checker::get_type::get_type_with_hint;
 use crate::type_checker::get_type::r#fn::require_constraint_or_type;
-use crate::type_checker::get_type::r#type::{
-    EnvRefConstraint,
-    GetTypeReturn
-};
+use crate::type_checker::get_type::r#type::env_ref_constraint::EnvRefConstraint;
+use crate::type_checker::get_type::r#type::GetTypeReturn;
 use crate::type_miss_match;
 use crate::unifier::{lift, unify};
 

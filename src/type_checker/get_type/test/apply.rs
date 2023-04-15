@@ -2,7 +2,6 @@ use crate::env::expr_env::ExprEnv;
 use crate::env::type_env::TypeEnv;
 use crate::infra::r#box::Ext;
 use crate::type_checker::get_type::get_type;
-use crate::type_checker::get_type::r#type::EnvRefConstraint;
 use crate::type_checker::get_type::test::parse_env;
 use crate::{
     closure_type,
@@ -10,6 +9,7 @@ use crate::{
     int_type,
     namely_type,
     require_constraint,
+    single_constraint,
     type_miss_match,
     unit_type
 };
@@ -115,10 +115,7 @@ pub fn test_part6() {
 
     let r = require_constraint!(
         namely_type!("Int"),
-        EnvRefConstraint::single(
-            "b6".to_string(),
-            namely_type!("Int")
-        )
+        single_constraint!("b6".to_string(), namely_type!("Int"))
     );
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)

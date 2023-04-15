@@ -2,12 +2,13 @@ use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext;
 use crate::parser::expr::test::f;
 use crate::parser::expr::Expr;
-use crate::parser::r#type::Type;
 use crate::{
     btree_set,
     closure_type,
     int_type,
     namely_type,
+    prod_type,
+    sum_type,
     unit_type
 };
 
@@ -164,22 +165,19 @@ fn test_parse_struct_part3() {
         ),
         (
             "fun".to_string(),
-            Type::ProdType(vec![
+            prod_type![
                 ("a".to_string(), int_type!()),
                 ("b".to_string(), unit_type!()),
-            ])
+            ]
             .some(),
             fun
         ),
         (
             "y".to_string(),
-            Type::ProdType(vec![(
-                "a".to_string(),
-                Type::ProdType(vec![
-                    ("a".to_string(), int_type!()),
-                    ("b".to_string(), unit_type!()),
-                ])
-            )])
+            prod_type![("a".to_string(), prod_type![
+                ("a".to_string(), int_type!()),
+                ("b".to_string(), unit_type!()),
+            ]),]
             .some(),
             Expr::Int(None, 0)
         ),
@@ -197,20 +195,19 @@ fn test_parse_struct_part3() {
 
 #[test]
 fn test_parse_struct_part4() {
-    let ab =
-        Type::ProdType(vec![("a".to_string(), int_type!())]).some();
+    let ab = prod_type![("a".to_string(), int_type!())].some();
 
-    let cd = Type::ProdType(vec![
+    let cd = prod_type![
         ("a".to_string(), int_type!()),
         ("b".to_string(), int_type!()),
-    ])
+    ]
     .some();
 
-    let ef = Type::ProdType(vec![
+    let ef = prod_type![
         ("a".to_string(), int_type!()),
         ("b".to_string(), int_type!()),
         ("c".to_string(), int_type!()),
-    ])
+    ]
     .some();
 
     let r = Expr::Struct(None, vec![
@@ -246,24 +243,18 @@ fn test_parse_struct_part4() {
         ),
         (
             "g".to_string(),
-            Type::ProdType(vec![
+            prod_type![
                 ("a".to_string(), int_type!()),
-                (
-                    "b".to_string(),
-                    Type::SumType(btree_set![
-                        namely_type!("A"),
-                        namely_type!("B"),
-                    ])
-                ),
-                (
-                    "c".to_string(),
-                    Type::SumType(btree_set![
-                        namely_type!("A"),
-                        namely_type!("B"),
-                        namely_type!("C"),
-                    ])
-                ),
-            ])
+                ("b".to_string(), sum_type![
+                    namely_type!("A"),
+                    namely_type!("B"),
+                ]),
+                ("c".to_string(), sum_type![
+                    namely_type!("A"),
+                    namely_type!("B"),
+                    namely_type!("C"),
+                ]),
+            ]
             .some(),
             Expr::Unit(unit_type!().some())
         ),

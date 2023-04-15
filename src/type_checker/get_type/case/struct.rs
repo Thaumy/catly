@@ -13,12 +13,9 @@ use crate::type_checker::get_type::r#fn::{
     destruct_type_env_ref,
     with_constraint_lift_or_left
 };
-use crate::type_checker::get_type::r#type::{
-    EnvRefConstraint,
-    GetTypeReturn
-};
-use crate::type_miss_match;
+use crate::type_checker::get_type::r#type::GetTypeReturn;
 use crate::unifier::can_lift;
+use crate::{empty_constraint, type_miss_match};
 
 pub fn case(
     type_env: &TypeEnv,
@@ -87,7 +84,7 @@ pub fn case(
     };
 
     // TODO: Lazy init
-    let mut constraint = EnvRefConstraint::empty();
+    let mut constraint = empty_constraint!();
 
     // 收集约束
     let vec = vec

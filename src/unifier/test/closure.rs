@@ -3,11 +3,16 @@ use std::ops::Deref;
 use crate::env::type_env::TypeEnv;
 use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext;
-use crate::parser::r#type::Type;
 use crate::unifier::closure::lift as lift_closure;
 use crate::unifier::lift;
 use crate::unifier::unify;
-use crate::{btree_set, closure_type, int_type, namely_type};
+use crate::{
+    btree_set,
+    closure_type,
+    int_type,
+    namely_type,
+    sum_type
+};
 
 fn env() -> TypeEnv {
     /* env:
@@ -33,20 +38,14 @@ fn env() -> TypeEnv {
                 closure_type!(namely_type!("B"), namely_type!("C"))
             )
         ),
-        (
-            "FG".to_string(),
-            Type::SumType(btree_set![
-                namely_type!("F"),
-                namely_type!("G"),
-            ])
-        ),
-        (
-            "AB".to_string(),
-            Type::SumType(btree_set![
-                namely_type!("A"),
-                namely_type!("B"),
-            ])
-        ),
+        ("FG".to_string(), sum_type![
+            namely_type!("F"),
+            namely_type!("G"),
+        ]),
+        ("AB".to_string(), sum_type![
+            namely_type!("A"),
+            namely_type!("B"),
+        ]),
     ];
 
     TypeEnv::new(vec)

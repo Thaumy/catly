@@ -7,14 +7,12 @@ use crate::infra::quad::Quad;
 use crate::parser::expr::Expr;
 use crate::type_checker::get_type::get_type_with_hint;
 use crate::type_checker::get_type::r#fn::lift_or_left;
-use crate::type_checker::get_type::r#type::{
-    EnvRefConstraint,
-    GetTypeReturn
-};
+use crate::type_checker::get_type::r#type::GetTypeReturn;
 use crate::{
     has_type,
     require_constraint,
     require_info,
+    single_constraint,
     type_miss_match
 };
 
@@ -115,7 +113,7 @@ impl<'t> ExprEnv<'t> {
                             // 具备 hint, 可以将引用名约束到 hint, 传播该约束
                             Some(t) => require_constraint!(
                                 t.clone(),
-                                EnvRefConstraint::single(
+                                single_constraint!(
                                     ref_name.to_string(),
                                     t.clone()
                                 )
@@ -146,6 +144,7 @@ impl<'t> ExprEnv<'t> {
         let expr = self
             .env
             .iter()
+            .rev()
             .find(|(n, ..)| n == ref_name)
             .map(|(.., t)| t.clone().into())
             .flatten(): Option<Expr>;
@@ -161,6 +160,7 @@ impl<'t> ExprEnv<'t> {
         let expr = self
             .env
             .iter()
+            .rev()
             .find(|(n, ..)| n == ref_name)
             .map(|(n, tc, _)| {
                 Expr::EnvRef(tc.clone().into(), n.to_string())

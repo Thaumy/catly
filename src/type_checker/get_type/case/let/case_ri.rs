@@ -10,11 +10,10 @@ use crate::type_checker::get_type::r#fn::{
     with_constraint_lift_or_left
 };
 use crate::type_checker::get_type::r#type::{
-    EnvRefConstraint,
     GetTypeReturn,
     RequireInfo
 };
-use crate::{require_info, type_miss_match};
+use crate::{empty_constraint, require_info, type_miss_match};
 
 pub fn case_ri(
     type_env: &TypeEnv,
@@ -88,7 +87,7 @@ pub fn case_ri(
                         .some()
                 ) {
                     // 限定相容且未带来约束
-                    Quad::L(_) => EnvRefConstraint::empty(),
+                    Quad::L(_) => empty_constraint!(),
                     // 限定相容且带来了约束, 传播之
                     Quad::ML(rc) => rc.constraint.clone(),
                     // 限定冲突或信息仍然不足, 推导失败

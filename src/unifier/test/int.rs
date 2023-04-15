@@ -4,7 +4,7 @@ use crate::parser::r#type::Type;
 use crate::unifier::env_ref::lift as lift_env_ref;
 use crate::unifier::lift;
 use crate::unifier::unify;
-use crate::{btree_set, int_type, namely_type};
+use crate::{btree_set, int_type, namely_type, sum_type};
 
 fn env() -> TypeEnv {
     /* env:
@@ -23,31 +23,20 @@ fn env() -> TypeEnv {
         ("C".to_string(), namely_type!("B")),
         (
             "S0".to_string(),
-            Type::SumType(
-                btree_set![namely_type!("D"), int_type!(),]
-            )
+            Type::SumType(btree_set![namely_type!("D"), int_type!()])
         ),
-        (
-            "S1".to_string(),
-            Type::SumType(btree_set![
-                namely_type!("D"),
-                namely_type!("A"),
-            ])
-        ),
-        (
-            "S2".to_string(),
-            Type::SumType(btree_set![
-                namely_type!("D"),
-                namely_type!("C"),
-            ])
-        ),
-        (
-            "S3".to_string(),
-            Type::SumType(btree_set![
-                namely_type!("D"),
-                namely_type!("E"),
-            ])
-        ),
+        ("S1".to_string(), sum_type![
+            namely_type!("D"),
+            namely_type!("A"),
+        ]),
+        ("S2".to_string(), sum_type![
+            namely_type!("D"),
+            namely_type!("C"),
+        ]),
+        ("S3".to_string(), sum_type![
+            namely_type!("D"),
+            namely_type!("E"),
+        ]),
     ];
 
     TypeEnv::new(vec)

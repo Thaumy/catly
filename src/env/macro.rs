@@ -31,6 +31,29 @@ macro_rules! closure_type {
 }
 
 #[macro_export]
+macro_rules! prod_type {
+    ($($types:expr),* $(,)?) => ({
+        use crate::parser::r#type::Type;
+
+        Type::ProdType(vec![
+            $(($types),)*
+        ])
+    })
+}
+
+#[macro_export]
+macro_rules! sum_type {
+    ($($types:expr),* $(,)?) => ({
+        use crate::{btree_set};
+        use crate::parser::r#type::Type;
+
+        Type::SumType(btree_set![
+            $(($types),)*
+        ])
+    })
+}
+
+#[macro_export]
 macro_rules! true_type {
     () => {{
         use crate::parser::r#type::Type;

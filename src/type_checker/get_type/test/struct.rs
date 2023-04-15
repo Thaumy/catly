@@ -1,14 +1,14 @@
 use crate::env::expr_env::ExprEnv;
 use crate::env::type_env::TypeEnv;
-use crate::parser::r#type::Type;
 use crate::type_checker::get_type::get_type;
-use crate::type_checker::get_type::r#type::EnvRefConstraint;
 use crate::type_checker::get_type::test::parse_env;
 use crate::{
     has_type,
     int_type,
     namely_type,
+    prod_type,
     require_constraint,
+    single_constraint,
     type_miss_match,
     unit_type
 };
@@ -41,10 +41,10 @@ fn test_part1() {
     let expr = expr_env
         .get_ref("struct1")
         .unwrap();
-    let r = has_type!(Type::ProdType(vec![
+    let r = has_type!(prod_type![
         ("a".to_string(), int_type!()),
         ("b".to_string(), unit_type!())
-    ]));
+    ]);
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
 }
@@ -56,10 +56,10 @@ fn test_part2() {
     let expr = expr_env
         .get_ref("struct2")
         .unwrap();
-    let r = has_type!(Type::ProdType(vec![
+    let r = has_type!(prod_type![
         ("a".to_string(), int_type!()),
         ("b".to_string(), unit_type!())
-    ]));
+    ]);
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
 }
@@ -84,11 +84,11 @@ fn test_part4() {
         .get_ref("struct4")
         .unwrap();
     let r = require_constraint!(
-        Type::ProdType(vec![
+        prod_type![
             ("a".to_string(), int_type!()),
             ("b".to_string(), unit_type!())
-        ]),
-        EnvRefConstraint::single("x".to_string(), unit_type!())
+        ],
+        single_constraint!("x".to_string(), unit_type!())
     );
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
@@ -102,11 +102,11 @@ fn test_part5() {
         .get_ref("struct5")
         .unwrap();
     let r = require_constraint!(
-        Type::ProdType(vec![
+        prod_type![
             ("a".to_string(), int_type!()),
             ("b".to_string(), unit_type!())
-        ]),
-        EnvRefConstraint::single("x".to_string(), unit_type!())
+        ],
+        single_constraint!("x".to_string(), unit_type!())
     );
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
@@ -119,10 +119,10 @@ fn test_part6() {
     let expr = expr_env
         .get_ref("struct6")
         .unwrap();
-    let r = has_type!(Type::ProdType(vec![(
+    let r = has_type!(prod_type![("a".to_string(), prod_type![(
         "a".to_string(),
-        Type::ProdType(vec![("a".to_string(), int_type!()),])
-    )]));
+        int_type!()
+    ),])]);
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
 }
@@ -135,11 +135,11 @@ fn test_part7() {
         .get_ref("struct7")
         .unwrap();
     let r = require_constraint!(
-        Type::ProdType(vec![(
+        prod_type![("a".to_string(), prod_type![(
             "a".to_string(),
-            Type::ProdType(vec![("a".to_string(), int_type!()),])
-        )]),
-        EnvRefConstraint::single("x".to_string(), int_type!())
+            int_type!()
+        ),])],
+        single_constraint!("x".to_string(), int_type!())
     );
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)

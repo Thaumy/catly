@@ -2,8 +2,14 @@ use crate::infra::option::AnyExt;
 use crate::parser::ast::test::f;
 use crate::parser::define::Define;
 use crate::parser::expr::Expr;
-use crate::parser::r#type::Type;
-use crate::{btree_set, int_type, namely_type, unit_type};
+use crate::{
+    btree_set,
+    int_type,
+    namely_type,
+    prod_type,
+    sum_type,
+    unit_type
+};
 
 #[test]
 fn test_parse_ast_part1() {
@@ -12,11 +18,11 @@ fn test_parse_ast_part1() {
         Define::ExprDef("a".to_string(), None, Expr::Int(None, 1));
     let d11 = Define::ExprDef(
         "a1".to_string(),
-        Type::SumType(btree_set![
+        sum_type![
             namely_type!("A"),
             namely_type!("B"),
             namely_type!("C"),
-        ])
+        ]
         .some(),
         Expr::Int(None, 1)
     );
@@ -24,10 +30,10 @@ fn test_parse_ast_part1() {
     let d2 = Define::ExprDef("b".to_string(), None, Expr::Unit(None));
     let d22 = Define::ExprDef(
         "b1".to_string(),
-        Type::ProdType(vec![
+        prod_type![
             ("x".to_string(), int_type!()),
             ("y".to_string(), unit_type!()),
-        ])
+        ]
         .some(),
         Expr::Unit(None)
     );

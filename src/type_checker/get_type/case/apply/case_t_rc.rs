@@ -9,12 +9,9 @@ use crate::parser::expr::Expr;
 use crate::parser::r#type::Type;
 use crate::type_checker::get_type::get_type_with_hint;
 use crate::type_checker::get_type::r#fn::with_constraint_lift_or_left;
-use crate::type_checker::get_type::r#type::{
-    EnvRefConstraint,
-    GetTypeReturn
-};
-use crate::type_miss_match;
+use crate::type_checker::get_type::r#type::GetTypeReturn;
 use crate::unifier::can_lift;
+use crate::{empty_constraint, type_miss_match};
 
 pub fn case_t_rc(
     type_env: &TypeEnv,
@@ -27,7 +24,7 @@ pub fn case_t_rc(
     let expect_output_type = expect_type;
 
     let (lhs_expr_type, constraint) = match lhs_expr_type {
-        Quad::L(lhs_type) => (lhs_type, EnvRefConstraint::empty()),
+        Quad::L(lhs_type) => (lhs_type, empty_constraint!()),
         Quad::ML(rc) => (rc.r#type, rc.constraint),
         _ => panic!("Impossible lhs_expr_type: {:?}", lhs_expr_type)
     };

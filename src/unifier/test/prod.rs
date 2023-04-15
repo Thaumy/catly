@@ -4,7 +4,7 @@ use crate::parser::r#type::Type;
 use crate::unifier::lift;
 use crate::unifier::prod::lift as lift_prod;
 use crate::unifier::unify;
-use crate::{btree_set, namely_type};
+use crate::{btree_set, namely_type, prod_type, sum_type};
 
 fn env() -> TypeEnv {
     /* env:
@@ -13,27 +13,18 @@ fn env() -> TypeEnv {
     type BA = B | A
     */
     let vec = vec![
-        (
-            "S".to_string(),
-            Type::ProdType(vec![(
-                "a".to_string(),
-                namely_type!("A")
-            )])
-        ),
-        (
-            "SA".to_string(),
-            Type::SumType(btree_set![
-                namely_type!("S"),
-                namely_type!("A"),
-            ])
-        ),
-        (
-            "BA".to_string(),
-            Type::SumType(btree_set![
-                namely_type!("B"),
-                namely_type!("A"),
-            ])
-        ),
+        ("S".to_string(), prod_type![(
+            "a".to_string(),
+            namely_type!("A")
+        )]),
+        ("SA".to_string(), sum_type![
+            namely_type!("S"),
+            namely_type!("A"),
+        ]),
+        ("BA".to_string(), sum_type![
+            namely_type!("B"),
+            namely_type!("A"),
+        ]),
     ];
 
     TypeEnv::new(vec)
@@ -43,8 +34,7 @@ fn env() -> TypeEnv {
 fn test_lift_part1() {
     let env = &env();
     let v = &vec![("a".to_string(), namely_type!("A"))];
-    let derive =
-        &Type::ProdType(vec![("a".to_string(), namely_type!("A"))]);
+    let derive = &prod_type![("a".to_string(), namely_type!("A"))];
     assert!(lift_prod(env, v, derive));
 
     let base = &Type::ProdType(v.clone());

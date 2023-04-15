@@ -11,12 +11,14 @@ use crate::parser::expr::Expr;
 use crate::type_checker::get_type::case::r#match::r#fn::destruct_match_const_to_expr_env_inject;
 use crate::type_checker::get_type::get_type;
 use crate::type_checker::get_type::r#fn::require_constraint_or_type;
-use crate::type_checker::get_type::r#type::{
-    EnvRefConstraint,
-    GetTypeReturn
-};
+use crate::type_checker::get_type::r#type::GetTypeReturn;
 use crate::unifier::{can_lift, unify};
-use crate::{has_type, require_constraint, type_miss_match};
+use crate::{
+    empty_constraint,
+    has_type,
+    require_constraint,
+    type_miss_match
+};
 
 pub fn case_t_rc(
     type_env: &TypeEnv,
@@ -26,7 +28,7 @@ pub fn case_t_rc(
     vec: &Vec<(Expr, Expr)>
 ) -> GetTypeReturn {
     let (target_expr_type, constraint_acc) = match target_expr_type {
-        Quad::L(t) => (t, EnvRefConstraint::empty()),
+        Quad::L(t) => (t, empty_constraint!()),
         Quad::ML(rc) => (rc.r#type, rc.constraint),
         x => panic!("Impossible target_expr_type: {:?}", x)
     };
@@ -147,23 +149,20 @@ pub fn case_t_rc(
                     mr_r => Err(mr_r)
                 }
             })
-            .fold(
-                EnvRefConstraint::empty().ok(),
-                |acc, constraint| {
-                    match (acc, constraint) {
-                        // 无约束
-                        (Ok(acc), Ok(None)) => acc.ok(),
-                        // 聚合约束
-                        (Ok(acc), Ok(Some(constraint))) =>
-                            match acc.extend_new(constraint) {
-                                Some(acc) => acc.ok(),
-                                None => Err(type_miss_match!())
-                            },
-                        (Ok(_), Err(e)) => Err(e),
-                        (Err(e), _) => Err(e)
-                    }
+            .fold(empty_constraint!().ok(), |acc, constraint| {
+                match (acc, constraint) {
+                    // 无约束
+                    (Ok(acc), Ok(None)) => acc.ok(),
+                    // 聚合约束
+                    (Ok(acc), Ok(Some(constraint))) =>
+                        match acc.extend_new(constraint) {
+                            Some(acc) => acc.ok(),
+                            None => Err(type_miss_match!())
+                        },
+                    (Ok(_), Err(e)) => Err(e),
+                    (Err(e), _) => Err(e)
                 }
-            );
+            });
 
         match constraint {
             Ok(constraint) =>

@@ -1,10 +1,9 @@
 use crate::env::type_env::TypeEnv;
 use crate::infra::option::AnyExt;
-use crate::parser::r#type::Type;
 use crate::unifier::env_ref::lift as lift_env_ref;
 use crate::unifier::lift;
 use crate::unifier::unify;
-use crate::{btree_set, namely_type, unit_type};
+use crate::{btree_set, namely_type, sum_type, unit_type};
 
 fn env() -> TypeEnv {
     /* env:
@@ -21,34 +20,22 @@ fn env() -> TypeEnv {
         ("A".to_string(), unit_type!()),
         ("B".to_string(), namely_type!("A")),
         ("C".to_string(), namely_type!("B")),
-        (
-            "S0".to_string(),
-            Type::SumType(btree_set![
-                namely_type!("D"),
-                unit_type!(),
-            ])
-        ),
-        (
-            "S1".to_string(),
-            Type::SumType(btree_set![
-                namely_type!("D"),
-                namely_type!("A"),
-            ])
-        ),
-        (
-            "S2".to_string(),
-            Type::SumType(btree_set![
-                namely_type!("D"),
-                namely_type!("C"),
-            ])
-        ),
-        (
-            "S3".to_string(),
-            Type::SumType(btree_set![
-                namely_type!("D"),
-                namely_type!("E"),
-            ])
-        ),
+        ("S0".to_string(), sum_type![
+            namely_type!("D"),
+            unit_type!(),
+        ]),
+        ("S1".to_string(), sum_type![
+            namely_type!("D"),
+            namely_type!("A"),
+        ]),
+        ("S2".to_string(), sum_type![
+            namely_type!("D"),
+            namely_type!("C"),
+        ]),
+        ("S3".to_string(), sum_type![
+            namely_type!("D"),
+            namely_type!("E"),
+        ]),
     ];
 
     TypeEnv::new(vec)

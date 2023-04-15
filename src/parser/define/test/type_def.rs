@@ -1,7 +1,6 @@
 use crate::parser::define::test::f;
 use crate::parser::define::Define;
-use crate::parser::r#type::Type;
-use crate::{namely_type, unit_type};
+use crate::{namely_type, prod_type, unit_type};
 
 #[test]
 fn test_parse_type_def_part1() {
@@ -14,11 +13,11 @@ fn test_parse_type_def_part1() {
 
 #[test]
 fn test_parse_type_def_part2() {
-    let t = Type::ProdType(vec![
+    let t = prod_type![
         ("abc".to_string(), namely_type!("A")),
         ("uuu".to_string(), unit_type!()),
         ("intList".to_string(), namely_type!("IntList")),
-    ]);
+    ];
 
     let r = Define::TypeDef("A".to_string(), t);
     let r = Some(r);
