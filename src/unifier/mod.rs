@@ -13,6 +13,8 @@ mod closure;
 mod env_ref;
 mod prod;
 mod sum;
+#[cfg(test)]
+mod test;
 
 pub fn can_lift(type_env: &TypeEnv, from: &Type, to: &Type) -> bool {
     if let Type::NamelyType(n) = from
@@ -46,6 +48,3 @@ pub fn unify(type_env: &TypeEnv, l: &Type, r: &Type) -> Option<Type> {
         _ => None
     }
 }
-
-#[cfg(test)]
-mod test;

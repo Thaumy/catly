@@ -8,6 +8,8 @@ use crate::parser::r#type::Type;
 
 mod r#fn;
 mod pat;
+#[cfg(test)]
+mod test;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expr {
@@ -83,6 +85,3 @@ impl Expr {
         }
     }
 }
-
-#[cfg(test)]
-mod test;

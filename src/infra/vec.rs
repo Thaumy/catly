@@ -1,6 +1,7 @@
 pub trait Ext<T> {
     fn reduce(&mut self, cost: u8, item: T);
     fn push_to_new(&self, item: T) -> Vec<T>;
+    fn chain_push(self, item: T) -> Vec<T>;
 }
 
 impl<T> Ext<T> for Vec<T>
@@ -13,10 +14,13 @@ where
         }
         self.push(item);
     }
+    fn chain_push(mut self, item: T) -> Vec<T> {
+        self.push(item);
+        self
+    }
     fn push_to_new(&self, item: T) -> Vec<T> {
-        let mut b = self.clone();
-        b.push(item);
-        b
+        let b = self.clone();
+        b.chain_push(item)
     }
 }
 

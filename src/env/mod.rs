@@ -1,5 +1,6 @@
 use crate::env::expr_env::ExprEnv;
 use crate::env::type_env::TypeEnv;
+use crate::infra::vec::Ext;
 use crate::parser::define::Define;
 
 pub mod env_ref_src;
@@ -13,15 +14,19 @@ pub fn from_defines<'t>(
 ) -> (TypeEnv, ExprEnv<'t>) {
     let (tev, eev) = defines.iter().fold(
         (vec![], vec![]),
-        |(mut tev, mut eev), define| match define {
-            Define::TypeDef(n, t) => {
-                tev.push((n.clone(), t.clone()));
-                (tev, eev)
-            }
+        |(tev, eev), define| match define {
+            Define::TypeDef(n, t) =>
+                (tev.chain_push((n.clone(), t.clone())), eev),
             Define::ExprDef(n, et, ee) => {
                 let tc = et.clone().into();
-                eev.push((n.clone(), tc, ee.clone().into()));
-                (tev, eev)
+                (
+                    tev,
+                    eev.chain_push((
+                        n.clone(),
+                        tc,
+                        ee.clone().into()
+                    ))
+                )
             }
         }
     );

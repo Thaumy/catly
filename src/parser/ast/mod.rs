@@ -5,6 +5,8 @@ use crate::parser::ast::r#fn::{
 use crate::parser::define::Define;
 
 mod r#fn;
+#[cfg(test)]
+mod test;
 
 type In = crate::parser::preprocess::Out;
 
@@ -14,6 +16,3 @@ pub fn parse_ast(seq: Vec<In>) -> Option<Vec<Define>> {
     println!("AST: {:?}", r);
     r
 }
-
-#[cfg(test)]
-mod test;

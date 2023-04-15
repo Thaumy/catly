@@ -7,13 +7,14 @@ use crate::parser::expr::Expr;
 use crate::type_checker::get_type::get_type_with_hint;
 use crate::type_checker::get_type::r#fn::{
     lift_or_left,
+    require_constraint_or_type,
     with_constraint_lift_or_left
 };
 use crate::type_checker::get_type::r#type::{
     EnvRefConstraint,
     GetTypeReturn
 };
-use crate::{has_type, require_constraint, type_miss_match};
+use crate::type_miss_match;
 
 pub fn case_t_rc(
     type_env: &TypeEnv,
@@ -64,12 +65,7 @@ pub fn case_t_rc(
             &scope_expr_type,
             expect_type
         ) {
-            Some(t) =>
-                if constraint_acc.is_empty() {
-                    has_type!(t)
-                } else {
-                    require_constraint!(t, constraint_acc)
-                },
+            Some(t) => require_constraint_or_type(constraint_acc, t),
             None => type_miss_match!()
         },
         // 由于 assign_type 存在, 所以此处的约束作用于外层环境, 传播之

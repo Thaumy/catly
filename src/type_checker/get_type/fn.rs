@@ -21,6 +21,28 @@ pub fn lift_or_left(
     }
 }
 
+pub fn require_constraint_or_type(
+    constraint: EnvRefConstraint,
+    r#type: Type
+) -> GetTypeReturn {
+    if constraint.is_empty() {
+        has_type!(r#type)
+    } else {
+        require_constraint!(r#type, constraint)
+    }
+}
+
+pub fn lift_or_miss_match(
+    type_env: &TypeEnv,
+    from: &Type,
+    to: &Type
+) -> GetTypeReturn {
+    match lift(type_env, from, to) {
+        Some(t) => has_type!(t),
+        None => type_miss_match!()
+    }
+}
+
 pub fn with_constraint_lift_or_left(
     constraint: EnvRefConstraint,
     type_env: &TypeEnv,
@@ -28,13 +50,9 @@ pub fn with_constraint_lift_or_left(
     derive: &MaybeType
 ) -> GetTypeReturn {
     match lift_or_left(type_env, base, derive) {
-        Some(t) =>
         // 按需传播
-            if constraint.is_empty() {
-                has_type!(t)
-            } else {
-                require_constraint!(t, constraint)
-            },
+        Some(r#type) =>
+            require_constraint_or_type(constraint, r#type),
         None => type_miss_match!()
     }
 }

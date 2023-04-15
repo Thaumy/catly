@@ -6,6 +6,8 @@ use crate::parser::r#type::Type;
 
 mod r#fn;
 mod pat;
+#[cfg(test)]
+mod test;
 
 #[derive(Debug, PartialEq)]
 pub enum Define {
@@ -19,6 +21,3 @@ pub fn parse_define(seq: Vec<In>) -> Option<Define> {
     println!("\nParsing Define seq: {:?}", seq);
     go(vec![Pat::Start], seq).into()
 }
-
-#[cfg(test)]
-mod test;

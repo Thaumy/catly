@@ -1,3 +1,4 @@
+use crate::infra::vec::Ext;
 use crate::parser::keyword::Keyword;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -47,10 +48,7 @@ type In = crate::parser::preprocess::chunk::Out;
 pub fn pp_keyword(seq: &[In]) -> Vec<Out> {
     let r = seq
         .iter()
-        .fold(vec![], |mut acc, x| {
-            acc.push(Out::from(x.clone()));
-            acc
-        });
+        .fold(vec![], |acc, x| acc.chain_push(Out::from(x.clone())));
     println!("Keyword pp out: {:?}", r);
     r
 }

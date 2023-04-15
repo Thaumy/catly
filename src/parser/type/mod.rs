@@ -6,6 +6,8 @@ use crate::parser::r#type::r#fn::go;
 
 mod r#fn;
 mod pat;
+#[cfg(test)]
+mod test;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Type {
@@ -21,6 +23,3 @@ pub fn parse_type(seq: Vec<In>) -> MaybeType {
     println!("\nParsing Type seq: {:?}", seq);
     go(vec![Pat::Start], seq).into()
 }
-
-#[cfg(test)]
-mod test;

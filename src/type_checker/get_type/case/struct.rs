@@ -5,6 +5,7 @@ use crate::infra::option::AnyExt as OptExt;
 use crate::infra::quad::Quad;
 use crate::infra::r#fn::id;
 use crate::infra::result::AnyExt;
+use crate::infra::vec::Ext;
 use crate::parser::expr::Expr;
 use crate::parser::r#type::Type;
 use crate::type_checker::get_type::get_type;
@@ -107,10 +108,7 @@ pub fn case(
             err => err.clone().err()
         })
         .fold(vec![].ok(), |acc, x| match (acc, x) {
-            (Ok(mut acc), Ok(x)) => {
-                acc.push(x);
-                acc.ok()
-            }
+            (Ok(acc), Ok(x)) => acc.chain_push(x).ok(),
             (Ok(_), Err(e)) => Err(e),
             (err, _) => err
         });

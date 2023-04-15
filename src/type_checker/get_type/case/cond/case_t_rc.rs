@@ -5,12 +5,13 @@ use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
 use crate::parser::expr::Expr;
 use crate::type_checker::get_type::get_type_with_hint;
+use crate::type_checker::get_type::r#fn::require_constraint_or_type;
 use crate::type_checker::get_type::r#type::{
     EnvRefConstraint,
     GetTypeReturn
 };
+use crate::type_miss_match;
 use crate::unifier::{lift, unify};
-use crate::{has_type, require_constraint, type_miss_match};
 
 pub fn case_t_rc(
     type_env: &TypeEnv,
@@ -60,9 +61,5 @@ pub fn case_t_rc(
         _ => return type_miss_match!()
     };
 
-    if constraint.is_empty() {
-        has_type!(t)
-    } else {
-        require_constraint!(t, constraint)
-    }
+    require_constraint_or_type(constraint, t)
 }

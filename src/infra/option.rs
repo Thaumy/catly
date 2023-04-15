@@ -14,7 +14,7 @@ impl FollowExt<In> for Option<In> {
             Some(In::Symbol(',')) |// Assign (Struct, Let
             Some(In::Symbol('|')) |// Match
             Some(In::Symbol('=')) |// Assign (Struct, Let
-            Some(In::Kw(_))// 这意味着 最近可立即归约 的语言构造具备更高的结合优先级
+            Some(In::Kw(_))// 这意味着`最近可立即归约`的语言构造具备更高的结合优先级
             => true,
             _ => false,
         }

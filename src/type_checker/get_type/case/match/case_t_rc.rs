@@ -10,6 +10,7 @@ use crate::infra::result::AnyExt as ResAnyExt;
 use crate::parser::expr::Expr;
 use crate::type_checker::get_type::case::r#match::r#fn::destruct_match_const_to_expr_env_inject;
 use crate::type_checker::get_type::get_type;
+use crate::type_checker::get_type::r#fn::require_constraint_or_type;
 use crate::type_checker::get_type::r#type::{
     EnvRefConstraint,
     GetTypeReturn
@@ -223,11 +224,7 @@ pub fn case_t_rc(
 
         match final_type {
             Ok(final_type) =>
-                if constraint_acc.is_empty() {
-                    has_type!(final_type)
-                } else {
-                    require_constraint!(final_type, constraint_acc)
-                },
+                require_constraint_or_type(constraint_acc, final_type),
             Err(e) => e
         }
     }
