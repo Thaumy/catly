@@ -81,7 +81,7 @@ pub fn case_ri(
                 (Ok(acc), Ok(t)) => {
                     match acc {
                         // 对于头一个类型, 只需让它成为初始 acc 类型
-                        None => t.clone().some().ok(),
+                        None => t.some().ok(),
                         // 对于之后的每一个类型, 让它和之前 acc 类型合一
                         Some(acc) => match unify(type_env, &acc, &t) {
                             Some(new_acc) => new_acc.some().ok(),

@@ -43,6 +43,7 @@ pub fn case(
             assign_expr,
             scope_expr
         ),
+
         // 获取 assign_expr_type 时信息不足, 而 scope_expr 中可能存在对 assign_name 的类型约束
         // 这种约束可能对获取 assign_expr_type 有所帮助, 所以可以启用旁路类型推导
         // 旁路类型推导仅在外层信息未知时适用, 因为如果外层信息已知
@@ -61,9 +62,6 @@ pub fn case(
                 scope_expr
             ),
 
-        Quad::MR(x) => Quad::MR(x),
-
-        // 类型不匹配, 推导错误
-        r => r.clone()
+        mr_r => mr_r
     }
 }

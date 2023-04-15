@@ -1,7 +1,7 @@
 use crate::env::type_env::TypeEnv;
 use crate::infra::option::AnyExt;
-use crate::unifier::env_ref::lift as lift_env_ref;
 use crate::unifier::lift;
+use crate::unifier::namely::lift as lift_namely;
 use crate::unifier::unify;
 use crate::{
     bool_type,
@@ -41,10 +41,10 @@ fn env() -> TypeEnv {
 }
 
 #[test]
-fn test_lift_part1() {
+fn test_part1() {
     let env = &env();
     let derive = &namely_type!("A");
-    assert!(lift_env_ref(env, "A", derive));
+    assert!(lift_namely(env, "A", derive));
 
     let base = &namely_type!("A");
     assert!(lift(env, base, derive).is_some());
@@ -52,10 +52,10 @@ fn test_lift_part1() {
 }
 
 #[test]
-fn test_lift_part2() {
+fn test_part2() {
     let env = &env();
     let derive = &namely_type!("B");
-    assert!(!lift_env_ref(env, "A", derive));
+    assert!(!lift_namely(env, "A", derive));
 
     let base = &namely_type!("A");
     assert!(!lift(env, base, derive).is_some());
@@ -63,10 +63,10 @@ fn test_lift_part2() {
 }
 
 #[test]
-fn test_lift_part3() {
+fn test_part3() {
     let env = &env();
     let derive = &sum_type![namely_type!("A"), namely_type!("B")];
-    assert!(lift_env_ref(env, "A", derive));
+    assert!(lift_namely(env, "A", derive));
 
     let base = &namely_type!("A");
     assert!(lift(env, base, derive).is_some());
@@ -74,11 +74,11 @@ fn test_lift_part3() {
 }
 
 #[test]
-fn test_lift_part4() {
+fn test_part4() {
     let env = &env();
     let derive = &bool_type!();
 
-    assert!(lift_env_ref(env, "True", derive));
+    assert!(lift_namely(env, "True", derive));
 
     let base = &namely_type!("True");
     assert!(lift(env, base, derive).is_some());

@@ -14,7 +14,7 @@ use crate::{
 };
 
 #[test]
-fn test_parse_ast_part2() {
+fn test_part2() {
     let t1 = Define::TypeDef("Foo".to_string(), prod_type![
         ("abc".to_string(), namely_type!("A")),
         ("uuu".to_string(), namely_type!("IntList")),

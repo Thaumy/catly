@@ -2,7 +2,7 @@ use crate::parser::r#type::test::f;
 use crate::{btree_set, int_type, namely_type, sum_type, unit_type};
 
 #[test]
-fn test_parse_sum_type() {
+fn test_part1() {
     let r = sum_type![
         namely_type!("A"),
         unit_type!(),

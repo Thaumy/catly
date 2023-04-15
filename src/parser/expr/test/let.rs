@@ -5,7 +5,7 @@ use crate::parser::expr::Expr;
 use crate::{int_type, unit_type};
 
 #[test]
-fn test_parse_let_part1() {
+fn test_part1() {
     let r = Expr::Let(
         None,
         "a".to_string(),
@@ -38,7 +38,7 @@ fn test_parse_let_part1() {
 }
 
 #[test]
-fn test_parse_let_part2() {
+fn test_part2() {
     let r = Expr::Let(
         None,
         "a".to_string(),
@@ -80,7 +80,7 @@ fn test_parse_let_part2() {
 }
 
 #[test]
-fn test_parse_let_part3() {
+fn test_part3() {
     let r = Expr::Let(
         None,
         "a".to_string(),
@@ -222,7 +222,7 @@ fn test_parse_let_part3() {
 }
 
 #[test]
-fn test_parse_let_part4() {
+fn test_part4() {
     let r = Expr::Let(
         int_type!().some(),
         "a".to_string(),

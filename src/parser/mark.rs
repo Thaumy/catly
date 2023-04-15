@@ -62,7 +62,7 @@ mod tests {
     use crate::parser::mark::*;
 
     #[test]
-    fn test_parse_mark_part1() {
+    fn test_part1() {
         assert!(parse_underline(&'_'));
         assert!(parse_l_par(&'('));
         assert!(parse_r_par(&')'));
@@ -91,7 +91,7 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_mark_part2() {
+    fn test_part2() {
         use crate::parser::mark::{parse_mark, Mark};
 
         assert_eq!(parse_mark(&'_'), Some(Mark::Underline));

@@ -20,120 +20,41 @@ pub fn case_ri(
     lhs_expr: &Expr,
     rhs_expr: &Expr
 ) -> GetTypeReturn {
-    match lhs_expr {
-        // 完全没有附加类型信息的 Closure
-        Expr::Closure(None, i_n, None, o_e) => match expect_type {
-            // 可以确定输出类型
-            Some(expect_output_type) =>
-            // 尝试从 rhs_expr 获得输入类型并 hint lhs_expr 的输入类型
-                match get_type(type_env, expr_env, rhs_expr) {
-                    Quad::L(rhs_expr_type) => {
-                        let closure_type = Type::ClosureType(
-                            rhs_expr_type.clone().boxed(),
-                            expect_output_type
-                                .clone()
-                                .boxed()
-                        );
-                        let lhs_expr = Expr::Closure(
-                            closure_type.some(),
-                            i_n.clone(),
-                            rhs_expr_type.clone().some(),
-                            o_e.clone()
-                        );
-                        let apply_expr = Expr::Apply(
-                            expect_type.clone(),
-                            lhs_expr.boxed(),
-                            rhs_expr.clone().boxed()
-                        );
-                        get_type(type_env, expr_env, &apply_expr)
-                    }
-                    // 约束将在调用 get_type 时被传播, 所以无需处理
-                    Quad::ML(rc) => {
-                        let closure_type = Type::ClosureType(
-                            rc.r#type.clone().boxed(),
-                            expect_output_type
-                                .clone()
-                                .boxed()
-                        );
-                        let lhs_expr = Expr::Closure(
-                            closure_type.some(),
-                            i_n.clone(),
-                            rc.r#type.some(),
-                            o_e.clone()
-                        );
-                        let apply_expr = Expr::Apply(
-                            expect_type.clone(),
-                            lhs_expr.boxed(),
-                            rhs_expr.clone().boxed()
-                        );
-                        get_type(type_env, expr_env, &apply_expr)
-                    }
-                    // 信息不足以获得 rhs_expr_type
-                    mr_r => mr_r
-                },
-            // 无法确定输出类型, 仅尝试获取并 hint 输入类型
-            None => match get_type(type_env, expr_env, rhs_expr) {
-                Quad::L(rhs_expr_type) => {
-                    let lhs_expr = Expr::Closure(
-                        None,
-                        i_n.clone(),
-                        rhs_expr_type.clone().some(),
-                        o_e.clone()
-                    );
-                    let apply_expr = Expr::Apply(
-                        expect_type.clone(),
-                        lhs_expr.boxed(),
-                        rhs_expr.clone().boxed()
-                    );
-                    get_type(type_env, expr_env, &apply_expr)
-                }
-                // 约束将在调用 get_type 时被传播, 所以无需处理
-                Quad::ML(rc) => {
-                    let lhs_expr = Expr::Closure(
-                        None,
-                        i_n.clone(),
-                        rc.r#type.some(),
-                        o_e.clone()
-                    );
-                    let apply_expr = Expr::Apply(
-                        expect_type.clone(),
-                        lhs_expr.boxed(),
-                        rhs_expr.clone().boxed()
-                    );
-                    get_type(type_env, expr_env, &apply_expr)
-                }
-                // 信息不足以获得 rhs_expr_type
-                mr_r => mr_r
-            }
-        },
-        // 附加有输入类型信息的 Closure
-        Expr::Closure(None, i_n, Some(i_t), o_e) => match expect_type
-        {
-            // 可以 hint 输出类型
-            Some(expect_output_type) => {
+    // 可以确定输出类型
+    if let Some(output_type) = expect_type {
+        // 尝试从 rhs_expr 获得输入类型
+        let rhs_expr_type = get_type(type_env, expr_env, rhs_expr);
+        match rhs_expr_type {
+            // 约束将在调用 get_type 时被传播, 所以无需处理
+            Quad::L(_) | Quad::ML(_) => {
+                let input_type = match rhs_expr_type {
+                    Quad::L(input_type) => input_type,
+                    Quad::ML(rc) => rc.r#type,
+                    _ => panic!(
+                        "Impossible rhs_expr_type: {:?}",
+                        rhs_expr_type
+                    )
+                };
+
                 let closure_type = Type::ClosureType(
-                    i_t.clone().boxed(),
-                    expect_output_type
-                        .clone()
-                        .boxed()
-                );
-                let lhs_expr = Expr::Closure(
-                    closure_type.some(),
-                    i_n.clone(),
-                    i_t.clone().some(),
-                    o_e.clone()
+                    input_type.clone().boxed(),
+                    output_type.clone().boxed()
                 );
                 let apply_expr = Expr::Apply(
                     expect_type.clone(),
-                    lhs_expr.boxed(),
+                    lhs_expr
+                        .clone()
+                        .with_fallback_type(&closure_type)
+                        .boxed(),
                     rhs_expr.clone().boxed()
                 );
+
                 get_type(type_env, expr_env, &apply_expr)
             }
-            // 无法确定输出类型
-            // 由于在输入类型已被确定的情况下仍不能获得 lhs_expr_type, 所以此时已经不能继续推导了
-            None => Quad::MR(require_info) // 返回原错误
-        },
-        _ => Quad::MR(require_info)
+            // 信息不足以获得 rhs_expr_type, 或类型不相容
+            mr_r => mr_r
+        }
+    } else {
+        Quad::MR(require_info) // 返回原错误
     }
 }

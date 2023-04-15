@@ -106,6 +106,7 @@ pub fn get_type(
 
         Expr::Apply(expect_type, lhs_expr, rhs_expr) => {
             use case::apply::case;
+            println!("GetType: {:?}", expr);
             case(type_env, expr_env, expect_type, lhs_expr, rhs_expr)
         }
 

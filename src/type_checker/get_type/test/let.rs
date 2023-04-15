@@ -36,7 +36,7 @@ fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
 }
 
 #[test]
-pub fn test_part1() {
+fn test_part1() {
     let (type_env, expr_env) = gen_env();
 
     let expr = expr_env
@@ -48,7 +48,7 @@ pub fn test_part1() {
 }
 
 #[test]
-pub fn test_part2() {
+fn test_part2() {
     let (type_env, expr_env) = gen_env();
 
     let expr = expr_env
@@ -63,7 +63,7 @@ pub fn test_part2() {
 }
 
 #[test]
-pub fn test_part3() {
+fn test_part3() {
     let (type_env, expr_env) = gen_env();
 
     let expr = expr_env
@@ -78,7 +78,7 @@ pub fn test_part3() {
 }
 
 #[test]
-pub fn test_part4() {
+fn test_part4() {
     let (type_env, expr_env) = gen_env();
 
     let expr = expr_env
@@ -90,7 +90,7 @@ pub fn test_part4() {
 }
 
 #[test]
-pub fn test_part5() {
+fn test_part5() {
     let (type_env, expr_env) = gen_env();
 
     let expr = expr_env
@@ -102,7 +102,7 @@ pub fn test_part5() {
 }
 
 #[test]
-pub fn test_part6() {
+fn test_part6() {
     let (type_env, expr_env) = gen_env();
 
     let expr = expr_env
@@ -114,7 +114,7 @@ pub fn test_part6() {
 }
 
 #[test]
-pub fn test_part7() {
+fn test_part7() {
     let (type_env, expr_env) = gen_env();
 
     let expr = expr_env
@@ -126,7 +126,7 @@ pub fn test_part7() {
 }
 
 #[test]
-pub fn test_part8() {
+fn test_part8() {
     let (type_env, expr_env) = gen_env();
 
     let expr = expr_env
@@ -141,7 +141,7 @@ pub fn test_part8() {
 }
 
 #[test]
-pub fn test_part9() {
+fn test_part9() {
     let (type_env, expr_env) = gen_env();
 
     let expr = expr_env

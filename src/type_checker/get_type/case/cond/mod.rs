@@ -63,10 +63,11 @@ pub fn case(
             expect_type,
             else_expr
         ),
+
         Quad::MR(_)
             if then_expr.is_no_type_annotation() &&
                 expect_type.is_none() =>
-            return case_ri(
+            case_ri(
                 type_env,
                 expr_env,
                 expect_type,
@@ -74,6 +75,7 @@ pub fn case(
                 else_expr,
                 then_expr
             ),
-        mr_r => return mr_r.clone()
+
+        mr_r => mr_r
     }
 }

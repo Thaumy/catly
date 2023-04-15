@@ -2,7 +2,7 @@ use crate::parser::r#type::test::f;
 use crate::{int_type, namely_type, prod_type, unit_type};
 
 #[test]
-fn test_parse_prod_type_part1() {
+fn test_part1() {
     let r = prod_type![("a".to_string(), int_type!())];
     let r = Some(r);
 
@@ -17,7 +17,7 @@ fn test_parse_prod_type_part1() {
 }
 
 #[test]
-fn test_parse_prod_type_part2() {
+fn test_part2() {
     let r = prod_type![
         ("abc".to_string(), namely_type!("A")),
         ("uuu".to_string(), unit_type!()),
@@ -36,7 +36,7 @@ fn test_parse_prod_type_part2() {
 }
 
 #[test]
-fn test_parse_prod_type_part3() {
+fn test_part3() {
     let r = prod_type![
         ("abc".to_string(), namely_type!("A")),
         ("uuu".to_string(), prod_type![
@@ -58,7 +58,7 @@ fn test_parse_prod_type_part3() {
 }
 
 #[test]
-fn test_parse_prod_type_part4() {
+fn test_part4() {
     let r = prod_type![
         ("abc".to_string(), prod_type![
             ("x".to_string(), namely_type!("X")),
@@ -80,7 +80,7 @@ fn test_parse_prod_type_part4() {
 }
 
 #[test]
-fn test_parse_prod_type_part5() {
+fn test_part5() {
     let r = prod_type![
         ("abc".to_string(), namely_type!("A")),
         ("uuu".to_string(), namely_type!("IntList")),

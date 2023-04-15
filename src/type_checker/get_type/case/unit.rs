@@ -11,6 +11,6 @@ pub fn case(
     match expect_type {
         Some(expect_type) =>
             lift_or_miss_match(type_env, &unit_type!(), &expect_type),
-        _ => has_type!(unit_type!())
+        None => has_type!(unit_type!())
     }
 }

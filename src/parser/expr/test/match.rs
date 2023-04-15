@@ -5,7 +5,7 @@ use crate::parser::expr::Expr;
 use crate::{btree_set, int_type, sum_type, unit_type};
 
 #[test]
-fn test_parse_match_part1() {
+fn test_part1() {
     let r = Expr::Match(
         None,
         Expr::EnvRef(None, "x".to_string()).boxed(),
@@ -64,7 +64,7 @@ fn test_parse_match_part1() {
 }
 
 #[test]
-fn test_parse_match_part2() {
+fn test_part2() {
     let r = Expr::Match(
         None,
         Expr::EnvRef(None, "x".to_string()).boxed(),
@@ -163,7 +163,7 @@ fn test_parse_match_part2() {
 }
 
 #[test]
-fn test_parse_match_part3() {
+fn test_part3() {
     let r = Expr::Match(
         int_type!().some(),
         Expr::EnvRef(None, "x".to_string()).boxed(),

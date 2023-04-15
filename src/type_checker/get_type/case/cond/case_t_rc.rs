@@ -46,7 +46,7 @@ pub fn case_t_rc(
             Some(constraint) => (rc.r#type, constraint),
             None => return type_miss_match!()
         },
-        mr_r => return mr_r.clone()
+        mr_r => return mr_r
     };
 
     let t = match match expect_type {

@@ -73,7 +73,7 @@ mod tests {
     use crate::parser::preprocess::comment::pp_comment;
 
     #[test]
-    fn test_comment_pp_part1() {
+    fn test_part1() {
         let seq = "match x with# Comment 123# Comment 123
 \
              | 1 -> if a then b else c\
@@ -126,7 +126,7 @@ mod tests {
     }
 
     #[test]
-    fn test_comment_pp_part2() {
+    fn test_part2() {
         let seq = "# Comment 123# Comment 123
 \
             let a = 123, # Comment 123 Comment 123

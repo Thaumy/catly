@@ -5,7 +5,7 @@ use crate::parser::expr::test::f;
 use crate::parser::expr::Expr;
 
 #[test]
-fn test_parse_cond_part1() {
+fn test_part1() {
     // Cond(EnvRef, Int, Unit)
     let r = Expr::Cond(
         None,
@@ -25,7 +25,7 @@ fn test_parse_cond_part1() {
 }
 
 #[test]
-fn test_parse_cond_part2() {
+fn test_part2() {
     // Cond(a, a, a)
     // while: a = Cond(EnvRef, Apply(Int, Unit), Int)
     let e = Expr::Cond(
@@ -58,7 +58,7 @@ fn test_parse_cond_part2() {
 }
 
 #[test]
-fn test_parse_cond_part3() {
+fn test_part3() {
     // Cond(b, b, b)
     // while: a = Cond(Apply(Int, Unit), Int, EnvRef)
     // while: b = Cond(a, a, a)
@@ -98,7 +98,7 @@ fn test_parse_cond_part3() {
 }
 
 #[test]
-fn test_parse_cond_part4() {
+fn test_part4() {
     // Cond(b, b, b)
     // while: a = Cond(Apply(Int, Unit), Int, EnvRef)
     // while: b = Cond(a, a, a)
@@ -137,7 +137,7 @@ fn test_parse_cond_part4() {
 }
 
 #[test]
-fn test_parse_cond_part5() {
+fn test_part5() {
     let a = Expr::Cond(
         int_type!().some(),
         Expr::Apply(

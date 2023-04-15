@@ -4,7 +4,7 @@ use crate::parser::expr::Expr;
 use crate::{btree_set, int_type, namely_type, sum_type, unit_type};
 
 #[test]
-fn test_parse_int_part1() {
+fn test_part1() {
     let r = Expr::Int(None, 123);
     let r = Some(r);
 
@@ -14,7 +14,7 @@ fn test_parse_int_part1() {
 }
 
 #[test]
-fn test_parse_int_part2() {
+fn test_part2() {
     let r = Expr::Int(int_type!().some(), 123);
     let r = Some(r);
 
@@ -27,7 +27,7 @@ fn test_parse_int_part2() {
 }
 
 #[test]
-fn test_parse_int_part3() {
+fn test_part3() {
     let r =
         Expr::Int(sum_type![int_type!(), unit_type!()].some(), 123);
     let r = Some(r);
@@ -41,7 +41,7 @@ fn test_parse_int_part3() {
 }
 
 #[test]
-fn test_parse_int_part4() {
+fn test_part4() {
     let r = Expr::Int(
         sum_type![int_type!(), unit_type!(), namely_type!("A")]
             .some(),

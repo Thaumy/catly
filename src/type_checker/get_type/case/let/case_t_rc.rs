@@ -28,7 +28,7 @@ pub fn case_t_rc(
         Quad::L(t) => (t, empty_constraint!()),
         // 需传播额外携带的约束
         Quad::ML(rc) => (rc.r#type, rc.constraint),
-        x => panic!("Impossible assign_expr_type: {:?}", x)
+        _ => panic!("Impossible assign_expr_type: {:?}", assign_type)
     };
 
     // Lift assign_expr_type to assign_type
@@ -74,7 +74,7 @@ pub fn case_t_rc(
                     &rc.r#type,
                     expect_type
                 ),
-                None => return type_miss_match!()
+                None => type_miss_match!()
             },
         // 由于 scope_expr 已被 hint, 且环境已被尽力注入, 所以无法处理这些错误
         mr_r => mr_r

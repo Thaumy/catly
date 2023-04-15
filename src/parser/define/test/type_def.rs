@@ -3,7 +3,7 @@ use crate::parser::define::Define;
 use crate::{namely_type, prod_type, unit_type};
 
 #[test]
-fn test_parse_type_def_part1() {
+fn test_part1() {
     let r = Define::TypeDef("A".to_string(), namely_type!("B"));
     let r = Some(r);
 
@@ -12,7 +12,7 @@ fn test_parse_type_def_part1() {
 }
 
 #[test]
-fn test_parse_type_def_part2() {
+fn test_part2() {
     let t = prod_type![
         ("abc".to_string(), namely_type!("A")),
         ("uuu".to_string(), unit_type!()),

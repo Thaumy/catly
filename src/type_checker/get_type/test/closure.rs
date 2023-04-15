@@ -40,12 +40,15 @@ fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
         def f12 = _ -> 1
         def a13 = _
         def f13 = _ -> (a13: Int)
+
+        def f14 = (_: Int) -> 0
+        def f15: Int -> Int = _ -> 0
     ";
     parse_env(seq)
 }
 
 #[test]
-pub fn test_part1() {
+fn test_part1() {
     let (type_env, expr_env) = gen_env();
 
     let expr = expr_env
@@ -57,7 +60,7 @@ pub fn test_part1() {
 }
 
 #[test]
-pub fn test_part2() {
+fn test_part2() {
     let (type_env, expr_env) = gen_env();
 
     let expr = expr_env
@@ -69,7 +72,7 @@ pub fn test_part2() {
 }
 
 #[test]
-pub fn test_part3() {
+fn test_part3() {
     let (type_env, expr_env) = gen_env();
 
     let expr = expr_env
@@ -81,7 +84,7 @@ pub fn test_part3() {
 }
 
 #[test]
-pub fn test_part4() {
+fn test_part4() {
     let (type_env, expr_env) = gen_env();
 
     let expr = expr_env
@@ -93,7 +96,7 @@ pub fn test_part4() {
 }
 
 #[test]
-pub fn test_part5() {
+fn test_part5() {
     let (type_env, expr_env) = gen_env();
 
     let expr = expr_env
@@ -108,7 +111,7 @@ pub fn test_part5() {
 }
 
 #[test]
-pub fn test_part6() {
+fn test_part6() {
     let (type_env, expr_env) = gen_env();
 
     let expr = expr_env
@@ -123,7 +126,7 @@ pub fn test_part6() {
 }
 
 #[test]
-pub fn test_part7() {
+fn test_part7() {
     let (type_env, expr_env) = gen_env();
 
     let expr = expr_env
@@ -135,7 +138,7 @@ pub fn test_part7() {
 }
 
 #[test]
-pub fn test_part8() {
+fn test_part8() {
     let (type_env, expr_env) = gen_env();
 
     let expr = expr_env
@@ -150,7 +153,7 @@ pub fn test_part8() {
 }
 
 #[test]
-pub fn test_part9() {
+fn test_part9() {
     let (type_env, expr_env) = gen_env();
 
     let expr = expr_env
@@ -165,7 +168,7 @@ pub fn test_part9() {
 }
 
 #[test]
-pub fn test_part10() {
+fn test_part10() {
     let (type_env, expr_env) = gen_env();
 
     let expr = expr_env
@@ -183,7 +186,7 @@ pub fn test_part10() {
 }
 
 #[test]
-pub fn test_part11() {
+fn test_part11() {
     let (type_env, expr_env) = gen_env();
 
     let expr = expr_env
@@ -195,7 +198,7 @@ pub fn test_part11() {
 }
 
 #[test]
-pub fn test_part12() {
+fn test_part12() {
     let (type_env, expr_env) = gen_env();
 
     let expr = expr_env
@@ -207,13 +210,37 @@ pub fn test_part12() {
 }
 
 #[test]
-pub fn test_part13() {
+fn test_part13() {
     let (type_env, expr_env) = gen_env();
 
     let expr = expr_env
         .get_ref("f13")
         .unwrap();
     let r = require_info!("_ (closure input)".to_string());
+
+    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+}
+
+#[test]
+fn test_part14() {
+    let (type_env, expr_env) = gen_env();
+
+    let expr = expr_env
+        .get_ref("f14")
+        .unwrap();
+    let r = has_type!(closure_type!(int_type!(), int_type!()));
+
+    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+}
+
+#[test]
+fn test_part15() {
+    let (type_env, expr_env) = gen_env();
+
+    let expr = expr_env
+        .get_ref("f15")
+        .unwrap();
+    let r = has_type!(closure_type!(int_type!(), int_type!()));
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
 }

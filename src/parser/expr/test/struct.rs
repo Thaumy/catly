@@ -13,7 +13,7 @@ use crate::{
 };
 
 #[test]
-fn test_parse_struct_part1() {
+fn test_part1() {
     let r = Expr::Struct(None, vec![
         ("a".to_string(), None, Expr::Int(None, 123)),
         (
@@ -36,7 +36,7 @@ fn test_parse_struct_part1() {
 }
 
 #[test]
-fn test_parse_struct_part2() {
+fn test_part2() {
     let a = Expr::Struct(None, vec![
         (
             "abc".to_string(),
@@ -112,7 +112,7 @@ fn test_parse_struct_part2() {
 }
 
 #[test]
-fn test_parse_struct_part3() {
+fn test_part3() {
     let a = Expr::Struct(None, vec![
         (
             "abc".to_string(),
@@ -194,7 +194,7 @@ fn test_parse_struct_part3() {
 }
 
 #[test]
-fn test_parse_struct_part4() {
+fn test_part4() {
     let ab = prod_type![("a".to_string(), int_type!())].some();
 
     let cd = prod_type![

@@ -11,6 +11,6 @@ pub fn case(
     match expect_type {
         Some(expect_type) =>
             lift_or_miss_match(type_env, &int_type!(), &expect_type),
-        _ => has_type!(int_type!())
+        None => has_type!(int_type!())
     }
 }

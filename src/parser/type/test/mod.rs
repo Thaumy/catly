@@ -8,8 +8,8 @@ fn f(seq: &str) -> MaybeType {
 }
 
 mod closure;
-mod env_ref;
 mod int;
+mod namely;
 mod prod;
 mod sum;
 mod unit;

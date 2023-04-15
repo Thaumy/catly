@@ -5,7 +5,7 @@ use crate::parser::expr::Expr;
 use crate::{closure_type, int_type, namely_type};
 
 #[test]
-fn test_parse_closure_part1() {
+fn test_part1() {
     let r = Expr::Closure(
         None,
         "a".to_string().some(),
@@ -33,7 +33,7 @@ fn test_parse_closure_part1() {
 }
 
 #[test]
-fn test_parse_closure_part2() {
+fn test_part2() {
     let r = Expr::Closure(
         None,
         "a".to_string().some(),
@@ -87,7 +87,7 @@ fn test_parse_closure_part2() {
 }
 
 #[test]
-fn test_parse_closure_part3() {
+fn test_part3() {
     let r = Expr::Closure(
         None,
         "aaa".to_string().some(),
@@ -139,7 +139,7 @@ fn test_parse_closure_part3() {
 }
 
 #[test]
-fn test_parse_closure_part4() {
+fn test_part4() {
     let r = Expr::Closure(
         None,
         None,
@@ -178,7 +178,7 @@ fn test_parse_closure_part4() {
 }
 
 #[test]
-fn test_parse_closure_part5() {
+fn test_part5() {
     let r = Expr::Closure(
         closure_type!(namely_type!("A"), namely_type!("B")).some(),
         "a".to_string().some(),

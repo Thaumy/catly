@@ -1,7 +1,7 @@
 use std::ops::Deref;
 
 use closure::lift as lift_closure;
-use env_ref::lift as lift_env_ref;
+use namely::lift as lift_namely;
 use prod::lift as lift_prod;
 use sum::lift as lift_sum;
 
@@ -10,7 +10,7 @@ use crate::infra::option::AnyExt;
 use crate::parser::r#type::Type;
 
 mod closure;
-mod env_ref;
+mod namely;
 mod prod;
 mod sum;
 #[cfg(test)]
@@ -23,7 +23,7 @@ pub fn can_lift(type_env: &TypeEnv, from: &Type, to: &Type) -> bool {
         && !type_env.exist_ref( n) { return false; }
 
     match from {
-        Type::NamelyType(n) if lift_env_ref(type_env, n, to) => true,
+        Type::NamelyType(n) if lift_namely(type_env, n, to) => true,
         Type::ClosureType(i, o)
             if lift_closure(type_env, i.deref(), o.deref(), to) =>
             true,

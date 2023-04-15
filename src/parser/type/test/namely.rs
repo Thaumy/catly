@@ -2,7 +2,7 @@ use crate::namely_type;
 use crate::parser::r#type::test::f;
 
 #[test]
-fn test_f_env_ref() {
+fn test_part1() {
     let r = namely_type!("A");
     let r = Some(r);
 
@@ -16,7 +16,7 @@ fn test_f_env_ref() {
 }
 
 #[test]
-fn test_f_env_ref_part2() {
+fn test_part2() {
     let r = namely_type!("Abc123");
     let r = Some(r);
 

@@ -4,7 +4,7 @@ use crate::parser::expr::Expr;
 use crate::{btree_set, int_type, namely_type, sum_type, unit_type};
 
 #[test]
-fn test_parse_env_ref_part1() {
+fn test_part1() {
     let r = Expr::EnvRef(None, "abc".to_string());
     let r = Some(r);
 
@@ -14,7 +14,7 @@ fn test_parse_env_ref_part1() {
 }
 
 #[test]
-fn test_parse_env_ref_part2() {
+fn test_part2() {
     let r = Expr::EnvRef(int_type!().some(), "abc".to_string());
     let r = Some(r);
 
@@ -27,7 +27,7 @@ fn test_parse_env_ref_part2() {
 }
 
 #[test]
-fn test_parse_env_ref_part3() {
+fn test_part3() {
     let r = Expr::EnvRef(
         sum_type![namely_type!("A"), unit_type!(), int_type!()]
             .some(),
@@ -44,7 +44,7 @@ fn test_parse_env_ref_part3() {
 }
 
 #[test]
-fn test_parse_env_ref_part4() {
+fn test_part4() {
     let r = Expr::EnvRef(
         sum_type![
             namely_type!("A"),

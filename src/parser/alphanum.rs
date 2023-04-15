@@ -55,7 +55,7 @@ pub fn parse_alphanum(x: &char) -> Option<Alphanum> {
 #[cfg(test)]
 mod tests {
     #[test]
-    fn test_parse_keyword() {
+    fn test_part1() {
         use crate::parser::alphanum::{parse_alphanum, Alphanum};
 
         assert_eq!(parse_alphanum(&'a'), Some(Alphanum::Lower('a')));

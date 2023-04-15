@@ -12,7 +12,7 @@ use crate::{
 };
 
 #[test]
-fn test_parse_ast_part1() {
+fn test_part1() {
     let t1 = Define::TypeDef("A".to_string(), namely_type!("B"));
     let d1 =
         Define::ExprDef("a".to_string(), None, Expr::Int(None, 1));

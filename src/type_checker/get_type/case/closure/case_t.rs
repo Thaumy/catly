@@ -21,12 +21,12 @@ pub fn case_t(
         // 输入类型自由, 而 output_expr_type 不需要约束, 说明不需要输入类型
         // 因为类型和值绑定, 所以 output_expr 和输入无关, 实际上这和弃元输入值等效
         // 缺乏推导出输入类型的信息
-        None => match input_name {
-            Some(input_name) =>
-                return require_info!(input_name.to_string()),
-            None =>
-                return require_info!("_ (closure input)".to_string()),
-        }
+        None =>
+            return match input_name {
+                Some(input_name) =>
+                    require_info!(input_name.to_string()),
+                None => require_info!("_ (closure input)".to_string())
+            },
     };
 
     // Lift inferred ClosureType to t

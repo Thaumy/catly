@@ -85,6 +85,7 @@ pub fn case(
             input_type,
             output_expr_type
         ),
+
         Quad::ML(rc) =>
             case_rc(rc, type_env, expect_type, input_name, input_type),
 
@@ -92,6 +93,6 @@ pub fn case(
         // 推导错误是由类型不匹配导致的, 这种错误无法解决
         // 不能推导出输出类型是由缺乏类型信息导致的
         // 因为 Closure 不存在可以推导输出类型的第二个表达式, 所以不适用于旁路类型推导
-        mr_r => mr_r.clone()
+        mr_r => mr_r
     }
 }

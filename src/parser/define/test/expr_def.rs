@@ -6,7 +6,7 @@ use crate::parser::expr::Expr;
 use crate::{closure_type, int_type};
 
 #[test]
-fn test_parse_expr_def_part1() {
+fn test_part1() {
     let r = Define::ExprDef(
         "a".to_string(),
         None,
@@ -19,7 +19,7 @@ fn test_parse_expr_def_part1() {
 }
 
 #[test]
-fn test_parse_expr_def_part2() {
+fn test_part2() {
     let r = Define::ExprDef(
         "a".to_string(),
         int_type!().some(),
@@ -32,7 +32,7 @@ fn test_parse_expr_def_part2() {
 }
 
 #[test]
-fn test_parse_expr_def_part3() {
+fn test_part3() {
     let r = Define::ExprDef(
         "a".to_string(),
         closure_type!(int_type!(), int_type!()).some(),
@@ -45,7 +45,7 @@ fn test_parse_expr_def_part3() {
 }
 
 #[test]
-fn test_parse_expr_def_part4() {
+fn test_part4() {
     let e = Expr::Let(
         None,
         "a".to_string(),

@@ -30,7 +30,10 @@ pub fn case_t_rc(
     let (target_expr_type, constraint_acc) = match target_expr_type {
         Quad::L(t) => (t, empty_constraint!()),
         Quad::ML(rc) => (rc.r#type, rc.constraint),
-        x => panic!("Impossible target_expr_type: {:?}", x)
+        _ => panic!(
+            "Impossible target_expr_type: {:?}",
+            target_expr_type
+        )
     };
 
     // 统一 hint, 并求出 case_expr 解构出的常量环境

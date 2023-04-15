@@ -4,7 +4,7 @@ use crate::parser::expr::Expr;
 use crate::unit_type;
 
 #[test]
-fn test_parse_unit_part1() {
+fn test_part1() {
     let r = Expr::Unit(None);
     let r = Some(r);
 
@@ -14,7 +14,7 @@ fn test_parse_unit_part1() {
 }
 
 #[test]
-fn test_parse_unit_part2() {
+fn test_part2() {
     let r = Expr::Unit(unit_type!().some());
     let r = Some(r);
 

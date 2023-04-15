@@ -5,7 +5,7 @@ use crate::parser::expr::test::f;
 use crate::parser::expr::Expr;
 
 #[test]
-fn test_parse_apply_part1() {
+fn test_part1() {
     // Apply(Unit, Int)
     let r = Expr::Apply(
         None,
@@ -22,7 +22,7 @@ fn test_parse_apply_part1() {
 }
 
 #[test]
-fn test_parse_apply_part2() {
+fn test_part2() {
     // Apply(EnvRef, Int)
     let r = Expr::Apply(
         None,
@@ -39,7 +39,7 @@ fn test_parse_apply_part2() {
 }
 
 #[test]
-fn test_parse_apply_part3() {
+fn test_part3() {
     // Apply(EnvRef, Unit)
     let r = Expr::Apply(
         None,
@@ -56,7 +56,7 @@ fn test_parse_apply_part3() {
 }
 
 #[test]
-fn test_parse_apply_part4() {
+fn test_part4() {
     // Apply(EnvRef, Apply(EnvRef, Unit))
     let r = Expr::Apply(
         None,
@@ -78,7 +78,7 @@ fn test_parse_apply_part4() {
 }
 
 #[test]
-fn test_parse_apply_part5() {
+fn test_part5() {
     // Apply(EnvRef, Apply(EnvRef, Apply(EnvRef, Unit)))
     let r = Expr::Apply(
         None,
@@ -105,7 +105,7 @@ fn test_parse_apply_part5() {
 }
 
 #[test]
-fn test_parse_apply_part6() {
+fn test_part6() {
     // Apply(EnvRef, Apply(EnvRef, Unit))
     let r = Expr::Apply(
         None,
@@ -138,7 +138,7 @@ fn test_parse_apply_part6() {
 }
 
 #[test]
-fn test_parse_apply_part7() {
+fn test_part7() {
     // Apply(EnvRef, Apply(EnvRef, Unit))
     let r = Expr::Apply(
         None,
@@ -171,7 +171,7 @@ fn test_parse_apply_part7() {
 }
 
 #[test]
-fn test_parse_apply_part8() {
+fn test_part8() {
     let r = Expr::Apply(
         int_type!().some(),
         Expr::Apply(
@@ -204,7 +204,7 @@ fn test_parse_apply_part8() {
 }
 
 #[test]
-fn test_parse_apply_part9() {
+fn test_part9() {
     let r = Expr::Apply(
         int_type!().some(),
         Expr::Apply(

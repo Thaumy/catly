@@ -25,7 +25,7 @@ pub fn case_ri(
         Quad::L(t) => t,
         // 无需收集约束, 约束会在下次调用 get_type 时被自动处理
         Quad::ML(rc) => rc.r#type,
-        mr_r => return mr_r.clone()
+        mr_r => return mr_r
     };
 
     let expr = Expr::Cond(

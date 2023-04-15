@@ -1,7 +1,7 @@
 use crate::parser::ast::test::f;
 
 #[test]
-fn test_parse_ast_part3() {
+fn test_part3() {
     let seq = "\
 def fib: Int -> Int =
 n ->

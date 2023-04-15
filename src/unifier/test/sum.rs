@@ -33,7 +33,7 @@ fn env() -> TypeEnv {
 }
 
 #[test]
-fn test_lift_part1() {
+fn test_part1() {
     let env = &env();
     let s = &btree_set![namely_type!("A"), namely_type!("B")];
     let derive = &namely_type!("AB");
@@ -45,7 +45,7 @@ fn test_lift_part1() {
 }
 
 #[test]
-fn test_lift_part2() {
+fn test_part2() {
     let env = &env();
     let s = &btree_set![namely_type!("A"), namely_type!("B")];
     let derive = &namely_type!("ABC");
@@ -57,7 +57,7 @@ fn test_lift_part2() {
 }
 
 #[test]
-fn test_lift_part3() {
+fn test_part3() {
     let env = &env();
     let s = &btree_set![namely_type!("A"), namely_type!("B")];
     let derive = &namely_type!("S");
@@ -69,7 +69,7 @@ fn test_lift_part3() {
 }
 
 #[test]
-fn test_lift_part4() {
+fn test_part4() {
     let env = &env();
     let s = &btree_set![namely_type!("A"), namely_type!("B")];
     let derive = &namely_type!("S2");

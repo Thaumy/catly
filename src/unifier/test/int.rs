@@ -1,8 +1,8 @@
 use crate::env::type_env::TypeEnv;
 use crate::infra::option::AnyExt;
 use crate::parser::r#type::Type;
-use crate::unifier::env_ref::lift as lift_env_ref;
 use crate::unifier::lift;
+use crate::unifier::namely::lift as lift_namely;
 use crate::unifier::unify;
 use crate::{btree_set, int_type, namely_type, sum_type};
 
@@ -43,10 +43,10 @@ fn env() -> TypeEnv {
 }
 
 #[test]
-fn test_lift_part1() {
+fn test_part1() {
     let env = &env();
     let derive = &int_type!();
-    assert!(lift_env_ref(env, "Int", derive));
+    assert!(lift_namely(env, "Int", derive));
 
     let base = &int_type!();
     assert!(lift(env, base, derive).is_some());
@@ -54,10 +54,10 @@ fn test_lift_part1() {
 }
 
 #[test]
-fn test_lift_part2() {
+fn test_part2() {
     let env = &env();
     let derive = &namely_type!("A");
-    assert!(lift_env_ref(env, "Int", derive));
+    assert!(lift_namely(env, "Int", derive));
 
     let base = &int_type!();
     assert!(lift(env, base, derive).is_some());
@@ -65,10 +65,10 @@ fn test_lift_part2() {
 }
 
 #[test]
-fn test_lift_part3() {
+fn test_part3() {
     let env = &env();
     let derive = &namely_type!("B");
-    assert!(lift_env_ref(env, "Int", derive));
+    assert!(lift_namely(env, "Int", derive));
 
     let base = &int_type!();
     assert!(lift(env, base, derive).is_some());
@@ -76,10 +76,10 @@ fn test_lift_part3() {
 }
 
 #[test]
-fn test_lift_part4() {
+fn test_part4() {
     let env = &env();
     let derive = &namely_type!("C");
-    assert!(lift_env_ref(env, "Int", derive));
+    assert!(lift_namely(env, "Int", derive));
 
     let base = &int_type!();
     assert!(lift(env, base, derive).is_some());
@@ -87,10 +87,10 @@ fn test_lift_part4() {
 }
 
 #[test]
-fn test_lift_part5() {
+fn test_part5() {
     let env = &env();
     let derive = &namely_type!("D");
-    assert!(!lift_env_ref(env, "Int", derive));
+    assert!(!lift_namely(env, "Int", derive));
 
     let base = &int_type!();
     assert!(!lift(env, base, derive).is_some());
@@ -98,10 +98,10 @@ fn test_lift_part5() {
 }
 
 #[test]
-fn test_lift_part6() {
+fn test_part6() {
     let env = &env();
     let derive = &namely_type!("S0");
-    assert!(lift_env_ref(env, "Int", derive));
+    assert!(lift_namely(env, "Int", derive));
 
     let base = &int_type!();
     assert!(lift(env, base, derive).is_some());
@@ -109,10 +109,10 @@ fn test_lift_part6() {
 }
 
 #[test]
-fn test_lift_part7() {
+fn test_part7() {
     let env = &env();
     let derive = &namely_type!("S1");
-    assert!(lift_env_ref(env, "Int", derive));
+    assert!(lift_namely(env, "Int", derive));
 
     let base = &int_type!();
     assert!(lift(env, base, derive).is_some());
@@ -120,10 +120,10 @@ fn test_lift_part7() {
 }
 
 #[test]
-fn test_lift_part8() {
+fn test_part8() {
     let env = &env();
     let derive = &namely_type!("S2");
-    assert!(lift_env_ref(env, "Int", derive));
+    assert!(lift_namely(env, "Int", derive));
 
     let base = &int_type!();
     assert!(lift(env, base, derive).is_some());
@@ -131,10 +131,10 @@ fn test_lift_part8() {
 }
 
 #[test]
-fn test_lift_part9() {
+fn test_part9() {
     let env = &env();
     let derive = &namely_type!("S3");
-    assert!(!lift_env_ref(env, "Int", derive));
+    assert!(!lift_namely(env, "Int", derive));
 
     let base = &int_type!();
     assert!(!lift(env, base, derive).is_some());
