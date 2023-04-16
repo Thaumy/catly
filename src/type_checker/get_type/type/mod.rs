@@ -3,7 +3,7 @@ pub mod env_ref_constraint;
 use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
-use crate::parser::r#type::Type;
+use crate::parser::r#type::r#type::Type;
 use crate::type_checker::get_type::r#type::env_ref_constraint::EnvRefConstraint;
 
 // 经由约束才能使用的类型

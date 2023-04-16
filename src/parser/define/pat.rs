@@ -1,8 +1,8 @@
 use crate::infra::alias::MaybeType;
 use crate::parser::define::{Define, In};
-use crate::parser::expr::Expr;
+use crate::parser::expr::r#type::Expr;
 use crate::parser::keyword::Keyword;
-use crate::parser::r#type::Type;
+use crate::parser::r#type::r#type::Type;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Pat {

@@ -4,9 +4,9 @@ use crate::infra::alias::{MaybeExpr, MaybeType};
 use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext;
 use crate::maybe_fold_to;
-use crate::parser::expr::Expr;
+use crate::parser::expr::r#type::Expr;
 use crate::parser::keyword::Keyword;
-use crate::parser::r#type::Type;
+use crate::parser::r#type::r#type::Type;
 
 pub type OptBoxPat = Option<Box<Pat>>;
 

@@ -53,7 +53,7 @@ fn move_in(stack: &Vec<Pat>, head: Option<In>) -> Pat {
 
                 // _ -> Err
                 c => {
-                    println!("Invalid head Pat: {:?}", c);
+                    println!("Invalid head Pat: {c:?}");
                     Pat::Err
                 }
             }
@@ -538,7 +538,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
         ([.., Pat::Err], _) => return vec![Pat::Err],
         // Can not reduce
         ([.., Pat::End], _) => {
-            println!("Reduction failed: {:?}", stack);
+            println!("Reduction failed: {stack:?}" );
             return vec![Pat::Err];
         }
         // keep move in
@@ -547,7 +547,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
 
     let reduced_stack = stack;
 
-    println!("Reduce to: {:?}", reduced_stack);
+    println!("Reduced: {reduced_stack:?}");
 
     reduce_stack(reduced_stack, follow)
 }
@@ -556,14 +556,14 @@ pub fn go(mut stack: Vec<Pat>, seq: Vec<In>) -> Pat {
     let (head, tail, follow) = vec_get_head_tail_follow(seq);
 
     stack.push(move_in(&stack, head));
-    println!("Move in to: {:?} follow: {:?}", stack, follow);
+    println!("Move in: {stack:?} follow: {follow:?}");
 
     let reduced_stack = reduce_stack(stack, follow.clone());
 
     match (&reduced_stack[..], follow) {
         ([p], None) => {
             let r = p.clone();
-            println!("Success with: {:?}", r);
+            println!("Success with: {r:?}");
             return r;
         }
         _ => go(reduced_stack, tail)

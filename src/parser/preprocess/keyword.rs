@@ -49,7 +49,7 @@ pub fn pp_keyword(seq: &[In]) -> Vec<Out> {
     let r = seq
         .iter()
         .fold(vec![], |acc, x| acc.chain_push(Out::from(x.clone())));
-    println!("Keyword pp out: {:?}", r);
+    println!("[pp] Keyword: {r:?}");
     r
 }
 

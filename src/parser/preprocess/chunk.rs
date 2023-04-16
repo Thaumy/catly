@@ -140,7 +140,7 @@ fn reduce_stack(
     let reduced_stack = stack;
 
     // TODO: low performance when printing
-    //println!("Reduce to: {:?}", reduced_stack);
+    //println!("Reduced: {reduced_stack:?}");
 
     reduce_stack(reduced_stack, follow)
 }
@@ -150,7 +150,7 @@ fn go(mut stack: Vec<Pat>, tail: &str) -> Vec<Pat> {
 
     stack.push(move_in(&stack, head));
     // TODO: low performance when printing
-    //println!("Move in to: {:?} follow: {:?}", stack, follow);
+    //println!("Move in: {stack:?} follow: {follow:?}");
     let reduced_stack = reduce_stack(stack, follow);
 
     match reduced_stack[..] {
@@ -184,7 +184,7 @@ pub fn pp_chunk(seq: &str) -> Option<Vec<Out>> {
     let r = maybe_fold_to!(vec.iter(), vec![], push, |p: &Pat| p
         .clone()
         .into());
-    println!("Chunk pp out: {:?}", r);
+    println!("[pp] Chunk: {r:?}");
     r
 }
 

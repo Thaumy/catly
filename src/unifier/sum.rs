@@ -1,14 +1,14 @@
 use std::collections::BTreeSet;
 
 use crate::env::type_env::TypeEnv;
-use crate::parser::r#type::Type;
+use crate::parser::r#type::r#type::Type;
 
 pub fn lift(
     type_env: &TypeEnv,
     set: &BTreeSet<Type>,
     derive: &Type
 ) -> bool {
-    let is_success = match derive {
+    match derive {
         // Superset of Base
         Type::SumType(s) if s.is_superset(set) => true,
 
@@ -27,12 +27,5 @@ pub fn lift(
             .any(|t| lift(type_env, set, t)),
 
         _ => false
-    };
-
-    println!(
-        "SumType lifter: Lift {:?} to {:?} # {:?}",
-        set, derive, is_success
-    );
-
-    is_success
+    }
 }

@@ -1,16 +1,16 @@
 pub mod case;
 pub mod r#fn;
 pub mod r#macro;
+pub mod r#type;
 #[cfg(test)]
 mod test;
-pub mod r#type;
 
 use crate::env::expr_env::ExprEnv;
 use crate::env::type_env::TypeEnv;
 use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
-use crate::parser::expr::Expr;
+use crate::parser::expr::r#type::Expr;
 use crate::type_checker::get_type::r#type::GetTypeReturn;
 
 pub fn get_type_with_hint(
@@ -31,6 +31,7 @@ pub fn get_type(
     expr_env: &ExprEnv,
     expr: &Expr
 ) -> GetTypeReturn {
+    println!("GetType: {expr:?}");
     match expr {
         Expr::Int(expect_type, _) => {
             use case::int::case;
@@ -106,7 +107,6 @@ pub fn get_type(
 
         Expr::Apply(expect_type, lhs_expr, rhs_expr) => {
             use case::apply::case;
-            println!("GetType: {:?}", expr);
             case(type_env, expr_env, expect_type, lhs_expr, rhs_expr)
         }
 

@@ -3,7 +3,7 @@ use crate::env::type_env::TypeEnv;
 use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
-use crate::parser::expr::Expr;
+use crate::parser::expr::r#type::Expr;
 use crate::type_checker::get_type::get_type_with_hint;
 use crate::type_checker::get_type::r#fn::require_constraint_or_type;
 use crate::type_checker::get_type::r#type::env_ref_constraint::EnvRefConstraint;
@@ -25,7 +25,7 @@ pub fn case_t_rc(
             Some(constraint) => (rc.r#type, constraint),
             None => return type_miss_match!()
         },
-        _ => panic!("Impossible then_expr_type: {:?}", then_expr_type)
+        _ => panic!("Impossible then_expr_type: {then_expr_type:?}")
     };
 
     // 当 expect_type 无类型时, 使用 then_expr_type hint

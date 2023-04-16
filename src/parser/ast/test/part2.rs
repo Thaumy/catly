@@ -2,7 +2,7 @@ use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext;
 use crate::parser::ast::test::f;
 use crate::parser::define::Define;
-use crate::parser::expr::Expr;
+use crate::parser::expr::r#type::Expr;
 use crate::{
     btree_set,
     closure_type,

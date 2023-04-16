@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use crate::parser::r#type::Type;
+use crate::parser::r#type::r#type::Type;
 
 // 顶层类型环境
 #[derive(Debug)]
@@ -37,10 +37,7 @@ impl TypeEnv {
                 .any(|(n, _)| n == ref_name)
         };
         if !is_exist {
-            println!(
-                "NamelyType {:?} not exist in type env",
-                ref_name
-            );
+            println!("NamelyType {ref_name:?} not exist in type env",);
         }
         is_exist
     }
@@ -56,7 +53,10 @@ impl TypeEnv {
                 .all(|(_, t)| self.is_type_valid(t)),
             Type::SumType(set) => set
                 .iter()
-                .all(|t| self.is_type_valid(t))
+                .all(|t| self.is_type_valid(t)),
+            // Partial types
+            Type::PartialClosureType(input_type) =>
+                self.is_type_valid(input_type),
         }
     }
 }

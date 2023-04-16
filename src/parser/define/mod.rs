@@ -1,8 +1,8 @@
 use crate::infra::alias::MaybeType;
 use crate::parser::define::pat::Pat;
 use crate::parser::define::r#fn::go;
-use crate::parser::expr::Expr;
-use crate::parser::r#type::Type;
+use crate::parser::expr::r#type::Expr;
+use crate::parser::r#type::r#type::Type;
 
 mod r#fn;
 mod pat;
@@ -18,6 +18,6 @@ pub enum Define {
 type In = crate::parser::preprocess::Out;
 
 pub fn parse_define(seq: Vec<In>) -> Option<Define> {
-    println!("\nParsing Define seq: {:?}", seq);
+    println!("Parsing Define seq: {seq:?}");
     go(vec![Pat::Start], seq).into()
 }

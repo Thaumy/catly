@@ -3,7 +3,7 @@ use crate::env::type_env::TypeEnv;
 use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
-use crate::parser::expr::Expr;
+use crate::parser::expr::r#type::Expr;
 use crate::type_checker::get_type::get_type_with_hint;
 use crate::type_checker::get_type::r#fn::{
     lift_or_left,
@@ -28,7 +28,7 @@ pub fn case_t_rc(
         Quad::L(t) => (t, empty_constraint!()),
         // 需传播额外携带的约束
         Quad::ML(rc) => (rc.r#type, rc.constraint),
-        _ => panic!("Impossible assign_expr_type: {:?}", assign_type)
+        _ => panic!("Impossible assign_expr_type: {assign_type:?}")
     };
 
     // Lift assign_expr_type to assign_type

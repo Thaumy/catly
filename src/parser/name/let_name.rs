@@ -28,7 +28,7 @@ fn go(stack: &Pat, seq: &str) -> Option<String> {
         (_, None) => Pat::End,
         // _ -> Err
         (_, Some(c)) => {
-            println!("Invalid head Pat: {:?}", c);
+            println!("Invalid head Pat: {c:?}");
             Pat::Err
         }
     };
@@ -47,7 +47,7 @@ fn go(stack: &Pat, seq: &str) -> Option<String> {
         (_, Pat::Err) => return None,
         // Can not reduce
         (a, b) => {
-            println!("Reduction failed: {:?}, {:?}", a, b);
+            println!("Reduction failed: {a:?}, {b:?}");
             return None;
         }
     };

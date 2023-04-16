@@ -13,6 +13,6 @@ type In = crate::parser::preprocess::Out;
 pub fn parse_ast(seq: Vec<In>) -> Option<Vec<Define>> {
     let seq = split_to_top_levels(seq);
     let r = parse_to_defines(seq);
-    println!("AST: {:?}", r);
+    println!("AST: {r:?}");
     r
 }

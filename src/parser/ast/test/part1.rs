@@ -1,7 +1,7 @@
 use crate::infra::option::AnyExt;
 use crate::parser::ast::test::f;
 use crate::parser::define::Define;
-use crate::parser::expr::Expr;
+use crate::parser::expr::r#type::Expr;
 use crate::{
     btree_set,
     int_type,

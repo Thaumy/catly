@@ -6,7 +6,7 @@ use crate::infra::quad::Quad;
 use crate::infra::r#box::Ext;
 use crate::infra::r#fn::id;
 use crate::infra::result::AnyExt as ResAnyExt;
-use crate::parser::expr::Expr;
+use crate::parser::expr::r#type::Expr;
 use crate::type_checker::get_type::case::r#match::r#fn::destruct_match_const_to_expr_env_inject;
 use crate::type_checker::get_type::r#type::{
     GetTypeReturn,

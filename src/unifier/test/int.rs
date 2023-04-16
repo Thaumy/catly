@@ -1,6 +1,6 @@
 use crate::env::type_env::TypeEnv;
 use crate::infra::option::AnyExt;
-use crate::parser::r#type::Type;
+use crate::parser::r#type::r#type::Type;
 use crate::unifier::lift;
 use crate::unifier::namely::lift as lift_namely;
 use crate::unifier::unify;

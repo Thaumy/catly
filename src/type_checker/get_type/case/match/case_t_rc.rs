@@ -7,7 +7,7 @@ use crate::infra::option::AnyExt as OptAnyExt;
 use crate::infra::quad::Quad;
 use crate::infra::r#fn::id;
 use crate::infra::result::AnyExt as ResAnyExt;
-use crate::parser::expr::Expr;
+use crate::parser::expr::r#type::Expr;
 use crate::type_checker::get_type::case::r#match::r#fn::destruct_match_const_to_expr_env_inject;
 use crate::type_checker::get_type::get_type;
 use crate::type_checker::get_type::r#fn::require_constraint_or_type;
@@ -31,8 +31,7 @@ pub fn case_t_rc(
         Quad::L(t) => (t, empty_constraint!()),
         Quad::ML(rc) => (rc.r#type, rc.constraint),
         _ => panic!(
-            "Impossible target_expr_type: {:?}",
-            target_expr_type
+            "Impossible target_expr_type: {target_expr_type:?}",
         )
     };
 
@@ -103,7 +102,7 @@ pub fn case_t_rc(
                 // 由此也可推断, case_expr_env 中不存在自由类型
                 // 所以在下一步取得 then_expr_type 时, 其产生的约束一定作用于外层
                 ri if let Quad::MR(_) = ri =>
-                    panic!("Impossible branch: {:?}", ri),
+                    panic!("Impossible branch: {ri:?}" ),
 
                 // 类型不相容
                 _ => false

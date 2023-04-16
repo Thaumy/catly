@@ -21,7 +21,7 @@ fn go(stack: Vec<Pat>, seq: &str) -> Option<u64> {
                 Some(d) => Pat::Digit(d),
                 // ɛ -> Err
                 None => {
-                    println!("Invalid head Pat: {:?}", c);
+                    println!("Invalid head Pat: {c:?}");
                     Pat::Err
                 }
             }
@@ -47,7 +47,7 @@ fn go(stack: Vec<Pat>, seq: &str) -> Option<u64> {
         (_, Pat::Err) => return None,
         // Can not reduce
         (_, b) => {
-            println!("Reduction failed: {:?}, {:?}", stack, b);
+            println!("Reduction failed: {stack:?}, {b:?}");
             return None;
         }
     };

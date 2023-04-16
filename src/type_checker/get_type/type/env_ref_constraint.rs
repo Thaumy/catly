@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use crate::infra::option::AnyExt;
 use crate::infra::r#fn::id;
-use crate::parser::r#type::Type;
+use crate::parser::r#type::r#type::Type;
 
 #[derive(PartialEq, Clone, Debug)]
 pub struct EnvRefConstraint {

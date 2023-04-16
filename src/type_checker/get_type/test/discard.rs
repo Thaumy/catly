@@ -1,7 +1,7 @@
 use crate::env::expr_env::ExprEnv;
 use crate::env::type_env::TypeEnv;
 use crate::infra::option::AnyExt;
-use crate::parser::expr::Expr;
+use crate::parser::expr::r#type::Expr;
 use crate::type_checker::get_type::get_type;
 use crate::type_checker::get_type::test::parse_env;
 use crate::{has_type, namely_type, require_info, type_miss_match};

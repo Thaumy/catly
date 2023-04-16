@@ -1,5 +1,5 @@
 use crate::env::type_env::TypeEnv;
-use crate::parser::r#type::Type;
+use crate::parser::r#type::r#type::Type;
 
 pub fn lift(type_env: &TypeEnv, derive: &Type) -> bool {
     match derive {

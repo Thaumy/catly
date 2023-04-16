@@ -1,5 +1,5 @@
 use crate::infra::alias::MaybeType;
-use crate::parser::r#type::Type;
+use crate::parser::r#type::r#type::Type;
 
 #[derive(Clone, Debug)]
 pub enum TypeConstraint {

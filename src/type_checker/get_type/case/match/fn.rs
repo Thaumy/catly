@@ -4,9 +4,9 @@ use crate::env::env_ref_src::EnvRefSrc;
 use crate::env::type_constraint::TypeConstraint;
 use crate::env::type_env::TypeEnv;
 use crate::infra::option::AnyExt;
-use crate::parser::expr::Expr;
-use crate::parser::r#type::Type;
-use crate::type_checker::get_type::r#fn::destruct_type_env_ref;
+use crate::parser::expr::r#type::Expr;
+use crate::parser::r#type::r#type::Type;
+use crate::type_checker::get_type::r#fn::destruct_namely_type;
 
 // 将模式匹配意义上的常量表达式解构为表达式环境注入
 pub fn destruct_match_const_to_expr_env_inject<'t>(
@@ -26,20 +26,17 @@ pub fn destruct_match_const_to_expr_env_inject<'t>(
         }
         Expr::Struct(t, vec) => {
             // 由于这里不负责类型检查, 所以可以转为无序的哈希表以提升检索效率
-            let prod_fields =
-                t.as_ref()
-                    .and_then(|t| {
-                        match destruct_type_env_ref(type_env, &t) {
-                            Some(Type::ProdType(vec)) =>
-                                HashMap::<String, Type>::from_iter(
-                                    vec.iter().map(|(k, v)| {
-                                        (k.clone(), v.clone())
-                                    })
-                                )
-                                .some(),
-                            _ => None
-                        }
-                    });
+            let prod_fields = t.as_ref().and_then(|t| {
+                match destruct_namely_type(type_env, &t) {
+                    Some(Type::ProdType(vec)) =>
+                        HashMap::<String, Type>::from_iter(
+                            vec.iter()
+                                .map(|(k, v)| (k.clone(), v.clone()))
+                        )
+                        .some(),
+                    _ => None
+                }
+            });
 
             vec.iter()
                 .map(|(n, mt, e)| {

@@ -1,7 +1,7 @@
 use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext;
+use crate::parser::expr::r#type::Expr;
 use crate::parser::expr::test::f;
-use crate::parser::expr::Expr;
 use crate::{closure_type, int_type, namely_type};
 
 #[test]

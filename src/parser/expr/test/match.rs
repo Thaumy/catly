@@ -1,7 +1,7 @@
 use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext;
+use crate::parser::expr::r#type::Expr;
 use crate::parser::expr::test::f;
-use crate::parser::expr::Expr;
 use crate::{btree_set, int_type, sum_type, unit_type};
 
 #[test]

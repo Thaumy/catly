@@ -6,11 +6,11 @@ use crate::infra::quad::Quad;
 use crate::infra::r#fn::id;
 use crate::infra::result::AnyExt;
 use crate::infra::vec::Ext;
-use crate::parser::expr::Expr;
-use crate::parser::r#type::Type;
+use crate::parser::expr::r#type::Expr;
+use crate::parser::r#type::r#type::Type;
 use crate::type_checker::get_type::get_type;
 use crate::type_checker::get_type::r#fn::{
-    destruct_type_env_ref,
+    destruct_namely_type,
     with_constraint_lift_or_left
 };
 use crate::type_checker::get_type::r#type::GetTypeReturn;
@@ -26,7 +26,7 @@ pub fn case(
     // 解构 t 并判断与 vec 的相容性
     let t_vec = match expect_type {
         Some(expect_type) =>
-            match destruct_type_env_ref(type_env, expect_type) {
+            match destruct_namely_type(type_env, expect_type) {
                 // 解构合法, 当且仅当由 t 解构出的 ProdType 的字段数和 vec 相等
                 // 且对于二者 zip 后的每一对字段, 其名称相同
                 // 且 vec 字段的类型可以被提升到 ProdType 字段的类型(如果 vec 字段类型存在的话)

@@ -3,7 +3,7 @@ use std::collections::BTreeSet;
 use crate::infra::alias::MaybeType;
 use crate::infra::r#box::Ext;
 use crate::maybe_fold_to;
-use crate::parser::r#type::Type;
+use crate::parser::r#type::r#type::Type;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Pat {

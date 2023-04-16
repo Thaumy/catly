@@ -212,7 +212,7 @@ fn test_part11() {
     let expr = expr_env
         .get_ref("match11")
         .unwrap();
-    let r = type_miss_match!();
+    let r = require_info!("match11".to_string());
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
 }
