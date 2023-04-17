@@ -31,8 +31,7 @@ pub fn case(
 
         // 使用 expect_type 和 rhs_expr_type 进行旁路推导
         // 仅在 lhs_expr 缺乏类型标注时进行处理
-        Quad::MR(require_info)
-            if lhs_expr.is_no_type_annotation() =>
+        Quad::MR(require_info) if lhs_expr.is_no_type_annot() =>
             case_ri(
                 type_env,
                 expr_env,

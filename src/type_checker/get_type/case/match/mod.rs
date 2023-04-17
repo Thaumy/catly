@@ -34,8 +34,7 @@ pub fn case(
         // 无法获取 target_expr 类型信息, 启用旁路类型推导
         // 同样, 为了防止内层环境对外层环境造成跨越优先级的约束, 仅当 target_expr 没有类型标注时才能启用旁路推导
         // 相关讨论参见 let case
-        Quad::MR(require_info)
-            if target_expr.is_no_type_annotation() =>
+        Quad::MR(require_info) if target_expr.is_no_type_annot() =>
             case_ri(
                 type_env,
                 expr_env,

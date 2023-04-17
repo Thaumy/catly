@@ -5,8 +5,8 @@ use crate::env::type_env::TypeEnv;
 use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
-use crate::parser::expr::Expr;
-use crate::parser::r#type::Type;
+use crate::parser::expr::r#type::Expr;
+use crate::parser::r#type::r#type::Type;
 use crate::type_checker::get_type::get_type_with_hint;
 use crate::type_checker::get_type::r#fn::with_constraint_lift_or_left;
 use crate::type_checker::get_type::r#type::GetTypeReturn;
@@ -26,55 +26,101 @@ pub fn case_t_rc(
     let (lhs_expr_type, constraint) = match lhs_expr_type {
         Quad::L(lhs_type) => (lhs_type, empty_constraint!()),
         Quad::ML(rc) => (rc.r#type, rc.constraint),
-        _ => panic!("Impossible lhs_expr_type: {:?}", lhs_expr_type)
+        _ => panic!("Impossible lhs_expr_type: {lhs_expr_type:?}")
     };
 
-    if let Type::ClosureType(input_type, output_type) = lhs_expr_type
-    {
-        match get_type_with_hint(
-            type_env,
-            expr_env,
-            rhs_expr,
-            &input_type
-                .deref()
-                .clone()
-                .some()
-        ) {
-            Quad::L(rhs_expr_type) => {
-                // 验证输入的类型相容性
-                if can_lift(type_env, &rhs_expr_type, &input_type) {
-                    // 验证输出的类型相容性
-                    with_constraint_lift_or_left(
-                        constraint,
-                        type_env,
-                        &output_type,
-                        expect_output_type
-                    )
-                } else {
-                    type_miss_match!()
+    match lhs_expr_type {
+        Type::ClosureType(input_type, output_type) => {
+            match get_type_with_hint(
+                type_env,
+                expr_env,
+                rhs_expr,
+                &input_type
+                    .deref()
+                    .clone()
+                    .some()
+            ) {
+                Quad::L(rhs_expr_type) => {
+                    // 验证输入的类型相容性
+                    if can_lift(type_env, &rhs_expr_type, &input_type)
+                    {
+                        // 验证输出的类型相容性
+                        with_constraint_lift_or_left(
+                            constraint,
+                            type_env,
+                            &output_type,
+                            expect_output_type
+                        )
+                    } else {
+                        type_miss_match!()
+                    }
                 }
-            }
-            Quad::ML(rc) => {
-                // 输入类型相容且约束相容
-                if can_lift(type_env, &rc.r#type, &input_type) &&
-                    let Some(constraint) = rc
-                        .constraint
-                        .extend_new(constraint)
-                {
-                    with_constraint_lift_or_left(
-                        constraint,
-                        type_env,
-                        &output_type,
-                        expect_output_type,
-                    )
-                } else {
-                    type_miss_match!()
+                Quad::ML(rc) => {
+                    // 输入类型相容且约束相容
+                    if can_lift(type_env, &rc.r#type, &input_type) &&
+                        let Some(constraint) = rc
+                            .constraint
+                            .extend_new(constraint)
+                    {
+                        with_constraint_lift_or_left(
+                            constraint,
+                            type_env,
+                            &output_type,
+                            expect_output_type,
+                        )
+                    } else {
+                        type_miss_match!()
+                    }
                 }
+                mr_r => mr_r
             }
-            mr_r => mr_r
         }
-    } else {
-        // lhs_expr_type must be ClosureType
-        type_miss_match!()
+        // TODO: remove this
+        /*        Type::PartialClosureType(input_type) => {
+                    match get_type_with_hint(
+                        type_env,
+                        expr_env,
+                        rhs_expr,
+                        &input_type
+                            .deref()
+                            .clone()
+                            .some()
+                    ) {
+                        Quad::L(rhs_expr_type) =>
+                            with_constraint_lift_or_left(
+                                constraint,
+                                type_env,
+                                &rhs_expr_type,
+                                &input_type
+                                    .deref()
+                                    .clone()
+                                    .some()
+                            ),
+                        Quad::ML(rc) => {
+                            // 输入类型相容且约束相容
+                            if let Some(constraint) = rc
+                                .constraint
+                                .extend_new(constraint)
+                            {
+                                with_constraint_lift_or_left(
+                                    constraint,
+                                    type_env,
+                                    &rc.r#type,
+                                    &input_type
+                                        .deref()
+                                        .clone()
+                                        .some()
+                                )
+                            } else {
+                                type_miss_match!()
+                            }
+                        }
+                        mr_r => mr_r
+                    }
+                }
+        */
+        // TODO
+        // lhs_expr_type must be ClosureType, PartialClosureType is used for hint only
+        _ => type_miss_match!()
     }
 }

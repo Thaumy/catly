@@ -55,7 +55,7 @@ impl Expr {
         }
     }
 
-    pub fn is_no_type_annotation(&self) -> bool {
+    pub fn is_no_type_annot(&self) -> bool {
         match self {
             Expr::Unit(None) |
             Expr::Int(None, ..) |
@@ -74,7 +74,7 @@ impl Expr {
 
 impl Debug for Expr {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        fn type_annotation(t: &MaybeType) -> String {
+        fn type_annot(t: &MaybeType) -> String {
             match t {
                 Some(t) => format!(":{t:?}"),
                 None => format!("")
@@ -88,11 +88,11 @@ impl Debug for Expr {
         }
         match self {
             Expr::Unit(t) =>
-                f.write_str(&*format!("(){}", type_annotation(t))),
+                f.write_str(&*format!("(){}", type_annot(t))),
             Expr::Int(t, i) =>
-                f.write_str(&*format!("{i}{}", type_annotation(t))),
+                f.write_str(&*format!("{i}{}", type_annot(t))),
             Expr::EnvRef(t, n) =>
-                f.write_str(&*format!("{n}{}", type_annotation(t))),
+                f.write_str(&*format!("{n}{}", type_annot(t))),
             Expr::Apply(t, l, r) => match t {
                 Some(t) =>
                     f.write_str(&*format!("(({l:?}) {r:?}):{t:?}")),
@@ -100,30 +100,30 @@ impl Debug for Expr {
             },
             Expr::Cond(t, b, te, fe) => f.write_str(&*format!(
                 "(if {b:?} then {te:?} else {fe:?}){}",
-                type_annotation(t)
+                type_annot(t)
             )),
             Expr::Closure(t, i_n, i_t, o_e) =>
                 f.write_str(&*format!(
                     "({}{} -> {o_e:?}){}",
                     closure_input_name(i_n),
-                    type_annotation(i_t),
-                    type_annotation(t)
+                    type_annot(i_t),
+                    type_annot(t)
                 )),
             Expr::Struct(t, vec) => f.write_str(&*format!(
                 "{{ {vec:?}{} }}",
-                type_annotation(t)
+                type_annot(t)
             )),
             Expr::Discard(t) =>
-                f.write_str(&*format!("_{}", type_annotation(t))),
+                f.write_str(&*format!("_{}", type_annot(t))),
             Expr::Match(t, t_e, vec) => f.write_str(&*format!(
                 "(match {t_e:?} with {vec:?}){}",
-                type_annotation(t)
+                type_annot(t)
             )),
             Expr::Let(t, a_n, a_t, a_e, s_e) =>
                 f.write_str(&*format!(
                     "(let {a_n}{} = {a_e:?} in {s_e:?}){}",
-                    type_annotation(a_t),
-                    type_annotation(t)
+                    type_annot(a_t),
+                    type_annot(t)
                 )),
         }
     }

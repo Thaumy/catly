@@ -35,3 +35,8 @@ impl From<GetTypeReturn> for MaybeType {
         }
     }
 }
+
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub enum IncompleteType {
+    PartialClosureType(Box<Type>)
+}

@@ -65,7 +65,7 @@ pub fn case(
         ),
 
         Quad::MR(_)
-            if then_expr.is_no_type_annotation() &&
+            if then_expr.is_no_type_annot() &&
                 expect_type.is_none() =>
             case_ri(
                 type_env,

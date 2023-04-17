@@ -39,8 +39,12 @@ fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
 
         def apply9: Int = (a -> _) 1
         def apply10: Int = (a -> b -> c -> d -> 0) 1 2 3 4
-        def a11 = a -> _
-        def apply11: Int = a11 1
+        def apply11 = (a -> b -> c -> d -> 0) 1 2 3 4
+
+        def a12 = a -> _
+        def apply12: Int = a12 1
+        def a13 = a -> b -> c -> d -> 0
+        def apply13 = a13 1 2 3 4
     ";
     parse_env(seq)
 }
@@ -186,11 +190,52 @@ fn test_part11() {
         .get_ref("apply11")
         .unwrap();
 
+    let r = has_type!(namely_type!("Int"));
+
+    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+}
+
+#[test]
+fn test_part12() {
+    let (type_env, expr_env) = gen_env();
+
+    let expr = expr_env
+        .get_ref("apply12")
+        .unwrap();
+
     let r = require_constraint!(
         namely_type!("Int"),
         single_constraint!(
-            "a11".to_string(),
+            "a12".to_string(),
             closure_type!(int_type!(), int_type!())
+        )
+    );
+
+    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+}
+
+#[test]
+fn test_part13() {
+    let (type_env, expr_env) = gen_env();
+
+    let expr = expr_env
+        .get_ref("apply13")
+        .unwrap();
+
+    let r = require_constraint!(
+        namely_type!("Int"),
+        single_constraint!(
+            "a13".to_string(),
+            closure_type!(
+                int_type!(),
+                closure_type!(
+                    int_type!(),
+                    closure_type!(
+                        int_type!(),
+                        closure_type!(int_type!(), int_type!())
+                    )
+                )
+            )
         )
     );
 

@@ -6,9 +6,9 @@ use crate::parser::expr::r#fn::go;
 
 mod r#fn;
 mod pat;
-pub mod r#type;
 #[cfg(test)]
 mod test;
+pub mod r#type;
 
 type In = crate::parser::preprocess::Out;
 

@@ -1,9 +1,9 @@
 pub mod case;
 pub mod r#fn;
 pub mod r#macro;
-pub mod r#type;
 #[cfg(test)]
 mod test;
+pub mod r#type;
 
 use crate::env::expr_env::ExprEnv;
 use crate::env::type_env::TypeEnv;
@@ -17,7 +17,7 @@ pub fn get_type_with_hint(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
     expr: &Expr,
-    hint: &MaybeType
+    hint: &MaybeType // TODO: 确定 hint 与 expect 语义
 ) -> GetTypeReturn {
     let expr = expr
         .clone()

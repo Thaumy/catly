@@ -8,12 +8,12 @@ use crate::env::type_env::TypeEnv;
 use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
-use crate::parser::expr::Expr;
-use crate::parser::r#type::Type;
+use crate::parser::expr::r#type::Expr;
+use crate::parser::r#type::r#type::Type;
 use crate::type_checker::get_type::case::closure::case_rc::case_rc;
 use crate::type_checker::get_type::case::closure::case_t::case_t;
 use crate::type_checker::get_type::get_type_with_hint;
-use crate::type_checker::get_type::r#fn::destruct_type_env_ref;
+use crate::type_checker::get_type::r#fn::destruct_namely_type;
 use crate::type_checker::get_type::r#type::GetTypeReturn;
 use crate::type_miss_match;
 
@@ -30,20 +30,31 @@ pub fn case(
         Some(expect_type) =>
         // 允许将 ClosureType 提升到基于它的 NamelyType
         // 换言之, 如果 expect_type 是基于 ClosureType 的, 那么它也能够通过类型检查
-            match destruct_type_env_ref(type_env, expect_type) {
-                Some(Type::ClosureType(
-                    expect_input_type,
-                    expect_output_type
-                )) => (
-                    expect_input_type
-                        .deref()
-                        .clone()
-                        .some(),
-                    expect_output_type
-                        .deref()
-                        .clone()
-                        .some()
-                ),
+            match destruct_namely_type(type_env, expect_type) {
+                Some(t) => match t {
+                    Type::ClosureType(
+                        expect_input_type,
+                        expect_output_type
+                    ) => (
+                        expect_input_type
+                            .deref()
+                            .clone()
+                            .some(),
+                        expect_output_type
+                            .deref()
+                            .clone()
+                            .some()
+                    ),
+                    Type::PartialClosureType(expect_input_type) => (
+                        expect_input_type
+                            .deref()
+                            .clone()
+                            .some(),
+                        None
+                    ),
+
+                    _ => return type_miss_match!()
+                },
                 _ => return type_miss_match!()
             },
         _ => (None, None)
@@ -87,7 +98,7 @@ pub fn case(
         ),
 
         Quad::ML(rc) =>
-            case_rc(rc, type_env, expect_type, input_name, input_type),
+            case_rc(type_env, expect_type, rc, input_name, input_type),
 
         // get_type 不能推导出输出类型(即便进行了类型提示), 或推导错误
         // 推导错误是由类型不匹配导致的, 这种错误无法解决

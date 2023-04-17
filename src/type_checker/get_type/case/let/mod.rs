@@ -51,7 +51,7 @@ pub fn case(
         // 所以在此处, 仅当 assign_type 和 assign_expr 均无类型信息时, 才能启用旁路类型推导
         Quad::MR(require_info)
             if assign_type.is_none() &&
-                assign_expr.is_no_type_annotation() =>
+                assign_expr.is_no_type_annot() =>
             case_ri(
                 type_env,
                 &expr_env,
