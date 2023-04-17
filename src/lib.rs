@@ -3,8 +3,8 @@
 #![feature(if_let_guard)]
 extern crate core;
 
-mod env;
-mod infra;
+pub mod env;
+pub mod get_type;
+pub mod infra;
 pub mod parser;
-pub mod type_checker;
-pub mod unifier;
+pub mod unify;

@@ -1,15 +1,15 @@
 use crate::env::env_ref_src::EnvRefSrc;
 use crate::env::expr_env::ExprEnv;
 use crate::env::type_constraint::TypeConstraint;
-use crate::infra::alias::MaybeType;
-use crate::infra::option::AnyExt;
-use crate::infra::quad::Quad;
-use crate::type_checker::get_type::r#fn::{
+use crate::get_type::r#fn::{
     lift_or_miss_match,
     with_constraint_lift_or_miss_match
 };
-use crate::type_checker::get_type::r#type::GetTypeReturn;
-use crate::type_checker::get_type::{get_type, get_type_with_hint};
+use crate::get_type::r#type::GetTypeReturn;
+use crate::get_type::{get_type, get_type_with_hint};
+use crate::infra::alias::MaybeType;
+use crate::infra::option::AnyExt;
+use crate::infra::quad::Quad;
 use crate::{
     has_type,
     require_constraint,

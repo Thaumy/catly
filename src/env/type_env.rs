@@ -44,7 +44,7 @@ impl TypeEnv {
 
     pub fn is_type_valid(&self, r#type: &Type) -> bool {
         match r#type {
-            Type::NamelyType(ref_name) => self.exist_ref(ref_name),
+            Type::NamelyType(type_name) => self.exist_ref(type_name),
             Type::ClosureType(input_type, output_type) =>
                 self.is_type_valid(input_type) &&
                     self.is_type_valid(output_type),

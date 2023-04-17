@@ -3,10 +3,10 @@ mod get_type_with_hint;
 use crate::env::env_ref_src::EnvRefSrc;
 use crate::env::type_constraint::TypeConstraint;
 use crate::env::type_env::TypeEnv;
+use crate::get_type::r#type::GetTypeReturn;
 use crate::infra::alias::{MaybeExpr, MaybeType};
 use crate::infra::option::AnyExt;
 use crate::parser::expr::r#type::Expr;
-use crate::type_checker::get_type::r#type::GetTypeReturn;
 
 type Item = (String, TypeConstraint, EnvRefSrc);
 
