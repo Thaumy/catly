@@ -26,17 +26,15 @@ impl<'t> ExprEnv<'t> {
         &self,
         ref_name: &str,
         hint: &MaybeType
-    ) -> Option<GetTypeReturn> {
-        match self.env
-            .iter()
-            .rev()
-            .find(|(n, ..)| n == ref_name)
-            .map(|(_, tc, src)| (tc.clone(), src))
+    ) -> GetTypeReturn {
+        match self
+            .find_entry(ref_name)
+            .map(|(_, tc, src)| (tc, src))
         {
             // 当前环境查找到引用名, 但不存在引用源
             Some((tc, EnvRefSrc::NoSrc)) => match tc {
                 // 引用名所对应的类型是类型约束的直接类型
-                TypeConstraint::Constraint(t) => has_type!(t),
+                TypeConstraint::Constraint(t) => has_type!(t.clone()),
                 // 不存在类型约束
                 TypeConstraint::Free => match hint {
                     // 如果有 hint, 则将 ref_name 约束到 hint
@@ -47,8 +45,18 @@ impl<'t> ExprEnv<'t> {
                             hint.clone()
                         )
                     ),
-                    // TODO: 此返回合理, 但可对 env_ref case 重构, 从而返回 GetTypeReturn
-                    None => return None
+                    None => match hint {
+                        // 环境约束缺失, 但可以通过建立约束修复
+                        Some(hint) => require_constraint!(
+                            hint.clone(),
+                            single_constraint!(
+                                ref_name.to_string(),
+                                hint.clone()
+                            )
+                        ),
+                        // 缺乏推导信息
+                        None => require_info!(ref_name.to_string())
+                    }
                 }
             },
 
@@ -144,12 +152,18 @@ impl<'t> ExprEnv<'t> {
                 },
             },
 
-            // 当前环境查找不到, 去外层环境查找
-            _ => return match self.prev_env {
-                Some(prev_env) =>
-                    prev_env.get_type_with_hint(ref_name, hint),
-                None => None
-            },
-        }.some()
+            None => match hint {
+                // 环境约束缺失, 但可以通过建立约束修复
+                Some(hint) => require_constraint!(
+                        hint.clone(),
+                        single_constraint!(
+                            ref_name.to_string(),
+                            hint.clone()
+                        )
+                    ),
+                // 缺乏推导信息
+                None => require_info!(ref_name.to_string())
+            }
+        }
     }
 }

@@ -98,7 +98,7 @@ pub fn case_ri(
         // case_expr_type 合一成功, 用该类型 hint target_expr 后 get_type
         // 不可能出现 Ok(None), 因为 case 的数量在 AST 解析阶段就保证非零
         Ok(Some(hint)) => {
-            let hinted_target_expr = target_expr.clone().with_fallback_type(&hint);
+            let hinted_target_expr = target_expr.with_fallback_type(&hint);
             let expr = Expr::Match(
                 expect_type.clone(),
                 hinted_target_expr.boxed(),
@@ -147,7 +147,7 @@ pub fn case_ri(
 
             match hint {
                 Some(hint) => {
-                    let hinted_target_expr = target_expr.clone().with_fallback_type(&hint);
+                    let hinted_target_expr = target_expr.with_fallback_type(&hint);
                     let expr = Expr::Match(
                         expect_type.clone(),
                         hinted_target_expr.boxed(),

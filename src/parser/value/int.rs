@@ -6,11 +6,11 @@ enum Pat {
     End,
     Err,
 
-    Int(u64),
+    Int(i64),
     Digit(u8)
 }
 
-fn go(stack: Vec<Pat>, seq: &str) -> Option<u64> {
+fn go(stack: Vec<Pat>, seq: &str) -> Option<i64> {
     let (head, tail) = str_get_head_tail(seq);
 
     let move_in = match head {
@@ -33,11 +33,11 @@ fn go(stack: Vec<Pat>, seq: &str) -> Option<u64> {
     let reduced_stack = match (&stack[..], move_in) {
         // Start Digit -> Int
         ([Pat::Start], Pat::Digit(a)) => {
-            vec![Pat::Int(a as u64)]
+            vec![Pat::Int(a as i64)]
         }
         // Int Digit -> Int
         ([Pat::Int(a)], Pat::Digit(b)) => {
-            vec![Pat::Int(a * 10 + (b as u64))]
+            vec![Pat::Int(a * 10 + (b as i64))]
         }
 
         // Success
@@ -55,7 +55,7 @@ fn go(stack: Vec<Pat>, seq: &str) -> Option<u64> {
     go(reduced_stack, tail)
 }
 
-pub fn parse_int(x: &str) -> Option<u64> { go(vec![Pat::Start], x) }
+pub fn parse_int(x: &str) -> Option<i64> { go(vec![Pat::Start], x) }
 
 #[cfg(test)]
 mod tests {

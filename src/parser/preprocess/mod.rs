@@ -22,7 +22,7 @@ pub enum Out {
     TypeName(String),
     Kw(Keyword),
 
-    IntValue(u64),
+    IntValue(i64),
     UnitValue,
     DiscardValue
 }

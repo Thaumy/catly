@@ -23,16 +23,16 @@ pub fn case(
     expect_type: &MaybeType,
     vec: &Vec<(String, MaybeType, Expr)>
 ) -> GetTypeReturn {
-    // 解构 t 并判断与 vec 的相容性
-    let t_vec = match expect_type {
+    // 解构 expect_type 并判断与 vec 的相容性
+    let prod_vec = match expect_type {
         Some(expect_type) =>
             match destruct_namely_type(type_env, expect_type) {
                 // 解构合法, 当且仅当由 t 解构出的 ProdType 的字段数和 vec 相等
                 // 且对于二者 zip 后的每一对字段, 其名称相同
                 // 且 vec 字段的类型可以被提升到 ProdType 字段的类型(如果 vec 字段类型存在的话)
-                Some(Type::ProdType(t_vec))
-                    if t_vec.len() == vec.len() &&
-                        t_vec
+                Some(Type::ProdType(prod_vec))
+                    if prod_vec.len() == vec.len() &&
+                        prod_vec
                             .iter()
                             .zip(vec.iter())
                             .map(|((n, t), (v_n, v_t, _))| {
@@ -46,15 +46,15 @@ pub fn case(
                                     .unwrap_or(true)
                             })
                             .all(id) =>
-                    t_vec.some(),
+                    prod_vec.some(),
                 _ => return type_miss_match!()
             },
         None => None
     };
 
     // 进行类型提示
-    let vec: Vec<_> = match t_vec {
-        // t 存在且可被解构, 对于其每一个类型, 都用作对应表达式的次要类型提示
+    let vec: Vec<_> = match prod_vec {
+        // expect_type 存在且可被解构, 对于其每一个类型, 都用作对应表达式的次要类型提示
         Some(t_vec) => t_vec
             .iter()
             .zip(vec.iter())
@@ -62,21 +62,21 @@ pub fn case(
                 (
                     v_n.to_string(),
                     v_t.clone(),
-                    v_e.clone()
+                    v_e
                         .try_with_fallback_type(v_t)
                         .with_fallback_type(t)
                 )
             })
             .collect()
         ,
-        // t 不存在, 仅使用 vec 自身的类型对表达式进行提示
+        // expect_type 不存在, 仅使用 vec 自身的类型对表达式进行提示
         None => vec
             .iter()
             .map(|(n, mt, e)| {
                 (
                     n.to_string(),
                     mt.clone(),
-                    e.clone()
+                    e
                         .try_with_fallback_type(mt)
                 )
             })

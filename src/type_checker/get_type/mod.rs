@@ -19,9 +19,7 @@ pub fn get_type_with_hint(
     expr: &Expr,
     hint: &MaybeType // TODO: 确定 hint 与 expect 语义
 ) -> GetTypeReturn {
-    let expr = expr
-        .clone()
-        .try_with_fallback_type(hint);
+    let expr = expr.try_with_fallback_type(hint);
 
     get_type(type_env, expr_env, &expr)
 }

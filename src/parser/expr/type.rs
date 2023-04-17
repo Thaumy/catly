@@ -7,8 +7,8 @@ use crate::parser::r#type::r#type::Type;
 #[derive(Clone, PartialEq)]
 pub enum Expr {
     Unit(MaybeType),
-    Int(MaybeType, u64),
     // TODO: Handle int overflow
+    Int(MaybeType, i64),
     EnvRef(MaybeType, String),
     Apply(MaybeType, Box<Expr>, Box<Expr>),
     Cond(MaybeType, Box<Expr>, Box<Expr>, Box<Expr>),
@@ -20,38 +20,57 @@ pub enum Expr {
 }
 
 impl Expr {
-    // TODO: &self
-    pub fn with_fallback_type(self, r#type: &Type) -> Expr {
-        match self {
+    pub fn with_fallback_type(&self, r#type: &Type) -> Expr {
+        match &self {
             Expr::Unit(None) => Expr::Unit(r#type.clone().some()),
-            Expr::Int(None, i) => Expr::Int(r#type.clone().some(), i),
+            Expr::Int(None, i) =>
+                Expr::Int(r#type.clone().some(), i.clone()),
             Expr::EnvRef(None, n) =>
-                Expr::EnvRef(r#type.clone().some(), n),
-            Expr::Apply(None, lhs, rhs) =>
-                Expr::Apply(r#type.clone().some(), lhs, rhs),
-            Expr::Cond(None, e, t, f) =>
-                Expr::Cond(r#type.clone().some(), e, t, f),
-            Expr::Closure(None, i_n, i_t, o) =>
-                Expr::Closure(r#type.clone().some(), i_n, i_t, o),
+                Expr::EnvRef(r#type.clone().some(), n.to_string()),
+            Expr::Apply(None, lhs, rhs) => Expr::Apply(
+                r#type.clone().some(),
+                lhs.clone(),
+                rhs.clone()
+            ),
+            Expr::Cond(None, e, t, f) => Expr::Cond(
+                r#type.clone().some(),
+                e.clone(),
+                t.clone(),
+                f.clone()
+            ),
+            Expr::Closure(None, i_n, i_t, o) => Expr::Closure(
+                r#type.clone().some(),
+                i_n.clone(),
+                i_t.clone(),
+                o.clone()
+            ),
             Expr::Struct(None, vec) =>
-                Expr::Struct(r#type.clone().some(), vec),
+                Expr::Struct(r#type.clone().some(), vec.clone()),
             Expr::Discard(None) =>
                 Expr::Discard(r#type.clone().some()),
-            Expr::Match(None, e, vec) =>
-                Expr::Match(r#type.clone().some(), e, vec),
-            Expr::Let(None, a_n, a_t, a_e, e) =>
-                Expr::Let(r#type.clone().some(), a_n, a_t, a_e, e),
-            _ => self
+            Expr::Match(None, e, vec) => Expr::Match(
+                r#type.clone().some(),
+                e.clone(),
+                vec.clone()
+            ),
+            Expr::Let(None, a_n, a_t, a_e, e) => Expr::Let(
+                r#type.clone().some(),
+                a_n.to_string(),
+                a_t.clone(),
+                a_e.clone(),
+                e.clone()
+            ),
+            _ => self.clone()
         }
     }
 
     pub fn try_with_fallback_type(
-        self,
+        &self,
         r#type: &Option<Type>
     ) -> Expr {
         match r#type {
             Some(t) => self.with_fallback_type(t),
-            None => self
+            None => self.clone()
         }
     }
 

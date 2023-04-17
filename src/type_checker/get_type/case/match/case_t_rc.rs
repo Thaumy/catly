@@ -40,13 +40,11 @@ pub fn case_t_rc(
         .iter()
         .map(|(case_expr, then_expr)| {
             // Hint every case_expr with target_expr_type
-            let case_expr = case_expr
-                .clone()
-                .with_fallback_type(&target_expr_type);
+            let case_expr =
+                case_expr.with_fallback_type(&target_expr_type);
             // Hint every then_expr with expect_type
-            let then_expr = then_expr
-                .clone()
-                .try_with_fallback_type(expect_type);
+            let then_expr =
+                then_expr.try_with_fallback_type(expect_type);
 
             // 将 case_expr 解构到常量环境, 该环境将在 then_expr 中被使用
             let case_expr_env_inject =

@@ -52,54 +52,41 @@ impl<'t> ExprEnv<'t> {
         self.extend_vec_new(vec![(ref_name, tc, src.into())])
     }
 
-    pub fn get_type(&self, ref_name: &str) -> Option<GetTypeReturn> {
+    pub fn get_type(&self, ref_name: &str) -> GetTypeReturn {
         self.get_type_with_hint(ref_name, &None)
     }
 
-    pub fn get_expr(&self, ref_name: &str) -> Option<Expr> {
-        let expr = self
+    fn find_entry(&self, ref_name: &str) -> Option<&Item> {
+        let entry = self
             .env
             .iter()
             .rev()
-            .find(|(n, ..)| n == ref_name)
-            .map(|(.., t)| t.clone().into())
-            .flatten(): Option<Expr>;
+            .find(|(n, ..)| n == ref_name);
 
-        match (expr, self.prev_env) {
-            (Some(expr), _) => expr.some(),
-            (None, Some(prev_env)) => prev_env.get_expr(ref_name),
+        match (entry, self.prev_env) {
+            (Some(entry), _) => entry.some(),
+            (None, Some(prev_env)) => prev_env.find_entry(ref_name),
             _ => None
         }
+    }
+
+    pub fn get_expr(&self, ref_name: &str) -> Option<&Expr> {
+        self.find_entry(ref_name)
+            .and_then(|(.., src)| match src {
+                EnvRefSrc::Src(expr) => expr.some(),
+                EnvRefSrc::NoSrc => None
+            })
     }
 
     pub fn get_ref(&self, ref_name: &str) -> Option<Expr> {
-        let expr = self
-            .env
-            .iter()
-            .rev()
-            .find(|(n, ..)| n == ref_name)
+        self.find_entry(ref_name)
             .map(|(n, tc, _)| {
                 Expr::EnvRef(tc.clone().into(), n.to_string())
-            }): Option<Expr>;
-
-        match (expr, self.prev_env) {
-            (Some(expr), _) => expr.some(),
-            (None, Some(prev_env)) => prev_env.get_expr(ref_name),
-            _ => None
-        }
+            })
     }
 
     pub fn exist_ref(&self, ref_name: &str) -> bool {
-        let is_exist = self
-            .env
-            .iter()
-            .rev()
-            .any(|(n, ..)| n == ref_name);
-
-        match (is_exist, self.prev_env) {
-            (true, _) => true,
-            (false, Some(prev_env)) => prev_env.exist_ref(ref_name),
-            _ => false
-        }
+        self.find_entry(ref_name)
+            .is_some()
     }
 }

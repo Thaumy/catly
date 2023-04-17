@@ -46,7 +46,6 @@ pub fn destruct_match_const_to_expr_env_inject<'t>(
                         .and_then(|fields| fields.get(n).cloned());
 
                     let e = e
-                        .clone()
                         .try_with_fallback_type(&prod_hint)
                         .try_with_fallback_type(&mt);
 

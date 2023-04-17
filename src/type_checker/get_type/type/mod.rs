@@ -24,6 +24,11 @@ pub struct RequireInfo {
 #[derive(PartialEq, Clone, Debug)]
 pub struct TypeMissMatch {}
 
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub enum IncompleteType {
+    PartialClosureType(Box<Type>)
+}
+
 pub type GetTypeReturn =
     Quad<Type, RequireConstraint, RequireInfo, TypeMissMatch>;
 
@@ -34,9 +39,4 @@ impl From<GetTypeReturn> for MaybeType {
             _ => None
         }
     }
-}
-
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub enum IncompleteType {
-    PartialClosureType(Box<Type>)
 }

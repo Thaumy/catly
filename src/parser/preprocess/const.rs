@@ -11,7 +11,7 @@ pub enum Out {
     UpperStartChunk(String),
     Kw(Keyword),
 
-    IntValue(u64),
+    IntValue(i64),
     UnitValue,
     DiscardValue
 }
@@ -28,7 +28,7 @@ pub enum Pat {
     UpperStartChunk(String),
     Kw(Keyword),
 
-    IntValue(u64),
+    IntValue(i64),
     UnitValue,
     DiscardValue
 }

@@ -41,7 +41,6 @@ pub fn case_ri(
                 let apply_expr = Expr::Apply(
                     expect_type.clone(),
                     lhs_expr
-                        .clone()
                         .with_fallback_type(&closure_type)
                         .boxed(),
                     rhs_expr.clone().boxed()
@@ -72,7 +71,6 @@ pub fn case_ri(
                 let apply_expr = Expr::Apply(
                     None,
                     lhs_expr
-                        .clone()
                         .with_fallback_type(&partial_closure_type)
                         .boxed(),
                     rhs_expr.clone().boxed()
