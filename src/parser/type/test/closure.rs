@@ -1,4 +1,3 @@
-use crate::infra::r#box::Ext;
 use crate::parser::r#type::test::f;
 use crate::{closure_type, namely_type};
 

@@ -73,6 +73,10 @@ pub fn case_ri(
                 _ => original_err.clone().err() // 原理同上
             }
         })
+        // 采用激进的类型推导策略
+        // 该策略认为无法取得 case_expr 的类型可能是由 target_expr 无法取得类型引起的
+        // 所以应该过滤出所有能够得到的类型进行合一并 hint target_expr
+        .filter(|x| x.is_ok())
         .fold(None.ok(), |acc, t| {
             match (acc, t) {
                 (Ok(acc), Ok(t)) => {

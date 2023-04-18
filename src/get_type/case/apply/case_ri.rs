@@ -78,8 +78,5 @@ pub fn case_ri(
             // 信息不足以获得 rhs_expr_type, 或类型不相容
             mr_r => mr_r
         }
-
-        // TODO
-        //Quad::MR(require_info)
     }
 }

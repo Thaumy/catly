@@ -11,11 +11,6 @@ pub enum Type {
     PartialClosureType(Box<Type>)
 }
 
-/*#[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub enum IncompleteType {
-    PartialClosureType(Box<Type>)
-}
-*/
 impl Debug for Type {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {

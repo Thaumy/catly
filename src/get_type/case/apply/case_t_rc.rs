@@ -75,51 +75,6 @@ pub fn case_t_rc(
                 mr_r => mr_r
             }
         }
-        // TODO: remove this
-        /*        Type::PartialClosureType(input_type) => {
-                    match get_type_with_hint(
-                        type_env,
-                        expr_env,
-                        rhs_expr,
-                        &input_type
-                            .deref()
-                            .clone()
-                            .some()
-                    ) {
-                        Quad::L(rhs_expr_type) =>
-                            with_constraint_lift_or_left(
-                                constraint,
-                                type_env,
-                                &rhs_expr_type,
-                                &input_type
-                                    .deref()
-                                    .clone()
-                                    .some()
-                            ),
-                        Quad::ML(rc) => {
-                            // 输入类型相容且约束相容
-                            if let Some(constraint) = rc
-                                .constraint
-                                .extend_new(constraint)
-                            {
-                                with_constraint_lift_or_left(
-                                    constraint,
-                                    type_env,
-                                    &rc.r#type,
-                                    &input_type
-                                        .deref()
-                                        .clone()
-                                        .some()
-                                )
-                            } else {
-                                type_miss_match!()
-                            }
-                        }
-                        mr_r => mr_r
-                    }
-                }
-        */
-        // TODO
         // lhs_expr_type must be ClosureType, PartialClosureType is used for hint only
         _ => type_miss_match!()
     }

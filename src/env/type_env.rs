@@ -38,7 +38,7 @@ impl TypeEnv {
                 .any(|(n, _)| n == ref_name)
         };
         if !is_exist {
-            println!("NamelyType {ref_name:?} not exist in type env",);
+            println!("NamelyType '{ref_name}' not exist in type env",);
         }
         is_exist
     }

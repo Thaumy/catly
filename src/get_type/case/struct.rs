@@ -83,7 +83,6 @@ pub fn case(
             .collect()
     };
 
-    // TODO: Lazy init
     let mut constraint = empty_constraint!();
 
     // 收集约束
@@ -96,8 +95,8 @@ pub fn case(
             Quad::L(t) => (n, t).ok(),
             Quad::ML(rc) =>
                 match constraint.extend_new(rc.constraint) {
-                    Some(c) => {
-                        constraint = c;
+                    Some(new_constraint) => {
+                        constraint = new_constraint;
                         (n, rc.r#type).ok()
                     }
                     None => Err(type_miss_match!())

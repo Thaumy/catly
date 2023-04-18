@@ -2,7 +2,6 @@ use crate::env::expr_env::ExprEnv;
 use crate::env::type_env::TypeEnv;
 use crate::get_type::get_type;
 use crate::get_type::test::parse_env;
-use crate::infra::r#box::Ext;
 use crate::{
     closure_type,
     has_type,
@@ -45,6 +44,17 @@ fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
         def apply12: Int = a12 1
         def a13 = a -> b -> c -> d -> 0
         def apply13 = a13 1 2 3 4
+
+        def apply14: Int -> Int = apply14
+
+        def add15: Int -> Int -> Int = _
+        def sub15: Int -> Int -> Int = _
+        def apply15 = # fib
+        n ->
+            match n with
+            | 0 -> 0
+            | 1 -> 1
+            | _ -> add15 (apply15 (sub15 n 1)) (apply15 (sub15 n 2))
     ";
     parse_env(seq)
 }
@@ -240,4 +250,31 @@ fn test_part13() {
     );
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+}
+
+#[test]
+fn test_part14() {
+    let (type_env, expr_env) = gen_env();
+
+    let expr = expr_env
+        .get_ref("apply14")
+        .unwrap();
+
+    let r = has_type!(closure_type!(int_type!(), int_type!()));
+
+    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+}
+
+#[test]
+fn test_part15() {
+    let (type_env, expr_env) = gen_env();
+
+    let expr = expr_env
+        .get_ref("apply15")
+        .unwrap();
+
+    assert_eq!(
+        get_type(&type_env, &expr_env, &expr),
+        has_type!(closure_type!(int_type!(), int_type!()))
+    )
 }

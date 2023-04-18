@@ -2,7 +2,6 @@ use crate::env::expr_env::ExprEnv;
 use crate::env::type_env::TypeEnv;
 use crate::get_type::get_type;
 use crate::get_type::test::parse_env;
-use crate::infra::r#box::Ext;
 use crate::{
     closure_type,
     has_type,
