@@ -1,5 +1,5 @@
 use crate::env::expr_env::ExprEnv;
-use crate::env::type_env::TypeEnv;
+use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::get_type_with_hint;
 use crate::get_type::r#fn::with_constraint_lift_or_left;
 use crate::get_type::r#type::{GetTypeReturn, RequireInfo};

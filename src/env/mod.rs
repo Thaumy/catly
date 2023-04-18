@@ -1,13 +1,12 @@
 use crate::env::expr_env::ExprEnv;
-use crate::env::type_env::TypeEnv;
+use crate::env::r#type::type_env::TypeEnv;
 use crate::infra::vec::Ext;
 use crate::parser::define::Define;
 
-pub mod env_ref_src;
+pub mod builtin;
 pub mod expr_env;
 pub mod r#macro;
-pub mod type_constraint;
-pub mod type_env;
+pub mod r#type;
 
 pub fn from_defines<'t>(
     defines: Vec<Define>

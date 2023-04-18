@@ -1,6 +1,6 @@
-use crate::env::env_ref_src::EnvRefSrc;
 use crate::env::expr_env::ExprEnv;
-use crate::env::type_constraint::TypeConstraint;
+use crate::env::r#type::env_ref_src::EnvRefSrc;
+use crate::env::r#type::type_constraint::TypeConstraint;
 use crate::get_type::r#fn::{
     lift_or_miss_match,
     require_constraint_or_type,

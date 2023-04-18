@@ -1,7 +1,7 @@
 use std::assert_matches::assert_matches;
 
 use crate::env::expr_env::ExprEnv;
-use crate::env::type_env::TypeEnv;
+use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::get_type;
 use crate::get_type::r#type::TypeMissMatch;
 use crate::get_type::test::parse_env;
@@ -51,23 +51,15 @@ fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
 
         def apply14: Int -> Int = apply14
 
-        def add15: Int -> Int -> Int = _
-        def sub15: Int -> Int -> Int = _
-        def apply15 = # fib
-        n ->
-            match n with
-            | 0 -> 0
-            | 1 -> 1
-            | _ -> add15 (apply15 (sub15 n 1)) (apply15 (sub15 n 2))
+        def add: Int -> Int -> Int = _
+        def sub: Int -> Int -> Int = _
 
-        type True = Int
-        type False = Int
-        type Bool = True | False
-
-        def true = 1: True
-        def false = 0: False
-
-        def eq: Int -> Int -> Bool = _
+        def fib = # 15
+            n ->
+                match n with
+                | 0 -> 0
+                | 1 -> 1
+                | _ -> add (fib (sub n 1)) (fib (sub n 2))
 
         type EmptyList = Unit
         type IntCons = { head: Int, tail: IntList }
@@ -83,11 +75,20 @@ fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
                     intCons (f head) (map f tail)
                 | (_: EmptyList) -> emptyList
 
+        type True = Int
+        type False = Int
+        type Bool = True | False
+
+        def true = 1: True
+        def false = 0: False
+
+        def intEq: Int -> Int -> Bool = _
+
         def find: Int -> IntList -> Bool = # 17
             n -> list ->
                 match list with
                 | ({ head = head, tail = tail }: IntCons) ->
-                    if eq head n then
+                    if intEq head n then
                         true
                     else
                         find n tail
@@ -320,7 +321,7 @@ fn test_part15() {
     let (type_env, expr_env) = gen_env();
 
     let expr = expr_env
-        .get_ref("apply15")
+        .get_ref("fib")
         .unwrap();
 
     assert_eq!(

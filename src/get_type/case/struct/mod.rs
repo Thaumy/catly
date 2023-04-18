@@ -1,7 +1,7 @@
 mod r#fn;
 
 use crate::env::expr_env::ExprEnv;
-use crate::env::type_env::TypeEnv;
+use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::case::r#struct::r#fn::is_struct_vec_of_type_then_get_prod_vec;
 use crate::get_type::get_type;
 use crate::get_type::r#fn::with_constraint_lift_or_left;

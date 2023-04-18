@@ -1,7 +1,7 @@
 use std::ops::Not;
 
 use crate::env::expr_env::ExprEnv;
-use crate::env::type_env::TypeEnv;
+use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::case::r#match::r#fn::destruct_match_const_to_expr_env_inject;
 use crate::get_type::get_type;
 use crate::get_type::r#fn::require_constraint_or_type;

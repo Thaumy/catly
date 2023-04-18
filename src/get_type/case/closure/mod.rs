@@ -4,7 +4,7 @@ mod case_t;
 use std::ops::Deref;
 
 use crate::env::expr_env::ExprEnv;
-use crate::env::type_env::TypeEnv;
+use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::case::closure::case_rc::case_rc;
 use crate::get_type::case::closure::case_t::case_t;
 use crate::get_type::get_type_with_hint;

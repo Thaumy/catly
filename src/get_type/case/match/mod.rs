@@ -3,7 +3,7 @@ mod case_t_rc;
 mod r#fn;
 
 use crate::env::expr_env::ExprEnv;
-use crate::env::type_env::TypeEnv;
+use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::case::r#match::case_ri::case_ri;
 use crate::get_type::case::r#match::case_t_rc::case_t_rc;
 use crate::get_type::get_type;

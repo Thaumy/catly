@@ -1,4 +1,4 @@
-use crate::env::type_env::TypeEnv;
+use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::r#fn::destruct_namely_type;
 use crate::get_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;

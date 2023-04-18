@@ -1,7 +1,7 @@
 use std::assert_matches::assert_matches;
 
 use crate::env::expr_env::ExprEnv;
-use crate::env::type_env::TypeEnv;
+use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::get_type;
 use crate::get_type::r#type::TypeMissMatch;
 use crate::get_type::test::parse_env;

@@ -2,7 +2,7 @@ mod case_ri;
 mod case_t_rc;
 
 use crate::env::expr_env::ExprEnv;
-use crate::env::type_env::TypeEnv;
+use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::case::r#let::case_ri::case_ri;
 use crate::get_type::case::r#let::case_t_rc::case_t_rc;
 use crate::get_type::get_type_with_hint;

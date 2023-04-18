@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
-use crate::env::env_ref_src::EnvRefSrc;
-use crate::env::type_constraint::TypeConstraint;
-use crate::env::type_env::TypeEnv;
+use crate::env::r#type::env_ref_src::EnvRefSrc;
+use crate::env::r#type::type_constraint::TypeConstraint;
+use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::r#fn::destruct_namely_type;
 use crate::infra::option::AnyExt;
 use crate::parser::expr::r#type::Expr;
