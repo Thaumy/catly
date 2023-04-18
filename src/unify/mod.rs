@@ -16,24 +16,22 @@ mod sum;
 #[cfg(test)]
 mod test;
 
-pub fn can_lift(type_env: &TypeEnv, from: &Type, to: &Type) -> bool {
-    lift(type_env, from, to).is_some()
-}
-
-// TODO: 缓存以加快 lift 速度
 pub fn lift(
     type_env: &TypeEnv,
     from: &Type,
     to: &Type
 ) -> Option<Type> {
-    println!("Lift <{from:?}> to <{to:?}>");
+    println!(
+        "{:8}{:>10} │ <{from:?}> to <{to:?}>",
+        "[unify]", "Lift"
+    );
 
     if let Type::NamelyType(n) = from
         && !type_env.exist_ref(n) { return None; }
     if let Type::NamelyType(n) = to
         && !type_env.exist_ref(n) { return None; }
 
-    match from {
+    let result = match from {
         Type::NamelyType(n) => lift_namely(type_env, n, to),
         Type::ClosureType(i, o) =>
             lift_closure(type_env, i.deref(), o.deref(), to),
@@ -42,12 +40,13 @@ pub fn lift(
 
         // 不允许提升任何不完全类型, 它们仅能被用作推导提示
         _ => None
-    }
+    };
+
+    result
 }
 
-pub fn unify(type_env: &TypeEnv, l: &Type, r: &Type) -> Option<Type> {
-    // unify 会优先尝试从 l 到 r 的提升, 因此将目标类型放在右侧会更有效率
-    lift(type_env, l, r).or_else(|| lift(type_env, r, l))
+pub fn can_lift(type_env: &TypeEnv, from: &Type, to: &Type) -> bool {
+    lift(type_env, from, to).is_some()
 }
 
 // Lift l to r if r exist, then return lifting result
@@ -61,4 +60,9 @@ pub fn lift_or_left(
         Some(r) => lift(type_env, &l, &r),
         _ => Some(l.clone())
     }
+}
+
+pub fn unify(type_env: &TypeEnv, l: &Type, r: &Type) -> Option<Type> {
+    // unify 会优先尝试从 l 到 r 的提升, 因此将目标类型放在右侧会更有效率
+    lift(type_env, l, r).or_else(|| lift(type_env, r, l))
 }

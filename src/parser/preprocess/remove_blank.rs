@@ -9,6 +9,6 @@ pub fn pp_remove_blank(seq: &Vec<In>) -> Vec<In> {
         })
         .map(|x| x.clone())
         .collect();
-    println!("[pp] RemoveBlank: {r:?}");
+    println!("{:8}{:>10} │ {r:?}", "[pp]", "RmBlank");
     r
 }

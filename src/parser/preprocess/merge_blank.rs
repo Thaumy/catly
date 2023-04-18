@@ -42,7 +42,7 @@ pub fn pp_merge_blank(seq: &str) -> String {
                 }
                 acc
             });
-    println!("[pp] MergeBlank: {r:?}");
+    println!("{:8}{:>10} │ {r:?}", "[pp]", "MergeBlank");
     r
 }
 

@@ -27,7 +27,8 @@ pub fn get_type(
     expr_env: &ExprEnv,
     expr: &Expr
 ) -> GetTypeReturn {
-    println!("GetType: {expr:?}");
+    println!("{:8}{:>10} │ {expr:?}", "[infer]", "GetType");
+
     match expr {
         Expr::Int(expect_type, _) => {
             use case::int::case;

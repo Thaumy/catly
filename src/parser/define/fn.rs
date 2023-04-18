@@ -114,7 +114,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
 
     let reduced_stack = stack;
 
-    println!("Reduced: {reduced_stack:?}");
+    // println!("Reduced: {reduced_stack:?}");
 
     reduce_stack(reduced_stack, follow)
 }
@@ -123,7 +123,7 @@ pub fn go(mut stack: Vec<Pat>, seq: Vec<In>) -> Pat {
     let (head, tail, follow) = vec_get_head_tail_follow(seq);
 
     stack.push(move_in(&stack, head));
-    println!("Move in: {stack:?} follow: {follow:?}");
+    // println!("Move in: {stack:?} follow: {follow:?}");
 
     let reduced_stack = reduce_stack(stack, follow.clone());
 
@@ -143,9 +143,9 @@ pub fn go(mut stack: Vec<Pat>, seq: Vec<In>) -> Pat {
                 _ => Pat::Err
             };
 
-            println!("Success with: {r:?}");
+            //println!("Success with: {r:?}");
 
-            return r;
+            r
         }
         _ => go(reduced_stack, tail)
     }

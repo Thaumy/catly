@@ -42,7 +42,7 @@ pub fn pp_name(seq: &[In]) -> Option<Vec<Out>> {
     let r = maybe_fold_to!(seq.iter(), vec![], push, |p: &In| p
         .clone()
         .into());
-    println!("[pp] Name: {r:?}");
+    println!("{:8}{:>10} │ {r:?}", "[pp]", "Name");
     r
 }
 

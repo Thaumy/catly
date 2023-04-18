@@ -18,6 +18,7 @@ impl Clone for TypeEnv {
 
 impl TypeEnv {
     pub fn new(vec: Vec<(String, Type)>) -> TypeEnv {
+        println!("{:8}{:>10} │ {vec:?}", "[env]", "TypeEnv");
         TypeEnv { env: Rc::new(vec) }
     }
 

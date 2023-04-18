@@ -25,7 +25,10 @@ impl<'t> ExprEnv<'t> {
             prev_env: None,
             env: env_vec
         };
-        println!("New ExprEnv: {:?}", expr_env.env);
+        println!(
+            "{:8}{:>10} │ {:?}",
+            "[env]", "ExprEnv", expr_env.env
+        );
         expr_env
     }
 
@@ -35,7 +38,10 @@ impl<'t> ExprEnv<'t> {
             prev_env: self.some(),
             env: env_vec
         };
-        println!("New ExprEnv: {:?}", expr_env.env);
+        println!(
+            "{:8}{:>10} │ {:?}",
+            "[env]", "ExprEnv", expr_env.env
+        );
         expr_env
     }
 

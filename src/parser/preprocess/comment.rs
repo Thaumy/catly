@@ -64,7 +64,7 @@ pub fn pp_comment(seq: &str) -> String {
                 }
                 _ => acc
             });
-    println!("[pp] Comment: {r:?}");
+    println!("{:8}{:>10} │ {r:?}", "[pp]", "Comment");
     r
 }
 

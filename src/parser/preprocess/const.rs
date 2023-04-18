@@ -52,7 +52,7 @@ fn reduce_stack(mut stack: Vec<Pat>) -> Vec<Pat> {
     };
     let reduced_stack = stack;
 
-    println!("Reduced: {reduced_stack:?}");
+    // println!("Reduced: {reduced_stack:?}");
 
     reduced_stack
 }
@@ -108,7 +108,7 @@ pub fn pp_const(seq: &[In]) -> Option<Vec<Out>> {
     let r = maybe_fold_to!(vec.iter(), vec![], push, |p: &Pat| p
         .clone()
         .into());
-    println!("[pp] Const: {r:?}");
+    println!("{:8}{:>10} │ {r:?}", "[pp]", "Const");
     r
 }
 

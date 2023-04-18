@@ -11,6 +11,7 @@ pub mod r#type;
 type In = crate::parser::preprocess::Out;
 
 pub fn parse_type(seq: Vec<In>) -> MaybeType {
-    println!("Parsing Type seq: {seq:?}");
-    go(vec![Pat::Start], seq).into()
+    let r = go(vec![Pat::Start], seq).into();
+    println!("{:8}{:>10} │ {r:?}", "[parsed]", "Type");
+    r
 }

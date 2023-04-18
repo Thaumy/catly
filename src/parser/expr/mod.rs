@@ -13,6 +13,7 @@ pub mod r#type;
 type In = crate::parser::preprocess::Out;
 
 pub fn parse_expr(seq: Vec<In>) -> MaybeExpr {
-    println!("Parsing Expr seq: {seq:?}");
-    go(vec![Pat::Start], seq).into()
+    let r = go(vec![Pat::Start], seq).into();
+    println!("{:8}{:>10} │ {r:?}", "[parsed]", "Expr");
+    r
 }
