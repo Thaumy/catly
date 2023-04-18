@@ -27,7 +27,7 @@ pub fn case_ri(
                     Quad::L(input_type) => input_type,
                     Quad::ML(rc) => rc.r#type,
                     _ => panic!(
-                        "Impossible rhs_expr_type: {rhs_expr_type:?}",
+                        "Impossible rhs_expr_type: {rhs_expr_type:?}"
                     )
                 };
 
@@ -58,7 +58,7 @@ pub fn case_ri(
                     Quad::L(input_type) => input_type,
                     Quad::ML(rc) => rc.r#type,
                     _ => panic!(
-                        "Impossible rhs_expr_type: {rhs_expr_type:?}",
+                        "Impossible rhs_expr_type: {rhs_expr_type:?}"
                     )
                 };
 

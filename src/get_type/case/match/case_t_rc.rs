@@ -31,7 +31,7 @@ pub fn case_t_rc(
         Quad::L(t) => (t, empty_constraint!()),
         Quad::ML(rc) => (rc.r#type, rc.constraint),
         _ => panic!(
-            "Impossible target_expr_type: {target_expr_type:?}",
+            "Impossible target_expr_type: {target_expr_type:?}"
         )
     };
 
@@ -100,7 +100,7 @@ pub fn case_t_rc(
                 // 由此也可推断, case_expr_env 中不存在自由类型
                 // 所以在下一步取得 then_expr_type 时, 其产生的约束一定作用于外层
                 ri if let Quad::MR(_) = ri =>
-                    panic!("Impossible branch: {ri:?}" ),
+                    panic!("Impossible branch: {ri:?}"),
 
                 // 类型不相容
                 _ => false
@@ -109,7 +109,9 @@ pub fn case_t_rc(
         .all(id)
         .not()
     {
-        return type_miss_match!();
+        return type_miss_match!(format!(
+            "Case types <> {target_expr_type:?}"
+        ));
     }
 
     // 如果 expect_type 存在
@@ -118,11 +120,12 @@ pub fn case_t_rc(
         // 同时收集在获取 then_expr_type 的过程中产生的约束
         let constraint = hinted_cases
             .map(|(_, case_expr_env, then_expr)| {
+                // 此处 then_expr 已由上方统一 hint
                 let then_expr_type = get_type(
                     type_env,
                     // then_expr 需要在原环境和常量环境的拼接中求类型
                     &expr_env.extend_vec_new(case_expr_env),
-                    &then_expr
+                    &then_expr,
                 );
 
                 match then_expr_type {
@@ -130,11 +133,11 @@ pub fn case_t_rc(
                         if can_lift(
                             type_env,
                             &then_expr_type,
-                            expect_type
+                            expect_type,
                         ) {
                             None.ok()
                         } else {
-                            Err(type_miss_match!())
+                            type_miss_match!(format!("{then_expr_type:?} <> {expect_type:?}")).err()
                         },
                     // 获取 then_expr_type 时产生了约束, 这些约束一定作用于外层环境
                     // 因为 case_expr 的每一部分都具备完整的类型信息, 参见上面的推导过程
@@ -143,7 +146,7 @@ pub fn case_t_rc(
                         {
                             rc.constraint.some().ok()
                         } else {
-                            Err(type_miss_match!())
+                            type_miss_match!(format!("{:?} <> {expect_type:?}", rc.r#type)).err()
                         },
                     // 获取 then_expr_type 时信息不足或类型不匹配, 这些问题无法被解决
                     mr_r => Err(mr_r)
@@ -155,9 +158,9 @@ pub fn case_t_rc(
                     (Ok(acc), Ok(None)) => acc.ok(),
                     // 聚合约束
                     (Ok(acc), Ok(Some(constraint))) =>
-                        match acc.extend_new(constraint) {
+                        match acc.extend_new(constraint.clone()) {
                             Some(acc) => acc.ok(),
-                            None => Err(type_miss_match!())
+                            None => type_miss_match!(format!("Constraint conflict: {acc:?} <> {constraint:?}")).err()
                         },
                     (Ok(_), Err(e)) => Err(e),
                     (Err(e), _) => Err(e)
@@ -170,12 +173,12 @@ pub fn case_t_rc(
                 {
                     has_type!(expect_type.clone())
                 } else {
-                    match constraint_acc.extend_new(constraint) {
+                    match constraint_acc.extend_new(constraint.clone()) {
                         Some(constraint) => require_constraint!(
                             expect_type.clone(),
                             constraint
                         ),
-                        None => return type_miss_match!()
+                        None => return type_miss_match!(format!("Constraint conflict: {constraint_acc:?} <> {constraint:?}"))
                     }
                 },
             Err(e) => e
@@ -193,19 +196,19 @@ pub fn case_t_rc(
                 let then_expr_type = get_type(
                     type_env,
                     &expr_env.extend_vec_new(case_expr_env),
-                    &then_expr
+                    &then_expr,
                 );
 
                 match then_expr_type {
                     Quad::L(then_expr_type) => then_expr_type.ok(),
                     Quad::ML(rc) => match constraint_acc
-                        .extend_new(rc.constraint)
+                        .extend_new(rc.constraint.clone())
                     {
                         Some(constraint) => {
                             constraint_acc = constraint;
                             rc.r#type.ok()
                         }
-                        None => Err(type_miss_match!())
+                        None => type_miss_match!(format!("Constraint conflict: {constraint_acc:?} <> {:?}", rc.constraint)).err()
                     },
                     mr_r => Err(mr_r)
                 }
@@ -213,7 +216,7 @@ pub fn case_t_rc(
             .reduce(|acc, t| match (acc, t) {
                 (Ok(acc), Ok(t)) => match unify(type_env, &acc, &t) {
                     Some(acc) => acc.ok(),
-                    None => Err(type_miss_match!())
+                    None => type_miss_match!(format!("{acc:?} <> {t:?}")).err()
                 },
                 (Ok(_), Err(e)) => Err(e),
                 (Err(e), _) => Err(e)

@@ -86,7 +86,10 @@ pub fn case_ri(
                         // 对于之后的每一个类型, 让它和之前 acc 类型合一
                         Some(acc) => match unify(type_env, &acc, &t) {
                             Some(new_acc) => new_acc.some().ok(),
-                            None => Err(type_miss_match!())
+                            None => type_miss_match!(format!(
+                                "{acc:?} <> {t:?}"
+                            ))
+                            .err()
                         }
                     }
                 }

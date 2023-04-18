@@ -16,14 +16,18 @@ pub fn case(
         // 约束到确切类型, 尝试提升
         Quad::L(t) => match lift_or_left(type_env, &t, expect_type) {
             Some(expect_type) => has_type!(expect_type),
-            None => type_miss_match!()
+            None =>
+                type_miss_match!(format!("{t:?} <> {expect_type:?}")),
         },
         // 提升并传播约束
         Quad::ML(rc) =>
             match lift_or_left(type_env, &rc.r#type, expect_type) {
                 Some(expect_type) =>
                     require_constraint!(expect_type, rc.constraint),
-                None => type_miss_match!()
+                None => type_miss_match!(format!(
+                    "{:?} <> {expect_type:?}",
+                    rc.r#type
+                ))
             },
         // 引用源类型信息不足或引用源类型不匹配
         // 引用源类型信息不足, 例如:

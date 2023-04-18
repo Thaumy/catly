@@ -1,8 +1,12 @@
+use std::assert_matches::assert_matches;
+
 use crate::env::expr_env::ExprEnv;
 use crate::env::type_env::TypeEnv;
 use crate::get_type::get_type;
+use crate::get_type::r#type::TypeMissMatch;
 use crate::get_type::test::parse_env;
-use crate::{has_type, namely_type, type_miss_match, unit_type};
+use crate::infra::quad::Quad;
+use crate::{has_type, namely_type, unit_type};
 
 fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
     let seq = "
@@ -37,9 +41,9 @@ fn test_part2() {
         .get_expr("i")
         .unwrap();
 
-    assert_eq!(
+    assert_matches!(
         get_type(&type_env, &expr_env, &expr),
-        type_miss_match!()
+        Quad::R(TypeMissMatch { .. })
     )
 }
 

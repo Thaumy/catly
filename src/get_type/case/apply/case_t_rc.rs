@@ -52,7 +52,9 @@ pub fn case_t_rc(
                             expect_output_type
                         )
                     } else {
-                        type_miss_match!()
+                        type_miss_match!(format!(
+                            "{rhs_expr_type:?} <> {input_type:?}"
+                        ))
                     }
                 }
                 Quad::ML(rc) => {
@@ -69,13 +71,15 @@ pub fn case_t_rc(
                             expect_output_type,
                         )
                     } else {
-                        type_miss_match!()
+                        type_miss_match!(format!("{:?} <> {input_type:?}", rc.r#type))
                     }
                 }
                 mr_r => mr_r
             }
         }
         // lhs_expr_type must be ClosureType, PartialClosureType is used for hint only
-        _ => type_miss_match!()
+        _ => type_miss_match!(format!(
+            "{lhs_expr_type:?} <> ClosureType"
+        ))
     }
 }

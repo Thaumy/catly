@@ -58,7 +58,7 @@ fn test_part1() {
     let a = &namely_type!("A");
     let b = &namely_type!("B");
     let derive = &closure_type!(namely_type!("A"), namely_type!("B"));
-    assert!(lift_closure(env, a, b.deref(), derive,).is_some());
+    assert!(lift_closure(env, a, b.deref(), derive).is_some());
 
     let base = &closure_type!(a.clone(), b.clone());
     assert!(lift(env, base, derive).is_some());
@@ -71,7 +71,7 @@ fn test_part2() {
     let a = &namely_type!("A");
     let b = &namely_type!("B");
     let derive = &namely_type!("F");
-    assert!(lift_closure(env, a, b.deref(), derive,).is_some());
+    assert!(lift_closure(env, a, b.deref(), derive).is_some());
 
     let base = &closure_type!(a.clone(), b.clone());
     assert!(lift(env, base, derive).is_some());
@@ -84,7 +84,7 @@ fn test_part3() {
     let a = &namely_type!("A");
     let b = &namely_type!("B");
     let derive = &namely_type!("G");
-    assert!(lift_closure(env, a, b.deref(), derive,).is_none());
+    assert!(lift_closure(env, a, b.deref(), derive).is_none());
 
     let base = &closure_type!(a.clone(), b.clone());
     assert!(!lift(env, base, derive).is_some());
@@ -97,7 +97,7 @@ fn test_part4() {
     let a = &namely_type!("A");
     let b = &namely_type!("B");
     let derive = &namely_type!("FG");
-    assert!(lift_closure(env, a, b.deref(), derive,).is_some());
+    assert!(lift_closure(env, a, b.deref(), derive).is_some());
 
     let base = &closure_type!(a.clone(), b.clone());
     assert!(lift(env, base, derive).is_some());
@@ -110,7 +110,7 @@ fn test_part5() {
     let a = &namely_type!("A");
     let b = &namely_type!("B");
     let derive = &namely_type!("AB");
-    assert!(lift_closure(env, a, b.deref(), derive,).is_none());
+    assert!(lift_closure(env, a, b.deref(), derive).is_none());
 
     let base = &closure_type!(a.clone(), b.clone());
     assert!(!lift(env, base, derive).is_some());
@@ -125,7 +125,7 @@ fn test_part6() {
     let derive = &Type::PartialClosureType(a.clone().boxed());
     let r = &Type::ClosureType(a.clone().boxed(), b.clone().boxed());
     assert_eq!(
-        lift_closure(env, a, b.deref(), derive,),
+        lift_closure(env, a, b.deref(), derive),
         r.clone().some()
     );
 

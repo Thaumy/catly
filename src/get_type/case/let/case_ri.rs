@@ -45,7 +45,9 @@ pub fn case_ri(
             // 从而有点编译器教人写代码的感觉(哈哈哈Rust)
 
             // scope_expr_type 在提升时出现了类型不相容, 优先返回该错误
-            None => type_miss_match!(),
+            None => type_miss_match!(format!(
+                "{scope_expr_type:?} <> {expect_type:?}"
+            )),
 
             // 由于 case_ri 分支仅当 assign 缺乏类型信息时才会进入
             // 因为 scope_expr 没有带来约束, 所以 assign 仍需类型信息
@@ -93,10 +95,10 @@ pub fn case_ri(
                 match rc
                     .constraint
                     .filter_new(|(n, _)| n != assign_name)
-                    .extend_new(outer_constraint)
+                    .extend_new(outer_constraint.clone())
                 {
                     Some(constraint) => constraint,
-                    None => return type_miss_match!()
+                    None => return type_miss_match!(format!("Constraint conflict: {:?} <> {outer_constraint:?}", rc.constraint))
                 }
             } else {
                 // 约束不包含 assign, 关于此处实现的讨论可参见上方的 L 分支
@@ -105,7 +107,10 @@ pub fn case_ri(
                     &rc.r#type,
                     expect_type
                 ) {
-                    None => type_miss_match!(),
+                    None => type_miss_match!(format!(
+                        "{:?} <> {expect_type:?}",
+                        rc.r#type
+                    )),
                     _ =>
                         if require_info.ref_name == "_" {
                             require_info!(assign_name.to_string())

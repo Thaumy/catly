@@ -12,7 +12,9 @@ pub fn case(
             if type_env.is_type_valid(expect_type) {
                 has_type!(expect_type.clone())
             } else {
-                type_miss_match!()
+                type_miss_match!(format!(
+                    "{expect_type:?} not found in type env"
+                ))
             },
         // Discard 值必须具备类型信息
         None => require_info!("_".to_string())

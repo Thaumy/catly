@@ -22,7 +22,9 @@ pub struct RequireInfo {
 }
 
 #[derive(PartialEq, Clone, Debug)]
-pub struct TypeMissMatch {}
+pub struct TypeMissMatch {
+    pub info: String
+}
 
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum IncompleteType {

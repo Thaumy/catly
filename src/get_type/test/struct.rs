@@ -1,7 +1,11 @@
+use std::assert_matches::assert_matches;
+
 use crate::env::expr_env::ExprEnv;
 use crate::env::type_env::TypeEnv;
 use crate::get_type::get_type;
+use crate::get_type::r#type::TypeMissMatch;
 use crate::get_type::test::parse_env;
+use crate::infra::quad::Quad;
 use crate::{
     has_type,
     int_type,
@@ -9,7 +13,6 @@ use crate::{
     prod_type,
     require_constraint,
     single_constraint,
-    type_miss_match,
     unit_type
 };
 
@@ -152,9 +155,11 @@ fn test_part8() {
     let expr = expr_env
         .get_ref("struct8")
         .unwrap();
-    let r = type_miss_match!();
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_matches!(
+        get_type(&type_env, &expr_env, &expr),
+        Quad::R(TypeMissMatch { .. })
+    )
 }
 
 #[test]
@@ -164,7 +169,9 @@ fn test_part9() {
     let expr = expr_env
         .get_ref("struct9")
         .unwrap();
-    let r = type_miss_match!();
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_matches!(
+        get_type(&type_env, &expr_env, &expr),
+        Quad::R(TypeMissMatch { .. })
+    )
 }

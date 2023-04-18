@@ -31,10 +31,10 @@ macro_rules! require_info {
 
 #[macro_export]
 macro_rules! type_miss_match {
-    () => {{
+    ($info:expr) => {{
         use crate::get_type::r#type::TypeMissMatch;
         use crate::infra::quad::Quad;
-        Quad::R(TypeMissMatch {})
+        Quad::R(TypeMissMatch { info: $info })
     }};
 }
 

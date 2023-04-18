@@ -1,15 +1,19 @@
+use std::assert_matches::assert_matches;
+
 use crate::env::expr_env::ExprEnv;
 use crate::env::type_env::TypeEnv;
 use crate::get_type::get_type;
+use crate::get_type::r#type::TypeMissMatch;
 use crate::get_type::test::parse_env;
+use crate::infra::quad::Quad;
 use crate::{
+    bool_type,
     closure_type,
     has_type,
     int_type,
     namely_type,
     require_constraint,
     single_constraint,
-    type_miss_match,
     unit_type
 };
 
@@ -55,6 +59,50 @@ fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
             | 0 -> 0
             | 1 -> 1
             | _ -> add15 (apply15 (sub15 n 1)) (apply15 (sub15 n 2))
+
+        type True = Int
+        type False = Int
+        type Bool = True | False
+
+        def true = 1: True
+        def false = 0: False
+
+        def eq: Int -> Int -> Bool = _
+
+        type EmptyList = Unit
+        type IntCons = { head: Int, tail: IntList }
+        type IntList = IntCons | EmptyList
+
+        def emptyList = (): EmptyList
+        def intCons = h -> t -> { head = h, tail = t } : IntList
+
+        def map: (Int -> Int) -> IntList -> IntList = # 16
+            f -> list ->
+                match list with
+                | ({ head = head, tail = tail }: IntCons) ->
+                    intCons (f head) (map f tail)
+                | (_: EmptyList) -> emptyList
+
+        def find: Int -> IntList -> Bool = # 17
+            n -> list ->
+                match list with
+                | ({ head = head, tail = tail }: IntCons) ->
+                    if eq head n then
+                        true
+                    else
+                        find n tail
+                | (_: EmptyList) -> false
+
+        def filter: (Int -> Bool) -> IntList -> IntList = # 18
+            p -> list ->
+                match list with
+                | ({ head = head, tail = tail }: IntCons) ->
+                    if p head then
+                        intCons head (filter p tail)
+                        # { head = head, tail = filter p tail }
+                    else
+                        filter p tail
+                | (_: EmptyList) -> emptyList
     ";
     parse_env(seq)
 }
@@ -106,9 +154,10 @@ fn test_part4() {
         .get_ref("apply4")
         .unwrap();
 
-    let r = type_miss_match!();
-
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_matches!(
+        get_type(&type_env, &expr_env, &expr),
+        Quad::R(TypeMissMatch { .. })
+    )
 }
 
 #[test]
@@ -119,9 +168,10 @@ fn test_part5() {
         .get_ref("apply5")
         .unwrap();
 
-    let r = type_miss_match!();
-
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_matches!(
+        get_type(&type_env, &expr_env, &expr),
+        Quad::R(TypeMissMatch { .. })
+    )
 }
 
 #[test]
@@ -276,5 +326,65 @@ fn test_part15() {
     assert_eq!(
         get_type(&type_env, &expr_env, &expr),
         has_type!(closure_type!(int_type!(), int_type!()))
+    )
+}
+
+#[test]
+fn test_part16() {
+    let (type_env, expr_env) = gen_env();
+
+    let expr = expr_env
+        .get_ref("map")
+        .unwrap();
+
+    assert_eq!(
+        get_type(&type_env, &expr_env, &expr),
+        has_type!(closure_type!(
+            closure_type!(int_type!(), int_type!()),
+            closure_type!(
+                Type::NamelyType("IntList".to_string()),
+                Type::NamelyType("IntList".to_string())
+            )
+        ))
+    )
+}
+
+#[test]
+fn test_part17() {
+    let (type_env, expr_env) = gen_env();
+
+    let expr = expr_env
+        .get_ref("find")
+        .unwrap();
+
+    assert_eq!(
+        get_type(&type_env, &expr_env, &expr),
+        has_type!(closure_type!(
+            int_type!(),
+            closure_type!(
+                Type::NamelyType("IntList".to_string()),
+                bool_type!()
+            )
+        ))
+    )
+}
+
+#[test]
+fn test_part18() {
+    let (type_env, expr_env) = gen_env();
+
+    let expr = expr_env
+        .get_ref("filter")
+        .unwrap();
+
+    assert_eq!(
+        get_type(&type_env, &expr_env, &expr),
+        has_type!(closure_type!(
+            closure_type!(int_type!(), bool_type!()),
+            closure_type!(
+                Type::NamelyType("IntList".to_string()),
+                Type::NamelyType("IntList".to_string())
+            )
+        ))
     )
 }

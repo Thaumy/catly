@@ -35,13 +35,20 @@ pub fn case(
             if can_lift(type_env, &bool_expr_type, &bool_type!()) {
                 empty_constraint!()
             } else {
-                return type_miss_match!();
+                return type_miss_match!(format!(
+                    "{bool_expr_type:?} <> {:?}",
+                    bool_type!()
+                ));
             },
         Quad::ML(rc) =>
             if can_lift(type_env, &rc.r#type, &bool_type!()) {
                 rc.constraint.clone()
             } else {
-                return type_miss_match!();
+                return type_miss_match!(format!(
+                    "{:?} <> {:?}",
+                    rc.r#type,
+                    bool_type!()
+                ));
             },
         // 需要类型信息或者类型不匹配, 由于 Cond 没有环境注入, 不应处理这些情况
         mr_r => return mr_r.clone()

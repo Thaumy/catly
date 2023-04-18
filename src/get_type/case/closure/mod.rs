@@ -53,9 +53,9 @@ pub fn case(
                         None
                     ),
 
-                    _ => return type_miss_match!()
+                    _ => return type_miss_match!(format!("{expect_type:?} <> ClosureType/PartialClosureType"))
                 },
-                _ => return type_miss_match!()
+                _ => return type_miss_match!(format!("{expect_type:?} not found in type env"))
             },
         _ => (None, None)
     };

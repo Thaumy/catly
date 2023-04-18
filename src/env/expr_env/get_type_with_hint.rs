@@ -151,11 +151,11 @@ impl<'t> ExprEnv<'t> {
                                     single_constraint!(
                                     ref_name.to_string(),
                                     rc.r#type.clone()
-                                ).extend_new(rc.constraint);
+                                ).extend_new(rc.constraint.clone());
                                 match constraint {
                                     Some(constraint) =>
                                         require_constraint!(rc.r#type,constraint),
-                                    None => type_miss_match!()
+                                    None => type_miss_match!(format!("Constraint conflict: {constraint:?} <> {:?}", rc.constraint))
                                 }
                             }
                             mr_r => mr_r

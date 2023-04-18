@@ -32,6 +32,7 @@ pub fn case_t(
     // Lift inferred ClosureType to t
     match lift_or_left(type_env, &base, expect_type) {
         Some(t) => has_type!(t),
-        None => type_miss_match!()
+        None =>
+            type_miss_match!(format!("{base:?} <> {expect_type:?}")),
     }
 }

@@ -37,7 +37,10 @@ pub fn case_t_rc(
         &assign_expr_type,
         assign_type
     ) {
-        None => return type_miss_match!(),
+        None =>
+            return type_miss_match!(format!(
+                "{assign_expr_type:?} <> {expect_type:?}"
+            )),
         Some(t) => t
     };
 
@@ -63,7 +66,9 @@ pub fn case_t_rc(
             expect_type
         ) {
             Some(t) => require_constraint_or_type(constraint_acc, t),
-            None => type_miss_match!()
+            None => type_miss_match!(format!(
+                "{scope_expr_type:?} <> {expect_type:?}"
+            ))
         },
         // 由于 assign_type 存在, 所以此处的约束作用于外层环境, 传播之
         Quad::ML(rc) =>
@@ -74,7 +79,10 @@ pub fn case_t_rc(
                     &rc.r#type,
                     expect_type
                 ),
-                None => type_miss_match!()
+                None => type_miss_match!(format!(
+                    "{:?} <> {expect_type:?}",
+                    rc.r#type
+                ))
             },
         // 由于 scope_expr 已被 hint, 且环境已被尽力注入, 所以无法处理这些错误
         mr_r => mr_r

@@ -21,10 +21,15 @@ pub fn case_t_rc(
 ) -> GetTypeReturn {
     let (then_expr_type, constraint) = match then_expr_type {
         Quad::L(then_expr_type) => (then_expr_type, constraint),
-        Quad::ML(rc) => match constraint.extend_new(rc.constraint) {
-            Some(constraint) => (rc.r#type, constraint),
-            None => return type_miss_match!()
-        },
+        Quad::ML(rc) =>
+            match constraint.extend_new(rc.constraint.clone()) {
+                Some(constraint) => (rc.r#type, constraint),
+                None =>
+                    return type_miss_match!(format!(
+                        "Constraint conflict: {constraint:?} <> {:?}",
+                        rc.constraint
+                    )),
+            },
         _ => panic!("Impossible then_expr_type: {then_expr_type:?}")
     };
 
@@ -42,21 +47,42 @@ pub fn case_t_rc(
         &expect_type
     ) {
         Quad::L(t) => (t, constraint),
-        Quad::ML(rc) => match constraint.extend_new(rc.constraint) {
-            Some(constraint) => (rc.r#type, constraint),
-            None => return type_miss_match!()
-        },
+        Quad::ML(rc) =>
+            match constraint.extend_new(rc.constraint.clone()) {
+                Some(constraint) => (rc.r#type, constraint),
+                None =>
+                    return type_miss_match!(format!(
+                        "Constraint conflict: {constraint:?} <> {:?}",
+                        rc.constraint
+                    )),
+            },
         mr_r => return mr_r
     };
 
-    let t = match match expect_type {
-        Some(t) => lift(type_env, &then_expr_type, &t)
-            .and_then(|t| lift(type_env, &else_expr_type, &t)),
-        _ => unify(type_env, &then_expr_type, &else_expr_type)
-    } {
-        Some(t) => t,
-        // 提升或合一失败, 类型不匹配
-        _ => return type_miss_match!()
+    let t = match expect_type {
+        Some(t) => {
+            let t = match lift(type_env, &then_expr_type, &t) {
+                Some(t) => t,
+                _ =>
+                    return type_miss_match!(format!(
+                        "{then_expr_type:?} <> {t:?}"
+                    )),
+            };
+            match lift(type_env, &else_expr_type, &t) {
+                Some(t) => t,
+                _ =>
+                    return type_miss_match!(format!(
+                        "{else_expr_type:?} <> {t:?}"
+                    )),
+            }
+        }
+        _ => match unify(type_env, &then_expr_type, &else_expr_type) {
+            Some(t) => t,
+            _ =>
+                return type_miss_match!(format!(
+                    "{then_expr_type:?} <> {else_expr_type:?}"
+                )),
+        }
     };
 
     require_constraint_or_type(constraint, t)

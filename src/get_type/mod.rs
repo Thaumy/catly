@@ -9,6 +9,7 @@ use crate::env::expr_env::ExprEnv;
 use crate::env::type_env::TypeEnv;
 use crate::get_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
+use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
 
 pub fn get_type_with_hint(
@@ -29,7 +30,7 @@ pub fn get_type(
 ) -> GetTypeReturn {
     println!("{:8}{:>10} │ {expr:?}", "[infer]", "GetType");
 
-    match expr {
+    let r = match expr {
         Expr::Int(expect_type, _) => {
             use case::int::case;
             case(type_env, expect_type)
@@ -111,5 +112,26 @@ pub fn get_type(
             use case::r#match::case;
             case(type_env, expr_env, expect_type, target_expr, vec)
         }
-    }
+    };
+
+    match r.clone() {
+        Quad::L(x) => println!(
+            "{:8}{:>10} │ {x:?} of {expr:?}",
+            "[infer]", "Inferred"
+        ),
+        Quad::ML(x) => println!(
+            "{:8}{:>10} │ {x:?} of {expr:?}",
+            "[infer]", "Inferred"
+        ),
+        Quad::MR(x) => println!(
+            "{:8}{:>10} │ {x:?} of {expr:?}",
+            "[infer]", "Inferred"
+        ),
+        Quad::R(x) => println!(
+            "{:8}{:>10} │ {x:?} of {expr:?}",
+            "[infer]", "Inferred"
+        )
+    };
+
+    r
 }
