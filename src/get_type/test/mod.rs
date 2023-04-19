@@ -10,6 +10,7 @@ mod cond;
 mod discard;
 mod env_ref;
 mod int;
+mod integration;
 mod r#let;
 mod r#match;
 mod r#struct;

@@ -114,8 +114,8 @@ impl Debug for Expr {
                 f.write_str(&*format!("{n}{}", type_annot(t))),
             Expr::Apply(t, l, r) => match t {
                 Some(t) =>
-                    f.write_str(&*format!("(({l:?}) {r:?}):{t:?}")),
-                None => f.write_str(&*format!("({l:?}) {r:?}"))
+                    f.write_str(&*format!("(({l:?} {r:?}):{t:?})")),
+                None => f.write_str(&*format!("({l:?} {r:?})"))
             },
             Expr::Cond(t, b, te, fe) => f.write_str(&*format!(
                 "(if {b:?} then {te:?} else {fe:?}){}",

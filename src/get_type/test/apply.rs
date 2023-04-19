@@ -7,7 +7,6 @@ use crate::get_type::r#type::TypeMissMatch;
 use crate::get_type::test::parse_env;
 use crate::infra::quad::Quad;
 use crate::{
-    bool_type,
     closure_type,
     has_type,
     int_type,
@@ -50,60 +49,6 @@ fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
         def apply13 = a13 1 2 3 4
 
         def apply14: Int -> Int = apply14
-
-        def add: Int -> Int -> Int = _
-        def sub: Int -> Int -> Int = _
-
-        def fib = # 15
-            n ->
-                match n with
-                | 0 -> 0
-                | 1 -> 1
-                | _ -> add (fib (sub n 1)) (fib (sub n 2))
-
-        type EmptyList = Unit
-        type IntCons = { head: Int, tail: IntList }
-        type IntList = IntCons | EmptyList
-
-        def emptyList = (): EmptyList
-        def intCons = h -> t -> { head = h, tail = t } : IntList
-
-        def map: (Int -> Int) -> IntList -> IntList = # 16
-            f -> list ->
-                match list with
-                | ({ head = head, tail = tail }: IntCons) ->
-                    intCons (f head) (map f tail)
-                | (_: EmptyList) -> emptyList
-
-        type True = Int
-        type False = Int
-        type Bool = True | False
-
-        def true = 1: True
-        def false = 0: False
-
-        def intEq: Int -> Int -> Bool = _
-
-        def find: Int -> IntList -> Bool = # 17
-            n -> list ->
-                match list with
-                | ({ head = head, tail = tail }: IntCons) ->
-                    if intEq head n then
-                        true
-                    else
-                        find n tail
-                | (_: EmptyList) -> false
-
-        def filter: (Int -> Bool) -> IntList -> IntList = # 18
-            p -> list ->
-                match list with
-                | ({ head = head, tail = tail }: IntCons) ->
-                    if p head then
-                        intCons head (filter p tail)
-                        # { head = head, tail = filter p tail }
-                    else
-                        filter p tail
-                | (_: EmptyList) -> emptyList
     ";
     parse_env(seq)
 }
@@ -314,78 +259,4 @@ fn test_part14() {
     let r = has_type!(closure_type!(int_type!(), int_type!()));
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
-}
-
-#[test]
-fn test_part15() {
-    let (type_env, expr_env) = gen_env();
-
-    let expr = expr_env
-        .get_ref("fib")
-        .unwrap();
-
-    assert_eq!(
-        get_type(&type_env, &expr_env, &expr),
-        has_type!(closure_type!(int_type!(), int_type!()))
-    )
-}
-
-#[test]
-fn test_part16() {
-    let (type_env, expr_env) = gen_env();
-
-    let expr = expr_env
-        .get_ref("map")
-        .unwrap();
-
-    assert_eq!(
-        get_type(&type_env, &expr_env, &expr),
-        has_type!(closure_type!(
-            closure_type!(int_type!(), int_type!()),
-            closure_type!(
-                Type::NamelyType("IntList".to_string()),
-                Type::NamelyType("IntList".to_string())
-            )
-        ))
-    )
-}
-
-#[test]
-fn test_part17() {
-    let (type_env, expr_env) = gen_env();
-
-    let expr = expr_env
-        .get_ref("find")
-        .unwrap();
-
-    assert_eq!(
-        get_type(&type_env, &expr_env, &expr),
-        has_type!(closure_type!(
-            int_type!(),
-            closure_type!(
-                Type::NamelyType("IntList".to_string()),
-                bool_type!()
-            )
-        ))
-    )
-}
-
-#[test]
-fn test_part18() {
-    let (type_env, expr_env) = gen_env();
-
-    let expr = expr_env
-        .get_ref("filter")
-        .unwrap();
-
-    assert_eq!(
-        get_type(&type_env, &expr_env, &expr),
-        has_type!(closure_type!(
-            closure_type!(int_type!(), bool_type!()),
-            closure_type!(
-                Type::NamelyType("IntList".to_string()),
-                Type::NamelyType("IntList".to_string())
-            )
-        ))
-    )
 }

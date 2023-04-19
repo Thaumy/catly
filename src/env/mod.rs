@@ -3,7 +3,6 @@ use crate::env::r#type::type_env::TypeEnv;
 use crate::infra::vec::Ext;
 use crate::parser::define::Define;
 
-pub mod builtin;
 pub mod expr_env;
 pub mod r#macro;
 pub mod r#type;
