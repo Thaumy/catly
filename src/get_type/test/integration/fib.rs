@@ -59,7 +59,7 @@ fn test_part1() {
     let (type_env, expr_env) = gen_env();
 
     let expr = expr_env
-        .get_ref("fib")
+        .get_ref("fib1")
         .unwrap();
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), target_type())

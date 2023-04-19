@@ -21,7 +21,8 @@ fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
                 | (_: EmptyList) -> emptyList
         # 2
         def filter2 =
-            p -> list ->
+            # 对于 list 的类型标注是必须的, 因为 SumType 是不封闭的
+            p -> (list: IntList) ->
                 match list with
                 | ({ head = head, tail = tail }: IntCons) ->
                     if p head then
@@ -48,7 +49,7 @@ fn test_part1() {
     let (type_env, expr_env) = gen_env();
 
     let expr = expr_env
-        .get_ref("find1")
+        .get_ref("filter1")
         .unwrap();
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), target_type())
@@ -59,7 +60,7 @@ fn test_part2() {
     let (type_env, expr_env) = gen_env();
 
     let expr = expr_env
-        .get_ref("find2")
+        .get_ref("filter2")
         .unwrap();
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), target_type())

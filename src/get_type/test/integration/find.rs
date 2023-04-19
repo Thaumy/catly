@@ -21,14 +21,16 @@ fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
                 | (_: EmptyList) -> false
         # 2
         def find2 =
-            n -> list ->
+            # 对于 list 的类型标注是必须的, 因为 SumType 是不封闭的
+            # 分支中的 Bool 标注同理
+            n -> (list: IntList) ->
                 match list with
                 | ({ head = head, tail = tail }: IntCons) ->
                     if intEq head n then
-                        true
+                        true: Bool
                     else
                         find2 n tail
-                | (_: EmptyList) -> false
+                | (_: EmptyList) -> false: Bool
         ";
     parse_env(&seq)
 }

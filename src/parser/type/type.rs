@@ -12,6 +12,23 @@ pub enum Type {
     PartialClosureType(Box<Type>)
 }
 
+impl Type {
+    pub fn is_partial_type(&self) -> bool {
+        match self {
+            Type::NamelyType(_) => false,
+            Type::ClosureType(i_t, o_t) =>
+                i_t.is_partial_type() || o_t.is_partial_type(),
+            Type::SumType(sum_set) => sum_set
+                .iter()
+                .any(|t| t.is_partial_type()),
+            Type::ProdType(prod_vec) => prod_vec
+                .iter()
+                .any(|(_, t)| t.is_partial_type()),
+            Type::PartialClosureType(..) => true
+        }
+    }
+}
+
 impl Debug for Type {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {

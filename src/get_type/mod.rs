@@ -28,7 +28,7 @@ pub fn get_type(
     expr_env: &ExprEnv,
     expr: &Expr
 ) -> GetTypeReturn {
-    println!("{:8}{:>10} │ {expr:?}", "[infer]", "GetType");
+    println!("{:8}{:>10} │ {expr:?}", "[infer]", "TypeOf");
 
     let r = match expr {
         Expr::Int(expect_type, _) => {

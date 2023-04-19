@@ -18,7 +18,7 @@ fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
                 | (_: EmptyList) -> emptyList
         # 2
         def map2 =
-            f -> list ->
+            f -> (list: IntList) ->
                 match list with
                 | ({ head = head, tail = tail }: IntCons) ->
                     intCons (f head) (map2 f tail)
