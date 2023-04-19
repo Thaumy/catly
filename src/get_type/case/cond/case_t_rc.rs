@@ -8,31 +8,18 @@ use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
+use crate::parser::r#type::r#type::Type;
 use crate::type_miss_match;
 use crate::unify::{lift, unify};
 
 pub fn case_t_rc(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
-    then_expr_type: GetTypeReturn,
-    constraint: EnvRefConstraint,
+    then_expr_type: Type,
+    constraint_acc: EnvRefConstraint,
     expect_type: &MaybeType,
     else_expr: &Expr
 ) -> GetTypeReturn {
-    let (then_expr_type, constraint) = match then_expr_type {
-        Quad::L(then_expr_type) => (then_expr_type, constraint),
-        Quad::ML(rc) =>
-            match constraint.extend_new(rc.constraint.clone()) {
-                Some(constraint) => (rc.r#type, constraint),
-                None =>
-                    return type_miss_match!(format!(
-                        "Constraint conflict: {constraint:?} <> {:?}",
-                        rc.constraint
-                    )),
-            },
-        _ => panic!("Impossible then_expr_type: {then_expr_type:?}")
-    };
-
     // 当 expect_type 无类型时, 使用 then_expr_type hint
     let expect_type = match expect_type {
         Some(expect_type) => expect_type.clone(),
@@ -40,21 +27,21 @@ pub fn case_t_rc(
     }
     .some();
 
-    let (else_expr_type, constraint) = match get_type_with_hint(
+    let (else_expr_type, constraint_acc) = match get_type_with_hint(
         type_env,
         expr_env,
         else_expr,
         &expect_type
     ) {
-        Quad::L(t) => (t, constraint),
+        Quad::L(t) => (t, constraint_acc),
         Quad::ML(rc) =>
-            match constraint.extend_new(rc.constraint.clone()) {
+            match constraint_acc.extend_new(rc.constraint.clone()) {
                 Some(constraint) => (rc.r#type, constraint),
                 None =>
                     return type_miss_match!(format!(
-                        "Constraint conflict: {constraint:?} <> {:?}",
-                        rc.constraint
-                    )),
+                    "Constraint conflict: {constraint_acc:?} <> {:?}",
+                    rc.constraint
+                )),
             },
         mr_r => return mr_r
     };
@@ -85,5 +72,5 @@ pub fn case_t_rc(
         }
     };
 
-    require_constraint_or_type(constraint, t)
+    require_constraint_or_type(constraint_acc, t)
 }

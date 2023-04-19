@@ -30,7 +30,7 @@ pub fn case(
     );
 
     // bool_expr must be boolean types
-    let constraint = match &bool_expr_type {
+    let constraint_acc = match &bool_expr_type {
         Quad::L(bool_expr_type) =>
             if can_lift(type_env, &bool_expr_type, &bool_type!()) {
                 empty_constraint!()
@@ -62,14 +62,34 @@ pub fn case(
     );
 
     match then_expr_type {
-        Quad::L(_) | Quad::ML(_) => case_t_rc(
-            type_env,
-            expr_env,
-            then_expr_type,
-            constraint,
-            expect_type,
-            else_expr
-        ),
+        Quad::L(_) | Quad::ML(_) => {
+            let (then_expr_type, constraint_acc) = match then_expr_type {
+                Quad::L(then_expr_type) =>
+                    (then_expr_type, constraint_acc),
+                Quad::ML(rc) => match constraint_acc
+                    .extend_new(rc.constraint.clone())
+                {
+                    Some(constraint) => (rc.r#type, constraint),
+                    None =>
+                        return type_miss_match!(format!(
+                        "Constraint conflict: {constraint_acc:?} <> {:?}",
+                        rc.constraint
+                    )),
+                },
+                _ => panic!(
+                    "Impossible then_expr_type: {then_expr_type:?}"
+                )
+            };
+
+            case_t_rc(
+                type_env,
+                expr_env,
+                then_expr_type,
+                constraint_acc,
+                expect_type,
+                else_expr
+            )
+        }
 
         Quad::MR(_)
             if then_expr.is_no_type_annot() &&

@@ -26,5 +26,6 @@ fn get_std_code() -> String {
 
         def emptyList = (): EmptyList
         def intCons = h -> t -> { head = h, tail = t } : IntList
-    ".to_string()
+    "
+    .to_string()
 }

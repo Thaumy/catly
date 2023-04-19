@@ -1,6 +1,7 @@
 mod case_ri;
 mod case_t_rc;
 
+use crate::empty_constraint;
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::case::apply::case_ri::case_ri;
@@ -21,13 +22,25 @@ pub fn case(
     let lhs_expr_type = get_type(type_env, expr_env, &lhs_expr);
 
     match lhs_expr_type {
-        Quad::L(_) | Quad::ML(_) => case_t_rc(
-            type_env,
-            expr_env,
-            lhs_expr_type,
-            expect_type,
-            rhs_expr
-        ),
+        Quad::L(_) | Quad::ML(_) => {
+            let (lhs_expr_type, constraint_acc) = match lhs_expr_type
+            {
+                Quad::L(lhs_type) => (lhs_type, empty_constraint!()),
+                Quad::ML(rc) => (rc.r#type, rc.constraint),
+                _ => panic!(
+                    "Impossible lhs_expr_type: {lhs_expr_type:?}"
+                )
+            };
+
+            case_t_rc(
+                type_env,
+                expr_env,
+                lhs_expr_type,
+                constraint_acc,
+                expect_type,
+                rhs_expr
+            )
+        }
 
         // 使用 expect_type 和 rhs_expr_type 进行旁路推导
         // 仅在 lhs_expr 缺乏类型标注时进行处理

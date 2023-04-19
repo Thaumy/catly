@@ -2,6 +2,7 @@ mod case_ri;
 mod case_t_rc;
 mod r#fn;
 
+use crate::empty_constraint;
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::case::r#match::case_ri::case_ri;
@@ -23,13 +24,24 @@ pub fn case(
 
     match target_expr_type {
         // L 与 ML 同样只有是否需要传播对外界环境的约束的区别
-        Quad::L(_) | Quad::ML(_) => case_t_rc(
-            type_env,
-            expr_env,
-            target_expr_type,
-            expect_type,
-            vec
-        ),
+        Quad::L(_) | Quad::ML(_) => {
+            let (target_expr_type, constraint_acc) = match target_expr_type {
+                Quad::L(t) => (t, empty_constraint!()),
+                Quad::ML(rc) => (rc.r#type, rc.constraint),
+                _ => panic!(
+                    "Impossible target_expr_type: {target_expr_type:?}"
+                )
+            };
+
+            case_t_rc(
+                type_env,
+                expr_env,
+                target_expr_type,
+                constraint_acc,
+                expect_type,
+                vec
+            )
+        }
 
         // 无法获取 target_expr 类型信息, 启用旁路类型推导
         // 同样, 为了防止内层环境对外层环境造成跨越优先级的约束, 仅当 target_expr 没有类型标注时才能启用旁路推导

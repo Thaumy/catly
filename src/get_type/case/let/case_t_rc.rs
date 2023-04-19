@@ -5,32 +5,27 @@ use crate::get_type::r#fn::{
     require_constraint_or_type,
     with_constraint_lift_or_left
 };
+use crate::get_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::get_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
+use crate::parser::r#type::r#type::Type;
+use crate::type_miss_match;
 use crate::unify::lift_or_left;
-use crate::{empty_constraint, type_miss_match};
 
 pub fn case_t_rc(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
-    assign_expr_type: GetTypeReturn,
+    assign_expr_type: Type,
+    constraint_acc: EnvRefConstraint,
     expect_type: &MaybeType,
     assign_name: &str,
     assign_type: &MaybeType,
     assign_expr: &Expr,
     scope_expr: &Expr
 ) -> GetTypeReturn {
-    // 合并处理是为了节省代码量
-    let (assign_expr_type, constraint_acc) = match assign_expr_type {
-        Quad::L(t) => (t, empty_constraint!()),
-        // 需传播额外携带的约束
-        Quad::ML(rc) => (rc.r#type, rc.constraint),
-        _ => panic!("Impossible assign_expr_type: {assign_type:?}")
-    };
-
     // Lift assign_expr_type to assign_type
     let assign_type = match lift_or_left(
         type_env,
