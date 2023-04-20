@@ -12,8 +12,13 @@ use crate::infra::result::AnyExt;
 use crate::infra::vec::Ext;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::Type;
-use crate::{empty_constraint, type_miss_match};
+use crate::{
+    constraint_conflict_info,
+    empty_constraint,
+    type_miss_match
+};
 
+// TODO: 外部环境约束同层传播完备性
 pub fn case(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
@@ -71,18 +76,19 @@ pub fn case(
         })
         .map(|(n, x)| match x {
             Quad::L(t) => (n, t).ok(),
-            Quad::ML(rc) =>
-                match constraint.extend_new(rc.constraint.clone()) {
-                    Some(new_constraint) => {
-                        constraint = new_constraint;
-                        (n, rc.r#type).ok()
-                    }
-                    None => type_miss_match!(format!(
-                        "Constraint conflict {constraint:?} <> {:?}",
-                        rc.constraint
-                    ))
-                    .err()
-                },
+            Quad::ML(rc) => match constraint
+                .extend_new(rc.constraint.clone())
+            {
+                Some(new_constraint) => {
+                    constraint = new_constraint;
+                    (n, rc.r#type).ok()
+                }
+                None => type_miss_match!(constraint_conflict_info!(
+                    constraint,
+                    rc.constraint
+                ))
+                .err()
+            },
             err => err.clone().err()
         })
         .fold(vec![].ok(), |acc, x| match (acc, x) {

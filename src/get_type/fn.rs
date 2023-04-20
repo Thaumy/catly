@@ -5,7 +5,12 @@ use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt;
 use crate::parser::r#type::r#type::Type;
 use crate::unify::{lift, lift_or_left};
-use crate::{has_type, require_constraint, type_miss_match};
+use crate::{
+    has_type,
+    require_constraint,
+    type_miss_match,
+    type_miss_match_info
+};
 
 pub fn with_constraint_lift_or_left(
     constraint: EnvRefConstraint,
@@ -17,7 +22,7 @@ pub fn with_constraint_lift_or_left(
         // 按需传播
         Some(r#type) =>
             require_constraint_or_type(constraint, r#type),
-        None => type_miss_match!(format!("{base:?} <> {derive:?}"))
+        None => type_miss_match!(type_miss_match_info!(base, derive))
     }
 }
 
@@ -28,7 +33,7 @@ pub fn lift_or_miss_match(
 ) -> GetTypeReturn {
     match lift(type_env, from, to) {
         Some(t) => has_type!(t),
-        None => type_miss_match!(format!("{from:?} <> {from:?}"))
+        None => type_miss_match!(type_miss_match_info!(from, to))
     }
 }
 
@@ -41,7 +46,7 @@ pub fn with_constraint_lift_or_miss_match(
     match lift(type_env, from, to) {
         Some(r#type) =>
             require_constraint_or_type(constraint, r#type),
-        None => type_miss_match!(format!("{from:?} <> {from:?}"))
+        None => type_miss_match!(type_miss_match_info!(from, to))
     }
 }
 

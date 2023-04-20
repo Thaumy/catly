@@ -12,8 +12,8 @@ use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::Type;
-use crate::type_miss_match;
 use crate::unify::lift_or_left;
+use crate::{type_miss_match, type_miss_match_info};
 
 pub fn case_t_rc(
     type_env: &TypeEnv,
@@ -33,8 +33,9 @@ pub fn case_t_rc(
         assign_type
     ) {
         None =>
-            return type_miss_match!(format!(
-                "{assign_expr_type:?} <> {expect_type:?}"
+            return type_miss_match!(type_miss_match_info!(
+                assign_expr_type,
+                assign_type
             )),
         Some(t) => t
     };
@@ -61,8 +62,9 @@ pub fn case_t_rc(
             expect_type
         ) {
             Some(t) => require_constraint_or_type(constraint_acc, t),
-            None => type_miss_match!(format!(
-                "{scope_expr_type:?} <> {expect_type:?}"
+            None => type_miss_match!(type_miss_match_info!(
+                scope_expr_type,
+                expect_type
             ))
         },
         // 由于 assign_type 存在, 所以此处的约束作用于外层环境, 传播之
@@ -74,9 +76,9 @@ pub fn case_t_rc(
                     &rc.r#type,
                     expect_type
                 ),
-                None => type_miss_match!(format!(
-                    "{:?} <> {expect_type:?}",
-                    rc.r#type
+                None => type_miss_match!(type_miss_match_info!(
+                    rc.r#type,
+                    expect_type
                 ))
             },
         // 由于 scope_expr 已被 hint, 且环境已被尽力注入, 所以无法处理这些错误

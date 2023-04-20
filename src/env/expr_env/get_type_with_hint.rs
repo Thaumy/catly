@@ -12,6 +12,7 @@ use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
 use crate::{
+    extend_constraint_then_require,
     has_type,
     require_constraint,
     require_info,
@@ -146,18 +147,16 @@ impl<'t> ExprEnv<'t> {
                                     t
                                 )
                             ),
-                            Quad::ML(rc) => {
-                                let constraint =
+                            // TODO: bad fmt
+                            Quad::ML(rc)=>
+                                extend_constraint_then_require!(
+                                    rc.r#type,
                                     single_constraint!(
-                                    ref_name.to_string(),
-                                    rc.r#type.clone()
-                                ).extend_new(rc.constraint.clone());
-                                match constraint {
-                                    Some(constraint) =>
-                                        require_constraint!(rc.r#type,constraint),
-                                    None => type_miss_match!(format!("Constraint conflict: {constraint:?} <> {:?}", rc.constraint))
-                                }
-                            }
+                                        ref_name.to_string(),
+                                        rc.r#type.clone()
+                                    ),
+                                    rc.constraint.clone()
+                                ),
                             mr_r => mr_r
                         }
                         // 类型不相容

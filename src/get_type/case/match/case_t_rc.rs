@@ -16,10 +16,13 @@ use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::Type;
 use crate::unify::{can_lift, unify};
 use crate::{
+    constraint_conflict_info,
     empty_constraint,
+    extend_constraint_then_require,
     has_type,
     require_constraint,
-    type_miss_match
+    type_miss_match,
+    type_miss_match_info
 };
 
 pub fn case_t_rc(
@@ -120,7 +123,7 @@ pub fn case_t_rc(
                     type_env,
                     // then_expr 需要在原环境和常量环境的拼接中求类型
                     &expr_env.extend_vec_new(case_expr_env),
-                    &then_expr,
+                    &then_expr
                 );
 
                 match then_expr_type {
@@ -128,11 +131,15 @@ pub fn case_t_rc(
                         if can_lift(
                             type_env,
                             &then_expr_type,
-                            expect_type,
+                            expect_type
                         ) {
                             None.ok()
                         } else {
-                            type_miss_match!(format!("{then_expr_type:?} <> {expect_type:?}")).err()
+                            type_miss_match!(type_miss_match_info!(
+                                then_expr_type,
+                                expect_type
+                            ))
+                            .err()
                         },
                     // 获取 then_expr_type 时产生了约束, 这些约束一定作用于外层环境
                     // 因为 case_expr 的每一部分都具备完整的类型信息, 参见上面的推导过程
@@ -141,7 +148,11 @@ pub fn case_t_rc(
                         {
                             rc.constraint.some().ok()
                         } else {
-                            type_miss_match!(format!("{:?} <> {expect_type:?}", rc.r#type)).err()
+                            type_miss_match!(type_miss_match_info!(
+                                rc.r#type,
+                                expect_type
+                            ))
+                            .err()
                         },
                     // 获取 then_expr_type 时信息不足或类型不匹配, 这些问题无法被解决
                     mr_r => Err(mr_r)
@@ -155,7 +166,12 @@ pub fn case_t_rc(
                     (Ok(acc), Ok(Some(constraint))) =>
                         match acc.extend_new(constraint.clone()) {
                             Some(acc) => acc.ok(),
-                            None => type_miss_match!(format!("Constraint conflict: {acc:?} <> {constraint:?}")).err()
+                            None => type_miss_match!(
+                                constraint_conflict_info!(
+                                    acc, constraint
+                                )
+                            )
+                            .err()
                         },
                     (Ok(_), Err(e)) => Err(e),
                     (Err(e), _) => Err(e)
@@ -168,13 +184,11 @@ pub fn case_t_rc(
                 {
                     has_type!(expect_type.clone())
                 } else {
-                    match constraint_acc.extend_new(constraint.clone()) {
-                        Some(constraint) => require_constraint!(
-                            expect_type.clone(),
-                            constraint
-                        ),
-                        None => return type_miss_match!(format!("Constraint conflict: {constraint_acc:?} <> {constraint:?}"))
-                    }
+                    extend_constraint_then_require!(
+                        expect_type.clone(),
+                        constraint_acc,
+                        constraint.clone()
+                    )
                 },
             Err(e) => e
         }
@@ -191,7 +205,7 @@ pub fn case_t_rc(
                 let then_expr_type = get_type(
                     type_env,
                     &expr_env.extend_vec_new(case_expr_env),
-                    &then_expr,
+                    &then_expr
                 );
 
                 match then_expr_type {
@@ -203,7 +217,13 @@ pub fn case_t_rc(
                             constraint_acc = constraint;
                             rc.r#type.ok()
                         }
-                        None => type_miss_match!(format!("Constraint conflict: {constraint_acc:?} <> {:?}", rc.constraint)).err()
+                        None => type_miss_match!(
+                            constraint_conflict_info!(
+                                constraint_acc,
+                                rc.constraint
+                            )
+                        )
+                        .err()
                     },
                     mr_r => Err(mr_r)
                 }
@@ -211,7 +231,10 @@ pub fn case_t_rc(
             .reduce(|acc, t| match (acc, t) {
                 (Ok(acc), Ok(t)) => match unify(type_env, &acc, &t) {
                     Some(acc) => acc.ok(),
-                    None => type_miss_match!(format!("{acc:?} <> {t:?}")).err()
+                    None => type_miss_match!(type_miss_match_info!(
+                        acc, t
+                    ))
+                    .err()
                 },
                 (Ok(_), Err(e)) => Err(e),
                 (Err(e), _) => Err(e)

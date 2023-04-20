@@ -19,6 +19,27 @@ macro_rules! require_constraint {
 }
 
 #[macro_export]
+macro_rules! constraint_conflict_info {
+    ($l_c:expr, $r_c:expr) => {{
+        format!("Constraint conflict: {:?} <> {:?}", $l_c, $r_c)
+    }};
+}
+
+#[macro_export]
+macro_rules! extend_constraint_then_require {
+    ($t:expr, $l_c:expr, $r_c:expr) => {{
+        use crate::constraint_conflict_info;
+        use crate::require_constraint;
+        match $l_c.extend_new($r_c) {
+            Some(constraint) => require_constraint!($t, constraint),
+            None => type_miss_match!(constraint_conflict_info!(
+                $l_c, $r_c
+            ))
+        }
+    }};
+}
+
+#[macro_export]
 macro_rules! require_info {
     ($ref_name:expr) => {{
         use crate::get_type::r#type::RequireInfo;
@@ -26,6 +47,13 @@ macro_rules! require_info {
         Quad::MR(RequireInfo {
             ref_name: $ref_name
         })
+    }};
+}
+
+#[macro_export]
+macro_rules! type_miss_match_info {
+    ($l_t:expr, $r_t:expr) => {{
+        format!("{:?} <> {:?}", $l_t, $r_t)
     }};
 }
 

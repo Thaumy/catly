@@ -10,8 +10,8 @@ use crate::infra::r#box::Ext;
 use crate::infra::r#fn::id;
 use crate::infra::result::AnyExt as ResAnyExt;
 use crate::parser::expr::r#type::Expr;
-use crate::type_miss_match;
 use crate::unify::unify;
+use crate::{type_miss_match, type_miss_match_info};
 
 pub fn case_ri(
     type_env: &TypeEnv,
@@ -86,9 +86,9 @@ pub fn case_ri(
                         // 对于之后的每一个类型, 让它和之前 acc 类型合一
                         Some(acc) => match unify(type_env, &acc, &t) {
                             Some(new_acc) => new_acc.some().ok(),
-                            None => type_miss_match!(format!(
-                                "{acc:?} <> {t:?}"
-                            ))
+                            None => type_miss_match!(
+                                type_miss_match_info!(acc, t)
+                            )
                             .err()
                         }
                     }

@@ -4,7 +4,12 @@ use crate::infra::alias::MaybeType;
 use crate::infra::r#box::Ext;
 use crate::parser::r#type::r#type::Type;
 use crate::unify::lift_or_left;
-use crate::{has_type, require_info, type_miss_match};
+use crate::{
+    has_type,
+    require_info,
+    type_miss_match,
+    type_miss_match_info
+};
 
 pub fn case_t(
     type_env: &TypeEnv,
@@ -33,6 +38,6 @@ pub fn case_t(
     match lift_or_left(type_env, &base, expect_type) {
         Some(t) => has_type!(t),
         None =>
-            type_miss_match!(format!("{base:?} <> {expect_type:?}")),
+            type_miss_match!(type_miss_match_info!(base, expect_type)),
     }
 }
