@@ -18,11 +18,14 @@ fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
                 | (_: EmptyList) -> emptyList
         # 2
         def map2 =
-            f -> (list: IntList) ->
+            # 对于 list 的类型标注是必须的, 因为 SumType 是不封闭的
+            # 分支中的 IntList 标注同理
+            f -> (list: IntList) -> (
                 match list with
                 | ({ head = head, tail = tail }: IntCons) ->
                     intCons (f head) (map2 f tail)
                 | (_: EmptyList) -> emptyList
+            ): IntList
         ";
     parse_env(&seq)
 }

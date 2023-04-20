@@ -22,10 +22,22 @@ impl Clone for TypeEnv {
 
 impl TypeEnv {
     pub fn new(type_vec: Vec<(String, Type)>) -> TypeEnv {
-        println!("{:8}{:>10} │ {type_vec:?}", "[env]", "TypeEnv");
-        TypeEnv {
+        let type_env = TypeEnv {
             prev_env: None,
             env: Rc::new(type_vec)
+        };
+        println!(
+            "{:8}{:>10} │ {:?}",
+            "[env]", "TypeEnv", type_env.env
+        );
+        type_env
+    }
+
+    fn latest_none_empty_type_env(&self) -> &TypeEnv {
+        match (self.env.is_empty(), &self.prev_env) {
+            (true, Some(prev_env)) =>
+                prev_env.latest_none_empty_type_env(),
+            _ => self
         }
     }
 
@@ -33,11 +45,19 @@ impl TypeEnv {
         &self,
         type_vec: Vec<(String, Type)>
     ) -> TypeEnv {
-        println!("{:8}{:>10} │ {type_vec:?}", "[env]", "TypeEnv");
-        TypeEnv {
-            prev_env: self.clone().boxed().some(),
+        let type_env = TypeEnv {
+            prev_env: self
+                .latest_none_empty_type_env()
+                .clone()
+                .boxed()
+                .some(),
             env: Rc::new(type_vec)
-        }
+        };
+        println!(
+            "{:8}{:>10} │ {:?}",
+            "[env]", "TypeEnv", type_env.env
+        );
+        type_env
     }
 
     fn find_entry(&self, type_name: &str) -> Option<&(String, Type)> {

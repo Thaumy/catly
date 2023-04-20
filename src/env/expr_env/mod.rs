@@ -3,6 +3,7 @@ mod get_type_with_hint;
 use crate::env::r#type::env_ref_src::EnvRefSrc;
 use crate::env::r#type::type_constraint::TypeConstraint;
 use crate::env::r#type::type_env::TypeEnv;
+use crate::get_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::get_type::r#type::GetTypeReturn;
 use crate::infra::alias::{MaybeExpr, MaybeType};
 use crate::infra::option::AnyExt;
@@ -32,10 +33,22 @@ impl<'t> ExprEnv<'t> {
         expr_env
     }
 
+    // 通过将最近的非空环境作为上级环境, 能够提高查找效率
+    // 因为环境不可变, 所以没有风险
+    fn latest_none_empty_expr_env(&self) -> &ExprEnv {
+        match (self.env.is_empty(), self.prev_env) {
+            (true, Some(prev_env)) =>
+                prev_env.latest_none_empty_expr_env(),
+            _ => self
+        }
+    }
+
     pub fn extend_vec_new(&self, env_vec: Vec<Item>) -> ExprEnv {
         let expr_env = ExprEnv {
             type_env: self.type_env.clone(),
-            prev_env: self.some(),
+            prev_env: self
+                .latest_none_empty_expr_env()
+                .some(),
             env: env_vec
         };
         println!(
@@ -55,7 +68,32 @@ impl<'t> ExprEnv<'t> {
             .map(|t| t.into())
             .unwrap_or(TypeConstraint::Free);
 
-        self.extend_vec_new(vec![(ref_name, tc, src.into())])
+        let expr_env =
+            self.extend_vec_new(vec![(ref_name, tc, src.into())]);
+        println!(
+            "{:8}{:>10} │ {:?}",
+            "[env]", "ExprEnv", expr_env.env
+        );
+        expr_env
+    }
+
+    pub fn extend_constraint_new(
+        &self,
+        constraint: EnvRefConstraint
+    ) -> ExprEnv {
+        let vec = constraint
+            .iter()
+            .map(|(n, t)| {
+                (n.to_string(), t.clone().into(), EnvRefSrc::NoSrc)
+            })
+            .collect();
+
+        let expr_env = self.extend_vec_new(vec);
+        println!(
+            "{:8}{:>10} │ {:?}",
+            "[env]", "ExprEnv", expr_env.env
+        );
+        expr_env
     }
 
     pub fn get_type(&self, ref_name: &str) -> GetTypeReturn {
