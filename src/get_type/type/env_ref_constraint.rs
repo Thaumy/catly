@@ -1,13 +1,23 @@
 use std::collections::hash_map::Iter;
 use std::collections::HashMap;
+use std::fmt::{Debug, Formatter};
 
 use crate::infra::option::AnyExt;
 use crate::infra::r#fn::id;
 use crate::parser::r#type::r#type::Type;
 
-#[derive(PartialEq, Clone, Debug)]
+#[derive(PartialEq, Clone)]
 pub struct EnvRefConstraint {
     constraint: HashMap<String, Type>
+}
+
+impl Debug for EnvRefConstraint {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&*format!(
+            "EnvRefConstraint::{:?}",
+            self.constraint
+        ))
+    }
 }
 
 impl EnvRefConstraint {
