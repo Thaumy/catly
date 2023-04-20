@@ -9,7 +9,7 @@ macro_rules! has_type {
 #[macro_export]
 macro_rules! require_constraint {
     ($t:expr, $constraint:expr) => {{
-        use crate::get_type::r#type::RequireConstraint;
+        use crate::get_type::r#type::require_constraint::RequireConstraint;
         use crate::infra::quad::Quad;
         Quad::ML(RequireConstraint {
             r#type: $t,
@@ -42,7 +42,7 @@ macro_rules! extend_constraint_then_require {
 #[macro_export]
 macro_rules! require_info {
     ($ref_name:expr) => {{
-        use crate::get_type::r#type::RequireInfo;
+        use crate::get_type::r#type::require_info::RequireInfo;
         use crate::infra::quad::Quad;
         Quad::MR(RequireInfo {
             ref_name: $ref_name
@@ -60,10 +60,17 @@ macro_rules! type_miss_match_info {
 #[macro_export]
 macro_rules! type_miss_match {
     ($info:expr) => {{
-        use crate::get_type::r#type::TypeMissMatch;
+        use crate::get_type::r#type::type_miss_match::TypeMissMatch;
         use crate::infra::quad::Quad;
         Quad::R(TypeMissMatch { info: $info })
     }};
+}
+
+#[macro_export]
+macro_rules! type_miss_match_pat {
+    () => {
+        crate::get_type::r#type::type_miss_match::TypeMissMatch { .. }
+    };
 }
 
 #[macro_export]

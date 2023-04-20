@@ -3,7 +3,7 @@ use std::assert_matches::assert_matches;
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::get_type;
-use crate::get_type::r#type::TypeMissMatch;
+use crate::get_type::r#type::type_miss_match::TypeMissMatch;
 use crate::get_type::test::parse_env;
 use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
