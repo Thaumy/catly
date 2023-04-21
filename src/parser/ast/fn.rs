@@ -1,6 +1,6 @@
-use crate::infra::r#fn::id;
+use crate::infra::iter::maybe_fold;
+use crate::infra::option::AnyExt;
 use crate::infra::vec::Ext;
-use crate::maybe_fold_to;
 use crate::parser::define::{parse_define, Define};
 
 type In = crate::parser::preprocess::Out;
@@ -33,9 +33,13 @@ pub fn split_to_top_levels(seq: Vec<In>) -> Vec<Vec<In>> {
 }
 
 pub fn parse_to_defines(seq: Vec<Vec<In>>) -> Option<Vec<Define>> {
-    let iter = seq
+    let iter: Vec<_> = seq
         .iter()
-        .map(|vec| parse_define(vec.clone()));
+        .map(|vec| parse_define(vec.clone()))
+        .collect();
 
-    maybe_fold_to!(iter, vec![], push, id)
+    maybe_fold(iter.iter(), vec![], |acc, it| {
+        let it = it.clone()?;
+        acc.chain_push(it).some()
+    })
 }

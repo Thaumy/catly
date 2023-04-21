@@ -1,8 +1,8 @@
 use crate::env::r#type::type_env::TypeEnv;
-use crate::get_type::r#fn::lift_or_miss_match;
+use crate::get_type::r#fn::{has_type, lift_or_miss_match};
 use crate::get_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
-use crate::{has_type, unit_type};
+use crate::unit_type;
 
 pub fn case(
     type_env: &TypeEnv,
@@ -11,6 +11,6 @@ pub fn case(
     match expect_type {
         Some(expect_type) =>
             lift_or_miss_match(type_env, &unit_type!(), &expect_type),
-        None => has_type!(unit_type!())
+        None => has_type(unit_type!())
     }
 }

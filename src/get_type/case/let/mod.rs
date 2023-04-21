@@ -1,12 +1,12 @@
 mod case_ri;
 mod case_t_rc;
 
-use crate::empty_constraint;
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::case::r#let::case_ri::case_ri;
 use crate::get_type::case::r#let::case_t_rc::case_t_rc;
 use crate::get_type::get_type_with_hint;
+use crate::get_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::get_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
 use crate::infra::quad::Quad;
@@ -37,7 +37,7 @@ pub fn case(
         // L 与 ML 的唯一区别是 ML 额外携带了一些对外层环境的约束, 需要传播这些约束
         Quad::L(_) | Quad::ML(_) => {
             let (assign_expr_type, constraint_acc) = match assign_expr_type {
-                Quad::L(t) => (t, empty_constraint!()),
+                Quad::L(t) => (t, EnvRefConstraint::empty()),
                 // 需要收集这些作用于外层环境的约束并传播, 因为它们可能对推导 scope_expr_type 有所帮助
                 Quad::ML(rc) => (
                     rc.r#type,

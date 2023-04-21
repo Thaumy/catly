@@ -1,10 +1,11 @@
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::get_type;
+use crate::get_type::r#fn::has_type;
 use crate::get_type::r#type::GetTypeReturn;
 use crate::get_type::test::integration::get_std_code;
 use crate::get_type::test::parse_env;
-use crate::{bool_type, closure_type, has_type, int_type};
+use crate::{bool_type, closure_type, int_type};
 
 fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
     let seq = get_std_code() +
@@ -35,7 +36,7 @@ fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
 }
 
 fn target_type() -> GetTypeReturn {
-    has_type!(closure_type!(
+    has_type(closure_type!(
         closure_type!(int_type!(), bool_type!()),
         closure_type!(
             Type::NamelyType("IntList".to_string()),

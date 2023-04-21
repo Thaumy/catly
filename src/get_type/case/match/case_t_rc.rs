@@ -4,8 +4,9 @@ use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::case::r#match::r#fn::destruct_match_const_to_expr_env_inject;
 use crate::get_type::get_type;
-use crate::get_type::r#fn::require_constraint_or_type;
+use crate::get_type::r#fn::{has_type, require_constraint_or_type};
 use crate::get_type::r#type::env_ref_constraint::EnvRefConstraint;
+use crate::get_type::r#type::require_constraint::require_extended_constraint;
 use crate::get_type::r#type::type_miss_match::TypeMissMatch;
 use crate::get_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
@@ -16,12 +17,6 @@ use crate::infra::result::AnyExt as ResAnyExt;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::Type;
 use crate::unify::{can_lift, unify};
-use crate::{
-    empty_constraint,
-    extend_constraint_then_require,
-    has_type,
-    require_constraint
-};
 
 pub fn case_t_rc(
     type_env: &TypeEnv,
@@ -157,33 +152,37 @@ pub fn case_t_rc(
                     mr_r => Err(mr_r)
                 }
             })
-            .fold(empty_constraint!().ok(), |acc, constraint| {
-                match (acc, constraint) {
-                    // 无约束
-                    (Ok(acc), Ok(None)) => acc.ok(),
-                    // 聚合约束
-                    (Ok(acc), Ok(Some(constraint))) => match acc
-                        .extend_new(constraint.clone())
-                    {
-                        Some(acc) => acc.ok(),
-                        None => Quad::R(TypeMissMatch::of_constraint(
-                            &acc,
-                            &constraint
-                        ))
-                        .err()
-                    },
-                    (Ok(_), Err(e)) => Err(e),
-                    (Err(e), _) => Err(e)
+            .fold(
+                EnvRefConstraint::empty().ok(),
+                |acc, constraint| {
+                    match (acc, constraint) {
+                        // 无约束
+                        (Ok(acc), Ok(None)) => acc.ok(),
+                        // 聚合约束
+                        (Ok(acc), Ok(Some(constraint))) => match acc
+                            .extend_new(constraint.clone())
+                        {
+                            Some(acc) => acc.ok(),
+                            None =>
+                                Quad::R(TypeMissMatch::of_constraint(
+                                    &acc,
+                                    &constraint
+                                ))
+                                .err(),
+                        },
+                        (Ok(_), Err(e)) => Err(e),
+                        (Err(e), _) => Err(e)
+                    }
                 }
-            });
+            );
 
         match constraint {
             Ok(constraint) =>
                 if constraint_acc.is_empty() && constraint.is_empty()
                 {
-                    has_type!(expect_type.clone())
+                    has_type(expect_type.clone())
                 } else {
-                    extend_constraint_then_require!(
+                    require_extended_constraint(
                         expect_type.clone(),
                         constraint_acc,
                         constraint.clone()

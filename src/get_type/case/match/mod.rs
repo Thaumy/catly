@@ -2,12 +2,12 @@ mod case_ri;
 mod case_t_rc;
 mod r#fn;
 
-use crate::empty_constraint;
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::case::r#match::case_ri::case_ri;
 use crate::get_type::case::r#match::case_t_rc::case_t_rc;
 use crate::get_type::get_type;
+use crate::get_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::get_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
 use crate::infra::quad::Quad;
@@ -27,7 +27,7 @@ pub fn case(
         // L 与 ML 同样只有是否需要传播对外界环境的约束的区别
         Quad::L(_) | Quad::ML(_) => {
             let (target_expr_type, constraint_acc) = match target_expr_type {
-                Quad::L(t) => (t, empty_constraint!()),
+                Quad::L(t) => (t, EnvRefConstraint::empty()),
                 Quad::ML(rc) => (rc.r#type, rc.constraint),
                 _ => panic!(
                     "Impossible target_expr_type: {target_expr_type:?}"

@@ -1,17 +1,12 @@
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::get_type;
+use crate::get_type::r#fn::has_type;
+use crate::get_type::r#type::env_ref_constraint::EnvRefConstraint;
+use crate::get_type::r#type::require_constraint::require_constraint;
 use crate::get_type::r#type::require_info::RequireInfo;
 use crate::get_type::test::parse_env;
-use crate::{
-    closure_type,
-    has_type,
-    int_type,
-    namely_type,
-    require_constraint,
-    single_constraint,
-    unit_type
-};
+use crate::{closure_type, int_type, namely_type, unit_type};
 
 fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
     let seq = "
@@ -65,7 +60,7 @@ fn test_part2() {
     let expr = expr_env
         .get_ref("f2")
         .unwrap();
-    let r = has_type!(closure_type!(int_type!(), int_type!()));
+    let r = has_type(closure_type!(int_type!(), int_type!()));
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
 }
@@ -77,7 +72,7 @@ fn test_part3() {
     let expr = expr_env
         .get_ref("f3")
         .unwrap();
-    let r = has_type!(closure_type!(int_type!(), int_type!()));
+    let r = has_type(closure_type!(int_type!(), int_type!()));
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
 }
@@ -89,7 +84,7 @@ fn test_part4() {
     let expr = expr_env
         .get_ref("f4")
         .unwrap();
-    let r = has_type!(closure_type!(int_type!(), int_type!()));
+    let r = has_type(closure_type!(int_type!(), int_type!()));
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
 }
@@ -101,9 +96,9 @@ fn test_part5() {
     let expr = expr_env
         .get_ref("f5")
         .unwrap();
-    let r = require_constraint!(
+    let r = require_constraint(
         closure_type!(int_type!(), int_type!()),
-        single_constraint!("b".to_string(), int_type!())
+        EnvRefConstraint::single("b".to_string(), int_type!())
     );
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
@@ -116,7 +111,7 @@ fn test_part6() {
     let expr = expr_env
         .get_ref("f6")
         .unwrap();
-    let r = has_type!(closure_type!(
+    let r = has_type(closure_type!(
         int_type!(),
         closure_type!(int_type!(), unit_type!())
     ));
@@ -131,7 +126,7 @@ fn test_part7() {
     let expr = expr_env
         .get_ref("f7")
         .unwrap();
-    let r = has_type!(namely_type!("F"));
+    let r = has_type(namely_type!("F"));
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
 }
@@ -143,7 +138,7 @@ fn test_part8() {
     let expr = expr_env
         .get_ref("f8")
         .unwrap();
-    let r = has_type!(closure_type!(
+    let r = has_type(closure_type!(
         closure_type!(int_type!(), unit_type!()),
         int_type!()
     ));
@@ -158,7 +153,7 @@ fn test_part9() {
     let expr = expr_env
         .get_ref("f9")
         .unwrap();
-    let r = has_type!(closure_type!(
+    let r = has_type(closure_type!(
         int_type!(),
         closure_type!(int_type!(), int_type!())
     ));
@@ -173,12 +168,12 @@ fn test_part10() {
     let expr = expr_env
         .get_ref("f10")
         .unwrap();
-    let r = require_constraint!(
+    let r = require_constraint(
         closure_type!(
             int_type!(),
             closure_type!(int_type!(), int_type!())
         ),
-        single_constraint!("x".to_string(), int_type!())
+        EnvRefConstraint::single("x".to_string(), int_type!())
     );
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
@@ -227,7 +222,7 @@ fn test_part14() {
     let expr = expr_env
         .get_ref("f14")
         .unwrap();
-    let r = has_type!(closure_type!(int_type!(), int_type!()));
+    let r = has_type(closure_type!(int_type!(), int_type!()));
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
 }
@@ -239,7 +234,7 @@ fn test_part15() {
     let expr = expr_env
         .get_ref("f15")
         .unwrap();
-    let r = has_type!(closure_type!(int_type!(), int_type!()));
+    let r = has_type(closure_type!(int_type!(), int_type!()));
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
 }

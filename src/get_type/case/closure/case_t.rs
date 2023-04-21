@@ -1,8 +1,8 @@
 use crate::env::r#type::type_env::TypeEnv;
+use crate::get_type::r#fn::has_type;
 use crate::get_type::r#type::require_info::RequireInfo;
 use crate::get_type::r#type::type_miss_match::TypeMissMatch;
 use crate::get_type::r#type::GetTypeReturn;
-use crate::has_type;
 use crate::infra::alias::MaybeType;
 use crate::infra::r#box::Ext;
 use crate::parser::r#type::r#type::Type;
@@ -33,7 +33,7 @@ pub fn case_t(
 
     // Lift inferred ClosureType to t
     match lift_or_left(type_env, &base, expect_type) {
-        Some(t) => has_type!(t),
+        Some(t) => has_type(t),
         None => TypeMissMatch::of_type(
             &base,
             &expect_type.clone().unwrap()

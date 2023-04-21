@@ -1,8 +1,8 @@
 use crate::env::r#type::type_env::TypeEnv;
+use crate::get_type::r#fn::has_type;
 use crate::get_type::r#type::require_info::RequireInfo;
 use crate::get_type::r#type::type_miss_match::TypeMissMatch;
 use crate::get_type::r#type::GetTypeReturn;
-use crate::has_type;
 use crate::infra::alias::MaybeType;
 
 pub fn case(
@@ -12,7 +12,7 @@ pub fn case(
     match expect_type {
         Some(expect_type) =>
             if type_env.is_type_valid(expect_type) {
-                has_type!(expect_type.clone())
+                has_type(expect_type.clone())
             } else {
                 TypeMissMatch::of(&format!(
                     "{expect_type:?} not found in type env"

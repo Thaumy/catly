@@ -1,6 +1,7 @@
+use crate::infra::iter::maybe_fold;
+use crate::infra::option::AnyExt;
 use crate::infra::slice::slice_get_head_tail;
 use crate::infra::vec::Ext;
-use crate::maybe_fold_to;
 use crate::parser::keyword::Keyword;
 use crate::parser::value::int::parse_int;
 
@@ -105,11 +106,12 @@ type In = crate::parser::preprocess::keyword::Out;
 
 pub fn pp_const(seq: &[In]) -> Option<Vec<Out>> {
     let vec = go(vec![], seq);
-    let r = maybe_fold_to!(vec.iter(), vec![], push, |p: &Pat| p
-        .clone()
-        .into());
-    println!("{:8}{:>10} │ {r:?}", "[pp]", "Const");
-    r
+    let result = maybe_fold(vec.iter(), vec![], |acc, p| {
+        let it = (p.clone().into(): Option<Out>)?;
+        acc.chain_push(it).some()
+    });
+    println!("{:8}{:>10} │ {result:?}", "[pp]", "Const");
+    result
 }
 
 #[cfg(test)]

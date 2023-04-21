@@ -9,7 +9,7 @@ mod pat;
 #[cfg(test)]
 mod test;
 
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Define {
     TypeDef(String, Type),
     ExprDef(String, MaybeType, Expr)

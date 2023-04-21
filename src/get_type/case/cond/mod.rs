@@ -1,11 +1,13 @@
 mod case_ri;
 mod case_t_rc;
 
+use crate::bool_type;
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::case::cond::case_ri::case_ri;
 use crate::get_type::case::cond::case_t_rc::case_t_rc;
 use crate::get_type::get_type_with_hint;
+use crate::get_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::get_type::r#type::type_miss_match::TypeMissMatch;
 use crate::get_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
@@ -13,7 +15,6 @@ use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
 use crate::unify::can_lift;
-use crate::{bool_type, empty_constraint};
 
 // TODO: 外部环境约束同层传播完备性
 pub fn case(
@@ -35,7 +36,7 @@ pub fn case(
     let constraint_acc = match &bool_expr_type {
         Quad::L(bool_expr_type) =>
             if can_lift(type_env, &bool_expr_type, &bool_type!()) {
-                empty_constraint!()
+                EnvRefConstraint::empty()
             } else {
                 return TypeMissMatch::of_type(
                     bool_expr_type,

@@ -1,8 +1,8 @@
-use crate::empty_constraint;
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::get_type_with_hint;
 use crate::get_type::r#fn::with_constraint_lift_or_left;
+use crate::get_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::get_type::r#type::require_info::RequireInfo;
 use crate::get_type::r#type::type_miss_match::TypeMissMatch;
 use crate::get_type::r#type::GetTypeReturn;
@@ -89,7 +89,7 @@ pub fn case_ri(
                         .some()
                 ) {
                     // 限定相容且未带来约束
-                    Quad::L(_) => empty_constraint!(),
+                    Quad::L(_) => EnvRefConstraint::empty(),
                     // 限定相容且带来了约束, 传播之
                     Quad::ML(rc) => rc.constraint.clone(),
                     // 限定冲突或信息仍然不足, 推导失败

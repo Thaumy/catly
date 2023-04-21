@@ -3,18 +3,13 @@ use std::assert_matches::assert_matches;
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::get_type;
+use crate::get_type::r#fn::has_type;
+use crate::get_type::r#type::env_ref_constraint::EnvRefConstraint;
+use crate::get_type::r#type::require_constraint::require_constraint;
 use crate::get_type::r#type::type_miss_match::TypeMissMatch;
 use crate::get_type::test::parse_env;
 use crate::infra::quad::Quad;
-use crate::{
-    closure_type,
-    has_type,
-    int_type,
-    namely_type,
-    require_constraint,
-    single_constraint,
-    unit_type
-};
+use crate::{closure_type, int_type, namely_type, unit_type};
 
 fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
     let seq = "
@@ -61,7 +56,7 @@ fn test_part1() {
         .get_ref("apply1")
         .unwrap();
 
-    let r = has_type!(int_type!());
+    let r = has_type(int_type!());
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
 }
@@ -74,7 +69,7 @@ fn test_part2() {
         .get_ref("apply2")
         .unwrap();
 
-    let r = has_type!(unit_type!());
+    let r = has_type(unit_type!());
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
 }
@@ -87,7 +82,7 @@ fn test_part3() {
         .get_ref("apply3")
         .unwrap();
 
-    let r = has_type!(closure_type!(int_type!(), unit_type!()));
+    let r = has_type(closure_type!(int_type!(), unit_type!()));
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
 }
@@ -128,9 +123,12 @@ fn test_part6() {
         .get_ref("apply6")
         .unwrap();
 
-    let r = require_constraint!(
+    let r = require_constraint(
         namely_type!("Int"),
-        single_constraint!("b6".to_string(), namely_type!("Int"))
+        EnvRefConstraint::single(
+            "b6".to_string(),
+            namely_type!("Int")
+        )
     );
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
@@ -144,7 +142,7 @@ fn test_part7() {
         .get_ref("apply7")
         .unwrap();
 
-    let r = has_type!(namely_type!("Int"));
+    let r = has_type(namely_type!("Int"));
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
 }
@@ -157,7 +155,7 @@ fn test_part8() {
         .get_ref("apply8")
         .unwrap();
 
-    let r = has_type!(namely_type!("Int"));
+    let r = has_type(namely_type!("Int"));
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
 }
@@ -170,7 +168,7 @@ fn test_part9() {
         .get_ref("apply9")
         .unwrap();
 
-    let r = has_type!(namely_type!("Int"));
+    let r = has_type(namely_type!("Int"));
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
 }
@@ -183,7 +181,7 @@ fn test_part10() {
         .get_ref("apply10")
         .unwrap();
 
-    let r = has_type!(namely_type!("Int"));
+    let r = has_type(namely_type!("Int"));
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
 }
@@ -196,7 +194,7 @@ fn test_part11() {
         .get_ref("apply11")
         .unwrap();
 
-    let r = has_type!(namely_type!("Int"));
+    let r = has_type(namely_type!("Int"));
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
 }
@@ -209,9 +207,9 @@ fn test_part12() {
         .get_ref("apply12")
         .unwrap();
 
-    let r = require_constraint!(
+    let r = require_constraint(
         namely_type!("Int"),
-        single_constraint!(
+        EnvRefConstraint::single(
             "a12".to_string(),
             closure_type!(int_type!(), int_type!())
         )
@@ -228,9 +226,9 @@ fn test_part13() {
         .get_ref("apply13")
         .unwrap();
 
-    let r = require_constraint!(
+    let r = require_constraint(
         namely_type!("Int"),
-        single_constraint!(
+        EnvRefConstraint::single(
             "a13".to_string(),
             closure_type!(
                 int_type!(),
@@ -256,7 +254,7 @@ fn test_part14() {
         .get_ref("apply14")
         .unwrap();
 
-    let r = has_type!(closure_type!(int_type!(), int_type!()));
+    let r = has_type(closure_type!(int_type!(), int_type!()));
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
 }
