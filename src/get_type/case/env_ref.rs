@@ -1,16 +1,11 @@
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
+use crate::get_type::r#type::type_miss_match::TypeMissMatch;
 use crate::get_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
 use crate::infra::quad::Quad;
 use crate::unify::lift_or_left;
-use crate::{
-    has_type,
-    require_constraint,
-    require_info,
-    type_miss_match,
-    type_miss_match_info
-};
+use crate::{has_type, require_constraint, require_info};
 
 // TODO: 外部环境约束同层传播完备性
 pub fn case(
@@ -23,10 +18,11 @@ pub fn case(
         // 约束到确切类型, 尝试提升
         Quad::L(t) => match lift_or_left(type_env, &t, expect_type) {
             Some(expect_type) => has_type!(expect_type),
-            None => type_miss_match!(type_miss_match_info!(
-                t,
-                expect_type
-            ))
+            None => TypeMissMatch::of_type(
+                &t,
+                &expect_type.clone().unwrap()
+            )
+            .into()
         },
         // 提升并传播约束
         Quad::ML(rc) =>
@@ -38,10 +34,11 @@ pub fn case(
                     if rc.r#type.is_partial_type() {
                         require_info!(ref_name.to_string())
                     } else {
-                        type_miss_match!(type_miss_match_info!(
-                            rc.r#type,
-                            expect_type
-                        ))
+                        TypeMissMatch::of_type(
+                            &rc.r#type,
+                            &expect_type.clone().unwrap()
+                        )
+                        .into()
                     },
             },
         // 引用源类型信息不足或引用源类型不匹配

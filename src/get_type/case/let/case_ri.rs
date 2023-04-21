@@ -3,19 +3,14 @@ use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::get_type_with_hint;
 use crate::get_type::r#fn::with_constraint_lift_or_left;
 use crate::get_type::r#type::require_info::RequireInfo;
+use crate::get_type::r#type::type_miss_match::TypeMissMatch;
 use crate::get_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
 use crate::unify::lift_or_left;
-use crate::{
-    constraint_conflict_info,
-    empty_constraint,
-    require_info,
-    type_miss_match,
-    type_miss_match_info
-};
+use crate::{empty_constraint, require_info};
 
 pub fn case_ri(
     type_env: &TypeEnv,
@@ -52,10 +47,11 @@ pub fn case_ri(
             // 从而有点编译器教人写代码的感觉(哈哈哈Rust)
 
             // scope_expr_type 在提升时出现了类型不相容, 优先返回该错误
-            None => type_miss_match!(type_miss_match_info!(
-                scope_expr_type,
-                expect_type
-            )),
+            None => TypeMissMatch::of_type(
+                &scope_expr_type,
+                &expect_type.clone().unwrap()
+            )
+            .into(),
 
             // 由于 case_ri 分支仅当 assign 缺乏类型信息时才会进入
             // 因为 scope_expr 没有带来约束, 所以 assign 仍需类型信息
@@ -112,20 +108,21 @@ pub fn case_ri(
                         &rc.r#type,
                         expect_type
                     ),
-                    None =>
-                        type_miss_match!(constraint_conflict_info!(
-                            constraint_acc,
-                            rc.constraint
-                        )),
+                    None => TypeMissMatch::of_constraint(
+                        &constraint_acc,
+                        &rc.constraint
+                    )
+                    .into()
                 }
             } else {
                 // 约束不包含 assign, 关于此处实现的讨论可参见上方的 L 分支
                 match lift_or_left(type_env, &rc.r#type, expect_type)
                 {
-                    None => type_miss_match!(type_miss_match_info!(
-                        rc.r#type,
-                        expect_type
-                    )),
+                    None => TypeMissMatch::of_type(
+                        &rc.r#type,
+                        &expect_type.clone().unwrap()
+                    )
+                    .into(),
                     _ =>
                         if require_info.ref_name == "_" {
                             require_info!(assign_name.to_string())

@@ -10,8 +10,7 @@ use crate::parser::expr::r#type::Expr;
 use crate::{
     empty_constraint,
     extend_constraint_then_require,
-    require_constraint,
-    type_miss_match
+    require_constraint
 };
 
 pub fn case_ri(

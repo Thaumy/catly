@@ -9,13 +9,13 @@ use crate::get_type::case::closure::case_rc::case_rc;
 use crate::get_type::case::closure::case_t::case_t;
 use crate::get_type::get_type_with_hint;
 use crate::get_type::r#fn::destruct_namely_type;
+use crate::get_type::r#type::type_miss_match::TypeMissMatch;
 use crate::get_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::Type;
-use crate::type_miss_match;
 
 // TODO: 外部环境约束同层传播完备性
 pub fn case(
@@ -54,9 +54,9 @@ pub fn case(
                         None
                     ),
 
-                    _ => return type_miss_match!(format!("{expect_type:?} <> ClosureType/PartialClosureType"))
+                    _ => return TypeMissMatch::of(&format!("{expect_type:?} <> ClosureType/PartialClosureType")).into()
                 },
-                _ => return type_miss_match!(format!("{expect_type:?} not found in type env"))
+                _ => return TypeMissMatch::of(&format!("{expect_type:?} not found in type env")).into()
             },
         _ => (None, None)
     };

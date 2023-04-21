@@ -3,17 +3,18 @@ mod case_t_rc;
 
 use std::ops::Deref;
 
+use crate::empty_constraint;
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::case::apply::case_ri::case_ri;
 use crate::get_type::case::apply::case_t_rc::case_t_rc;
 use crate::get_type::get_type;
+use crate::get_type::r#type::type_miss_match::TypeMissMatch;
 use crate::get_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::Type;
-use crate::{empty_constraint, type_miss_match};
 
 // TODO: 外部环境约束同层传播完备性
 pub fn case(
@@ -47,9 +48,10 @@ pub fn case(
                 } else {
                     // lhs_expr_type must be ClosureType
                     // PartialClosureType is used for hint only
-                    return type_miss_match!(format!(
+                    return TypeMissMatch::of(&format!(
                         "{lhs_expr_type:?} <> ClosureType"
-                    ));
+                    ))
+                    .into();
                 };
 
             // TODO: 相似用例检查

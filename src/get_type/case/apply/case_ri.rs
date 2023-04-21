@@ -10,11 +10,9 @@ use crate::infra::r#box::Ext;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::Type;
 use crate::{
-    constraint_conflict_info,
     empty_constraint,
     extend_constraint_then_require,
-    require_constraint,
-    type_miss_match
+    require_constraint
 };
 
 pub fn case_ri(

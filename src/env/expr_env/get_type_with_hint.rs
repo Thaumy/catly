@@ -16,8 +16,7 @@ use crate::{
     has_type,
     require_constraint,
     require_info,
-    single_constraint,
-    type_miss_match
+    single_constraint
 };
 
 impl<'t> ExprEnv<'t> {
@@ -155,7 +154,7 @@ impl<'t> ExprEnv<'t> {
                                         ref_name.to_string(),
                                         rc.r#type.clone()
                                     ),
-                                    rc.constraint.clone()
+                                    rc.constraint
                                 ),
                             mr_r => mr_r
                         }

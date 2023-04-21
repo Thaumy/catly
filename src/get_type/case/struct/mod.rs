@@ -1,10 +1,12 @@
 mod r#fn;
 
+use crate::empty_constraint;
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::case::r#struct::r#fn::is_struct_vec_of_type_then_get_prod_vec;
 use crate::get_type::get_type;
 use crate::get_type::r#fn::with_constraint_lift_or_left;
+use crate::get_type::r#type::type_miss_match::TypeMissMatch;
 use crate::get_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
 use crate::infra::quad::Quad;
@@ -12,11 +14,6 @@ use crate::infra::result::AnyExt;
 use crate::infra::vec::Ext;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::Type;
-use crate::{
-    constraint_conflict_info,
-    empty_constraint,
-    type_miss_match
-};
 
 // TODO: 外部环境约束同层传播完备性
 pub fn case(
@@ -66,7 +63,7 @@ pub fn case(
             .collect()
     };
 
-    let mut constraint = empty_constraint!();
+    let mut constraint_acc = empty_constraint!();
 
     // 收集约束
     let vec = vec
@@ -76,16 +73,16 @@ pub fn case(
         })
         .map(|(n, x)| match x {
             Quad::L(t) => (n, t).ok(),
-            Quad::ML(rc) => match constraint
+            Quad::ML(rc) => match constraint_acc
                 .extend_new(rc.constraint.clone())
             {
                 Some(new_constraint) => {
-                    constraint = new_constraint;
+                    constraint_acc = new_constraint;
                     (n, rc.r#type).ok()
                 }
-                None => type_miss_match!(constraint_conflict_info!(
-                    constraint,
-                    rc.constraint
+                None => Quad::R(TypeMissMatch::of_constraint(
+                    &constraint_acc.clone(),
+                    &rc.constraint
                 ))
                 .err()
             },
@@ -103,7 +100,7 @@ pub fn case(
     };
 
     with_constraint_lift_or_left(
-        constraint,
+        constraint_acc,
         type_env,
         &prod_type,
         expect_type

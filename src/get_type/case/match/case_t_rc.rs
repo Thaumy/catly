@@ -6,6 +6,7 @@ use crate::get_type::case::r#match::r#fn::destruct_match_const_to_expr_env_injec
 use crate::get_type::get_type;
 use crate::get_type::r#fn::require_constraint_or_type;
 use crate::get_type::r#type::env_ref_constraint::EnvRefConstraint;
+use crate::get_type::r#type::type_miss_match::TypeMissMatch;
 use crate::get_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt as OptAnyExt;
@@ -16,13 +17,10 @@ use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::Type;
 use crate::unify::{can_lift, unify};
 use crate::{
-    constraint_conflict_info,
     empty_constraint,
     extend_constraint_then_require,
     has_type,
-    require_constraint,
-    type_miss_match,
-    type_miss_match_info
+    require_constraint
 };
 
 pub fn case_t_rc(
@@ -107,9 +105,10 @@ pub fn case_t_rc(
         .all(id)
         .not()
     {
-        return type_miss_match!(format!(
+        return TypeMissMatch::of(&format!(
             "Case types <> {target_expr_type:?}"
-        ));
+        ))
+        .into();
     }
 
     // 如果 expect_type 存在
@@ -135,9 +134,9 @@ pub fn case_t_rc(
                         ) {
                             None.ok()
                         } else {
-                            type_miss_match!(type_miss_match_info!(
-                                then_expr_type,
-                                expect_type
+                            Quad::R(TypeMissMatch::of_type(
+                                &then_expr_type,
+                                &expect_type
                             ))
                             .err()
                         },
@@ -148,9 +147,9 @@ pub fn case_t_rc(
                         {
                             rc.constraint.some().ok()
                         } else {
-                            type_miss_match!(type_miss_match_info!(
-                                rc.r#type,
-                                expect_type
+                            Quad::R(TypeMissMatch::of_type(
+                                &rc.r#type,
+                                &expect_type
                             ))
                             .err()
                         },
@@ -163,16 +162,16 @@ pub fn case_t_rc(
                     // 无约束
                     (Ok(acc), Ok(None)) => acc.ok(),
                     // 聚合约束
-                    (Ok(acc), Ok(Some(constraint))) =>
-                        match acc.extend_new(constraint.clone()) {
-                            Some(acc) => acc.ok(),
-                            None => type_miss_match!(
-                                constraint_conflict_info!(
-                                    acc, constraint
-                                )
-                            )
-                            .err()
-                        },
+                    (Ok(acc), Ok(Some(constraint))) => match acc
+                        .extend_new(constraint.clone())
+                    {
+                        Some(acc) => acc.ok(),
+                        None => Quad::R(TypeMissMatch::of_constraint(
+                            &acc,
+                            &constraint
+                        ))
+                        .err()
+                    },
                     (Ok(_), Err(e)) => Err(e),
                     (Err(e), _) => Err(e)
                 }
@@ -217,12 +216,10 @@ pub fn case_t_rc(
                             constraint_acc = constraint;
                             rc.r#type.ok()
                         }
-                        None => type_miss_match!(
-                            constraint_conflict_info!(
-                                constraint_acc,
-                                rc.constraint
-                            )
-                        )
+                        None => Quad::R(TypeMissMatch::of_constraint(
+                            &constraint_acc.clone(),
+                            &rc.constraint
+                        ))
                         .err()
                     },
                     mr_r => Err(mr_r)
@@ -231,10 +228,8 @@ pub fn case_t_rc(
             .reduce(|acc, t| match (acc, t) {
                 (Ok(acc), Ok(t)) => match unify(type_env, &acc, &t) {
                     Some(acc) => acc.ok(),
-                    None => type_miss_match!(type_miss_match_info!(
-                        acc, t
-                    ))
-                    .err()
+                    None => Quad::R(TypeMissMatch::of_type(&acc, &t))
+                        .err()
                 },
                 (Ok(_), Err(e)) => Err(e),
                 (Err(e), _) => Err(e)

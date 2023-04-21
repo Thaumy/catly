@@ -3,6 +3,7 @@ use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::get_type_with_hint;
 use crate::get_type::r#fn::with_constraint_lift_or_left;
 use crate::get_type::r#type::env_ref_constraint::EnvRefConstraint;
+use crate::get_type::r#type::type_miss_match::TypeMissMatch;
 use crate::get_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt;
@@ -10,11 +11,6 @@ use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::Type;
 use crate::unify::can_lift;
-use crate::{
-    constraint_conflict_info,
-    type_miss_match,
-    type_miss_match_info
-};
 
 pub fn case_t_rc(
     type_env: &TypeEnv,
@@ -45,10 +41,11 @@ pub fn case_t_rc(
                     expect_output_type
                 )
             } else {
-                type_miss_match!(type_miss_match_info!(
-                    rhs_expr_type,
-                    lhs_input_type
-                ))
+                TypeMissMatch::of_type(
+                    &rhs_expr_type,
+                    &lhs_input_type
+                )
+                .into()
             }
         }
         Quad::ML(rc) => {
@@ -64,15 +61,15 @@ pub fn case_t_rc(
                         expect_output_type
                     )
                 } else {
-                    type_miss_match!(constraint_conflict_info!(
-                        constraint_acc,
-                        rc.constraint
-                    ))
+                    TypeMissMatch::of_constraint(
+                        &constraint_acc,
+                        &rc.constraint
+                    )
+                    .into()
                 }
             } else {
-                type_miss_match!(type_miss_match_info!(
-                    rc.r#type, lhs_input_type
-                ))
+                TypeMissMatch::of_type(&rc.r#type, &lhs_input_type)
+                    .into()
             }
         }
         mr_r => mr_r

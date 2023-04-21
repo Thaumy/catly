@@ -6,19 +6,14 @@ use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::case::cond::case_ri::case_ri;
 use crate::get_type::case::cond::case_t_rc::case_t_rc;
 use crate::get_type::get_type_with_hint;
+use crate::get_type::r#type::type_miss_match::TypeMissMatch;
 use crate::get_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
 use crate::unify::can_lift;
-use crate::{
-    bool_type,
-    constraint_conflict_info,
-    empty_constraint,
-    type_miss_match,
-    type_miss_match_info
-};
+use crate::{bool_type, empty_constraint};
 
 // TODO: 外部环境约束同层传播完备性
 pub fn case(
@@ -42,19 +37,21 @@ pub fn case(
             if can_lift(type_env, &bool_expr_type, &bool_type!()) {
                 empty_constraint!()
             } else {
-                return type_miss_match!(type_miss_match_info!(
+                return TypeMissMatch::of_type(
                     bool_expr_type,
-                    bool_type!()
-                ));
+                    &bool_type!()
+                )
+                .into();
             },
         Quad::ML(rc) =>
             if can_lift(type_env, &rc.r#type, &bool_type!()) {
                 rc.constraint.clone()
             } else {
-                return type_miss_match!(type_miss_match_info!(
-                    rc.r#type,
-                    bool_type!()
-                ));
+                return TypeMissMatch::of_type(
+                    &rc.r#type,
+                    &bool_type!()
+                )
+                .into();
             },
         // 需要类型信息或者类型不匹配, 由于 Cond 没有环境注入, 不应处理这些情况
         mr_r => return mr_r.clone()
@@ -83,12 +80,10 @@ pub fn case(
                     {
                         Some(constraint) => (rc.r#type, constraint),
                         None =>
-                            return type_miss_match!(
-                                constraint_conflict_info!(
-                                    constraint_acc,
-                                    rc.constraint
-                                )
-                            ),
+                            return TypeMissMatch::of_constraint(
+                                &constraint_acc,
+                                &rc.constraint
+                            ).into()
                     },
                     _ => panic!(
                         "Impossible then_expr_type: {then_expr_type:?}"

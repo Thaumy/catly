@@ -1,13 +1,14 @@
 use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::r#fn::destruct_namely_type;
+use crate::get_type::r#type::type_miss_match::TypeMissMatch;
 use crate::get_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt as OptAnyExt;
+use crate::infra::quad::Quad;
 use crate::infra::r#fn::id;
 use crate::infra::result::AnyExt as ResAnyExt;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::Type;
-use crate::type_miss_match;
 use crate::unify::can_lift;
 
 type StructVec = Vec<(String, MaybeType, Expr)>;
@@ -60,20 +61,21 @@ pub fn is_struct_vec_of_type_then_get_prod_vec(
                     })
                     .find(|x| matches!(x, Ok(Some(..))))
                     .unwrap_or(
-                        type_miss_match!(format!(
-                            "{expect_type:?} <> type of Struct{struct_vec:?}"
-                        ))
+                        Quad::R(TypeMissMatch::of(
+                                &format!(
+                                    "{expect_type:?} <> type of Struct{struct_vec:?}"
+                              )))
                         .err()
                     ),
 
-                Some(t) => type_miss_match!(format!(
+                Some(t) => Quad::R(TypeMissMatch::of(&format!(
                     "{t:?} <> type of Struct{struct_vec:?}"
-                ))
+                )))
                 .err(),
 
-                None => type_miss_match!(format!(
+                None => Quad::R(TypeMissMatch::of(&format!(
                     "{expect_type:?} not found in type env"
-                ))
+                )))
                 .err()
             },
         None => None.ok()

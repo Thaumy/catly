@@ -6,6 +6,7 @@ use crate::get_type::r#fn::{
     with_constraint_lift_or_left
 };
 use crate::get_type::r#type::env_ref_constraint::EnvRefConstraint;
+use crate::get_type::r#type::type_miss_match::TypeMissMatch;
 use crate::get_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt;
@@ -13,7 +14,6 @@ use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::Type;
 use crate::unify::lift_or_left;
-use crate::{type_miss_match, type_miss_match_info};
 
 pub fn case_t_rc(
     type_env: &TypeEnv,
@@ -33,10 +33,11 @@ pub fn case_t_rc(
         assign_type
     ) {
         None =>
-            return type_miss_match!(type_miss_match_info!(
-                assign_expr_type,
-                assign_type
-            )),
+            return TypeMissMatch::of_type(
+                &assign_expr_type,
+                &assign_type.clone().unwrap()
+            )
+            .into(),
         Some(t) => t
     };
 
@@ -62,24 +63,26 @@ pub fn case_t_rc(
             expect_type
         ) {
             Some(t) => require_constraint_or_type(constraint_acc, t),
-            None => type_miss_match!(type_miss_match_info!(
-                scope_expr_type,
-                expect_type
-            ))
+            None => TypeMissMatch::of_type(
+                &scope_expr_type,
+                &expect_type.clone().unwrap()
+            )
+            .into()
         },
         // 由于 assign_type 存在, 所以此处的约束作用于外层环境, 传播之
         Quad::ML(rc) =>
-            match constraint_acc.extend_new(rc.constraint) {
+            match constraint_acc.extend_new(rc.constraint.clone()) {
                 Some(constraint) => with_constraint_lift_or_left(
                     constraint,
                     type_env,
                     &rc.r#type,
                     expect_type
                 ),
-                None => type_miss_match!(type_miss_match_info!(
-                    rc.r#type,
-                    expect_type
-                ))
+                None => TypeMissMatch::of_constraint(
+                    &constraint_acc,
+                    &rc.constraint
+                )
+                .into()
             },
         // 由于 scope_expr 已被 hint, 且环境已被尽力注入, 所以无法处理这些错误
         mr_r => mr_r

@@ -2,6 +2,7 @@ use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::case::r#match::r#fn::destruct_match_const_to_expr_env_inject;
 use crate::get_type::r#type::require_info::RequireInfo;
+use crate::get_type::r#type::type_miss_match::TypeMissMatch;
 use crate::get_type::r#type::GetTypeReturn;
 use crate::get_type::{get_type, get_type_with_hint};
 use crate::infra::alias::MaybeType;
@@ -12,7 +13,6 @@ use crate::infra::r#fn::id;
 use crate::infra::result::AnyExt as ResAnyExt;
 use crate::parser::expr::r#type::Expr;
 use crate::unify::unify;
-use crate::{type_miss_match, type_miss_match_info};
 
 pub fn case_ri(
     type_env: &TypeEnv,
@@ -87,9 +87,9 @@ pub fn case_ri(
                         // 对于之后的每一个类型, 让它和之前 acc 类型合一
                         Some(acc) => match unify(type_env, &acc, &t) {
                             Some(new_acc) => new_acc.some().ok(),
-                            None => type_miss_match!(
-                                type_miss_match_info!(acc, t)
-                            )
+                            None => Quad::R(TypeMissMatch::of_type(
+                                &acc, &t
+                            ))
                             .err()
                         }
                     }

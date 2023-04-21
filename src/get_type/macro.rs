@@ -19,23 +19,16 @@ macro_rules! require_constraint {
 }
 
 #[macro_export]
-macro_rules! constraint_conflict_info {
-    ($l_c:expr, $r_c:expr) => {{
-        format!("Constraint conflict: {:?} <> {:?}", $l_c, $r_c)
-    }};
-}
-
-#[macro_export]
 macro_rules! extend_constraint_then_require {
     ($t:expr, $l_c:expr, $r_c:expr) => {{
-        use crate::constraint_conflict_info;
+        use crate::get_type::r#type::type_miss_match::TypeMissMatch;
         use crate::require_constraint;
-        use crate::type_miss_match;
-        match $l_c.extend_new($r_c) {
+        match $l_c
+            .clone()
+            .extend_new($r_c.clone())
+        {
             Some(constraint) => require_constraint!($t, constraint),
-            None => type_miss_match!(constraint_conflict_info!(
-                $l_c, $r_c
-            ))
+            None => TypeMissMatch::of_constraint(&$l_c, &$r_c).into()
         }
     }};
 }
@@ -48,22 +41,6 @@ macro_rules! require_info {
         Quad::MR(RequireInfo {
             ref_name: $ref_name
         })
-    }};
-}
-
-#[macro_export]
-macro_rules! type_miss_match_info {
-    ($l_t:expr, $r_t:expr) => {{
-        format!("{:?} <> {:?}", $l_t, $r_t)
-    }};
-}
-
-#[macro_export]
-macro_rules! type_miss_match {
-    ($info:expr) => {{
-        use crate::get_type::r#type::type_miss_match::TypeMissMatch;
-        use crate::infra::quad::Quad;
-        Quad::R(TypeMissMatch { info: $info })
     }};
 }
 
