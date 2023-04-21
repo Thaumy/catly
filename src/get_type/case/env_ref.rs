@@ -1,11 +1,12 @@
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
+use crate::get_type::r#type::require_info::RequireInfo;
 use crate::get_type::r#type::type_miss_match::TypeMissMatch;
 use crate::get_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
 use crate::infra::quad::Quad;
 use crate::unify::lift_or_left;
-use crate::{has_type, require_constraint, require_info};
+use crate::{has_type, require_constraint};
 
 // TODO: 外部环境约束同层传播完备性
 pub fn case(
@@ -32,7 +33,7 @@ pub fn case(
                 // TODO: 在所有类似的地方都应用这种检查
                 None =>
                     if rc.r#type.is_partial_type() {
-                        require_info!(ref_name.to_string())
+                        RequireInfo::of(ref_name).into()
                     } else {
                         TypeMissMatch::of_type(
                             &rc.r#type,

@@ -1,11 +1,12 @@
 use crate::env::r#type::type_env::TypeEnv;
+use crate::get_type::r#type::require_info::RequireInfo;
 use crate::get_type::r#type::type_miss_match::TypeMissMatch;
 use crate::get_type::r#type::GetTypeReturn;
+use crate::has_type;
 use crate::infra::alias::MaybeType;
 use crate::infra::r#box::Ext;
 use crate::parser::r#type::r#type::Type;
 use crate::unify::lift_or_left;
-use crate::{has_type, require_info};
 
 pub fn case_t(
     type_env: &TypeEnv,
@@ -25,8 +26,8 @@ pub fn case_t(
         None =>
             return match input_name {
                 Some(input_name) =>
-                    require_info!(input_name.to_string()),
-                None => require_info!("_ (closure input)".to_string())
+                    RequireInfo::of(input_name).into(),
+                None => RequireInfo::of("_ (closure input)").into()
             },
     };
 

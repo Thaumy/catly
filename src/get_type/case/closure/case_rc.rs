@@ -1,11 +1,11 @@
 use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::r#fn::with_constraint_lift_or_left;
 use crate::get_type::r#type::require_constraint::RequireConstraint;
+use crate::get_type::r#type::require_info::RequireInfo;
 use crate::get_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
 use crate::infra::r#box::Ext;
 use crate::parser::r#type::r#type::Type;
-use crate::require_info;
 
 pub fn case_rc(
     type_env: &TypeEnv,
@@ -54,12 +54,12 @@ pub fn case_rc(
                     (base, left_constraint)
                 } else {
                     // 约束不包含输入, 缺乏推导出输入类型的信息
-                    return require_info!(input_name.to_string());
+                    return RequireInfo::of(input_name).into();
                 }
             }
         },
         // 输入被弃元, 说明 output_expr_type 产生的约束全部作用于外层环境
-        None => return require_info!("_ (closure input)".to_string())
+        None => return RequireInfo::of("_ (closure input)").into()
     };
 
     with_constraint_lift_or_left(

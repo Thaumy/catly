@@ -34,17 +34,6 @@ macro_rules! extend_constraint_then_require {
 }
 
 #[macro_export]
-macro_rules! require_info {
-    ($ref_name:expr) => {{
-        use crate::get_type::r#type::require_info::RequireInfo;
-        use crate::infra::quad::Quad;
-        Quad::MR(RequireInfo {
-            ref_name: $ref_name
-        })
-    }};
-}
-
-#[macro_export]
 macro_rules! type_miss_match_pat {
     () => {
         crate::get_type::r#type::type_miss_match::TypeMissMatch { .. }

@@ -1,6 +1,7 @@
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::get_type;
+use crate::get_type::r#type::require_info::RequireInfo;
 use crate::get_type::test::parse_env;
 use crate::{
     closure_type,
@@ -8,7 +9,6 @@ use crate::{
     int_type,
     namely_type,
     require_constraint,
-    require_info,
     single_constraint,
     unit_type
 };
@@ -53,7 +53,7 @@ fn test_part1() {
     let expr = expr_env
         .get_ref("f1")
         .unwrap();
-    let r = require_info!("a".to_string());
+    let r = RequireInfo::of("a").into();
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
 }
@@ -191,7 +191,7 @@ fn test_part11() {
     let expr = expr_env
         .get_ref("f11")
         .unwrap();
-    let r = require_info!("a".to_string());
+    let r = RequireInfo::of("a").into();
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
 }
@@ -203,7 +203,7 @@ fn test_part12() {
     let expr = expr_env
         .get_ref("f12")
         .unwrap();
-    let r = require_info!("_ (closure input)".to_string());
+    let r = RequireInfo::of("_ (closure input)").into();
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
 }
@@ -215,7 +215,7 @@ fn test_part13() {
     let expr = expr_env
         .get_ref("f13")
         .unwrap();
-    let r = require_info!("_ (closure input)".to_string());
+    let r = RequireInfo::of("_ (closure input)").into();
 
     assert_eq!(get_type(&type_env, &expr_env, &expr), r)
 }

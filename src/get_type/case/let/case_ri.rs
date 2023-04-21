@@ -1,3 +1,4 @@
+use crate::empty_constraint;
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::get_type_with_hint;
@@ -10,7 +11,6 @@ use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
 use crate::unify::lift_or_left;
-use crate::{empty_constraint, require_info};
 
 pub fn case_ri(
     type_env: &TypeEnv,
@@ -58,7 +58,7 @@ pub fn case_ri(
             // 改写或返回原错误, 改写是为了让无类型弃元错误正确地附加到 assign_name 上, 而不是被其他层级捕获
             _ =>
                 if require_info.ref_name == "_" {
-                    require_info!(assign_name.to_string())
+                    RequireInfo::of(assign_name).into()
                 } else {
                     Quad::MR(require_info)
                 },
@@ -125,7 +125,7 @@ pub fn case_ri(
                     .into(),
                     _ =>
                         if require_info.ref_name == "_" {
-                            require_info!(assign_name.to_string())
+                            RequireInfo::of(assign_name).into()
                         } else {
                             Quad::MR(require_info)
                         },

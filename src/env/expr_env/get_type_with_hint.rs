@@ -6,6 +6,7 @@ use crate::get_type::r#fn::{
     require_constraint_or_type,
     with_constraint_lift_or_miss_match
 };
+use crate::get_type::r#type::require_info::RequireInfo;
 use crate::get_type::r#type::GetTypeReturn;
 use crate::get_type::{get_type, get_type_with_hint};
 use crate::infra::alias::MaybeType;
@@ -15,7 +16,6 @@ use crate::{
     extend_constraint_then_require,
     has_type,
     require_constraint,
-    require_info,
     single_constraint
 };
 
@@ -56,7 +56,9 @@ impl<'t> ExprEnv<'t> {
                             )
                         ),
                         // 缺乏推导信息
-                        None => require_info!(ref_name.to_string())
+                        None =>
+                            RequireInfo::of(ref_name).into():
+                                GetTypeReturn,
                     }
                 }
             },
@@ -100,7 +102,7 @@ impl<'t> ExprEnv<'t> {
                                     )
                                 ),
                             // 不具备 hint, 为了防止无类型弃元信息被捕获, 改写错误信息
-                            None => require_info!(ref_name.to_string())
+                            None => RequireInfo::of(ref_name).into()
                         },
                         // 无法处理其他情况
                         mr_r => mr_r
@@ -126,7 +128,7 @@ impl<'t> ExprEnv<'t> {
                                     )
                                 ),
                             // 不具备 hint, 为了防止无类型弃元信息被捕获, 改写错误信息
-                            None => require_info!(ref_name.to_string())
+                            None =>RequireInfo::of(ref_name).into()
                         },
                         // 缺乏约束信息且引用源无类型标注, 此时应使用 hint, 并对 ref_name 产生到 hint 的约束
                         Quad::MR(_) if let Some(hint) = hint && src_expr.is_no_type_annot()
@@ -174,7 +176,7 @@ impl<'t> ExprEnv<'t> {
                     )
                 ),
                 // 缺乏推导信息
-                None => require_info!(ref_name.to_string())
+                None => RequireInfo::of(ref_name).into()
             }
         }
     }
