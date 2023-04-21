@@ -17,6 +17,7 @@ use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::Type;
 use crate::type_miss_match;
 
+// TODO: 外部环境约束同层传播完备性
 pub fn case(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,

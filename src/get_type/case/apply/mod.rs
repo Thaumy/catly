@@ -1,7 +1,8 @@
 mod case_ri;
 mod case_t_rc;
 
-use crate::empty_constraint;
+use std::ops::Deref;
+
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::case::apply::case_ri::case_ri;
@@ -11,7 +12,10 @@ use crate::get_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
+use crate::parser::r#type::r#type::Type;
+use crate::{empty_constraint, type_miss_match};
 
+// TODO: 外部环境约束同层传播完备性
 pub fn case(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
@@ -32,10 +36,32 @@ pub fn case(
                 )
             };
 
+            let (lhs_input_type, lhs_output_type) =
+                if let Type::ClosureType(input_type, output_type) =
+                    lhs_expr_type
+                {
+                    (
+                        input_type.deref().clone(),
+                        output_type.deref().clone()
+                    )
+                } else {
+                    // lhs_expr_type must be ClosureType
+                    // PartialClosureType is used for hint only
+                    return type_miss_match!(format!(
+                        "{lhs_expr_type:?} <> ClosureType"
+                    ));
+                };
+
+            // TODO: 相似用例检查
+            // 注入获得 lhs_expr_type 时得到的约束到环境, 这些约束可能对取得 rhs_expr_type 有所帮助
+            let new_expr_env = &expr_env
+                .extend_constraint_new(constraint_acc.clone());
+
             case_t_rc(
                 type_env,
-                expr_env,
-                lhs_expr_type,
+                new_expr_env,
+                lhs_input_type,
+                lhs_output_type,
                 constraint_acc,
                 expect_type,
                 rhs_expr

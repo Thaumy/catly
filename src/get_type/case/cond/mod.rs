@@ -12,8 +12,15 @@ use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
 use crate::unify::can_lift;
-use crate::{bool_type, empty_constraint, type_miss_match};
+use crate::{
+    bool_type,
+    constraint_conflict_info,
+    empty_constraint,
+    type_miss_match,
+    type_miss_match_info
+};
 
+// TODO: 外部环境约束同层传播完备性
 pub fn case(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
@@ -35,8 +42,8 @@ pub fn case(
             if can_lift(type_env, &bool_expr_type, &bool_type!()) {
                 empty_constraint!()
             } else {
-                return type_miss_match!(format!(
-                    "{bool_expr_type:?} <> {:?}",
+                return type_miss_match!(type_miss_match_info!(
+                    bool_expr_type,
                     bool_type!()
                 ));
             },
@@ -44,8 +51,7 @@ pub fn case(
             if can_lift(type_env, &rc.r#type, &bool_type!()) {
                 rc.constraint.clone()
             } else {
-                return type_miss_match!(format!(
-                    "{:?} <> {:?}",
+                return type_miss_match!(type_miss_match_info!(
                     rc.r#type,
                     bool_type!()
                 ));
@@ -53,6 +59,11 @@ pub fn case(
         // 需要类型信息或者类型不匹配, 由于 Cond 没有环境注入, 不应处理这些情况
         mr_r => return mr_r.clone()
     };
+
+    // TODO: 相似用例检查
+    // 由于求 bool_expr_type 产生的约束可能对接下来有帮助, 所以需要注入到环境
+    let expr_env =
+        &expr_env.extend_constraint_new(constraint_acc.clone());
 
     let then_expr_type = get_type_with_hint(
         type_env,
@@ -63,23 +74,31 @@ pub fn case(
 
     match then_expr_type {
         Quad::L(_) | Quad::ML(_) => {
-            let (then_expr_type, constraint_acc) = match then_expr_type {
-                Quad::L(then_expr_type) =>
-                    (then_expr_type, constraint_acc),
-                Quad::ML(rc) => match constraint_acc
-                    .extend_new(rc.constraint.clone())
-                {
-                    Some(constraint) => (rc.r#type, constraint),
-                    None =>
-                        return type_miss_match!(format!(
-                        "Constraint conflict: {constraint_acc:?} <> {:?}",
-                        rc.constraint
-                    )),
-                },
-                _ => panic!(
-                    "Impossible then_expr_type: {then_expr_type:?}"
-                )
-            };
+            let (then_expr_type, constraint_acc) =
+                match then_expr_type {
+                    Quad::L(then_expr_type) =>
+                        (then_expr_type, constraint_acc),
+                    Quad::ML(rc) => match constraint_acc
+                        .extend_new(rc.constraint.clone())
+                    {
+                        Some(constraint) => (rc.r#type, constraint),
+                        None =>
+                            return type_miss_match!(
+                                constraint_conflict_info!(
+                                    constraint_acc,
+                                    rc.constraint
+                                )
+                            ),
+                    },
+                    _ => panic!(
+                        "Impossible then_expr_type: {then_expr_type:?}"
+                    )
+                };
+
+            // TODO: 相似用例检查
+            // 与上同理
+            let expr_env = &expr_env
+                .extend_constraint_new(constraint_acc.clone());
 
             case_t_rc(
                 type_env,
@@ -95,12 +114,7 @@ pub fn case(
             if then_expr.is_no_type_annot() &&
                 expect_type.is_none() =>
             case_ri(
-                type_env,
-                expr_env,
-                expect_type,
-                bool_expr,
-                else_expr,
-                then_expr
+                type_env, expr_env, bool_expr, else_expr, then_expr
             ),
 
         mr_r => mr_r

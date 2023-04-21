@@ -30,7 +30,7 @@ pub fn get_type(
 ) -> GetTypeReturn {
     println!("{:8}{:>10} │ {expr:?}", "[infer]", "TypeOf");
 
-    let r = match expr {
+    let result = match expr {
         Expr::Int(expect_type, _) => {
             use case::int::case;
             case(type_env, expect_type)
@@ -114,7 +114,7 @@ pub fn get_type(
         }
     };
 
-    match r.clone() {
+    match result.clone() {
         Quad::L(x) => println!(
             "{:8}{:>10} │ {x:?} of {expr:?}",
             "[infer]", "Inferred"
@@ -133,5 +133,5 @@ pub fn get_type(
         )
     };
 
-    r
+    result
 }

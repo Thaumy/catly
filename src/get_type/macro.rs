@@ -30,6 +30,7 @@ macro_rules! extend_constraint_then_require {
     ($t:expr, $l_c:expr, $r_c:expr) => {{
         use crate::constraint_conflict_info;
         use crate::require_constraint;
+        use crate::type_miss_match;
         match $l_c.extend_new($r_c) {
             Some(constraint) => require_constraint!($t, constraint),
             None => type_miss_match!(constraint_conflict_info!(

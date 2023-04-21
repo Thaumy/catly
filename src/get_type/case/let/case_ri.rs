@@ -2,13 +2,20 @@ use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::get_type_with_hint;
 use crate::get_type::r#fn::with_constraint_lift_or_left;
-use crate::get_type::r#type::{GetTypeReturn, RequireInfo};
+use crate::get_type::r#type::require_info::RequireInfo;
+use crate::get_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
 use crate::unify::lift_or_left;
-use crate::{empty_constraint, require_info, type_miss_match};
+use crate::{
+    constraint_conflict_info,
+    empty_constraint,
+    require_info,
+    type_miss_match,
+    type_miss_match_info
+};
 
 pub fn case_ri(
     type_env: &TypeEnv,
@@ -45,13 +52,14 @@ pub fn case_ri(
             // 从而有点编译器教人写代码的感觉(哈哈哈Rust)
 
             // scope_expr_type 在提升时出现了类型不相容, 优先返回该错误
-            None => type_miss_match!(format!(
-                "{scope_expr_type:?} <> {expect_type:?}"
+            None => type_miss_match!(type_miss_match_info!(
+                scope_expr_type,
+                expect_type
             )),
 
             // 由于 case_ri 分支仅当 assign 缺乏类型信息时才会进入
             // 因为 scope_expr 没有带来约束, 所以 assign 仍需类型信息
-            // 改写或返回原错误, 改写是为了让无类型弃元错误正确的附加到 assign_name 上, 而不是被其他层级捕获
+            // 改写或返回原错误, 改写是为了让无类型弃元错误正确地附加到 assign_name 上, 而不是被其他层级捕获
             _ =>
                 if require_info.ref_name == "_" {
                     require_info!(assign_name.to_string())
@@ -66,7 +74,7 @@ pub fn case_ri(
                 .find(assign_name);
 
             // 如果约束包含了 assign
-            let constraint = if let Some(assign_type_constraint) =
+            if let Some(assign_type_constraint) =
                 assign_type_constraint
             {
                 // 获取确保限定成立的外层环境约束
@@ -74,7 +82,8 @@ pub fn case_ri(
                 // 以旁路提供的 assign_type_constraint 为提示获取 assign_expr 的类型
                 // 由于限定 assign_expr 为 assign_type_constraint 可能对外层环境产生约束
                 // 需将这些约束传播以确保限定成立
-                let outer_constraint = match get_type_with_hint(
+                // TODO: 类似用例检查
+                let constraint_acc = match get_type_with_hint(
                     type_env,
                     expr_env,
                     assign_expr,
@@ -91,25 +100,31 @@ pub fn case_ri(
                     mr_r => return mr_r
                 };
 
-                // 将对 assign 的约束过滤掉, 并拼接起确保限定成立的外层约束作为最终约束
-                match rc
-                    .constraint
-                    .filter_new(|(n, _)| n != assign_name)
-                    .extend_new(outer_constraint.clone())
+                match constraint_acc.extend_new(rc.constraint.clone())
                 {
-                    Some(constraint) => constraint,
-                    None => return type_miss_match!(format!("Constraint conflict: {:?} <> {outer_constraint:?}", rc.constraint))
+                    Some(constraint) => with_constraint_lift_or_left(
+                        // 将对 assign 的约束过滤掉, 并拼接起确保限定成立的外层约束作为最终约束
+                        // 因为 assign_expr 和 scope_expr 都有可能产生对 assign_name 的约束
+                        // 所以过滤要在最后进行
+                        constraint
+                            .filter_new(|(n, _)| n != assign_name),
+                        type_env,
+                        &rc.r#type,
+                        expect_type
+                    ),
+                    None =>
+                        type_miss_match!(constraint_conflict_info!(
+                            constraint_acc,
+                            rc.constraint
+                        )),
                 }
             } else {
                 // 约束不包含 assign, 关于此处实现的讨论可参见上方的 L 分支
-                return match lift_or_left(
-                    type_env,
-                    &rc.r#type,
-                    expect_type
-                ) {
-                    None => type_miss_match!(format!(
-                        "{:?} <> {expect_type:?}",
-                        rc.r#type
+                match lift_or_left(type_env, &rc.r#type, expect_type)
+                {
+                    None => type_miss_match!(type_miss_match_info!(
+                        rc.r#type,
+                        expect_type
                     )),
                     _ =>
                         if require_info.ref_name == "_" {
@@ -117,15 +132,8 @@ pub fn case_ri(
                         } else {
                             Quad::MR(require_info)
                         },
-                };
-            };
-
-            with_constraint_lift_or_left(
-                constraint,
-                type_env,
-                &rc.r#type,
-                expect_type
-            )
+                }
+            }
         }
         // 旁路类型推导失败
         mr_r => mr_r

@@ -12,6 +12,7 @@ use crate::infra::alias::MaybeType;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
 
+// TODO: 外部环境约束同层传播完备性
 pub fn case(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
@@ -37,14 +38,21 @@ pub fn case(
         Quad::L(_) | Quad::ML(_) => {
             let (assign_expr_type, constraint_acc) = match assign_expr_type {
                 Quad::L(t) => (t, empty_constraint!()),
-                // 需传播额外携带的约束
-                Quad::ML(rc) => (rc.r#type, rc.constraint),
+                // 需要收集这些作用于外层环境的约束并传播, 因为它们可能对推导 scope_expr_type 有所帮助
+                Quad::ML(rc) => (
+                    rc.r#type,
+                    // 过滤掉对 assign_name 的约束
+                    rc.constraint.filter_new(|(n, _)| n != assign_name)
+                ),
                 _ => panic!("Impossible assign_expr_type: {assign_type:?}")
             };
 
+            let new_expr_env = expr_env
+                .extend_constraint_new(constraint_acc.clone());
+
             case_t_rc(
                 type_env,
-                &expr_env,
+                &new_expr_env,
                 assign_expr_type,
                 constraint_acc,
                 expect_type,

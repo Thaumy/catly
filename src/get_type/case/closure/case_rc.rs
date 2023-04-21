@@ -1,6 +1,7 @@
 use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::r#fn::with_constraint_lift_or_left;
-use crate::get_type::r#type::{GetTypeReturn, RequireConstraint};
+use crate::get_type::r#type::require_constraint::RequireConstraint;
+use crate::get_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
 use crate::infra::r#box::Ext;
 use crate::parser::r#type::r#type::Type;
