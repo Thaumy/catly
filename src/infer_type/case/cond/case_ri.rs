@@ -1,8 +1,7 @@
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
-use crate::infer_type::r#fn::require_constraint_or_type;
 use crate::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
-use crate::infer_type::r#type::require_constraint::require_extended_constraint;
+use crate::infer_type::r#type::require_constraint::require_constraint;
 use crate::infer_type::r#type::GetTypeReturn;
 use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
@@ -35,12 +34,8 @@ pub fn case_ri(
         expr_env.extend_constraint_new(constraint_acc.clone());
 
     match cond_expr.infer_type(type_env, &new_expr_env) {
-        Quad::L(t) => require_constraint_or_type(constraint_acc, t),
-        Quad::ML(rc) => require_extended_constraint(
-            rc.r#type,
-            constraint_acc,
-            rc.constraint.clone()
-        ),
+        Quad::L(t) => require_constraint(t, constraint_acc),
+        Quad::ML(rc) => rc.with_constraint_acc(constraint_acc),
         mr_r => mr_r
     }
 }

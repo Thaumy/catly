@@ -90,8 +90,7 @@ pub fn case_ri(
                         // 将对 assign 的约束过滤掉, 并拼接起确保限定成立的外层约束作为最终约束
                         // 因为 assign_expr 和 scope_expr 都有可能产生对 assign_name 的约束
                         // 所以过滤要在最后进行
-                        constraint
-                            .filter_new(|(n, _)| n != assign_name),
+                        constraint.exclude_new(assign_name),
                         type_env,
                         &rc.r#type,
                         expect_type

@@ -1,10 +1,8 @@
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
-use crate::infer_type::r#fn::{
-    require_constraint_or_type,
-    with_constraint_lift_or_left
-};
+use crate::infer_type::r#fn::with_constraint_lift_or_left;
 use crate::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
+use crate::infer_type::r#type::require_constraint::require_constraint;
 use crate::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infer_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
@@ -53,7 +51,7 @@ pub fn case_t_rc(
         Quad::L(scope_expr_type) => match scope_expr_type
             .lift_to_or_left(type_env, expect_type)
         {
-            Some(t) => require_constraint_or_type(constraint_acc, t),
+            Some(t) => require_constraint(t, constraint_acc),
             None => TypeMissMatch::of_type(
                 &scope_expr_type,
                 &expect_type.clone().unwrap()

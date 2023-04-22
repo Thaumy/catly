@@ -4,14 +4,10 @@ use crate::env::r#type::type_constraint::TypeConstraint;
 use crate::infer_type::r#fn::{
     has_type,
     lift_or_miss_match,
-    require_constraint_or_type,
     with_constraint_lift_or_miss_match
 };
 use crate::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
-use crate::infer_type::r#type::require_constraint::{
-    require_constraint,
-    require_extended_constraint
-};
+use crate::infer_type::r#type::require_constraint::require_constraint;
 use crate::infer_type::r#type::require_info::RequireInfo;
 use crate::infer_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
@@ -44,20 +40,10 @@ impl<'t> ExprEnv<'t> {
                             hint.clone()
                         )
                     ),
-                    None => match hint {
-                        // 环境约束缺失, 但可以通过建立约束修复
-                        Some(hint) => require_constraint(
-                            hint.clone(),
-                            EnvRefConstraint::single(
-                                ref_name.to_string(),
-                                hint.clone()
-                            )
-                        ),
-                        // 缺乏推导信息
-                        None =>
-                            RequireInfo::of(ref_name).into():
-                                GetTypeReturn,
-                    }
+                    // 缺乏推导信息
+                    None =>
+                        RequireInfo::of(ref_name).into():
+                            GetTypeReturn,
                 }
             },
 
@@ -112,9 +98,9 @@ impl<'t> ExprEnv<'t> {
                         // 由于 ref_name 是 Free 的, 所以此时约束可能作用于 ref_name 本身
                         // 此时作用于 ref_name 的约束相当于 ref_name 的固有类型, 只需将其他约束按需传播
                         // 如果引用源是无类型弃元
-                        Quad::ML(rc) => require_constraint_or_type(
-                            rc.constraint.filter_new(|(n, _)| n != ref_name),
+                        Quad::ML(rc) => require_constraint(
                             rc.r#type,
+                            rc.constraint.exclude_new(ref_name),
                         ),
                         Quad::MR(ri) if ri.ref_name == "_" => match hint {
                             // 具备 hint, 可以将引用名约束到 hint, 传播该约束
@@ -132,9 +118,9 @@ impl<'t> ExprEnv<'t> {
                         Quad::MR(_) if let Some(hint) = hint && src_expr.is_no_type_annot()
                         => match src_expr.with_fallback_type(hint)
                             .infer_type(
-                            &self.type_env,
-                            self,
-                        ) {
+                                &self.type_env,
+                                self,
+                            ) {
                             // 因为此时无类型标注, 所以得到的类型一定是 hint 或更完整的 hint
                             // 将 ref_name 约束到类型结果 t 不会导致约束类型不一致
                             // 因为 t 要么比 hint 更加完整, 要么等于 hint
@@ -147,13 +133,11 @@ impl<'t> ExprEnv<'t> {
                             ),
                             // TODO: bad fmt
                             Quad::ML(rc) =>
-                                require_extended_constraint(
-                                    rc.r#type.clone(),
+                                rc.with_constraint_acc(
                                     EnvRefConstraint::single(
                                         ref_name.to_string(),
-                                        rc.r#type,
+                                        rc.r#type.clone(),
                                     ),
-                                    rc.constraint,
                                 ),
                             mr_r => mr_r
                         }

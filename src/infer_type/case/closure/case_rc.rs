@@ -42,7 +42,7 @@ pub fn case_rc(
                     // 将剩余约束过滤出来
                     let left_constraint = rc
                         .constraint
-                        .filter_new(|(n, _)| n != input_name);
+                        .exclude_new(input_name);
 
                     let base = Type::ClosureType(
                         input_type_constraint

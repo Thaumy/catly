@@ -16,8 +16,7 @@ pub fn with_constraint_lift_or_left(
 ) -> GetTypeReturn {
     match base.lift_to_or_left(type_env, derive) {
         // 按需传播
-        Some(r#type) =>
-            require_constraint_or_type(constraint, r#type),
+        Some(r#type) => require_constraint(r#type, constraint),
         None => TypeMissMatch::of_type(base, &derive.clone().unwrap())
             .into()
     }
@@ -41,20 +40,8 @@ pub fn with_constraint_lift_or_miss_match(
     to: &Type
 ) -> GetTypeReturn {
     match from.lift_to(type_env, to) {
-        Some(r#type) =>
-            require_constraint_or_type(constraint, r#type),
+        Some(r#type) => require_constraint(r#type, constraint),
         None => TypeMissMatch::of_type(from, to).into()
-    }
-}
-
-pub fn require_constraint_or_type(
-    constraint: EnvRefConstraint,
-    r#type: Type
-) -> GetTypeReturn {
-    if constraint.is_empty() {
-        has_type(r#type)
-    } else {
-        require_constraint(r#type, constraint)
     }
 }
 

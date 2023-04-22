@@ -98,6 +98,10 @@ impl EnvRefConstraint {
         }
     }
 
+    pub fn exclude_new(&self, ref_name: &str) -> EnvRefConstraint {
+        self.filter_new(|(n, _)| n != ref_name)
+    }
+
     pub fn is_empty(&self) -> bool { self.constraint.is_empty() }
 
     pub fn contains(&self, ref_name: &str) -> bool {

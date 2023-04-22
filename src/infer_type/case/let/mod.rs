@@ -38,7 +38,7 @@ pub fn case(
                 Quad::ML(rc) => (
                     rc.r#type,
                     // 过滤掉对 assign_name 的约束
-                    rc.constraint.filter_new(|(n, _)| n != assign_name)
+                    rc.constraint.exclude_new(assign_name)
                 ),
                 _ => panic!("Impossible assign_expr_type: {assign_type:?}")
             };

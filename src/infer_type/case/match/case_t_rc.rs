@@ -3,9 +3,12 @@ use std::ops::Not;
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::infer_type::case::r#match::r#fn::destruct_match_const_to_expr_env_inject;
-use crate::infer_type::r#fn::{has_type, require_constraint_or_type};
+use crate::infer_type::r#fn::has_type;
 use crate::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
-use crate::infer_type::r#type::require_constraint::require_extended_constraint;
+use crate::infer_type::r#type::require_constraint::{
+    require_constraint,
+    require_extended_constraint
+};
 use crate::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infer_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
@@ -171,17 +174,11 @@ pub fn case_t_rc(
             );
 
         match constraint {
-            Ok(constraint) =>
-                if constraint_acc.is_empty() && constraint.is_empty()
-                {
-                    has_type(expect_type.clone())
-                } else {
-                    require_extended_constraint(
-                        expect_type.clone(),
-                        constraint_acc,
-                        constraint.clone()
-                    )
-                },
+            Ok(constraint) => require_extended_constraint(
+                expect_type.clone(),
+                constraint_acc,
+                constraint
+            ),
             Err(e) => e
         }
     }
@@ -231,7 +228,7 @@ pub fn case_t_rc(
 
         match final_type {
             Ok(final_type) =>
-                require_constraint_or_type(constraint_acc, final_type),
+                require_constraint(final_type, constraint_acc),
             Err(e) => e
         }
     }

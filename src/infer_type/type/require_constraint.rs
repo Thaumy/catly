@@ -14,6 +14,20 @@ pub struct RequireConstraint {
     pub constraint: EnvRefConstraint
 }
 
+impl RequireConstraint {
+    pub fn with_constraint_acc(
+        &self,
+        constraint: EnvRefConstraint
+    ) -> GetTypeReturn {
+        // TODO: 考虑约束顺序对环境的影响
+        require_extended_constraint(
+            self.r#type.clone(),
+            constraint,
+            self.constraint.clone()
+        )
+    }
+}
+
 pub fn require_constraint(
     r#type: Type,
     constraint: EnvRefConstraint
