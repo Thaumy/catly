@@ -1,11 +1,11 @@
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
-use crate::infer_type::r#fn::with_constraint_lift_or_left;
 use crate::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
+use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer_type::r#type::require_info::RequireInfo;
 use crate::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infer_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
+use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
 
@@ -17,7 +17,7 @@ pub fn case_ri(
     assign_name: &str,
     assign_expr: &Expr,
     scope_expr: &Expr
-) -> GetTypeReturn {
+) -> InferTypeRet {
     // Hint scope_expr with expect_type and get scope_expr_type
     let scope_expr_type = scope_expr
         .try_with_fallback_type(expect_type)
@@ -86,14 +86,16 @@ pub fn case_ri(
 
                 match constraint_acc.extend_new(rc.constraint.clone())
                 {
-                    Some(constraint) => with_constraint_lift_or_left(
+                    Some(constraint) => InferTypeRet::from_auto_lift(
+                        type_env,
+                        &rc.r#type,
+                        expect_type,
                         // 将对 assign 的约束过滤掉, 并拼接起确保限定成立的外层约束作为最终约束
                         // 因为 assign_expr 和 scope_expr 都有可能产生对 assign_name 的约束
                         // 所以过滤要在最后进行
-                        constraint.exclude_new(assign_name),
-                        type_env,
-                        &rc.r#type,
-                        expect_type
+                        constraint
+                            .exclude_new(assign_name)
+                            .some()
                     ),
                     None => TypeMissMatch::of_constraint(
                         &constraint_acc,

@@ -7,8 +7,8 @@ use crate::env::r#type::type_env::TypeEnv;
 use crate::infer_type::case::cond::case_ri::case_ri;
 use crate::infer_type::case::cond::case_t_rc::case_t_rc;
 use crate::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
+use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infer_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
@@ -21,7 +21,7 @@ pub fn case(
     bool_expr: &Expr,
     then_expr: &Expr,
     else_expr: &Expr
-) -> GetTypeReturn {
+) -> InferTypeRet {
     let bool_expr_type = bool_expr
         .with_fallback_type(&bool_type!())
         .infer_type(type_env, expr_env);

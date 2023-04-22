@@ -1,9 +1,9 @@
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::infer_type::case::r#match::r#fn::destruct_match_const_to_expr_env_inject;
+use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer_type::r#type::require_info::RequireInfo;
 use crate::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infer_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt as OptAnyExt;
 use crate::infra::quad::Quad;
@@ -19,7 +19,7 @@ pub fn case_ri(
     expect_type: &MaybeType,
     target_expr: &Expr,
     vec: &Vec<(Expr, Expr)>
-) -> GetTypeReturn {
+) -> InferTypeRet {
     // 由于以下推导可能产生错误, 而这些错误没有很好的语义对应已有的错误类型, 所以需要返回原错误
     let original_err = Quad::MR(require_info);
 

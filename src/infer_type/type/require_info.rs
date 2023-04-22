@@ -1,8 +1,8 @@
 use std::fmt::{Debug, Formatter};
 
 use crate::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
+use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infer_type::r#type::GetTypeReturn;
 use crate::infra::quad::Quad;
 
 // 需要类型信息
@@ -35,7 +35,7 @@ impl RequireInfo {
     pub fn with_constraint_acc(
         self,
         constraint: EnvRefConstraint
-    ) -> GetTypeReturn {
+    ) -> InferTypeRet {
         match self
             .constraint
             .extend_new(constraint.clone())
@@ -51,7 +51,7 @@ impl RequireInfo {
     }
 }
 
-impl From<RequireInfo> for GetTypeReturn {
+impl From<RequireInfo> for InferTypeRet {
     fn from(value: RequireInfo) -> Self { Quad::MR(value) }
 }
 

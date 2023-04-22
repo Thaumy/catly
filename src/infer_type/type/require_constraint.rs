@@ -2,8 +2,8 @@ use std::fmt::{Debug, Formatter};
 
 use crate::infer_type::r#fn::has_type;
 use crate::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
+use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infer_type::r#type::GetTypeReturn;
 use crate::infra::quad::Quad;
 use crate::parser::r#type::r#type::Type;
 
@@ -18,7 +18,7 @@ impl RequireConstraint {
     pub fn with_constraint_acc(
         &self,
         constraint: EnvRefConstraint
-    ) -> GetTypeReturn {
+    ) -> InferTypeRet {
         // TODO: 考虑约束顺序对环境的影响
         require_extended_constraint(
             self.r#type.clone(),
@@ -31,7 +31,7 @@ impl RequireConstraint {
 pub fn require_constraint(
     r#type: Type,
     constraint: EnvRefConstraint
-) -> GetTypeReturn {
+) -> InferTypeRet {
     if constraint.is_empty() {
         has_type(r#type)
     } else {
@@ -43,7 +43,7 @@ pub fn require_extended_constraint(
     r#type: Type,
     l: EnvRefConstraint,
     r: EnvRefConstraint
-) -> GetTypeReturn {
+) -> InferTypeRet {
     match l.extend_new(r.clone()) {
         Some(constraint) =>
             require_constraint(r#type, constraint.clone()),
@@ -51,7 +51,7 @@ pub fn require_extended_constraint(
     }
 }
 
-impl From<RequireConstraint> for GetTypeReturn {
+impl From<RequireConstraint> for InferTypeRet {
     fn from(value: RequireConstraint) -> Self { Quad::ML(value) }
 }
 

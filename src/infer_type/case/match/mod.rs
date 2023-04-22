@@ -6,7 +6,7 @@ use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::infer_type::case::r#match::case_ri::case_ri;
 use crate::infer_type::case::r#match::case_t_rc::case_t_rc;
-use crate::infer_type::r#type::GetTypeReturn;
+use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infra::alias::MaybeType;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
@@ -18,7 +18,7 @@ pub fn case(
     expect_type: &MaybeType,
     target_expr: &Expr,
     vec: &Vec<(Expr, Expr)>
-) -> GetTypeReturn {
+) -> InferTypeRet {
     let target_expr_type = target_expr.infer_type(type_env, expr_env);
 
     match target_expr_type {

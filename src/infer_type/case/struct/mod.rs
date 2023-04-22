@@ -3,13 +3,13 @@ mod r#fn;
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::infer_type::case::r#struct::r#fn::is_struct_vec_of_type_then_get_prod_vec;
-use crate::infer_type::r#fn::with_constraint_lift_or_left;
 use crate::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
+use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infer_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
+use crate::infra::option::AnyExt as OptAnyExt;
 use crate::infra::quad::Quad;
-use crate::infra::result::AnyExt;
+use crate::infra::result::AnyExt as ResAnyExt;
 use crate::infra::vec::Ext;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::Type;
@@ -20,7 +20,7 @@ pub fn case(
     expr_env: &ExprEnv,
     expect_type: &MaybeType,
     vec: &Vec<(String, MaybeType, Expr)>
-) -> GetTypeReturn {
+) -> InferTypeRet {
     // 解构 expect_type 并判断与 vec 的相容性
     let prod_vec = match is_struct_vec_of_type_then_get_prod_vec(
         type_env,
@@ -98,10 +98,10 @@ pub fn case(
         Err(e) => return e
     };
 
-    with_constraint_lift_or_left(
-        constraint_acc,
+    InferTypeRet::from_auto_lift(
         type_env,
         &prod_type,
-        expect_type
+        expect_type,
+        constraint_acc.some()
     )
 }

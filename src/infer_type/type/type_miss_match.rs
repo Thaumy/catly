@@ -1,7 +1,7 @@
 use std::fmt::{Debug, Formatter};
 
 use crate::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
-use crate::infer_type::r#type::GetTypeReturn;
+use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infra::quad::Quad;
 use crate::parser::r#type::r#type::Type;
 
@@ -33,7 +33,7 @@ impl TypeMissMatch {
     }
 }
 
-impl From<TypeMissMatch> for GetTypeReturn {
+impl From<TypeMissMatch> for InferTypeRet {
     fn from(value: TypeMissMatch) -> Self { Quad::R(value) }
 }
 

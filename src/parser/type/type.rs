@@ -30,6 +30,7 @@ impl Type {
             .is_some()
     }
 
+    // TODO: 考虑部分类型
     // Lift l to r if r exist, then return lifting result
     // Return l if r not exist
     pub fn lift_to_or_left(

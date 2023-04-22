@@ -2,8 +2,8 @@ use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::env_ref_src::EnvRefSrc;
 use crate::env::r#type::type_constraint::TypeConstraint;
 use crate::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
+use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer_type::r#type::require_constraint::require_constraint;
-use crate::infer_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
 use crate::infra::quad::Quad;
 
@@ -15,7 +15,7 @@ impl<'t> ExprEnv<'t> {
         &self,
         ref_name: &str,
         hint: &MaybeType
-    ) -> GetTypeReturn {
+    ) -> InferTypeRet {
         let ref_type = self.infer_type(ref_name);
         match ref_type {
             // 缺乏类型信息, 尝试提示

@@ -1,8 +1,8 @@
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
+use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer_type::r#type::require_constraint::require_constraint;
-use crate::infer_type::r#type::GetTypeReturn;
 use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
 use crate::infra::r#box::Ext;
@@ -14,7 +14,7 @@ pub fn case_ri(
     bool_expr: &Expr,
     else_expr: &Expr,
     then_expr: &Expr
-) -> GetTypeReturn {
+) -> InferTypeRet {
     let (else_expr_type, constraint_acc) =
         match else_expr.infer_type(type_env, expr_env) {
             Quad::L(t) => (t, EnvRefConstraint::empty()),

@@ -1,7 +1,7 @@
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::infer_type::r#fn::has_type;
-use crate::infer_type::r#type::GetTypeReturn;
+use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer_type::test::integration::get_std_code;
 use crate::infer_type::test::parse_env;
 use crate::{closure_type, int_type};
@@ -35,7 +35,7 @@ fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
     parse_env(&seq)
 }
 
-fn target_type() -> GetTypeReturn {
+fn target_type() -> InferTypeRet {
     has_type(closure_type!(
         int_type!(),
         closure_type!(int_type!(), int_type!())

@@ -5,7 +5,7 @@ use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::infer_type::case::r#let::case_ri::case_ri;
 use crate::infer_type::case::r#let::case_t_rc::case_t_rc;
-use crate::infer_type::r#type::GetTypeReturn;
+use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infra::alias::MaybeType;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
@@ -19,7 +19,7 @@ pub fn case(
     assign_type: &MaybeType,
     assign_expr: &Expr,
     scope_expr: &Expr
-) -> GetTypeReturn {
+) -> InferTypeRet {
     // Hint assign_expr with assign_type and get assign_expr_type
     let assign_expr_type = assign_expr
         .try_with_fallback_type(assign_type)

@@ -1,9 +1,7 @@
 use crate::env::r#type::type_env::TypeEnv;
-use crate::infer_type::r#fn::has_type;
 use crate::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
+use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer_type::r#type::require_info::RequireInfo;
-use crate::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infer_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
 use crate::infra::r#box::Ext;
 use crate::parser::r#type::r#type::Type;
@@ -14,7 +12,7 @@ pub fn case_t(
     input_name: &Option<String>,
     input_type: MaybeType,
     output_expr_type: Type
-) -> GetTypeReturn {
+) -> InferTypeRet {
     let base = match input_type {
         Some(input_type) => Type::ClosureType(
             input_type.clone().boxed(),
@@ -36,12 +34,5 @@ pub fn case_t(
     };
 
     // Lift inferred ClosureType to t
-    match base.lift_to_or_left(type_env, expect_type) {
-        Some(t) => has_type(t),
-        None => TypeMissMatch::of_type(
-            &base,
-            &expect_type.clone().unwrap()
-        )
-        .into()
-    }
+    InferTypeRet::from_auto_lift(type_env, &base, expect_type, None)
 }

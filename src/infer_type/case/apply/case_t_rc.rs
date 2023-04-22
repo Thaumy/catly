@@ -1,10 +1,10 @@
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
-use crate::infer_type::r#fn::with_constraint_lift_or_left;
 use crate::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
+use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infer_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
+use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::Type;
@@ -17,7 +17,7 @@ pub fn case_t_rc(
     constraint_acc: EnvRefConstraint,
     expect_type: &MaybeType,
     rhs_expr: &Expr
-) -> GetTypeReturn {
+) -> InferTypeRet {
     // Apply 的期望类型也是 lhs_expr 的期望输出类型
     let expect_output_type = expect_type;
 
@@ -29,11 +29,11 @@ pub fn case_t_rc(
             // 验证输入的类型相容性
             if rhs_expr_type.can_lift_to(type_env, &lhs_input_type) {
                 // 验证输出的类型相容性
-                with_constraint_lift_or_left(
-                    constraint_acc,
+                InferTypeRet::from_auto_lift(
                     type_env,
                     &lhs_output_type,
-                    expect_output_type
+                    expect_output_type,
+                    constraint_acc.some()
                 )
             } else {
                 TypeMissMatch::of_type(
@@ -52,11 +52,11 @@ pub fn case_t_rc(
                 if let Some(constraint) =
                     constraint_acc.extend_new(rc.constraint.clone())
                 {
-                    with_constraint_lift_or_left(
-                        constraint,
+                    InferTypeRet::from_auto_lift(
                         type_env,
                         &lhs_output_type,
-                        expect_output_type
+                        expect_output_type,
+                        constraint.some()
                     )
                 } else {
                     TypeMissMatch::of_constraint(

@@ -1,10 +1,9 @@
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
-use crate::infer_type::r#fn::with_constraint_lift_or_left;
 use crate::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
+use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer_type::r#type::require_constraint::require_constraint;
 use crate::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infer_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
@@ -21,7 +20,7 @@ pub fn case_t_rc(
     assign_type: &MaybeType,
     assign_expr: &Expr,
     scope_expr: &Expr
-) -> GetTypeReturn {
+) -> InferTypeRet {
     // Lift assign_expr_type to assign_type
     let assign_type = match assign_expr_type
         .lift_to_or_left(type_env, assign_type)
@@ -61,11 +60,11 @@ pub fn case_t_rc(
         // 由于 assign_type 存在, 所以此处的约束作用于外层环境, 传播之
         Quad::ML(rc) =>
             match constraint_acc.extend_new(rc.constraint.clone()) {
-                Some(constraint) => with_constraint_lift_or_left(
-                    constraint,
+                Some(constraint) => InferTypeRet::from_auto_lift(
                     type_env,
                     &rc.r#type,
-                    expect_type
+                    expect_type,
+                    constraint.some()
                 ),
                 None => TypeMissMatch::of_constraint(
                     &constraint_acc,

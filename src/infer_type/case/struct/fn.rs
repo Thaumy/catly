@@ -1,7 +1,7 @@
 use crate::env::r#type::type_env::TypeEnv;
 use crate::infer_type::r#fn::destruct_namely_type;
+use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infer_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt as OptAnyExt;
 use crate::infra::quad::Quad;
@@ -22,7 +22,7 @@ pub fn is_struct_vec_of_type_then_get_prod_vec(
     type_env: &TypeEnv,
     expect_type: &MaybeType,
     struct_vec: &StructVec
-) -> Result<Option<ProdVec>, GetTypeReturn> {
+) -> Result<Option<ProdVec>, InferTypeRet> {
     // 解构 expect_type 并判断与 struct_vec 的相容性
     match expect_type {
         Some(expect_type) =>

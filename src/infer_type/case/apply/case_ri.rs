@@ -1,8 +1,8 @@
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
+use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer_type::r#type::require_constraint::require_constraint;
 use crate::infer_type::r#type::require_info::RequireInfo;
-use crate::infer_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
 use crate::infra::quad::Quad;
 use crate::infra::r#box::Ext;
@@ -16,7 +16,7 @@ pub fn case_ri(
     expect_type: &MaybeType,
     lhs_expr: &Expr,
     rhs_expr: &Expr
-) -> GetTypeReturn {
+) -> InferTypeRet {
     // 可以确定输出类型
     if let Some(output_type) = expect_type {
         // 尝试从 rhs_expr 获得输入类型

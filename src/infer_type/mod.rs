@@ -6,7 +6,7 @@ pub mod r#type;
 
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
-use crate::infer_type::r#type::GetTypeReturn;
+use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
 
@@ -14,7 +14,7 @@ pub fn infer_type(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
     expr: &Expr
-) -> GetTypeReturn {
+) -> InferTypeRet {
     println!("{:8}{:>10} │ {expr:?}", "[infer]", "TypeOf");
 
     let result = match expr {

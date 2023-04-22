@@ -3,7 +3,7 @@ use std::fmt::{Debug, Formatter};
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::infer_type::infer_type;
-use crate::infer_type::r#type::GetTypeReturn;
+use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt;
 use crate::parser::r#type::r#type::Type;
@@ -28,7 +28,7 @@ impl Expr {
         &self,
         type_env: &TypeEnv,
         expr_env: &ExprEnv
-    ) -> GetTypeReturn {
+    ) -> InferTypeRet {
         infer_type(type_env, expr_env, self)
     }
     pub fn with_fallback_type(&self, r#type: &Type) -> Expr {

@@ -1,19 +1,16 @@
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::env_ref_src::EnvRefSrc;
 use crate::env::r#type::type_constraint::TypeConstraint;
-use crate::infer_type::r#fn::{
-    has_type,
-    lift_or_miss_match,
-    with_constraint_lift_or_miss_match
-};
+use crate::infer_type::r#fn::has_type;
 use crate::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
+use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer_type::r#type::require_constraint::require_constraint;
 use crate::infer_type::r#type::require_info::RequireInfo;
-use crate::infer_type::r#type::GetTypeReturn;
+use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
 
 impl<'t> ExprEnv<'t> {
-    pub fn infer_type(&self, ref_name: &str) -> GetTypeReturn {
+    pub fn infer_type(&self, ref_name: &str) -> InferTypeRet {
         let tc_and_src = self
             .find_entry(ref_name)
             .map(|(_, tc, src)| (tc, src));
@@ -46,18 +43,19 @@ impl<'t> ExprEnv<'t> {
                         .with_fallback_type(t)
                         .infer_type(&self.type_env, &new_expr_env)
                     {
-                        Quad::L(src_expr_type) => lift_or_miss_match(
-                            &self.type_env,
-                            &src_expr_type,
-                            &t
-                        ),
-                        Quad::ML(rc) =>
-                            with_constraint_lift_or_miss_match(
-                                rc.constraint,
+                        Quad::L(src_expr_type) =>
+                            InferTypeRet::from_auto_lift(
                                 &self.type_env,
-                                &rc.r#type,
-                                &t
+                                &src_expr_type,
+                                &t.clone().some(),
+                                None
                             ),
+                        Quad::ML(rc) => InferTypeRet::from_auto_lift(
+                            &self.type_env,
+                            &rc.r#type,
+                            &t.clone().some(),
+                            rc.constraint.some()
+                        ),
                         // 如果引用源是无类型弃元
                         Quad::MR(ri) if ri.ref_name == "_" =>
                         // 为了防止无类型弃元信息被捕获, 改写错误信息
