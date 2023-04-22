@@ -100,7 +100,7 @@ fn test_part5() {
         .get_ref("let5")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = RequireInfo::of("a").into();
+    let r = RequireInfo::of("a", EnvRefConstraint::empty()).into();
 
     assert_eq!(expr_type, r)
 }
@@ -113,7 +113,7 @@ fn test_part6() {
         .get_ref("let6")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = RequireInfo::of("x").into();
+    let r = RequireInfo::of("x", EnvRefConstraint::empty()).into();
 
     assert_eq!(expr_type, r)
 }
@@ -154,7 +154,7 @@ fn test_part9() {
         .get_ref("let9")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = RequireInfo::of("a").into();
+    let r = RequireInfo::of("a", EnvRefConstraint::empty()).into();
 
     assert_eq!(expr_type, r)
 }

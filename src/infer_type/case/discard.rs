@@ -1,5 +1,6 @@
 use crate::env::r#type::type_env::TypeEnv;
 use crate::infer_type::r#fn::has_type;
+use crate::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer_type::r#type::require_info::RequireInfo;
 use crate::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infer_type::r#type::GetTypeReturn;
@@ -20,6 +21,6 @@ pub fn case(
                 .into()
             },
         // Discard 值必须具备类型信息
-        None => RequireInfo::of("_").into()
+        None => RequireInfo::of("_", EnvRefConstraint::empty()).into()
     }
 }

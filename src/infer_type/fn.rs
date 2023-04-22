@@ -22,6 +22,7 @@ pub fn with_constraint_lift_or_left(
     }
 }
 
+// TODO 检测部分类型
 pub fn lift_or_miss_match(
     type_env: &TypeEnv,
     from: &Type,

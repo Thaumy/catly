@@ -48,7 +48,7 @@ fn test_part1() {
         .get_ref("f1")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = RequireInfo::of("a").into();
+    let r = RequireInfo::of("a", EnvRefConstraint::empty()).into();
 
     assert_eq!(expr_type, r)
 }
@@ -196,7 +196,11 @@ fn test_part11() {
         .get_ref("f11")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = RequireInfo::of("a").into();
+    let r = RequireInfo::of(
+        "a",
+        EnvRefConstraint::single("b11".to_string(), int_type!())
+    )
+    .into();
 
     assert_eq!(expr_type, r)
 }
@@ -209,7 +213,11 @@ fn test_part12() {
         .get_ref("f12")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = RequireInfo::of("_ (closure input)").into();
+    let r = RequireInfo::of(
+        "_ (closure input)",
+        EnvRefConstraint::empty()
+    )
+    .into();
 
     assert_eq!(expr_type, r)
 }
@@ -222,7 +230,11 @@ fn test_part13() {
         .get_ref("f13")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = RequireInfo::of("_ (closure input)").into();
+    let r = RequireInfo::of(
+        "_ (closure input)",
+        EnvRefConstraint::single("a13".to_string(), int_type!())
+    )
+    .into();
 
     assert_eq!(expr_type, r)
 }

@@ -94,8 +94,14 @@ pub fn case(
             output_expr_type
         ),
 
-        Quad::ML(rc) =>
-            case_rc(type_env, expect_type, rc, input_name, input_type),
+        Quad::ML(rc) => case_rc(
+            type_env,
+            expect_type,
+            rc.r#type,
+            rc.constraint,
+            input_name,
+            input_type
+        ),
 
         // infer_type 不能推导出输出类型(即便进行了类型提示), 或推导错误
         // 推导错误是由类型不匹配导致的, 这种错误无法解决

@@ -1,5 +1,6 @@
 use crate::env::r#type::type_env::TypeEnv;
 use crate::infer_type::r#fn::has_type;
+use crate::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer_type::r#type::require_info::RequireInfo;
 use crate::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infer_type::r#type::GetTypeReturn;
@@ -22,12 +23,16 @@ pub fn case_t(
         // 输入类型自由, 而 output_expr_type 不需要约束, 说明不需要输入类型
         // 因为类型和值绑定, 所以 output_expr 和输入无关, 实际上这和弃元输入值等效
         // 缺乏推导出输入类型的信息
-        None =>
-            return match input_name {
-                Some(input_name) =>
-                    RequireInfo::of(input_name).into(),
-                None => RequireInfo::of("_ (closure input)").into()
-            },
+        None => {
+            let input_name = &input_name
+                .clone()
+                .unwrap_or("_ (closure input)".to_string());
+            return RequireInfo::of(
+                input_name,
+                EnvRefConstraint::empty()
+            )
+            .into();
+        }
     };
 
     // Lift inferred ClosureType to t

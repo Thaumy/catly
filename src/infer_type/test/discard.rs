@@ -3,6 +3,7 @@ use std::assert_matches::assert_matches;
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::infer_type::r#fn::has_type;
+use crate::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer_type::r#type::require_info::RequireInfo;
 use crate::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infer_type::test::parse_env;
@@ -35,7 +36,10 @@ fn test_part2() {
     let expr_type =
         Expr::Discard(None).infer_type(&type_env, &expr_env);
 
-    assert_eq!(expr_type, RequireInfo::of("_").into())
+    assert_eq!(
+        expr_type,
+        RequireInfo::of("_", EnvRefConstraint::empty()).into()
+    )
 }
 
 #[test]

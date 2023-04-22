@@ -6,6 +6,7 @@ use crate::infer_type::r#fn::{
     lift_or_miss_match,
     with_constraint_lift_or_miss_match
 };
+use crate::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer_type::r#type::require_constraint::require_constraint;
 use crate::infer_type::r#type::require_info::RequireInfo;
 use crate::infer_type::r#type::GetTypeReturn;
@@ -23,8 +24,11 @@ impl<'t> ExprEnv<'t> {
                 // 引用名所对应的类型是类型约束的直接类型
                 TypeConstraint::Constraint(t) => has_type(t.clone()),
                 // 不存在类型约束
-                TypeConstraint::Free =>
-                    RequireInfo::of(ref_name).into(),
+                TypeConstraint::Free => RequireInfo::of(
+                    ref_name,
+                    EnvRefConstraint::empty()
+                )
+                .into()
             },
 
             // 当前环境查找到引用名, 且存在引用源
@@ -57,7 +61,8 @@ impl<'t> ExprEnv<'t> {
                         // 如果引用源是无类型弃元
                         Quad::MR(ri) if ri.ref_name == "_" =>
                         // 为了防止无类型弃元信息被捕获, 改写错误信息
-                            RequireInfo::of(ref_name).into(),
+                            ri.new_ref_name(ref_name)
+                                .into(),
                         // 无法处理其他情况
                         mr_r => mr_r
                     },
@@ -78,7 +83,8 @@ impl<'t> ExprEnv<'t> {
                         ),
                         Quad::MR(ri) if ri.ref_name == "_" =>
                         // 为了防止无类型弃元信息被捕获, 改写错误信息
-                            RequireInfo::of(ref_name).into(),
+                            ri.new_ref_name(ref_name)
+                                .into(),
                         // 类型不相容
                         mr_r => mr_r
                     }
@@ -86,7 +92,9 @@ impl<'t> ExprEnv<'t> {
             }
 
             // 缺乏推导信息
-            None => RequireInfo::of(ref_name).into()
+            None =>
+                RequireInfo::of(ref_name, EnvRefConstraint::empty())
+                    .into(),
         }
     }
 }

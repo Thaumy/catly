@@ -36,7 +36,7 @@ pub fn case(
             // TODO: 在所有类似的地方都应用这种检查
             None =>
                 if rc.r#type.is_partial_type() {
-                    RequireInfo::of(ref_name).into()
+                    RequireInfo::of(ref_name, rc.constraint).into()
                 } else {
                     TypeMissMatch::of_type(
                         &rc.r#type,

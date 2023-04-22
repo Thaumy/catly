@@ -48,12 +48,12 @@ pub fn case_ri(
             // 由于 case_ri 分支仅当 assign 缺乏类型信息时才会进入
             // 因为 scope_expr 没有带来约束, 所以 assign 仍需类型信息
             // 改写或返回原错误, 改写是为了让无类型弃元错误正确地附加到 assign_name 上, 而不是被其他层级捕获
-            _ =>
-                if require_info.ref_name == "_" {
-                    RequireInfo::of(assign_name).into()
-                } else {
-                    Quad::MR(require_info)
-                },
+            _ => if require_info.ref_name == "_" {
+                require_info.new_ref_name(assign_name)
+            } else {
+                require_info
+            }
+            .into()
         },
         // 获取 scope_expr_type 时产生了约束
         Quad::ML(rc) => {
@@ -112,12 +112,12 @@ pub fn case_ri(
                         &expect_type.clone().unwrap()
                     )
                     .into(),
-                    _ =>
-                        if require_info.ref_name == "_" {
-                            RequireInfo::of(assign_name).into()
-                        } else {
-                            Quad::MR(require_info)
-                        },
+                    _ => if require_info.ref_name == "_" {
+                        require_info.new_ref_name(assign_name)
+                    } else {
+                        require_info
+                    }
+                    .into()
                 }
             }
         }

@@ -34,7 +34,7 @@ fn test_part1() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    let r = RequireInfo::of("a").into();
+    let r = RequireInfo::of("a", EnvRefConstraint::empty()).into();
 
     assert_eq!(expr_type, r)
 }

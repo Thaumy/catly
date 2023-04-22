@@ -13,10 +13,7 @@ pub struct EnvRefConstraint {
 
 impl Debug for EnvRefConstraint {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&*format!(
-            "EnvRefConstraint::{:?}",
-            self.constraint
-        ))
+        f.write_str(&*format!("ERC::{:?}", self.constraint))
     }
 }
 

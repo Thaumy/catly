@@ -197,7 +197,8 @@ fn test_part9() {
         .get_ref("match9")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = RequireInfo::of("match9").into();
+    let r =
+        RequireInfo::of("match9", EnvRefConstraint::empty()).into();
 
     assert_eq!(expr_type, r)
 }
@@ -222,7 +223,8 @@ fn test_part11() {
         .get_ref("match11")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = RequireInfo::of("match11").into();
+    let r =
+        RequireInfo::of("match11", EnvRefConstraint::empty()).into();
 
     assert_eq!(expr_type, r)
 }
