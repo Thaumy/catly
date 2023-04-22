@@ -3,7 +3,6 @@ use std::collections::BTreeSet;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::infra::option::AnyExt;
 use crate::parser::r#type::r#type::Type;
-use crate::unify::lift;
 
 pub fn lift_sum(
     type_env: &TypeEnv,
@@ -20,7 +19,8 @@ pub fn lift_sum(
         Type::NamelyType(type_name) => type_env
             .find_type(type_name)
             .and_then(|t| {
-                lift(type_env, &Type::SumType(sum_set.clone()), t)
+                Type::SumType(sum_set.clone())
+                    .lift_to(type_env, t)
                     .map(|_| derive.clone())
             }),
 
@@ -29,7 +29,8 @@ pub fn lift_sum(
         Type::SumType(s) => s
             .iter()
             .any(|t| {
-                lift(type_env, &Type::SumType(sum_set.clone()), t)
+                Type::SumType(sum_set.clone())
+                    .lift_to(type_env, t)
                     .is_some()
             })
             .then(|| derive.clone()),

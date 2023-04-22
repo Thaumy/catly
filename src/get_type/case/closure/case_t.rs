@@ -6,7 +6,6 @@ use crate::get_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
 use crate::infra::r#box::Ext;
 use crate::parser::r#type::r#type::Type;
-use crate::unify::lift_or_left;
 
 pub fn case_t(
     type_env: &TypeEnv,
@@ -32,7 +31,7 @@ pub fn case_t(
     };
 
     // Lift inferred ClosureType to t
-    match lift_or_left(type_env, &base, expect_type) {
+    match base.lift_to_or_left(type_env, expect_type) {
         Some(t) => has_type(t),
         None => TypeMissMatch::of_type(
             &base,

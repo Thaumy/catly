@@ -1,6 +1,5 @@
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
-use crate::get_type::get_type;
 use crate::get_type::r#fn::has_type;
 use crate::get_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::get_type::r#type::require_constraint::require_constraint;
@@ -50,7 +49,7 @@ fn test_part1() {
         .unwrap();
     let r = RequireInfo::of("a").into();
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_eq!(expr.infer_type(&type_env, &expr_env), r)
 }
 
 #[test]
@@ -62,7 +61,7 @@ fn test_part2() {
         .unwrap();
     let r = has_type(closure_type!(int_type!(), int_type!()));
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_eq!(expr.infer_type(&type_env, &expr_env), r)
 }
 
 #[test]
@@ -74,7 +73,7 @@ fn test_part3() {
         .unwrap();
     let r = has_type(closure_type!(int_type!(), int_type!()));
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_eq!(expr.infer_type(&type_env, &expr_env), r)
 }
 
 #[test]
@@ -86,7 +85,7 @@ fn test_part4() {
         .unwrap();
     let r = has_type(closure_type!(int_type!(), int_type!()));
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_eq!(expr.infer_type(&type_env, &expr_env), r)
 }
 
 #[test]
@@ -101,7 +100,7 @@ fn test_part5() {
         EnvRefConstraint::single("b".to_string(), int_type!())
     );
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_eq!(expr.infer_type(&type_env, &expr_env), r)
 }
 
 #[test]
@@ -116,7 +115,7 @@ fn test_part6() {
         closure_type!(int_type!(), unit_type!())
     ));
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_eq!(expr.infer_type(&type_env, &expr_env), r)
 }
 
 #[test]
@@ -128,7 +127,7 @@ fn test_part7() {
         .unwrap();
     let r = has_type(namely_type!("F"));
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_eq!(expr.infer_type(&type_env, &expr_env), r)
 }
 
 #[test]
@@ -143,7 +142,7 @@ fn test_part8() {
         int_type!()
     ));
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_eq!(expr.infer_type(&type_env, &expr_env), r)
 }
 
 #[test]
@@ -158,7 +157,7 @@ fn test_part9() {
         closure_type!(int_type!(), int_type!())
     ));
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_eq!(expr.infer_type(&type_env, &expr_env), r)
 }
 
 #[test]
@@ -176,7 +175,7 @@ fn test_part10() {
         EnvRefConstraint::single("x".to_string(), int_type!())
     );
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_eq!(expr.infer_type(&type_env, &expr_env), r)
 }
 
 #[test]
@@ -188,7 +187,7 @@ fn test_part11() {
         .unwrap();
     let r = RequireInfo::of("a").into();
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_eq!(expr.infer_type(&type_env, &expr_env), r)
 }
 
 #[test]
@@ -200,7 +199,7 @@ fn test_part12() {
         .unwrap();
     let r = RequireInfo::of("_ (closure input)").into();
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_eq!(expr.infer_type(&type_env, &expr_env), r)
 }
 
 #[test]
@@ -212,7 +211,7 @@ fn test_part13() {
         .unwrap();
     let r = RequireInfo::of("_ (closure input)").into();
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_eq!(expr.infer_type(&type_env, &expr_env), r)
 }
 
 #[test]
@@ -224,7 +223,7 @@ fn test_part14() {
         .unwrap();
     let r = has_type(closure_type!(int_type!(), int_type!()));
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_eq!(expr.infer_type(&type_env, &expr_env), r)
 }
 
 #[test]
@@ -236,5 +235,5 @@ fn test_part15() {
         .unwrap();
     let r = has_type(closure_type!(int_type!(), int_type!()));
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_eq!(expr.infer_type(&type_env, &expr_env), r)
 }

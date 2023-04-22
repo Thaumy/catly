@@ -2,7 +2,6 @@ use std::assert_matches::assert_matches;
 
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
-use crate::get_type::get_type;
 use crate::get_type::r#fn::has_type;
 use crate::get_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::get_type::r#type::require_constraint::require_constraint;
@@ -58,7 +57,7 @@ fn test_part1() {
 
     let r = has_type(int_type!());
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_eq!(expr.infer_type(&type_env, &expr_env), r)
 }
 
 #[test]
@@ -71,7 +70,7 @@ fn test_part2() {
 
     let r = has_type(unit_type!());
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_eq!(expr.infer_type(&type_env, &expr_env), r)
 }
 
 #[test]
@@ -84,7 +83,7 @@ fn test_part3() {
 
     let r = has_type(closure_type!(int_type!(), unit_type!()));
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_eq!(expr.infer_type(&type_env, &expr_env), r)
 }
 
 #[test]
@@ -96,7 +95,7 @@ fn test_part4() {
         .unwrap();
 
     assert_matches!(
-        get_type(&type_env, &expr_env, &expr),
+        expr.infer_type(&type_env, &expr_env),
         Quad::R(TypeMissMatch { .. })
     )
 }
@@ -110,7 +109,7 @@ fn test_part5() {
         .unwrap();
 
     assert_matches!(
-        get_type(&type_env, &expr_env, &expr),
+        expr.infer_type(&type_env, &expr_env),
         Quad::R(TypeMissMatch { .. })
     )
 }
@@ -131,7 +130,7 @@ fn test_part6() {
         )
     );
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_eq!(expr.infer_type(&type_env, &expr_env), r)
 }
 
 #[test]
@@ -144,7 +143,7 @@ fn test_part7() {
 
     let r = has_type(namely_type!("Int"));
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_eq!(expr.infer_type(&type_env, &expr_env), r)
 }
 
 #[test]
@@ -157,7 +156,7 @@ fn test_part8() {
 
     let r = has_type(namely_type!("Int"));
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_eq!(expr.infer_type(&type_env, &expr_env), r)
 }
 
 #[test]
@@ -170,7 +169,7 @@ fn test_part9() {
 
     let r = has_type(namely_type!("Int"));
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_eq!(expr.infer_type(&type_env, &expr_env), r)
 }
 
 #[test]
@@ -183,7 +182,7 @@ fn test_part10() {
 
     let r = has_type(namely_type!("Int"));
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_eq!(expr.infer_type(&type_env, &expr_env), r)
 }
 
 #[test]
@@ -196,7 +195,7 @@ fn test_part11() {
 
     let r = has_type(namely_type!("Int"));
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_eq!(expr.infer_type(&type_env, &expr_env), r)
 }
 
 #[test]
@@ -215,7 +214,7 @@ fn test_part12() {
         )
     );
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_eq!(expr.infer_type(&type_env, &expr_env), r)
 }
 
 #[test]
@@ -243,7 +242,7 @@ fn test_part13() {
         )
     );
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_eq!(expr.infer_type(&type_env, &expr_env), r)
 }
 
 #[test]
@@ -256,5 +255,5 @@ fn test_part14() {
 
     let r = has_type(closure_type!(int_type!(), int_type!()));
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_eq!(expr.infer_type(&type_env, &expr_env), r)
 }

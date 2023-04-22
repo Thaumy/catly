@@ -3,7 +3,6 @@ use std::ops::Not;
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::case::r#match::r#fn::destruct_match_const_to_expr_env_inject;
-use crate::get_type::get_type;
 use crate::get_type::r#fn::{has_type, require_constraint_or_type};
 use crate::get_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::get_type::r#type::require_constraint::require_extended_constraint;
@@ -16,7 +15,6 @@ use crate::infra::r#fn::id;
 use crate::infra::result::AnyExt as ResAnyExt;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::Type;
-use crate::unify::{can_lift, unify};
 
 pub fn case_t_rc(
     type_env: &TypeEnv,
@@ -52,14 +50,12 @@ pub fn case_t_rc(
         .clone()
         .map(|(case_expr, case_expr_env_inject, _)| {
             // 使用空表达式环境提取 case_expr_type, 这样能让所有对外界的约束得以暴露
-            match get_type(
+            match case_expr.infer_type(
                 type_env,
                 &ExprEnv::new(type_env.clone(), vec![]),
-                &case_expr,
             ) {
-                Quad::L(case_expr_type) => can_lift(
+                Quad::L(case_expr_type) => case_expr_type.can_lift_to(
                     type_env,
-                    &case_expr_type,
                     &target_expr_type,
                 ),
                 // 表达式环境为空却产生了约束
@@ -80,9 +76,8 @@ pub fn case_t_rc(
                         // 模式匹配意义上的常量和一般的常量有所不同
                         // 它允许存在某个用于捕获匹配值的 EnvRef
                         .all(id) &&
-                        can_lift(
+                        rc.r#type.can_lift_to(
                             type_env,
-                            &rc.r#type,
                             &target_expr_type,
                         ),
                 // 因为 case_expr 已被 target_expr_type hint
@@ -113,20 +108,17 @@ pub fn case_t_rc(
         let constraint = hinted_cases
             .map(|(_, case_expr_env, then_expr)| {
                 // 此处 then_expr 已由上方统一 hint
-                let then_expr_type = get_type(
+                let then_expr_type = then_expr.infer_type(
                     type_env,
                     // then_expr 需要在原环境和常量环境的拼接中求类型
-                    &expr_env.extend_vec_new(case_expr_env),
-                    &then_expr
+                    &expr_env.extend_vec_new(case_expr_env)
                 );
 
                 match then_expr_type {
                     Quad::L(then_expr_type) =>
-                        if can_lift(
-                            type_env,
-                            &then_expr_type,
-                            expect_type
-                        ) {
+                        if then_expr_type
+                            .can_lift_to(type_env, expect_type)
+                        {
                             None.ok()
                         } else {
                             Quad::R(TypeMissMatch::of_type(
@@ -138,7 +130,9 @@ pub fn case_t_rc(
                     // 获取 then_expr_type 时产生了约束, 这些约束一定作用于外层环境
                     // 因为 case_expr 的每一部分都具备完整的类型信息, 参见上面的推导过程
                     Quad::ML(rc) =>
-                        if can_lift(type_env, &rc.r#type, expect_type)
+                        if rc
+                            .r#type
+                            .can_lift_to(type_env, expect_type)
                         {
                             rc.constraint.some().ok()
                         } else {
@@ -200,10 +194,9 @@ pub fn case_t_rc(
         let final_type = hinted_cases
             .map(|(_, case_expr_env, then_expr)| {
                 // 此部分与上方原理相同
-                let then_expr_type = get_type(
+                let then_expr_type = then_expr.infer_type(
                     type_env,
-                    &expr_env.extend_vec_new(case_expr_env),
-                    &then_expr
+                    &expr_env.extend_vec_new(case_expr_env)
                 );
 
                 match then_expr_type {
@@ -225,7 +218,7 @@ pub fn case_t_rc(
                 }
             })
             .reduce(|acc, t| match (acc, t) {
-                (Ok(acc), Ok(t)) => match unify(type_env, &acc, &t) {
+                (Ok(acc), Ok(t)) => match acc.unify(type_env, &t) {
                     Some(acc) => acc.ok(),
                     None => Quad::R(TypeMissMatch::of_type(&acc, &t))
                         .err()

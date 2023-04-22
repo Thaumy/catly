@@ -7,7 +7,6 @@ use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::case::closure::case_rc::case_rc;
 use crate::get_type::case::closure::case_t::case_t;
-use crate::get_type::get_type_with_hint;
 use crate::get_type::r#fn::destruct_namely_type;
 use crate::get_type::r#type::type_miss_match::TypeMissMatch;
 use crate::get_type::r#type::GetTypeReturn;
@@ -78,12 +77,9 @@ pub fn case(
     };
 
     // Hint and get output_expr_type
-    let output_expr_type = get_type_with_hint(
-        type_env,
-        &expr_env,
-        output_expr,
-        &expect_output_type
-    );
+    let output_expr_type = output_expr
+        .try_with_fallback_type(&expect_output_type)
+        .infer_type(type_env, &expr_env);
 
     // 此处并不将 output_expr_type 与 hint 进行相容性判断
     // 因为这与 Closure 的类型提升规则相同, 稍后的类型提升会进行该工作

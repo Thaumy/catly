@@ -1,6 +1,5 @@
 use crate::env::r#type::type_env::TypeEnv;
 use crate::parser::r#type::r#type::Type;
-use crate::unify::lift;
 
 pub fn lift_prod(
     type_env: &TypeEnv,
@@ -16,7 +15,8 @@ pub fn lift_prod(
         Type::NamelyType(type_name) => type_env
             .find_type(type_name)
             .and_then(|t| {
-                lift(type_env, &Type::ProdType(prod_vec.clone()), t)
+                Type::ProdType(prod_vec.clone())
+                    .lift_to(type_env, t)
                     .map(|_| derive.clone())
             }),
 
@@ -25,7 +25,8 @@ pub fn lift_prod(
         Type::SumType(s) => s
             .iter()
             .any(|t| {
-                lift(type_env, &Type::ProdType(prod_vec.clone()), t)
+                Type::ProdType(prod_vec.clone())
+                    .lift_to(type_env, t)
                     .is_some()
             })
             .then(|| derive.clone()),

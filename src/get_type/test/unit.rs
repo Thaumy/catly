@@ -2,7 +2,6 @@ use std::assert_matches::assert_matches;
 
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
-use crate::get_type::get_type;
 use crate::get_type::r#fn::has_type;
 use crate::get_type::r#type::type_miss_match::TypeMissMatch;
 use crate::get_type::test::parse_env;
@@ -29,7 +28,7 @@ fn test_part1() {
         .unwrap();
 
     assert_eq!(
-        get_type(&type_env, &expr_env, &expr),
+        expr.infer_type(&type_env, &expr_env),
         has_type(namely_type!("A"))
     )
 }
@@ -43,7 +42,7 @@ fn test_part2() {
         .unwrap();
 
     assert_matches!(
-        get_type(&type_env, &expr_env, &expr),
+        expr.infer_type(&type_env, &expr_env),
         Quad::R(TypeMissMatch { .. })
     )
 }
@@ -57,7 +56,7 @@ fn test_part3() {
         .unwrap();
 
     assert_eq!(
-        get_type(&type_env, &expr_env, &expr),
+        expr.infer_type(&type_env, &expr_env),
         has_type(unit_type!())
     )
 }

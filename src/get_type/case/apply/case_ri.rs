@@ -1,6 +1,5 @@
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
-use crate::get_type::get_type;
 use crate::get_type::r#fn::require_constraint_or_type;
 use crate::get_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::get_type::r#type::require_constraint::require_extended_constraint;
@@ -23,7 +22,7 @@ pub fn case_ri(
     // 可以确定输出类型
     if let Some(output_type) = expect_type {
         // 尝试从 rhs_expr 获得输入类型
-        let rhs_expr_type = get_type(type_env, expr_env, rhs_expr);
+        let rhs_expr_type = rhs_expr.infer_type(type_env, expr_env);
         match rhs_expr_type {
             // 因为此处产生的约束作用于外层环境, 而这些约束可能对再次推导 Apply 的类型有所帮助
             // 所以再次 get_type 时应该将这些约束注入环境, 并对外传播
@@ -54,7 +53,7 @@ pub fn case_ri(
                     .extend_constraint_new(constraint_acc.clone());
 
                 // TODO: 考虑约束顺序对环境的影响
-                match get_type(type_env, &new_expr_env, &apply_expr) {
+                match apply_expr.infer_type(type_env, &new_expr_env) {
                     Quad::L(t) =>
                         require_constraint_or_type(constraint_acc, t),
                     Quad::ML(rc) => require_extended_constraint(
@@ -70,7 +69,7 @@ pub fn case_ri(
         }
     } else {
         // 尝试从 rhs_expr 获得输入类型
-        let rhs_expr_type = get_type(type_env, expr_env, rhs_expr);
+        let rhs_expr_type = rhs_expr.infer_type(type_env, expr_env);
         match rhs_expr_type {
             // 注入约束并对外传播, 与上同理
             Quad::L(_) | Quad::ML(_) => {
@@ -98,7 +97,7 @@ pub fn case_ri(
                 let new_expr_env = expr_env
                     .extend_constraint_new(constraint_acc.clone());
 
-                match get_type(type_env, &new_expr_env, &apply_expr) {
+                match apply_expr.infer_type(type_env, &new_expr_env) {
                     Quad::L(t) =>
                         require_constraint_or_type(constraint_acc, t),
                     Quad::ML(rc) => require_extended_constraint(

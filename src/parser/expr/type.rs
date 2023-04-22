@@ -1,5 +1,9 @@
 use std::fmt::{Debug, Formatter};
 
+use crate::env::expr_env::ExprEnv;
+use crate::env::r#type::type_env::TypeEnv;
+use crate::get_type::get_type;
+use crate::get_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt;
 use crate::parser::r#type::r#type::Type;
@@ -20,6 +24,13 @@ pub enum Expr {
 }
 
 impl Expr {
+    pub fn infer_type(
+        &self,
+        type_env: &TypeEnv,
+        expr_env: &ExprEnv
+    ) -> GetTypeReturn {
+        get_type(type_env, expr_env, self)
+    }
     pub fn with_fallback_type(&self, r#type: &Type) -> Expr {
         match &self {
             Expr::Unit(None) => Expr::Unit(r#type.clone().some()),

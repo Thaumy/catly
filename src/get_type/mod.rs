@@ -8,20 +8,8 @@ pub mod r#type;
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::r#type::GetTypeReturn;
-use crate::infra::alias::MaybeType;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
-
-pub fn get_type_with_hint(
-    type_env: &TypeEnv,
-    expr_env: &ExprEnv,
-    expr: &Expr,
-    hint: &MaybeType // TODO: 确定 hint 与 expect 语义
-) -> GetTypeReturn {
-    let expr = expr.try_with_fallback_type(hint);
-
-    get_type(type_env, expr_env, &expr)
-}
 
 pub fn get_type(
     type_env: &TypeEnv,

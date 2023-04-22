@@ -4,7 +4,6 @@ use crate::get_type::case::r#match::r#fn::destruct_match_const_to_expr_env_injec
 use crate::get_type::r#type::require_info::RequireInfo;
 use crate::get_type::r#type::type_miss_match::TypeMissMatch;
 use crate::get_type::r#type::GetTypeReturn;
-use crate::get_type::{get_type, get_type_with_hint};
 use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt as OptAnyExt;
 use crate::infra::quad::Quad;
@@ -12,7 +11,6 @@ use crate::infra::r#box::Ext;
 use crate::infra::r#fn::id;
 use crate::infra::result::AnyExt as ResAnyExt;
 use crate::parser::expr::r#type::Expr;
-use crate::unify::unify;
 
 pub fn case_ri(
     type_env: &TypeEnv,
@@ -46,7 +44,7 @@ pub fn case_ri(
         .rev()
         .map(|(case_expr, case_expr_env_inject, _)| {
             // 不用 hint case_expr, 因为对 target_expr 的类型获取缺乏信息
-            match get_type(type_env, expr_env, case_expr) {
+            match case_expr.infer_type(type_env, expr_env) {
                 Quad::L(case_expr_type) => case_expr_type.ok(),
                 Quad::ML(rc) =>
                 // 确保 case_expr 是模式匹配意义上的常量, 原理与 case_t_rc 相同
@@ -85,7 +83,7 @@ pub fn case_ri(
                         // 对于头一个类型, 只需让它成为初始 acc 类型
                         None => t.some().ok(),
                         // 对于之后的每一个类型, 让它和之前 acc 类型合一
-                        Some(acc) => match unify(type_env, &acc, &t) {
+                        Some(acc) => match acc.unify(type_env, &t) {
                             Some(new_acc) => new_acc.some().ok(),
                             None => Quad::R(TypeMissMatch::of_type(
                                 &acc, &t
@@ -109,7 +107,7 @@ pub fn case_ri(
                 hinted_target_expr.boxed(),
                 vec.clone(),
             );
-            get_type(type_env, expr_env, &expr)
+            expr.infer_type(type_env, expr_env)
         }
         // 当 case_expr_type 不能合一时(这包括合一错误或其中一个 case_expr 无法取得类型)
         // 如果 target_expr 是 EnvRef, 那么在求 then_expr 时可能对产生针对 target_expr 的类型约束
@@ -125,15 +123,13 @@ pub fn case_ri(
                         .all(|(n, ..)| n != ref_name)
                 )
                 .map(|(_, case_expr_env_inject, then_expr)|
-                    match get_type_with_hint(
+                    match then_expr.try_with_fallback_type(expect_type).infer_type(
                         type_env,
                         // 使用 then_expr 的旁路推导需要来自 case_expr 的常量环境注入
                         // 因为 case_expr 可能包含在 then_expr 中会使用的类型信息
                         // 如果不进行注入, 推导可能会因为缺乏类型信息而失败
                         // let case 的旁路推导因为 assign_type 和 assign_expr 均无法提供有效的类型信息, 所以不需要注入
                         &expr_env.extend_vec_new(case_expr_env_inject),
-                        then_expr,
-                        expect_type,
                     ) {
                         Quad::ML(rc) => rc.constraint.find(ref_name).map(|t| t.clone()),
                         // 将 L 和错误情况一并视作 None, 相关讨论见下文
@@ -145,7 +141,7 @@ pub fn case_ri(
                 // 所以应该过滤出所有能够得到的类型进行合一并 hint target_expr
                 .filter(|x| x.is_some())
                 .reduce(|acc, t| match (acc, t) {
-                    (Some(acc), Some(t)) => unify(type_env, &acc, &t),
+                    (Some(acc), Some(t)) => acc.unify(type_env, &t),
                     _ => None
                 })
                 .flatten();
@@ -158,7 +154,7 @@ pub fn case_ri(
                         hinted_target_expr.boxed(),
                         vec.clone(),
                     );
-                    get_type(type_env, expr_env, &expr)
+                    expr.infer_type(type_env, expr_env)
                 }
                 None => original_err
             }

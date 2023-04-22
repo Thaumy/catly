@@ -1,6 +1,5 @@
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
-use crate::get_type::get_type;
 use crate::get_type::r#fn::has_type;
 use crate::get_type::r#type::GetTypeReturn;
 use crate::get_type::test::integration::get_std_code;
@@ -49,7 +48,7 @@ fn test_part1() {
         .get_ref("map1")
         .unwrap();
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), target_type())
+    assert_eq!(expr.infer_type(&type_env, &expr_env), target_type())
 }
 
 #[test]
@@ -60,5 +59,5 @@ fn test_part2() {
         .get_ref("map2")
         .unwrap();
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), target_type())
+    assert_eq!(expr.infer_type(&type_env, &expr_env), target_type())
 }

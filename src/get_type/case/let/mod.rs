@@ -5,7 +5,6 @@ use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::case::r#let::case_ri::case_ri;
 use crate::get_type::case::r#let::case_t_rc::case_t_rc;
-use crate::get_type::get_type_with_hint;
 use crate::get_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::get_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
@@ -23,12 +22,9 @@ pub fn case(
     scope_expr: &Expr
 ) -> GetTypeReturn {
     // Hint assign_expr with assign_type and get assign_expr_type
-    let assign_expr_type = get_type_with_hint(
-        type_env,
-        expr_env,
-        assign_expr,
-        assign_type
-    );
+    let assign_expr_type = assign_expr
+        .try_with_fallback_type(assign_type)
+        .infer_type(type_env, expr_env);
 
     match assign_expr_type {
         // 在获取 assign_expr_type 时产生了约束, 这些约束一定作用于外层环境, 传播之

@@ -1,9 +1,7 @@
 use crate::env::r#type::type_env::TypeEnv;
 use crate::infra::option::AnyExt;
 use crate::parser::r#type::r#type::Type;
-use crate::unify::lift;
 use crate::unify::namely::lift_namely;
-use crate::unify::unify;
 use crate::{btree_set, int_type, namely_type, sum_type};
 
 fn env() -> TypeEnv {
@@ -49,8 +47,10 @@ fn test_part1() {
     assert!(lift_namely(env, "Int", derive).is_some());
 
     let base = &int_type!();
-    assert!(lift(env, base, derive).is_some());
-    assert_eq!(unify(env, base, derive), derive.clone().some());
+    assert!(base
+        .lift_to(env, derive)
+        .is_some());
+    assert_eq!(base.unify(env, derive), derive.clone().some());
 }
 
 #[test]
@@ -60,8 +60,10 @@ fn test_part2() {
     assert!(lift_namely(env, "Int", derive).is_some());
 
     let base = &int_type!();
-    assert!(lift(env, base, derive).is_some());
-    assert_eq!(unify(env, base, derive), derive.clone().some());
+    assert!(base
+        .lift_to(env, derive)
+        .is_some());
+    assert_eq!(base.unify(env, derive), derive.clone().some());
 }
 
 #[test]
@@ -71,8 +73,10 @@ fn test_part3() {
     assert!(lift_namely(env, "Int", derive).is_some());
 
     let base = &int_type!();
-    assert!(lift(env, base, derive).is_some());
-    assert_eq!(unify(env, base, derive), derive.clone().some());
+    assert!(base
+        .lift_to(env, derive)
+        .is_some());
+    assert_eq!(base.unify(env, derive), derive.clone().some());
 }
 
 #[test]
@@ -82,8 +86,10 @@ fn test_part4() {
     assert!(lift_namely(env, "Int", derive).is_some());
 
     let base = &int_type!();
-    assert!(lift(env, base, derive).is_some());
-    assert_eq!(unify(env, base, derive), derive.clone().some());
+    assert!(base
+        .lift_to(env, derive)
+        .is_some());
+    assert_eq!(base.unify(env, derive), derive.clone().some());
 }
 
 #[test]
@@ -93,8 +99,10 @@ fn test_part5() {
     assert!(lift_namely(env, "Int", derive).is_none());
 
     let base = &int_type!();
-    assert!(lift(env, base, derive).is_none());
-    assert_eq!(unify(env, base, derive), None);
+    assert!(base
+        .lift_to(env, derive)
+        .is_none());
+    assert_eq!(base.unify(env, derive), None);
 }
 
 #[test]
@@ -104,8 +112,10 @@ fn test_part6() {
     assert!(lift_namely(env, "Int", derive).is_some());
 
     let base = &int_type!();
-    assert!(lift(env, base, derive).is_some());
-    assert_eq!(unify(env, base, derive), derive.clone().some());
+    assert!(base
+        .lift_to(env, derive)
+        .is_some());
+    assert_eq!(base.unify(env, derive), derive.clone().some());
 }
 
 #[test]
@@ -115,8 +125,10 @@ fn test_part7() {
     assert!(lift_namely(env, "Int", derive).is_some());
 
     let base = &int_type!();
-    assert!(lift(env, base, derive).is_some());
-    assert_eq!(unify(env, base, derive), derive.clone().some());
+    assert!(base
+        .lift_to(env, derive)
+        .is_some());
+    assert_eq!(base.unify(env, derive), derive.clone().some());
 }
 
 #[test]
@@ -126,8 +138,10 @@ fn test_part8() {
     assert!(lift_namely(env, "Int", derive).is_some());
 
     let base = &int_type!();
-    assert!(lift(env, base, derive).is_some());
-    assert_eq!(unify(env, base, derive), derive.clone().some());
+    assert!(base
+        .lift_to(env, derive)
+        .is_some());
+    assert_eq!(base.unify(env, derive), derive.clone().some());
 }
 
 #[test]
@@ -137,6 +151,8 @@ fn test_part9() {
     assert!(lift_namely(env, "Int", derive).is_none());
 
     let base = &int_type!();
-    assert!(lift(env, base, derive).is_none());
-    assert_eq!(unify(env, base, derive), None);
+    assert!(base
+        .lift_to(env, derive)
+        .is_none());
+    assert_eq!(base.unify(env, derive), None);
 }

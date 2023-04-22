@@ -2,7 +2,6 @@ use std::assert_matches::assert_matches;
 
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
-use crate::get_type::get_type;
 use crate::get_type::r#fn::has_type;
 use crate::get_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::get_type::r#type::require_constraint::require_constraint;
@@ -44,7 +43,7 @@ fn test_part1() {
         ("b".to_string(), unit_type!())
     ]);
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_eq!(expr.infer_type(&type_env, &expr_env), r)
 }
 
 #[test]
@@ -59,7 +58,7 @@ fn test_part2() {
         ("b".to_string(), unit_type!())
     ]);
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_eq!(expr.infer_type(&type_env, &expr_env), r)
 }
 
 #[test]
@@ -71,7 +70,7 @@ fn test_part3() {
         .unwrap();
     let r = has_type(namely_type!("Prod"));
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_eq!(expr.infer_type(&type_env, &expr_env), r)
 }
 
 #[test]
@@ -89,7 +88,7 @@ fn test_part4() {
         EnvRefConstraint::single("x".to_string(), unit_type!())
     );
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_eq!(expr.infer_type(&type_env, &expr_env), r)
 }
 
 #[test]
@@ -107,7 +106,7 @@ fn test_part5() {
         EnvRefConstraint::single("x".to_string(), unit_type!())
     );
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_eq!(expr.infer_type(&type_env, &expr_env), r)
 }
 
 #[test]
@@ -122,7 +121,7 @@ fn test_part6() {
         int_type!()
     ),])]);
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_eq!(expr.infer_type(&type_env, &expr_env), r)
 }
 
 #[test]
@@ -140,7 +139,7 @@ fn test_part7() {
         EnvRefConstraint::single("x".to_string(), int_type!())
     );
 
-    assert_eq!(get_type(&type_env, &expr_env, &expr), r)
+    assert_eq!(expr.infer_type(&type_env, &expr_env), r)
 }
 
 #[test]
@@ -152,7 +151,7 @@ fn test_part8() {
         .unwrap();
 
     assert_matches!(
-        get_type(&type_env, &expr_env, &expr),
+        expr.infer_type(&type_env, &expr_env),
         Quad::R(TypeMissMatch { .. })
     )
 }
@@ -166,7 +165,7 @@ fn test_part9() {
         .unwrap();
 
     assert_matches!(
-        get_type(&type_env, &expr_env, &expr),
+        expr.infer_type(&type_env, &expr_env),
         Quad::R(TypeMissMatch { .. })
     )
 }

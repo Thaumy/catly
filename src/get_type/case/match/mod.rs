@@ -6,7 +6,6 @@ use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::case::r#match::case_ri::case_ri;
 use crate::get_type::case::r#match::case_t_rc::case_t_rc;
-use crate::get_type::get_type;
 use crate::get_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::get_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
@@ -21,7 +20,7 @@ pub fn case(
     target_expr: &Expr,
     vec: &Vec<(Expr, Expr)>
 ) -> GetTypeReturn {
-    let target_expr_type = get_type(type_env, expr_env, target_expr);
+    let target_expr_type = target_expr.infer_type(type_env, expr_env);
 
     match target_expr_type {
         // L 与 ML 同样只有是否需要传播对外界环境的约束的区别

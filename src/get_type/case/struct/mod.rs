@@ -3,7 +3,6 @@ mod r#fn;
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::case::r#struct::r#fn::is_struct_vec_of_type_then_get_prod_vec;
-use crate::get_type::get_type;
 use crate::get_type::r#fn::with_constraint_lift_or_left;
 use crate::get_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::get_type::r#type::type_miss_match::TypeMissMatch;
@@ -69,7 +68,7 @@ pub fn case(
     let vec = vec
         .iter()
         .map(|(n, _, e)| {
-            (n.to_string(), get_type(type_env, &expr_env, e))
+            (n.to_string(), e.infer_type(type_env, &expr_env))
         })
         .map(|(n, x)| match x {
             Quad::L(t) => (n, t).ok(),

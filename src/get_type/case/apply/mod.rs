@@ -7,7 +7,6 @@ use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::case::apply::case_ri::case_ri;
 use crate::get_type::case::apply::case_t_rc::case_t_rc;
-use crate::get_type::get_type;
 use crate::get_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::get_type::r#type::type_miss_match::TypeMissMatch;
 use crate::get_type::r#type::GetTypeReturn;
@@ -24,7 +23,7 @@ pub fn case(
     lhs_expr: &Expr,
     rhs_expr: &Expr
 ) -> GetTypeReturn {
-    let lhs_expr_type = get_type(type_env, expr_env, &lhs_expr);
+    let lhs_expr_type = lhs_expr.infer_type(type_env, expr_env);
 
     match lhs_expr_type {
         Quad::L(_) | Quad::ML(_) => {

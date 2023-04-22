@@ -1,10 +1,10 @@
 use std::collections::BTreeSet;
 
 use crate::infra::alias::MaybeType;
+use crate::infra::btree_set::Ext;
 use crate::infra::iter::maybe_fold;
 use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext as BoxAnyExt;
-use crate::infra::btree_set::Ext;
 use crate::infra::vec::Ext as VecAnyExt;
 use crate::parser::r#type::r#type::Type;
 

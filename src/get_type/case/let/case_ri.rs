@@ -1,16 +1,13 @@
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
-use crate::get_type::get_type_with_hint;
 use crate::get_type::r#fn::with_constraint_lift_or_left;
 use crate::get_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::get_type::r#type::require_info::RequireInfo;
 use crate::get_type::r#type::type_miss_match::TypeMissMatch;
 use crate::get_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
-use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
-use crate::unify::lift_or_left;
 
 pub fn case_ri(
     type_env: &TypeEnv,
@@ -22,12 +19,9 @@ pub fn case_ri(
     scope_expr: &Expr
 ) -> GetTypeReturn {
     // Hint scope_expr with expect_type and get scope_expr_type
-    let scope_expr_type = get_type_with_hint(
-        type_env,
-        expr_env,
-        scope_expr,
-        expect_type
-    );
+    let scope_expr_type = scope_expr
+        .try_with_fallback_type(expect_type)
+        .infer_type(type_env, expr_env);
 
     // 无需将 assign_name:assign_type 注入环境
     // 因为即使注入了环境也不能提供更多的类型信息(assign_type 是 Free)
@@ -38,11 +32,9 @@ pub fn case_ri(
         // 换言之, Let 表达式可以被直接简化为 scope_expr, 因为 scope_expr 与绑定无关
         // 如果改变实现, 也可在分析 assign_expr_type 的 L/ML 情况时得知这种无关性
         // 但这种实现会增加类型检查的复杂性, 应交由优化器实现
-        Quad::L(scope_expr_type) => match lift_or_left(
-            type_env,
-            &scope_expr_type,
-            expect_type
-        ) {
+        Quad::L(scope_expr_type) => match scope_expr_type
+            .lift_to_or_left(type_env, expect_type)
+        {
             // Some 和 None 分支的设计使得在此处编译器能够逐步提示代码错误
             // 从而有点编译器教人写代码的感觉(哈哈哈Rust)
 
@@ -79,15 +71,11 @@ pub fn case_ri(
                 // 由于限定 assign_expr 为 assign_type_constraint 可能对外层环境产生约束
                 // 需将这些约束传播以确保限定成立
                 // TODO: 类似用例检查
-                let constraint_acc = match get_type_with_hint(
-                    type_env,
-                    expr_env,
-                    assign_expr,
+                let constraint_acc = match assign_expr
                     //Hint assign_expr and get type of it
-                    &assign_type_constraint
-                        .clone()
-                        .some()
-                ) {
+                    .with_fallback_type(assign_type_constraint)
+                    .infer_type(type_env, expr_env)
+                {
                     // 限定相容且未带来约束
                     Quad::L(_) => EnvRefConstraint::empty(),
                     // 限定相容且带来了约束, 传播之
@@ -116,7 +104,9 @@ pub fn case_ri(
                 }
             } else {
                 // 约束不包含 assign, 关于此处实现的讨论可参见上方的 L 分支
-                match lift_or_left(type_env, &rc.r#type, expect_type)
+                match rc
+                    .r#type
+                    .lift_to_or_left(type_env, expect_type)
                 {
                     None => TypeMissMatch::of_type(
                         &rc.r#type,

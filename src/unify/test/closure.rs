@@ -5,8 +5,6 @@ use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext;
 use crate::parser::r#type::r#type::Type;
 use crate::unify::closure::lift_closure;
-use crate::unify::lift;
-use crate::unify::unify;
 use crate::{
     btree_set,
     closure_type,
@@ -61,8 +59,10 @@ fn test_part1() {
     assert!(lift_closure(env, a, b.deref(), derive).is_some());
 
     let base = &closure_type!(a.clone(), b.clone());
-    assert!(lift(env, base, derive).is_some());
-    assert_eq!(unify(env, base, derive), derive.clone().some());
+    assert!(base
+        .lift_to(env, derive)
+        .is_some());
+    assert_eq!(base.unify(env, derive), derive.clone().some());
 }
 
 #[test]
@@ -74,8 +74,10 @@ fn test_part2() {
     assert!(lift_closure(env, a, b.deref(), derive).is_some());
 
     let base = &closure_type!(a.clone(), b.clone());
-    assert!(lift(env, base, derive).is_some());
-    assert_eq!(unify(env, base, derive), derive.clone().some());
+    assert!(base
+        .lift_to(env, derive)
+        .is_some());
+    assert_eq!(base.unify(env, derive), derive.clone().some());
 }
 
 #[test]
@@ -87,8 +89,10 @@ fn test_part3() {
     assert!(lift_closure(env, a, b.deref(), derive).is_none());
 
     let base = &closure_type!(a.clone(), b.clone());
-    assert!(!lift(env, base, derive).is_some());
-    assert_eq!(unify(env, base, derive), None);
+    assert!(!base
+        .lift_to(env, derive)
+        .is_some());
+    assert_eq!(base.unify(env, derive), None);
 }
 
 #[test]
@@ -100,8 +104,10 @@ fn test_part4() {
     assert!(lift_closure(env, a, b.deref(), derive).is_some());
 
     let base = &closure_type!(a.clone(), b.clone());
-    assert!(lift(env, base, derive).is_some());
-    assert_eq!(unify(env, base, derive), derive.clone().some());
+    assert!(base
+        .lift_to(env, derive)
+        .is_some());
+    assert_eq!(base.unify(env, derive), derive.clone().some());
 }
 
 #[test]
@@ -113,8 +119,10 @@ fn test_part5() {
     assert!(lift_closure(env, a, b.deref(), derive).is_none());
 
     let base = &closure_type!(a.clone(), b.clone());
-    assert!(!lift(env, base, derive).is_some());
-    assert_eq!(unify(env, base, derive), None);
+    assert!(!base
+        .lift_to(env, derive)
+        .is_some());
+    assert_eq!(base.unify(env, derive), None);
 }
 
 #[test]
@@ -130,8 +138,8 @@ fn test_part6() {
     );
 
     let base = &closure_type!(a.clone(), b.clone());
-    assert_eq!(lift(env, base, derive), r.clone().some());
-    assert_eq!(unify(env, base, derive), r.clone().some());
+    assert_eq!(base.lift_to(env, derive), r.clone().some());
+    assert_eq!(base.unify(env, derive), r.clone().some());
 }
 
 #[test]
@@ -143,6 +151,6 @@ fn test_part7() {
     let derive =
         &Type::ClosureType(a.clone().boxed(), b.clone().boxed());
 
-    assert_eq!(lift(env, base, derive), None);
-    assert_eq!(unify(env, base, derive), derive.clone().some());
+    assert_eq!(base.lift_to(env, derive), None);
+    assert_eq!(base.unify(env, derive), derive.clone().some());
 }

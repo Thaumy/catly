@@ -9,7 +9,6 @@ use crate::infra::r#fn::id;
 use crate::infra::result::AnyExt as ResAnyExt;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::Type;
-use crate::unify::can_lift;
 
 type StructVec = Vec<(String, MaybeType, Expr)>;
 type ProdVec = Vec<(String, Type)>;
@@ -42,7 +41,7 @@ pub fn is_struct_vec_of_type_then_get_prod_vec(
                                 // 类型相容判断
                                 v_t.clone()
                                     .map(|v_t| {
-                                        can_lift(type_env, &v_t, t)
+                                        v_t.can_lift_to(type_env, t)
                                     })
                                     .unwrap_or(true)
                         })

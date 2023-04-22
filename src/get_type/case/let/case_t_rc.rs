@@ -1,6 +1,5 @@
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
-use crate::get_type::get_type_with_hint;
 use crate::get_type::r#fn::{
     require_constraint_or_type,
     with_constraint_lift_or_left
@@ -13,7 +12,6 @@ use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::Type;
-use crate::unify::lift_or_left;
 
 pub fn case_t_rc(
     type_env: &TypeEnv,
@@ -27,11 +25,9 @@ pub fn case_t_rc(
     scope_expr: &Expr
 ) -> GetTypeReturn {
     // Lift assign_expr_type to assign_type
-    let assign_type = match lift_or_left(
-        type_env,
-        &assign_expr_type,
-        assign_type
-    ) {
+    let assign_type = match assign_expr_type
+        .lift_to_or_left(type_env, assign_type)
+    {
         None =>
             return TypeMissMatch::of_type(
                 &assign_expr_type,
@@ -49,19 +45,14 @@ pub fn case_t_rc(
     );
 
     // Hint scope_expr with expect_type and get scope_expr_type
-    let scope_expr_type = get_type_with_hint(
-        type_env,
-        &expr_env,
-        scope_expr,
-        expect_type
-    );
+    let scope_expr_type = scope_expr
+        .try_with_fallback_type(expect_type)
+        .infer_type(type_env, &expr_env);
 
     match scope_expr_type {
-        Quad::L(scope_expr_type) => match lift_or_left(
-            type_env,
-            &scope_expr_type,
-            expect_type
-        ) {
+        Quad::L(scope_expr_type) => match scope_expr_type
+            .lift_to_or_left(type_env, expect_type)
+        {
             Some(t) => require_constraint_or_type(constraint_acc, t),
             None => TypeMissMatch::of_type(
                 &scope_expr_type,

@@ -6,15 +6,12 @@ use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::get_type::case::cond::case_ri::case_ri;
 use crate::get_type::case::cond::case_t_rc::case_t_rc;
-use crate::get_type::get_type_with_hint;
 use crate::get_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::get_type::r#type::type_miss_match::TypeMissMatch;
 use crate::get_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
-use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
-use crate::unify::can_lift;
 
 // TODO: 外部环境约束同层传播完备性
 pub fn case(
@@ -25,17 +22,14 @@ pub fn case(
     then_expr: &Expr,
     else_expr: &Expr
 ) -> GetTypeReturn {
-    let bool_expr_type = get_type_with_hint(
-        type_env,
-        expr_env,
-        bool_expr,
-        &bool_type!().some()
-    );
+    let bool_expr_type = bool_expr
+        .with_fallback_type(&bool_type!())
+        .infer_type(type_env, expr_env);
 
     // bool_expr must be boolean types
     let constraint_acc = match &bool_expr_type {
         Quad::L(bool_expr_type) =>
-            if can_lift(type_env, &bool_expr_type, &bool_type!()) {
+            if bool_expr_type.can_lift_to(type_env, &bool_type!()) {
                 EnvRefConstraint::empty()
             } else {
                 return TypeMissMatch::of_type(
@@ -45,7 +39,10 @@ pub fn case(
                 .into();
             },
         Quad::ML(rc) =>
-            if can_lift(type_env, &rc.r#type, &bool_type!()) {
+            if rc
+                .r#type
+                .can_lift_to(type_env, &bool_type!())
+            {
                 rc.constraint.clone()
             } else {
                 return TypeMissMatch::of_type(
@@ -63,12 +60,9 @@ pub fn case(
     let expr_env =
         &expr_env.extend_constraint_new(constraint_acc.clone());
 
-    let then_expr_type = get_type_with_hint(
-        type_env,
-        expr_env,
-        then_expr,
-        expect_type
-    );
+    let then_expr_type = then_expr
+        .try_with_fallback_type(expect_type)
+        .infer_type(type_env, expr_env);
 
     match then_expr_type {
         Quad::L(_) | Quad::ML(_) => {

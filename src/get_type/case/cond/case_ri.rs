@@ -1,6 +1,5 @@
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
-use crate::get_type::get_type;
 use crate::get_type::r#fn::require_constraint_or_type;
 use crate::get_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::get_type::r#type::require_constraint::require_extended_constraint;
@@ -18,7 +17,7 @@ pub fn case_ri(
     then_expr: &Expr
 ) -> GetTypeReturn {
     let (else_expr_type, constraint_acc) =
-        match get_type(type_env, expr_env, else_expr) {
+        match else_expr.infer_type(type_env, expr_env) {
             Quad::L(t) => (t, EnvRefConstraint::empty()),
             // 需要收集这些作用于外层环境的约束并传播, 因为它们可能对推导 then_expr_type 有所帮助
             Quad::ML(rc) => (rc.r#type, rc.constraint),
@@ -35,7 +34,7 @@ pub fn case_ri(
     let new_expr_env =
         expr_env.extend_constraint_new(constraint_acc.clone());
 
-    match get_type(type_env, &new_expr_env, &cond_expr) {
+    match cond_expr.infer_type(type_env, &new_expr_env) {
         Quad::L(t) => require_constraint_or_type(constraint_acc, t),
         Quad::ML(rc) => require_extended_constraint(
             rc.r#type,
