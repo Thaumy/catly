@@ -3,7 +3,6 @@ use std::ops::Not;
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::infer_type::case::r#match::r#fn::destruct_match_const_to_expr_env_inject;
-use crate::infer_type::r#fn::has_type;
 use crate::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer_type::r#type::require_constraint::{
     require_constraint,

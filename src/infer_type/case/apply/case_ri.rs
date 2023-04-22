@@ -1,6 +1,5 @@
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
-use crate::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer_type::r#type::require_constraint::require_constraint;
 use crate::infer_type::r#type::require_info::RequireInfo;
 use crate::infer_type::r#type::GetTypeReturn;
@@ -26,15 +25,8 @@ pub fn case_ri(
             // 因为此处产生的约束作用于外层环境, 而这些约束可能对再次推导 Apply 的类型有所帮助
             // 所以再次 infer_type 时应该将这些约束注入环境, 并对外传播
             Quad::L(_) | Quad::ML(_) => {
-                let (input_type, constraint_acc) = match rhs_expr_type
-                {
-                    Quad::L(input_type) =>
-                        (input_type, EnvRefConstraint::empty()),
-                    Quad::ML(rc) => (rc.r#type, rc.constraint),
-                    _ => panic!(
-                        "Impossible rhs_expr_type: {rhs_expr_type:?}"
-                    )
-                };
+                let (input_type, constraint_acc) =
+                    rhs_expr_type.unwrap_type_and_constraint();
 
                 let closure_type = Type::ClosureType(
                     input_type.clone().boxed(),
@@ -68,15 +60,8 @@ pub fn case_ri(
         match rhs_expr_type {
             // 注入约束并对外传播, 与上同理
             Quad::L(_) | Quad::ML(_) => {
-                let (input_type, constraint_acc) = match rhs_expr_type
-                {
-                    Quad::L(input_type) =>
-                        (input_type, EnvRefConstraint::empty()),
-                    Quad::ML(rc) => (rc.r#type, rc.constraint),
-                    _ => panic!(
-                        "Impossible rhs_expr_type: {rhs_expr_type:?}"
-                    )
-                };
+                let (input_type, constraint_acc) =
+                    rhs_expr_type.unwrap_type_and_constraint();
 
                 let partial_closure_type = Type::PartialClosureType(
                     input_type.clone().boxed()

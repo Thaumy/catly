@@ -1,14 +1,8 @@
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::env_ref_src::EnvRefSrc;
 use crate::env::r#type::type_constraint::TypeConstraint;
-use crate::infer_type::r#fn::{
-    has_type,
-    lift_or_miss_match,
-    with_constraint_lift_or_miss_match
-};
 use crate::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer_type::r#type::require_constraint::require_constraint;
-use crate::infer_type::r#type::require_info::RequireInfo;
 use crate::infer_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
 use crate::infra::quad::Quad;
@@ -22,105 +16,43 @@ impl<'t> ExprEnv<'t> {
         ref_name: &str,
         hint: &MaybeType
     ) -> GetTypeReturn {
-        match self
-            .find_entry(ref_name)
-            .map(|(_, tc, src)| (tc, src))
-        {
-            // 当前环境查找到引用名, 但不存在引用源
-            Some((tc, EnvRefSrc::NoSrc)) => match tc {
-                // 引用名所对应的类型是类型约束的直接类型
-                TypeConstraint::Constraint(t) => has_type(t.clone()),
-                // 不存在类型约束
-                TypeConstraint::Free => match hint {
-                    // 如果有 hint, 则将 ref_name 约束到 hint
-                    Some(hint) => require_constraint(
-                        hint.clone(),
-                        EnvRefConstraint::single(
-                            ref_name.to_string(),
-                            hint.clone()
-                        )
-                    ),
-                    // 缺乏推导信息
+        let ref_type = self.infer_type(ref_name);
+        match ref_type {
+            // 缺乏类型信息, 尝试提示
+            Quad::MR(_) if let Some(hint) = hint => {
+                let tc_and_src = self
+                    .find_entry(ref_name)
+                    .map(|(_, tc, src)| (tc, src));
+
+                match tc_and_src {
+                    // 环境中不存在引用名
                     None =>
-                        RequireInfo::of(ref_name).into():
-                            GetTypeReturn,
-                }
-            },
-
-            // 当前环境查找到引用名, 且存在引用源
-            Some((tc, EnvRefSrc::Src(src_expr))) => {
-                // 为防止递归调用导致类型检查不能终止, 需要将引用名去源后注入环境
-                let new_expr_env = self.extend_new(
-                    ref_name.to_string(),
-                    tc.clone().into(),
-                    None
-                );
-
-                match tc {
-                    // 具备约束
-                    TypeConstraint::Constraint(t) => match src_expr
-                        .with_fallback_type(t)
-                        .infer_type(
-                            &self.type_env,
-                            &new_expr_env,
-                        ) {
-                        Quad::L(src_expr_type) => lift_or_miss_match(
-                            &self.type_env,
-                            &src_expr_type,
-                            &t,
-                        ),
-                        Quad::ML(rc) => with_constraint_lift_or_miss_match(
-                            rc.constraint,
-                            &self.type_env,
-                            &rc.r#type,
-                            &t,
-                        ),
-                        // 如果引用源是无类型弃元
-                        Quad::MR(ri) if ri.ref_name == "_" => match hint {
-                            // 具备 hint, 可以将引用名约束到 hint, 传播该约束
-                            Some(hint) => require_constraint(
+                        require_constraint(
+                            hint.clone(),
+                            EnvRefConstraint::single(
+                                ref_name.to_string(),
                                 hint.clone(),
-                                EnvRefConstraint::single(
-                                    ref_name.to_string(),
-                                    hint.clone(),
-                                ),
                             ),
-                            // 不具备 hint, 为了防止无类型弃元信息被捕获, 改写错误信息
-                            None => RequireInfo::of(ref_name).into()
-                        },
-                        // 无法处理其他情况
-                        mr_r => mr_r
-                    }
-
-                    // 不具备约束
-                    TypeConstraint::Free => match src_expr.infer_type(&self.type_env, &new_expr_env) {
-                        Quad::L(src_expr_type) => has_type(src_expr_type),
-                        // 由于 ref_name 是 Free 的, 所以此时约束可能作用于 ref_name 本身
-                        // 此时作用于 ref_name 的约束相当于 ref_name 的固有类型, 只需将其他约束按需传播
-                        // 如果引用源是无类型弃元
-                        Quad::ML(rc) => require_constraint(
-                            rc.r#type,
-                            rc.constraint.exclude_new(ref_name),
                         ),
-                        Quad::MR(ri) if ri.ref_name == "_" => match hint {
-                            // 具备 hint, 可以将引用名约束到 hint, 传播该约束
-                            Some(hint) => require_constraint(
+                    // 引用名自由无源
+                    Some((TypeConstraint::Free, EnvRefSrc::NoSrc)) =>
+                        require_constraint(
+                            hint.clone(),
+                            EnvRefConstraint::single(
+                                ref_name.to_string(),
                                 hint.clone(),
-                                EnvRefConstraint::single(
-                                    ref_name.to_string(),
-                                    hint.clone(),
-                                ),
                             ),
-                            // 不具备 hint, 为了防止无类型弃元信息被捕获, 改写错误信息
-                            None => RequireInfo::of(ref_name).into()
-                        },
-                        // 缺乏约束信息且引用源无类型标注, 此时应使用 hint, 并对 ref_name 产生到 hint 的约束
-                        Quad::MR(_) if let Some(hint) = hint && src_expr.is_no_type_annot()
-                        => match src_expr.with_fallback_type(hint)
+                        ),
+                    // 引用名自由有源, 且引用源无类型标注
+                    // 如果 hint 有效, 应对 ref_name 产生到 hint 的约束
+                    Some((TypeConstraint::Free, EnvRefSrc::Src(src_expr))) if src_expr.is_no_type_annot() =>
+                        match src_expr
+                            .with_fallback_type(hint)
                             .infer_type(
                                 &self.type_env,
                                 self,
-                            ) {
+                            )
+                        {
                             // 因为此时无类型标注, 所以得到的类型一定是 hint 或更完整的 hint
                             // 将 ref_name 约束到类型结果 t 不会导致约束类型不一致
                             // 因为 t 要么比 hint 更加完整, 要么等于 hint
@@ -131,7 +63,6 @@ impl<'t> ExprEnv<'t> {
                                     t,
                                 ),
                             ),
-                            // TODO: bad fmt
                             Quad::ML(rc) =>
                                 rc.with_constraint_acc(
                                     EnvRefConstraint::single(
@@ -141,24 +72,10 @@ impl<'t> ExprEnv<'t> {
                                 ),
                             mr_r => mr_r
                         }
-                        // 类型不相容
-                        r => r
-                    },
+                    _ => ref_type
                 }
             }
-
-            None => match hint {
-                // 环境约束缺失, 但可以通过建立约束修复
-                Some(hint) => require_constraint(
-                    hint.clone(),
-                    EnvRefConstraint::single(
-                        ref_name.to_string(),
-                        hint.clone()
-                    )
-                ),
-                // 缺乏推导信息
-                None => RequireInfo::of(ref_name).into()
-            }
+            _ => ref_type
         }
     }
 }

@@ -5,7 +5,6 @@ use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::infer_type::case::r#let::case_ri::case_ri;
 use crate::infer_type::case::r#let::case_t_rc::case_t_rc;
-use crate::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
 use crate::infra::quad::Quad;
@@ -32,16 +31,11 @@ pub fn case(
         // assign_type 会对 assign_expr 产生类型限定(通过 hint), 这使得约束从内层传播到了外层
         // L 与 ML 的唯一区别是 ML 额外携带了一些对外层环境的约束, 需要传播这些约束
         Quad::L(_) | Quad::ML(_) => {
-            let (assign_expr_type, constraint_acc) = match assign_expr_type {
-                Quad::L(t) => (t, EnvRefConstraint::empty()),
-                // 需要收集这些作用于外层环境的约束并传播, 因为它们可能对推导 scope_expr_type 有所帮助
-                Quad::ML(rc) => (
-                    rc.r#type,
-                    // 过滤掉对 assign_name 的约束
-                    rc.constraint.exclude_new(assign_name)
-                ),
-                _ => panic!("Impossible assign_expr_type: {assign_type:?}")
-            };
+            let (assign_expr_type, constraint_acc) =
+                assign_expr_type.unwrap_type_and_constraint();
+            // 过滤掉对 assign_name 的约束
+            let constraint_acc =
+                constraint_acc.exclude_new(assign_name);
 
             let new_expr_env = expr_env
                 .extend_constraint_new(constraint_acc.clone());

@@ -66,23 +66,17 @@ pub fn case(
 
     match then_expr_type {
         Quad::L(_) | Quad::ML(_) => {
-            let (then_expr_type, constraint_acc) =
-                match then_expr_type {
-                    Quad::L(then_expr_type) =>
-                        (then_expr_type, constraint_acc),
-                    Quad::ML(rc) => match constraint_acc
-                        .extend_new(rc.constraint.clone())
-                    {
-                        Some(constraint) => (rc.r#type, constraint),
-                        None =>
-                            return TypeMissMatch::of_constraint(
-                                &constraint_acc,
-                                &rc.constraint
-                            ).into()
-                    },
-                    _ => panic!(
-                        "Impossible then_expr_type: {then_expr_type:?}"
-                    )
+            let (then_expr_type, constraint) =
+                then_expr_type.unwrap_type_and_constraint();
+            let constraint_acc =
+                match constraint_acc.extend_new(constraint.clone()) {
+                    Some(constraint) => constraint,
+                    None =>
+                        return TypeMissMatch::of_constraint(
+                            &constraint_acc,
+                            &constraint
+                        )
+                        .into(),
                 };
 
             // TODO: 相似用例检查

@@ -7,7 +7,6 @@ use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::infer_type::case::apply::case_ri::case_ri;
 use crate::infer_type::case::apply::case_t_rc::case_t_rc;
-use crate::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infer_type::r#type::GetTypeReturn;
 use crate::infra::alias::MaybeType;
@@ -27,15 +26,8 @@ pub fn case(
 
     match lhs_expr_type {
         Quad::L(_) | Quad::ML(_) => {
-            let (lhs_expr_type, constraint_acc) = match lhs_expr_type
-            {
-                Quad::L(lhs_type) =>
-                    (lhs_type, EnvRefConstraint::empty()),
-                Quad::ML(rc) => (rc.r#type, rc.constraint),
-                _ => panic!(
-                    "Impossible lhs_expr_type: {lhs_expr_type:?}"
-                )
-            };
+            let (lhs_expr_type, constraint_acc) =
+                lhs_expr_type.unwrap_type_and_constraint();
 
             let (lhs_input_type, lhs_output_type) =
                 if let Type::ClosureType(input_type, output_type) =

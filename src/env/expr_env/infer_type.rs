@@ -24,7 +24,7 @@ impl<'t> ExprEnv<'t> {
                 TypeConstraint::Constraint(t) => has_type(t.clone()),
                 // 不存在类型约束
                 TypeConstraint::Free =>
-                    RequireInfo::of(ref_name).into(): GetTypeReturn,
+                    RequireInfo::of(ref_name).into(),
             },
 
             // 当前环境查找到引用名, 且存在引用源
@@ -89,28 +89,4 @@ impl<'t> ExprEnv<'t> {
             None => RequireInfo::of(ref_name).into()
         }
     }
-
-    /*    pub fn iff_cakumin(
-            &self,
-            ref_name: &str,
-            hint: &MaybeType
-        ) -> GetTypeReturn {
-            let k = self.infer_type(ref_name);
-            match k {
-                Quad::MR(ri) => match hint {
-                    // 环境约束缺失, 但可以通过建立约束修复
-                    Some(hint) => require_constraint(
-                        hint.clone(),
-                        EnvRefConstraint::single(
-                            ref_name.to_string(),
-                            hint.clone()
-                        )
-                    ),
-                    // 缺乏推导信息
-                    None => RequireInfo::of(ref_name).into()
-                },
-                mr_r => mr_r
-            }
-        }
-    */
 }

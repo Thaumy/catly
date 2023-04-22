@@ -90,7 +90,7 @@ pub fn case_ri(
                             ))
                             .err()
                         }
-                    }
+                    }// TODO: simplify
                 }
                 (Ok(_), Err(_)) => original_err.clone().err(),
                 (Err(_), _) => original_err.clone().err()
