@@ -1,29 +1,33 @@
 use std::iter::IntoIterator;
 
-pub fn maybe_fold<'t, I, T: 't, A, F>(
-    iter: I,
-    acc: A,
-    f: F
-) -> Option<A>
+pub trait IntoIteratorExt<'t, T: 't>
 where
-    I: IntoIterator<Item = &'t T>,
-    F: Fn(A, &T) -> Option<A>
+    Self: IntoIterator<Item = &'t T> + Sized
 {
-    iter.into_iter()
-        .fold(Some(acc), |acc, p| match acc {
-            Some(acc) => f(acc, p),
-            none => none
-        })
+    fn maybe_fold<A, F>(self, acc: A, f: F) -> Option<A>
+    where
+        F: Fn(A, &T) -> Option<A>
+    {
+        self.into_iter()
+            .fold(Some(acc), |acc, p| match acc {
+                Some(acc) => f(acc, p),
+                none => none
+            })
+    }
+
+    fn maybe_reduce<F>(self, f: F) -> Option<T>
+    where
+        T: Clone,
+        F: Fn(T, &T) -> Option<T>
+    {
+        let mut iter = self.into_iter();
+        let first = iter.next().cloned()?;
+
+        iter.maybe_fold(first, f)
+    }
 }
 
-pub fn maybe_reduce<'t, I, T: 't, F>(iter: I, f: F) -> Option<T>
-where
-    I: IntoIterator<Item = &'t T>,
-    T: Clone,
-    F: Fn(T, &T) -> Option<T>
+impl<'t, T: 't, I> IntoIteratorExt<'t, T> for I where
+    I: IntoIterator<Item = &'t T>
 {
-    let mut iter = iter.into_iter();
-    let first = iter.next().cloned()?;
-
-    maybe_fold(iter, first, f)
 }

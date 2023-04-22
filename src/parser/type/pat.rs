@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 
 use crate::infra::alias::MaybeType;
 use crate::infra::btree_set::Ext;
-use crate::infra::iter::maybe_fold;
+use crate::infra::iter::IntoIteratorExt;
 use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext as BoxAnyExt;
 use crate::infra::vec::Ext as VecAnyExt;
@@ -57,14 +57,10 @@ impl From<Pat> for MaybeType {
                 }
             }
             Pat::SumType(ts) => {
-                let set = maybe_fold(
-                    ts.iter(),
-                    BTreeSet::new(),
-                    |acc, t| {
-                        let it = (t.clone().into(): MaybeType)?;
-                        acc.chain_insert(it).some()
-                    }
-                );
+                let set = ts.maybe_fold(BTreeSet::new(), |acc, t| {
+                    let it = (t.clone().into(): MaybeType)?;
+                    acc.chain_insert(it).some()
+                });
 
                 match set {
                     Some(set) => Type::SumType(set),
@@ -72,12 +68,11 @@ impl From<Pat> for MaybeType {
                 }
             }
             Pat::ProdType(vec) => {
-                let vec =
-                    maybe_fold(vec.iter(), vec![], |acc, (n, p)| {
-                        let it = (p.clone().into(): MaybeType)
-                            .map(|e| (n.to_string(), e))?;
-                        acc.chain_push(it).some()
-                    });
+                let vec = vec.maybe_fold(vec![], |acc, (n, p)| {
+                    let it = (p.clone().into(): MaybeType)
+                        .map(|e| (n.to_string(), e))?;
+                    acc.chain_push(it).some()
+                });
 
                 match vec {
                     Some(vec) => Type::ProdType(vec),

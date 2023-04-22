@@ -1,4 +1,4 @@
-use crate::infra::iter::maybe_fold;
+use crate::infra::iter::IntoIteratorExt;
 use crate::infra::option::AnyExt;
 use crate::infra::vec::Ext;
 use crate::parser::keyword::Keyword;
@@ -41,7 +41,7 @@ impl From<In> for Option<Out> {
 type In = crate::parser::preprocess::r#const::Out;
 
 pub fn pp_name(seq: &[In]) -> Option<Vec<Out>> {
-    let result = maybe_fold(seq.iter(), vec![], |acc, p| {
+    let result = seq.maybe_fold(vec![], |acc, p| {
         let it = (p.clone().into(): Option<Out>)?;
         acc.chain_push(it).some()
     });

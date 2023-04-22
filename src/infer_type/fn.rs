@@ -45,6 +45,29 @@ pub fn with_constraint_lift_or_miss_match(
     }
 }
 
+pub fn unify_or_miss_match(
+    type_env: &TypeEnv,
+    l: &Type,
+    r: &Type
+) -> GetTypeReturn {
+    match l.unify(type_env, r) {
+        Some(t) => has_type(t),
+        None => TypeMissMatch::of_type(l, r).into()
+    }
+}
+
+pub fn with_constraint_unify_or_miss_match(
+    constraint: EnvRefConstraint,
+    type_env: &TypeEnv,
+    l: &Type,
+    r: &Type
+) -> GetTypeReturn {
+    match l.unify(type_env, r) {
+        Some(t) => require_constraint(t, constraint),
+        None => TypeMissMatch::of_type(l, r).into()
+    }
+}
+
 pub fn destruct_namely_type(
     type_env: &TypeEnv,
     r#type: &Type

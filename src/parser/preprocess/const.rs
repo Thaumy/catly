@@ -1,4 +1,4 @@
-use crate::infra::iter::maybe_fold;
+use crate::infra::iter::IntoIteratorExt;
 use crate::infra::option::AnyExt;
 use crate::infra::slice::slice_get_head_tail;
 use crate::infra::vec::Ext;
@@ -106,7 +106,7 @@ type In = crate::parser::preprocess::keyword::Out;
 
 pub fn pp_const(seq: &[In]) -> Option<Vec<Out>> {
     let vec = go(vec![], seq);
-    let result = maybe_fold(vec.iter(), vec![], |acc, p| {
+    let result = vec.maybe_fold(vec![], |acc, p| {
         let it = (p.clone().into(): Option<Out>)?;
         acc.chain_push(it).some()
     });

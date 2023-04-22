@@ -1,4 +1,4 @@
-use crate::infra::iter::maybe_fold;
+use crate::infra::iter::IntoIteratorExt;
 use crate::infra::option::AnyExt;
 use crate::infra::str::str_get_head_tail_follow;
 use crate::infra::vec::Ext;
@@ -180,7 +180,7 @@ impl From<Pat> for Option<Out> {
 
 pub fn pp_chunk(seq: &str) -> Option<Vec<Out>> {
     let vec = go(vec![Pat::Start], seq);
-    let result = maybe_fold(vec.iter(), vec![], |acc, p| {
+    let result = vec.maybe_fold(vec![], |acc, p| {
         let it = (p.clone().into(): Option<Out>)?;
         acc.chain_push(it).some()
     });
