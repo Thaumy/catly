@@ -1,10 +1,10 @@
-mod get_type_with_hint;
+mod infer_type_with_hint;
 
 use crate::env::r#type::env_ref_src::EnvRefSrc;
 use crate::env::r#type::type_constraint::TypeConstraint;
 use crate::env::r#type::type_env::TypeEnv;
-use crate::get_type::r#type::env_ref_constraint::EnvRefConstraint;
-use crate::get_type::r#type::GetTypeReturn;
+use crate::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
+use crate::infer_type::r#type::GetTypeReturn;
 use crate::infra::alias::{MaybeExpr, MaybeType};
 use crate::infra::option::AnyExt;
 use crate::parser::expr::r#type::Expr;
@@ -96,8 +96,8 @@ impl<'t> ExprEnv<'t> {
         expr_env
     }
 
-    pub fn get_type(&self, ref_name: &str) -> GetTypeReturn {
-        self.get_type_with_hint(ref_name, &None)
+    pub fn infer_type(&self, ref_name: &str) -> GetTypeReturn {
+        self.infer_type_with_hint(ref_name, &None)
     }
 
     fn find_entry(&self, ref_name: &str) -> Option<&Item> {

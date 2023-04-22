@@ -5,7 +5,7 @@
 extern crate core;
 
 pub mod env;
-pub mod get_type;
+pub mod infer_type;
 pub mod infra;
 pub mod parser;
 pub mod unify;
