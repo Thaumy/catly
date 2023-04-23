@@ -6,7 +6,7 @@ use crate::infer_type::r#type::require_info::RequireInfo;
 use crate::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt as OptAnyExt;
-use crate::infra::quad::Quad;
+use crate::infra::quad::{AnyExt, Quad};
 use crate::infra::r#box::Ext;
 use crate::infra::r#fn::id;
 use crate::infra::result::AnyExt as ResAnyExt;
@@ -21,7 +21,7 @@ pub fn case_ri(
     vec: &Vec<(Expr, Expr)>
 ) -> InferTypeRet {
     // 由于以下推导可能产生错误, 而这些错误没有很好的语义对应已有的错误类型, 所以需要返回原错误
-    let original_err = Quad::MR(require_info);
+    let original_err = require_info.quad_mr();
 
     // 当 case_expr_type 能够合一为某个类型时, 这个类型与 target_expr 将直接相关
     // 此时以该类型为 hint 求 match 表达式类型
@@ -85,10 +85,9 @@ pub fn case_ri(
                         // 对于之后的每一个类型, 让它和之前 acc 类型合一
                         Some(acc) => match acc.unify(type_env, &t) {
                             Some(new_acc) => new_acc.some().ok(),
-                            None => Quad::R(TypeMissMatch::of_type(
-                                &acc, &t
-                            ))
-                            .err()
+                            None => TypeMissMatch::of_type(&acc, &t)
+                                .quad_r()
+                                .err()
                         }
                     }
                 }
@@ -131,7 +130,7 @@ pub fn case_ri(
                         // let case 的旁路推导因为 assign_type 和 assign_expr 均无法提供有效的类型信息, 所以不需要注入
                         &expr_env.extend_vec_new(case_expr_env_inject),
                     ) {
-                        Quad::ML(rc) => rc.constraint.find(ref_name).map(|t| t.clone()),
+                        Quad::ML(rc) => rc.constraint.find(ref_name.as_str()).map(|t| t.clone()),
                         // 将 L 和错误情况一并视作 None, 相关讨论见下文
                         _ => None
                     }

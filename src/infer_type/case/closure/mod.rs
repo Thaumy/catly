@@ -107,7 +107,7 @@ pub fn case(
         Quad::MR(ri) if let Some(input_name) = input_name =>
             RequireInfo::of(
                 &ri.ref_name,
-                ri.constraint.exclude_new(input_name)
+                ri.constraint.exclude_new(input_name.as_str())
             )
             .into(),
 

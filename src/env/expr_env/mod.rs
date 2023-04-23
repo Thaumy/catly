@@ -64,7 +64,7 @@ impl<'t> ExprEnv<'t> {
 
     pub fn extend_new(
         &self,
-        ref_name: String,
+        ref_name: impl Into<String>,
         r#type: MaybeType,
         src: MaybeExpr
     ) -> ExprEnv {
@@ -72,8 +72,11 @@ impl<'t> ExprEnv<'t> {
             .map(|t| t.into())
             .unwrap_or(TypeConstraint::Free);
 
-        let expr_env =
-            self.extend_vec_new(vec![(ref_name, tc, src.into())]);
+        let expr_env = self.extend_vec_new(vec![(
+            ref_name.into(),
+            tc,
+            src.into()
+        )]);
         println!(
             "{:8}{:>10} │ {:?}",
             "[env]", "ExprEnv", expr_env.env
@@ -100,7 +103,11 @@ impl<'t> ExprEnv<'t> {
         expr_env
     }
 
-    fn find_entry(&self, ref_name: &str) -> Option<&Item> {
+    fn find_entry<'s>(
+        &self,
+        ref_name: impl Into<&'s str>
+    ) -> Option<&Item> {
+        let ref_name = ref_name.into();
         let entry = self
             .env
             .iter()
@@ -114,7 +121,10 @@ impl<'t> ExprEnv<'t> {
         }
     }
 
-    pub fn get_expr(&self, ref_name: &str) -> Option<&Expr> {
+    pub fn get_expr<'s>(
+        &self,
+        ref_name: impl Into<&'s str>
+    ) -> Option<&Expr> {
         self.find_entry(ref_name)
             .and_then(|(.., src)| match src {
                 EnvRefSrc::Src(expr) => expr.some(),
@@ -122,14 +132,20 @@ impl<'t> ExprEnv<'t> {
             })
     }
 
-    pub fn get_ref(&self, ref_name: &str) -> Option<Expr> {
+    pub fn get_ref<'s>(
+        &self,
+        ref_name: impl Into<&'s str>
+    ) -> Option<Expr> {
         self.find_entry(ref_name)
             .map(|(n, tc, _)| {
                 Expr::EnvRef(tc.clone().into(), n.to_string())
             })
     }
 
-    pub fn exist_ref(&self, ref_name: &str) -> bool {
+    pub fn exist_ref<'s>(
+        &self,
+        ref_name: impl Into<&'s str>
+    ) -> bool {
         self.find_entry(ref_name)
             .is_some()
     }

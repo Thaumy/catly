@@ -3,7 +3,7 @@ use std::fmt::{Debug, Formatter};
 use crate::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infra::quad::Quad;
+use crate::infra::quad::AnyExt;
 
 // 需要类型信息
 // 此情况由 namely case 产生时表明缺乏 ref_name 的类型信息
@@ -15,19 +15,22 @@ pub struct RequireInfo {
 }
 
 impl RequireInfo {
-    pub fn of(
-        ref_name: &str,
+    pub fn of<'s>(
+        ref_name: impl Into<String>,
         constraint: EnvRefConstraint
     ) -> RequireInfo {
         RequireInfo {
-            ref_name: ref_name.to_string(),
+            ref_name: ref_name.into(),
             constraint
         }
     }
 
-    pub fn new_ref_name(self, ref_name: &str) -> RequireInfo {
+    pub fn new_ref_name(
+        self,
+        ref_name: impl Into<String>
+    ) -> RequireInfo {
         RequireInfo {
-            ref_name: ref_name.to_string(),
+            ref_name: ref_name.into(),
             constraint: self.constraint
         }
     }
@@ -52,7 +55,7 @@ impl RequireInfo {
 }
 
 impl From<RequireInfo> for InferTypeRet {
-    fn from(value: RequireInfo) -> Self { Quad::MR(value) }
+    fn from(value: RequireInfo) -> Self { value.quad_mr() }
 }
 
 impl Debug for RequireInfo {

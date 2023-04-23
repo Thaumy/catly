@@ -4,7 +4,7 @@ use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt as OptAnyExt;
-use crate::infra::quad::Quad;
+use crate::infra::quad::AnyExt;
 use crate::infra::r#fn::id;
 use crate::infra::result::AnyExt as ResAnyExt;
 use crate::parser::expr::r#type::Expr;
@@ -60,21 +60,21 @@ pub fn is_struct_vec_of_type_then_get_prod_vec(
                     })
                     .find(|x| matches!(x, Ok(Some(..))))
                     .unwrap_or(
-                        Quad::R(TypeMissMatch::of(
+                        TypeMissMatch::of(
                                 &format!(
                                     "{expect_type:?} <> type of Struct{struct_vec:?}"
-                              )))
+                              )).quad_r()
                         .err()
                     ),
 
-                Some(t) => Quad::R(TypeMissMatch::of(&format!(
+                Some(t) => TypeMissMatch::of(&format!(
                     "{t:?} <> type of Struct{struct_vec:?}"
-                )))
+                )).quad_r()
                 .err(),
 
-                None => Quad::R(TypeMissMatch::of(&format!(
+                None => TypeMissMatch::of(&format!(
                     "{expect_type:?} not found in type env"
-                )))
+                )).quad_r()
                 .err()
             },
         None => None.ok()

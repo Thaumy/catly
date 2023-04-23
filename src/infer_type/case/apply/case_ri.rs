@@ -4,7 +4,7 @@ use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer_type::r#type::require_constraint::require_constraint;
 use crate::infer_type::r#type::require_info::RequireInfo;
 use crate::infra::alias::MaybeType;
-use crate::infra::quad::Quad;
+use crate::infra::quad::{AnyExt, Quad};
 use crate::infra::r#box::Ext;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::Type;
@@ -54,7 +54,7 @@ pub fn case_ri(
                 }
             }
             // 信息不足以获得 rhs_expr_type, 或类型不相容
-            _ => Quad::MR(require_info)
+            _ => require_info.quad_mr()
         }
     } else {
         // 尝试从 rhs_expr 获得输入类型

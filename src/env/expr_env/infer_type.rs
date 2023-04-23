@@ -10,9 +10,12 @@ use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
 
 impl<'t> ExprEnv<'t> {
-    pub fn infer_type(&self, ref_name: &str) -> InferTypeRet {
+    pub fn infer_type<'s>(
+        &self,
+        ref_name: impl Into<&'s str> + Clone
+    ) -> InferTypeRet {
         let tc_and_src = self
-            .find_entry(ref_name)
+            .find_entry(ref_name.clone())
             .map(|(_, tc, src)| (tc, src));
 
         match tc_and_src {
@@ -22,7 +25,7 @@ impl<'t> ExprEnv<'t> {
                 TypeConstraint::Constraint(t) => has_type(t.clone()),
                 // 不存在类型约束
                 TypeConstraint::Free => RequireInfo::of(
-                    ref_name,
+                    ref_name.into(),
                     EnvRefConstraint::empty()
                 )
                 .into()
@@ -32,7 +35,7 @@ impl<'t> ExprEnv<'t> {
             Some((tc, EnvRefSrc::Src(src_expr))) => {
                 // 为防止递归调用导致类型检查不能终止, 需要将引用名去源后注入环境
                 let new_expr_env = self.extend_new(
-                    ref_name.to_string(),
+                    ref_name.clone().into(),
                     tc.clone().into(),
                     None
                 );
@@ -59,7 +62,7 @@ impl<'t> ExprEnv<'t> {
                         // 如果引用源是无类型弃元
                         Quad::MR(ri) if ri.ref_name == "_" =>
                         // 为了防止无类型弃元信息被捕获, 改写错误信息
-                            ri.new_ref_name(ref_name)
+                            ri.new_ref_name(ref_name.into())
                                 .into(),
                         // 无法处理其他情况
                         mr_r => mr_r
@@ -77,12 +80,14 @@ impl<'t> ExprEnv<'t> {
                         Quad::ML(rc) => require_constraint(
                             rc.r#type,
                             rc.constraint
-                                .exclude_new(ref_name)
+                                .exclude_new(ref_name.into())
                         ),
                         Quad::MR(ri) if ri.ref_name == "_" =>
                         // 为了防止无类型弃元信息被捕获, 改写错误信息
-                            ri.new_ref_name(ref_name)
-                                .into(),
+                            ri.new_ref_name(
+                                ref_name.into().to_string()
+                            )
+                            .into(),
                         // 类型不相容
                         mr_r => mr_r
                     }
@@ -90,9 +95,11 @@ impl<'t> ExprEnv<'t> {
             }
 
             // 缺乏推导信息
-            None =>
-                RequireInfo::of(ref_name, EnvRefConstraint::empty())
-                    .into(),
+            None => RequireInfo::of(
+                ref_name.into(),
+                EnvRefConstraint::empty()
+            )
+            .into()
         }
     }
 }

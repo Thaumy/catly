@@ -67,11 +67,11 @@ impl EnvRefConstraint {
     }
 
     pub fn single(
-        ref_name: String,
+        ref_name: impl Into<String>,
         r#type: Type
     ) -> EnvRefConstraint {
         EnvRefConstraint {
-            constraint: HashMap::from([(ref_name, r#type)])
+            constraint: HashMap::from([(ref_name.into(), r#type)])
         }
     }
 
@@ -95,19 +95,27 @@ impl EnvRefConstraint {
         }
     }
 
-    pub fn exclude_new(&self, ref_name: &str) -> EnvRefConstraint {
-        self.filter_new(|(n, _)| n != ref_name)
+    pub fn exclude_new<'s>(
+        &self,
+        ref_name: impl Into<&'s str>
+    ) -> EnvRefConstraint {
+        let ref_name = ref_name.into();
+        self.filter_new(move |(n, _)| n.as_str() != ref_name)
     }
 
     pub fn is_empty(&self) -> bool { self.constraint.is_empty() }
 
-    pub fn contains(&self, ref_name: &str) -> bool {
+    pub fn contains<'s>(&self, ref_name: impl Into<&'s str>) -> bool {
         self.constraint
-            .contains_key(ref_name)
+            .contains_key(ref_name.into())
     }
 
-    pub fn find(&self, ref_name: &str) -> Option<&Type> {
-        self.constraint.get(ref_name)
+    pub fn find<'s>(
+        &self,
+        ref_name: impl Into<&'s str>
+    ) -> Option<&Type> {
+        self.constraint
+            .get(ref_name.into())
     }
 
     pub fn iter(&self) -> Iter<'_, String, Type> {

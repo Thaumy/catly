@@ -8,7 +8,7 @@ use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt as OptAnyExt;
-use crate::infra::quad::Quad;
+use crate::infra::quad::{AnyExt, Quad};
 use crate::infra::result::AnyExt as ResAnyExt;
 use crate::infra::vec::Ext;
 use crate::parser::expr::r#type::Expr;
@@ -79,10 +79,11 @@ pub fn case(
                     constraint_acc = new_constraint;
                     (n, rc.r#type).ok()
                 }
-                None => Quad::R(TypeMissMatch::of_constraint(
+                None => TypeMissMatch::of_constraint(
                     &constraint_acc.clone(),
                     &rc.constraint
-                ))
+                )
+                .quad_r()
                 .err()
             },
             err => err.clone().err()

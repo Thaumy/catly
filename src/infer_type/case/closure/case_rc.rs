@@ -34,15 +34,15 @@ pub fn case_rc(
             // 然后传播剩余约束(仍有剩余约束), 或返回确切类型(不存在剩余约束)
             None => {
                 let input_type_constraint =
-                    constraint_acc.find(input_name);
+                    constraint_acc.find(input_name.as_str());
 
                 if let Some(input_type_constraint) =
                     input_type_constraint
                 {
                     // 约束包含输入, 需要限定输入类型到约束目标并将其从约束列表中移除
                     // 将剩余约束过滤出来
-                    let left_constraint =
-                        constraint_acc.exclude_new(input_name);
+                    let left_constraint = constraint_acc
+                        .exclude_new(input_name.as_str());
 
                     let base = Type::ClosureType(
                         input_type_constraint

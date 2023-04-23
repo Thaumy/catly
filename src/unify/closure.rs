@@ -42,7 +42,7 @@ pub fn lift_closure(
                 o_t.clone().boxed()
             );
             type_env
-                .find_type(type_name)
+                .find_type(type_name.as_str())
                 .and_then(|type_base| {
                     base.lift_to(type_env, &type_base)
                 })

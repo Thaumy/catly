@@ -21,7 +21,7 @@ pub fn lift_sum(
         // T
         // where Base can be lifted to T
         Type::NamelyType(type_name) => type_env
-            .find_type(type_name)
+            .find_type(type_name.as_str())
             .and_then(|t| {
                 Type::SumType(sum_set.clone())
                     .lift_to(type_env, &t)

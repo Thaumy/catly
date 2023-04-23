@@ -6,19 +6,19 @@ use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer_type::r#type::require_constraint::require_extended_constraint;
 use crate::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::alias::MaybeType;
-use crate::infra::option::AnyExt;
-use crate::infra::quad::Quad;
+use crate::infra::option::AnyExt as OptAnyExt;
+use crate::infra::quad::{AnyExt as QuadAnyExt, Quad};
 
 impl<'t> ExprEnv<'t> {
     // 由于表达式对环境中的 ref_name 的使用是一种间接使用, 可能存在多处引用对于 ref_name 的类型要求不一致的情况
     // 所以如果 hint 发挥了作用, 那么一定要对 ref_name 产生到 hint 的约束
     // 暂不考虑泛型(类型参数)设计, 类型参数允许多个不同的约束作用于同一表达式, 这与现有的约束设计冲突
-    pub fn infer_type_with_hint(
+    pub fn infer_type_with_hint<'s>(
         &self,
-        ref_name: &str,
+        ref_name: impl Into<&'s str> + Clone,
         hint: &MaybeType
     ) -> InferTypeRet {
-        let ref_type = self.infer_type(ref_name);
+        let ref_type = self.infer_type(ref_name.clone());
 
         match ref_type.clone() {
             // 特例
@@ -34,13 +34,13 @@ impl<'t> ExprEnv<'t> {
                             &ref_type.clone().some(),
                             None,// TODO: 考虑是否需要将约束更新为 hint
                         ),
-                    _ => Quad::L(ref_type)
+                    _ => ref_type.quad_l()
                 }
             // 缺乏类型信息, 尝试提示
             Quad::MR(ri) if let Some(hint) = hint => {
                 let constraint_acc = ri.constraint;
                 let tc_and_src = self
-                    .find_entry(ref_name)
+                    .find_entry(ref_name.clone().into())
                     .map(|(_, tc, src)| (tc, src));
 
                 match tc_and_src {
@@ -49,7 +49,7 @@ impl<'t> ExprEnv<'t> {
                         hint.clone(),
                         constraint_acc,
                         EnvRefConstraint::single(
-                            ref_name.to_string(),
+                            ref_name.into(),
                             hint.clone(),
                         ),
                     ),
@@ -61,7 +61,7 @@ impl<'t> ExprEnv<'t> {
                         hint.clone(),
                         constraint_acc,
                         EnvRefConstraint::single(
-                            ref_name.to_string(),
+                            ref_name.into(),
                             hint.clone(),
                         ),
                     ),
@@ -83,14 +83,14 @@ impl<'t> ExprEnv<'t> {
                                     t.clone(),
                                     constraint_acc,
                                     EnvRefConstraint::single(
-                                        ref_name.to_string(),
+                                        ref_name.into(),
                                         t,
                                     ),
                                 ),
                             Quad::ML(rc) => {
                                 let ref_name_constraint =
                                     EnvRefConstraint::single(
-                                        ref_name.to_string(),
+                                        ref_name.into(),
                                         rc.r#type.clone(),
                                     );
 

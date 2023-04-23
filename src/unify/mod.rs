@@ -23,12 +23,12 @@ pub fn lift(
     println!("{:8}{:>10} │ {from:?} to {to:?}", "[unify]", "Lift");
 
     if let Type::NamelyType(n) = from
-        && !type_env.exist_ref(n) { return None; }
+        && !type_env.exist_ref(n.as_str()) { return None; }
     if let Type::NamelyType(n) = to
-        && !type_env.exist_ref(n) { return None; }
+        && !type_env.exist_ref(n.as_str()) { return None; }
 
     let result = match from {
-        Type::NamelyType(n) => lift_namely(type_env, n, to),
+        Type::NamelyType(n) => lift_namely(type_env, n.as_str(), to),
         Type::ClosureType(i, o) =>
             lift_closure(type_env, i.deref(), o.deref(), to),
         Type::SumType(s) => lift_sum(type_env, s, to),

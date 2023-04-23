@@ -35,7 +35,7 @@ pub fn case(
                 assign_expr_type.unwrap_type_and_constraint();
             // 过滤掉对 assign_name 的约束
             let constraint_acc =
-                constraint_acc.exclude_new(assign_name);
+                constraint_acc.exclude_new(assign_name.as_str());
 
             let new_expr_env = expr_env
                 .extend_constraint_new(constraint_acc.clone());

@@ -13,7 +13,7 @@ use crate::infer_type::r#type::require_constraint::{
 use crate::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt as OptAnyExt;
-use crate::infra::quad::Quad;
+use crate::infra::quad::{AnyExt, Quad};
 use crate::infra::result::AnyExt as ResAnyExt;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::Type;
@@ -76,10 +76,11 @@ pub fn case_t_rc(
                         {
                             None.ok()
                         } else {
-                            Quad::R(TypeMissMatch::of_type(
+                            TypeMissMatch::of_type(
                                 &then_expr_type,
                                 &expect_type
-                            ))
+                            )
+                            .quad_r()
                             .err()
                         },
                     // 获取 then_expr_type 时产生了约束, 这些约束一定作用于外层环境
@@ -91,10 +92,11 @@ pub fn case_t_rc(
                         {
                             rc.constraint.some().ok()
                         } else {
-                            Quad::R(TypeMissMatch::of_type(
+                            TypeMissMatch::of_type(
                                 &rc.r#type,
                                 &expect_type
-                            ))
+                            )
+                            .quad_r()
                             .err()
                         },
                     // 获取 then_expr_type 时信息不足或类型不匹配, 这些问题无法被解决
@@ -108,17 +110,16 @@ pub fn case_t_rc(
                         // 无约束
                         (Ok(acc), Ok(None)) => acc.ok(),
                         // 聚合约束
-                        (Ok(acc), Ok(Some(constraint))) => match acc
-                            .extend_new(constraint.clone())
-                        {
-                            Some(acc) => acc.ok(),
-                            None =>
-                                Quad::R(TypeMissMatch::of_constraint(
+                        (Ok(acc), Ok(Some(constraint))) =>
+                            match acc.extend_new(constraint.clone()) {
+                                Some(acc) => acc.ok(),
+                                None => TypeMissMatch::of_constraint(
                                     &acc,
                                     &constraint
-                                ))
-                                .err(),
-                        },
+                                )
+                                .quad_r()
+                                .err()
+                            },
                         (Ok(_), Err(e)) => Err(e),
                         (Err(e), _) => Err(e)
                     }
@@ -157,10 +158,11 @@ pub fn case_t_rc(
                             constraint_acc = constraint;
                             rc.r#type.ok()
                         }
-                        None => Quad::R(TypeMissMatch::of_constraint(
+                        None => TypeMissMatch::of_constraint(
                             &constraint_acc.clone(),
                             &rc.constraint
-                        ))
+                        )
+                        .quad_r()
                         .err()
                     },
                     mr_r => Err(mr_r)
@@ -169,7 +171,8 @@ pub fn case_t_rc(
             .reduce(|acc, t| match (acc, t) {
                 (Ok(acc), Ok(t)) => match acc.unify(type_env, &t) {
                     Some(acc) => acc.ok(),
-                    None => Quad::R(TypeMissMatch::of_type(&acc, &t))
+                    None => TypeMissMatch::of_type(&acc, &t)
+                        .quad_r()
                         .err()
                 },
                 (Ok(_), Err(e)) => Err(e),

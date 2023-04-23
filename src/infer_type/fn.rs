@@ -1,7 +1,7 @@
 use crate::env::r#type::type_env::TypeEnv;
 use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infra::option::AnyExt;
-use crate::infra::quad::Quad;
+use crate::infra::option::AnyExt as OptAnyExt;
+use crate::infra::quad::AnyExt as QuadAnyExt;
 use crate::parser::r#type::r#type::Type;
 
 pub fn destruct_namely_type(
@@ -14,11 +14,11 @@ pub fn destruct_namely_type(
 
     match r#type {
         Type::NamelyType(type_name) => {
-            let base_type = type_env.find_type(type_name)?;
+            let base_type = type_env.find_type(type_name.as_str())?;
             destruct_namely_type(type_env, &base_type)
         }
         x => x.clone().some()
     }
 }
 
-pub fn has_type(r#type: Type) -> InferTypeRet { Quad::L(r#type) }
+pub fn has_type(r#type: Type) -> InferTypeRet { r#type.quad_l() }

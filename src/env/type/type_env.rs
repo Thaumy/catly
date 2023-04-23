@@ -61,7 +61,11 @@ impl TypeEnv {
         type_env
     }
 
-    fn find_entry(&self, type_name: &str) -> Option<&(String, Type)> {
+    fn find_entry<'s>(
+        &self,
+        type_name: impl Into<&'s str>
+    ) -> Option<&(String, Type)> {
+        let type_name = type_name.into();
         let entry = self
             .env
             .iter()
@@ -75,7 +79,11 @@ impl TypeEnv {
         }
     }
 
-    pub fn find_type(&self, type_name: &str) -> Option<Type> {
+    pub fn find_type<'s>(
+        &self,
+        type_name: impl Into<&'s str>
+    ) -> Option<Type> {
+        let type_name = type_name.into();
         match type_name {
             "Int" => int_type!().some(),
             "Unit" => unit_type!().some(),
@@ -85,7 +93,11 @@ impl TypeEnv {
         }
     }
 
-    pub fn exist_ref(&self, type_name: &str) -> bool {
+    pub fn exist_ref<'s>(
+        &self,
+        type_name: impl Into<&'s str>
+    ) -> bool {
+        let type_name = type_name.into();
         let is_exist = match type_name {
             "Int" | "Unit" => true,
             _ => self
@@ -102,7 +114,8 @@ impl TypeEnv {
 
     pub fn is_type_valid(&self, r#type: &Type) -> bool {
         match r#type {
-            Type::NamelyType(type_name) => self.exist_ref(type_name),
+            Type::NamelyType(type_name) =>
+                self.exist_ref(type_name.as_str()),
             Type::ClosureType(input_type, output_type) =>
                 self.is_type_valid(input_type) &&
                     self.is_type_valid(output_type),

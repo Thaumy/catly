@@ -8,11 +8,12 @@ use crate::parser::r#type::r#type::Type;
 mod int;
 mod unit;
 
-pub fn lift_namely(
+pub fn lift_namely<'s>(
     type_env: &TypeEnv,
-    base_type_name: &str,
+    base_type_name: impl Into<&'s str>,
     derive: &Type
 ) -> Option<Type> {
+    let base_type_name = base_type_name.into();
     match base_type_name {
         "Int" => lift_int(type_env, derive),
         "Unit" => lift_unit(type_env, derive),
@@ -33,7 +34,9 @@ pub fn lift_namely(
             // type False = Int
             // type Bool = True | False
             // 将 True 和 Bool 合一是可行的, 这会产生 Bool
-            Type::NamelyType(n) => match type_env.find_type(n) {
+            Type::NamelyType(n) => match type_env
+                .find_type(n.as_str())
+            {
                 Some(Type::SumType(s)) => s
                     .iter()
                     .any(|t| match t {
