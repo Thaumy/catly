@@ -6,12 +6,14 @@ use crate::env::r#type::type_env::TypeEnv;
 use crate::infra::alias::MaybeType;
 use crate::unify::lift;
 
+pub type ProdField = (String, Type);
+
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Type {
     NamelyType(String),
     ClosureType(Box<Type>, Box<Type>),
     SumType(BTreeSet<Type>),
-    ProdType(Vec<(String, Type)>),
+    ProdType(Vec<ProdField>),
     // Input type only
     PartialClosureType(Box<Type>)
 }

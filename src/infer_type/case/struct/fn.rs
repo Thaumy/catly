@@ -24,59 +24,59 @@ pub fn is_struct_vec_of_type_then_get_prod_vec(
     struct_vec: &StructVec
 ) -> Result<Option<ProdVec>, InferTypeRet> {
     // 解构 expect_type 并判断与 struct_vec 的相容性
-    match expect_type {
-        Some(expect_type) =>
-            match destruct_namely_type(type_env, expect_type) {
-                // 解构合法, 当且仅当由 t 解构出的 ProdType 的字段数和 vec 相等
-                // 且对于二者 zip 后的每一对字段, 其名称相同
-                // 且 vec 字段的类型可以被提升到 ProdType 字段的类型(如果 vec 字段类型存在的话)
-                Some(Type::ProdType(prod_vec)) => (prod_vec.len() ==
-                    struct_vec.len() &&
-                    prod_vec
-                        .iter()
-                        .zip(struct_vec.iter())
-                        .map(|((n, t), (v_n, v_t, _))| {
-                            // 名称相等判断
-                            n == v_n &&
-                                // 类型相容判断
-                                v_t.clone()
-                                    .map(|v_t| {
-                                        v_t.can_lift_to(type_env, t)
-                                    })
-                                    .unwrap_or(true)
-                        })
-                        .all(id))
+    if let Some(expect_type) = expect_type {
+        match destruct_namely_type(type_env, expect_type) {
+            // 解构合法, 当且仅当由 t 解构出的 ProdType 的字段数和 vec 相等
+            // 且对于二者 zip 后的每一对字段, 其名称相同
+            // 且 vec 字段的类型可以被提升到 ProdType 字段的类型(如果 vec 字段类型存在的话)
+            Some(Type::ProdType(prod_vec)) => (prod_vec.len() ==
+                struct_vec.len() &&
+                prod_vec
+                    .iter()
+                    .zip(struct_vec.iter())
+                    .map(|((n, t), (v_n, v_t, _))| {
+                        // 名称相等判断
+                        n == v_n &&
+                            // 类型相容判断
+                            v_t.clone()
+                                .map(|v_t| {
+                                    v_t.can_lift_to(type_env, t)
+                                })
+                                .unwrap_or(true)
+                    })
+                    .all(id))
                 .then(|| prod_vec)
                 .ok(),
 
-                Some(Type::SumType(sum_vec)) => sum_vec
-                    .iter()
-                    .map(|t| {
-                        is_struct_vec_of_type_then_get_prod_vec(
-                            type_env,
-                            &t.clone().some(),
-                            struct_vec
-                        )
-                    })
-                    .find(|x| matches!(x, Ok(Some(..))))
-                    .unwrap_or(
-                        TypeMissMatch::of(
-                                &format!(
-                                    "{expect_type:?} <> type of Struct{struct_vec:?}"
-                              )).quad_r()
+            Some(Type::SumType(sum_vec)) => sum_vec
+                .iter()
+                .map(|t| {
+                    is_struct_vec_of_type_then_get_prod_vec(
+                        type_env,
+                        &t.clone().some(),
+                        struct_vec
+                    )
+                })
+                .find(|x| matches!(x, Ok(Some(..))))
+                .unwrap_or(
+                    TypeMissMatch::of(
+                        &format!(
+                            "{expect_type:?} <> type of Struct{struct_vec:?}"
+                        )).quad_r()
                         .err()
-                    ),
+                ),
 
-                Some(t) => TypeMissMatch::of(&format!(
-                    "{t:?} <> type of Struct{struct_vec:?}"
-                )).quad_r()
+            Some(t) => TypeMissMatch::of(&format!(
+                "{t:?} <> type of Struct{struct_vec:?}"
+            )).quad_r()
                 .err(),
 
-                None => TypeMissMatch::of(&format!(
-                    "{expect_type:?} not found in type env"
-                )).quad_r()
+            None => TypeMissMatch::of(&format!(
+                "{expect_type:?} not found in type env"
+            )).quad_r()
                 .err()
-            },
-        None => None.ok()
+        }
+    } else {
+        None.ok()
     }
 }

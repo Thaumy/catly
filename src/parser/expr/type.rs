@@ -8,6 +8,8 @@ use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt;
 use crate::parser::r#type::r#type::Type;
 
+pub type StructField = (String, MaybeType, Expr);
+
 #[derive(Clone, PartialEq)]
 pub enum Expr {
     Unit(MaybeType),
@@ -17,7 +19,7 @@ pub enum Expr {
     Apply(MaybeType, Box<Expr>, Box<Expr>),
     Cond(MaybeType, Box<Expr>, Box<Expr>, Box<Expr>),
     Closure(MaybeType, Option<String>, MaybeType, Box<Expr>),
-    Struct(MaybeType, Vec<(String, MaybeType, Expr)>),
+    Struct(MaybeType, Vec<StructField>),
     Discard(MaybeType),
     Match(MaybeType, Box<Expr>, Vec<(Expr, Expr)>),
     Let(MaybeType, String, MaybeType, Box<Expr>, Box<Expr>)

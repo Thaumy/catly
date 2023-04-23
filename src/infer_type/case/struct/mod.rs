@@ -5,13 +5,13 @@ use crate::env::r#type::type_env::TypeEnv;
 use crate::infer_type::case::r#struct::r#fn::is_struct_vec_of_type_then_get_prod_vec;
 use crate::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
+use crate::infer_type::r#type::require_info::RequireInfo;
 use crate::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt as OptAnyExt;
-use crate::infra::quad::{AnyExt, Quad};
+use crate::infra::quad::Quad;
 use crate::infra::result::AnyExt as ResAnyExt;
-use crate::infra::vec::Ext;
-use crate::parser::expr::r#type::Expr;
+use crate::parser::expr::r#type::StructField;
 use crate::parser::r#type::r#type::Type;
 
 // TODO: 外部环境约束同层传播完备性
@@ -19,90 +19,137 @@ pub fn case(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
     expect_type: &MaybeType,
-    vec: &Vec<(String, MaybeType, Expr)>
+    struct_vec: &Vec<StructField>
 ) -> InferTypeRet {
     // 解构 expect_type 并判断与 vec 的相容性
     let prod_vec = match is_struct_vec_of_type_then_get_prod_vec(
         type_env,
         expect_type,
-        vec
+        struct_vec
     ) {
-        Ok(x) => x,
+        // prod_vec 存在当且仅当 expect_type 存在
+        Ok(prod_vec) => prod_vec,
+        // 当 expect_type 解构异常或与 struct_vec 不匹配时, 产生错误
         Err(e) => return e
     };
 
     // 进行类型提示
-    let vec: Vec<_> = match prod_vec {
-        // expect_type 存在且可被解构, 对于其每一个类型, 都用作对应表达式的次要类型提示
-        Some(t_vec) => t_vec
+    let struct_vec = match prod_vec {
+        // expect_type 存在且可被解构, 对于其每一个字段类型, 都用作对应表达式的次要类型提示
+        Some(prod_vec) => prod_vec
             .iter()
-            .zip(vec.iter())
-            .map(|((_, t), (v_n, v_t, v_e))| {
+            .zip(struct_vec.iter())
+            // pf: Prod field
+            // sf: Struct field
+            .map(|((_, pf_t), (sf_n, sf_t, sf_e))| {
                 (
-                    v_n.to_string(),
-                    v_t.clone(),
-                    v_e
-                        .with_optional_fallback_type(v_t)
-                        .with_fallback_type(t)
+                    sf_n.to_string(),
+                    sf_t.clone(),
+                    sf_e.with_optional_fallback_type(sf_t)
+                        .with_fallback_type(pf_t)
                 )
             })
-            .collect()
-        ,
+            .collect(),
         // expect_type 不存在, 仅使用 vec 自身的类型对表达式进行提示
-        None => vec
+        None => struct_vec
             .iter()
-            .map(|(n, mt, e)| {
+            .map(|(sf_n, sf_t, sf_e)| {
                 (
-                    n.to_string(),
-                    mt.clone(),
-                    e
-                        .with_optional_fallback_type(mt)
+                    sf_n.to_string(),
+                    sf_t.clone(),
+                    sf_e.with_optional_fallback_type(sf_t)
                 )
             })
             .collect()
-    };
+    }: Vec<StructField>;
 
-    let mut constraint_acc = EnvRefConstraint::empty();
+    //let mut constraint_acc = EnvRefConstraint::empty();
+
+    // 不进行层次约束共享的原因和 match case 相同
 
     // 收集约束
-    let vec = vec
+    let pf_n_and_pf_t = struct_vec
         .iter()
-        .map(|(n, _, e)| {
-            (n.to_string(), e.infer_type(type_env, &expr_env))
-        })
-        .map(|(n, x)| match x {
-            Quad::L(t) => (n, t).ok(),
-            Quad::ML(rc) => match constraint_acc
-                .extend_new(rc.constraint.clone())
-            {
-                Some(new_constraint) => {
-                    constraint_acc = new_constraint;
-                    (n, rc.r#type).ok()
-                }
-                None => TypeMissMatch::of_constraint(
-                    &constraint_acc.clone(),
-                    &rc.constraint
-                )
-                .quad_r()
-                .err()
-            },
-            err => err.clone().err()
-        })
-        .fold(vec![].ok(), |acc, x| match (acc, x) {
-            (Ok(acc), Ok(x)) => acc.chain_push(x).ok(),
-            (Ok(_), Err(e)) => Err(e),
-            (err, _) => err
+        .map(|(sf_n, _, sf_e)| {
+            (sf_n.to_string(), sf_e.infer_type(type_env, &expr_env))
         });
 
-    let prod_type = match vec {
-        Ok(vec) => Type::ProdType(vec),
-        Err(e) => return e
+    // 一旦发现类型不匹配(of struct field expr), 立即返回
+    match pf_n_and_pf_t
+        .clone()
+        // 任选一个错误即可(渐进式错误提示)
+        .find(|(_, x)| matches!(x, Quad::R(_)))
+    {
+        Some((_, type_miss_match)) => return type_miss_match,
+        _ => {}
+    } // 排除了 infer_type 的结果 R
+
+    let pf_n_and_pf_t_with_constraint =
+        pf_n_and_pf_t
+            .clone()
+            .map(|(pf_n, pf_t)| match pf_t {
+                Quad::L(_) | Quad::ML(_) => {
+                    let (pf_t, constraint) =
+                        pf_t.unwrap_type_and_constraint();
+                    (pf_n, pf_t, constraint).ok()
+                }
+                mr => mr.err()
+            });
+
+    let outer_constraint = pf_n_and_pf_t_with_constraint
+        .clone()
+        .fold(EnvRefConstraint::empty().ok(), |acc, x| {
+            match (acc, x) {
+                (Ok(acc), Ok((.., c))) =>
+                    match acc.extend_new(c.clone()) {
+                        Some(acc) => acc.ok(),
+                        None => TypeMissMatch::of_constraint(&acc, &c)
+                            .err()
+                    },
+                (Ok(acc), Err(Quad::MR(ri))) =>
+                    match acc.extend_new(ri.constraint.clone()) {
+                        Some(acc) => acc.ok(),
+                        None => TypeMissMatch::of_constraint(
+                            &acc,
+                            &ri.constraint
+                        )
+                        .err()
+                    },
+                (Ok(acc), _) => acc.ok(),
+                (Err(e), _) => e.err()
+            }
+        });
+
+    // 如果合并约束时发生冲突, 立即返回
+    let outer_constraint = match outer_constraint {
+        Ok(c) => c,
+        Err(type_miss_match) => return type_miss_match.into()
     };
+
+    // 如果出现缺乏类型信息(of struct field expr), 则将收集到的外部约束传播出去
+    match pf_n_and_pf_t_with_constraint
+        .clone()
+        .find(|x| matches!(x, Err(Quad::MR(_))))
+    {
+        Some(Err(Quad::MR(ri))) =>
+            return RequireInfo::of(ri.ref_name, outer_constraint)
+                .into(),
+        _ => {}
+    } // 排除了 infer_type 的结果 MR
+
+    let prod_type = Type::ProdType(
+        pf_n_and_pf_t_with_constraint
+            .map(|it| match it {
+                Ok((pf_n, pf_t, _)) => (pf_n, pf_t),
+                _ => panic!("Impossible value: {it:?}")
+            })
+            .collect()
+    );
 
     InferTypeRet::from_auto_lift(
         type_env,
         &prod_type,
         expect_type,
-        constraint_acc.some()
+        outer_constraint.some()
     )
 }
