@@ -25,9 +25,9 @@ impl<'t> ExprEnv<'t> {
             // 分支约束共享会导致向环境中注入无源不完整类型
             // 当 hint 为完整类型时可进行合一
             // TODO: 考虑对不完整类型的提升规则, 这些规则有助于进一步明确类型信息
-            Quad::L(ref_type) if ref_type.is_partial_type() =>
+            Quad::L(ref_type) if ref_type.is_partial() =>
                 match hint {
-                    Some(hint) if !hint.is_partial_type() =>
+                    Some(hint) if !hint.is_partial() =>
                         InferTypeRet::from_auto_lift(
                             &self.type_env,
                             hint,

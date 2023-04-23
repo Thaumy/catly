@@ -22,7 +22,7 @@ pub fn case(
 ) -> InferTypeRet {
     // Hint assign_expr with assign_type and get assign_expr_type
     let assign_expr_type = assign_expr
-        .try_with_fallback_type(assign_type)
+        .with_optional_fallback_type(assign_type)
         .infer_type(type_env, expr_env);
 
     match assign_expr_type {

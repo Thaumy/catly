@@ -31,6 +31,16 @@ fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
                             iter b (sub count 1) (mul b product)
                 in
                     iter b n 1
+        # 3
+        def expt3 =
+            b -> n ->
+                let iter =
+                    b -> count -> product ->
+                        match intEq count 0 with
+                        | (_: True) -> product
+                        | (_: False) -> iter b (sub count 1) (mul b product)
+                in
+                    iter b n 1
         ";
     parse_env(&seq)
 }
@@ -60,6 +70,18 @@ fn test_part2() {
 
     let expr_type = expr_env
         .get_ref("expt2")
+        .unwrap()
+        .infer_type(&type_env, &expr_env);
+
+    assert_eq!(expr_type, target_type())
+}
+
+#[test]
+fn test_part3() {
+    let (type_env, expr_env) = gen_env();
+
+    let expr_type = expr_env
+        .get_ref("expt3")
         .unwrap()
         .infer_type(&type_env, &expr_env);
 

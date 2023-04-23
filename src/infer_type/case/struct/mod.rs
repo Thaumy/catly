@@ -42,7 +42,7 @@ pub fn case(
                     v_n.to_string(),
                     v_t.clone(),
                     v_e
-                        .try_with_fallback_type(v_t)
+                        .with_optional_fallback_type(v_t)
                         .with_fallback_type(t)
                 )
             })
@@ -56,7 +56,7 @@ pub fn case(
                     n.to_string(),
                     mt.clone(),
                     e
-                        .try_with_fallback_type(mt)
+                        .with_optional_fallback_type(mt)
                 )
             })
             .collect()

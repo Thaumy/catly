@@ -9,13 +9,16 @@ pub fn lift_unit(type_env: &TypeEnv, derive: &Type) -> Option<Type> {
         Type::NamelyType(type_name) if type_name == "Unit" =>
             derive.clone().some(),
 
+        // Int
+        Type::NamelyType(type_name) if type_name == "Int" => None,
+
         // T
         // where Base can be lifted to T
         Type::NamelyType(type_name) => type_env
             .find_type(type_name)
             .and_then(|type_base| {
                 unit_type!()
-                    .lift_to(type_env, type_base)
+                    .lift_to(type_env, &type_base)
                     .map(|_| derive.clone())
             }),
 

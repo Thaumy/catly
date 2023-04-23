@@ -1,8 +1,9 @@
-use std::ops::Not;
-
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
-use crate::infer_type::case::r#match::r#fn::destruct_match_const_to_expr_env_inject;
+use crate::infer_type::case::r#match::r#fn::{
+    destruct_match_const_to_expr_env_inject,
+    is_case_expr_valid
+};
 use crate::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer_type::r#type::require_constraint::{
@@ -13,7 +14,6 @@ use crate::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt as OptAnyExt;
 use crate::infra::quad::Quad;
-use crate::infra::r#fn::id;
 use crate::infra::result::AnyExt as ResAnyExt;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::Type;
@@ -35,72 +35,25 @@ pub fn case_t_rc(
                 case_expr.with_fallback_type(&target_expr_type);
             // Hint every then_expr with expect_type
             let then_expr =
-                then_expr.try_with_fallback_type(expect_type);
+                then_expr.with_optional_fallback_type(expect_type);
 
             // 将 case_expr 解构到常量环境, 该环境将在 then_expr 中被使用
-            let case_expr_env_inject =
-                destruct_match_const_to_expr_env_inject(
-                    type_env, &case_expr
-                );
+            let env_inject = destruct_match_const_to_expr_env_inject(
+                type_env, &case_expr
+            );
 
-            (case_expr, case_expr_env_inject, then_expr)
+            (case_expr, env_inject, then_expr)
         });
 
-    // 逐一确认 case_expr_type 与 target_expr_type 的相容性
-    // 同时确保 case_expr 是模式匹配意义上的常量
-    if hinted_cases
-        .clone()
-        .map(|(case_expr, case_expr_env_inject, _)| {
-            // 使用空表达式环境提取 case_expr_type, 这样能让所有对外界的约束得以暴露
-            match case_expr.infer_type(
-                type_env,
-                &ExprEnv::new(type_env.clone(), vec![]),
-            ) {
-                Quad::L(case_expr_type) => case_expr_type.can_lift_to(
-                    type_env,
-                    &target_expr_type,
-                ),
-                // 表达式环境为空却产生了约束
-                Quad::ML(rc) =>
-                    rc.constraint
-                        .iter()
-                        .map(|(capture_name, _)| {
-                            // 这些约束应该全部存在于从常量解构出来的环境中
-                            // 它们代表了匹配到的值的捕获
-                            // 这些捕获将在 then_expr 的环境中被使用
-                            case_expr_env_inject
-                                .iter()
-                                .any(|(n, ..)| n == capture_name)
-                        })
-                        // 如果产生了不存在于常量环境中的约束
-                        // 则表明这些约束试图作用于真实的外层环境
-                        // 此时的 case_expr 不再是模式匹配意义上可以使用的常量
-                        // 模式匹配意义上的常量和一般的常量有所不同
-                        // 它允许存在某个用于捕获匹配值的 EnvRef
-                        .all(id) &&
-                        rc.r#type.can_lift_to(
-                            type_env,
-                            &target_expr_type,
-                        ),
-                // 因为 case_expr 已被 target_expr_type hint
-                // 所以 case_expr_type 一定有足够的信息求得类型(即便求出的类型不相容)
-                // 不可能出现缺乏类型信息的情况
-                // 由此也可推断, case_expr_env 中不存在自由类型
-                // 所以在下一步取得 then_expr_type 时, 其产生的约束一定作用于外层
-                ri if let Quad::MR(_) = ri =>
-                    panic!("Impossible branch: {ri:?}"),
-
-                // 类型不相容
-                _ => false
-            }
-        })
-        .all(id)
-        .not()
-    {
-        return TypeMissMatch::of(&format!(
-            "Case types <> {target_expr_type:?}"
-        ))
-        .into();
+    match is_case_expr_valid(
+        type_env,
+        &target_expr_type,
+        hinted_cases
+            .clone()
+            .map(|(x, y, _)| (x, y))
+    ) {
+        Err(e) => return e,
+        _ => {}
     }
 
     // 如果 expect_type 存在
@@ -108,12 +61,12 @@ pub fn case_t_rc(
         // 在以 expect_type 为 hint 的基础上获取 then_expr_type 并判断其与 expect_type 的相容性
         // 同时收集在获取 then_expr_type 的过程中产生的约束
         let constraint = hinted_cases
-            .map(|(_, case_expr_env, then_expr)| {
+            .map(|(_, env_inject, then_expr)| {
                 // 此处 then_expr 已由上方统一 hint
                 let then_expr_type = then_expr.infer_type(
                     type_env,
                     // then_expr 需要在原环境和常量环境的拼接中求类型
-                    &expr_env.extend_vec_new(case_expr_env)
+                    &expr_env.extend_vec_new(env_inject)
                 );
 
                 match then_expr_type {
@@ -188,11 +141,11 @@ pub fn case_t_rc(
         // 逐一获取 then_expr_type, 并将它们逐个合一, 合一的结果便是 match 表达式的最终类型
         // 同时收集在获取 then_expr_type 的过程中产生的约束
         let final_type = hinted_cases
-            .map(|(_, case_expr_env, then_expr)| {
+            .map(|(_, env_inject, then_expr)| {
                 // 此部分与上方原理相同
                 let then_expr_type = then_expr.infer_type(
                     type_env,
-                    &expr_env.extend_vec_new(case_expr_env)
+                    &expr_env.extend_vec_new(env_inject)
                 );
 
                 match then_expr_type {

@@ -35,7 +35,7 @@ impl InferTypeRet {
         let constraint =
             constraint.unwrap_or_else(|| EnvRefConstraint::empty());
 
-        if from.is_partial_type() {
+        if from.is_partial() {
             return RequireInfo::of("(partial type)", constraint)
                 .into();
         };

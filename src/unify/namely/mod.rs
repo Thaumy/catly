@@ -18,6 +18,11 @@ pub fn lift_namely(
         "Unit" => lift_unit(type_env, derive),
 
         _ => match derive {
+            // Int or Unit
+            Type::NamelyType(type_name)
+                if type_name == "Int" || type_name == "Unit" =>
+                None,
+
             // Base
             Type::NamelyType(n) if n == base_type_name =>
                 derive.clone().some(),

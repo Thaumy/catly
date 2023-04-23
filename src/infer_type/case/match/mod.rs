@@ -27,9 +27,12 @@ pub fn case(
             let (target_expr_type, constraint_acc) =
                 target_expr_type.unwrap_type_and_constraint();
 
+            let new_expr_env = expr_env
+                .extend_constraint_new(constraint_acc.clone());
+
             case_t_rc(
                 type_env,
-                expr_env,
+                &new_expr_env,
                 target_expr_type,
                 constraint_acc,
                 expect_type,

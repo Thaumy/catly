@@ -3,6 +3,7 @@ use std::rc::Rc;
 use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext;
 use crate::parser::r#type::r#type::Type;
+use crate::{int_type, unit_type};
 
 // 顶层类型环境
 #[derive(Debug)]
@@ -74,9 +75,14 @@ impl TypeEnv {
         }
     }
 
-    pub fn find_type(&self, type_name: &str) -> Option<&Type> {
-        self.find_entry(type_name)
-            .map(|(_, t)| t)
+    pub fn find_type(&self, type_name: &str) -> Option<Type> {
+        match type_name {
+            "Int" => int_type!().some(),
+            "Unit" => unit_type!().some(),
+            _ => self
+                .find_entry(type_name)
+                .map(|(_, t)| t.clone())
+        }
     }
 
     pub fn exist_ref(&self, type_name: &str) -> bool {

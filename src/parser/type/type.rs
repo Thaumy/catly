@@ -30,7 +30,7 @@ impl Type {
             .is_some()
     }
 
-    // TODO: 考虑部分类型
+    // TODO: 考虑不完整类型
     // Lift l to r if r exist, then return lifting result
     // Return l if r not exist
     pub fn lift_to_or_left(
@@ -54,18 +54,26 @@ impl Type {
             .or_else(|| with.lift_to(type_env, self))
     }
 
-    pub fn is_partial_type(&self) -> bool {
+    pub fn is_partial(&self) -> bool {
         match self {
             Type::NamelyType(_) => false,
             Type::ClosureType(i_t, o_t) =>
-                i_t.is_partial_type() || o_t.is_partial_type(),
+                i_t.is_partial() || o_t.is_partial(),
             Type::SumType(sum_set) => sum_set
                 .iter()
-                .any(|t| t.is_partial_type()),
+                .any(|t| t.is_partial()),
             Type::ProdType(prod_vec) => prod_vec
                 .iter()
-                .any(|(_, t)| t.is_partial_type()),
+                .any(|(_, t)| t.is_partial()),
             Type::PartialClosureType(..) => true
+        }
+    }
+
+    pub fn is_primitive(&self) -> bool {
+        match self {
+            Type::NamelyType(type_name) =>
+                type_name == "Int" || type_name == "Unit",
+            _ => false
         }
     }
 }

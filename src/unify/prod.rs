@@ -6,6 +6,10 @@ pub fn lift_prod(
     prod_vec: &Vec<(String, Type)>,
     derive: &Type
 ) -> Option<Type> {
+    if derive.is_primitive() {
+        return None;
+    }
+
     match derive {
         // Base
         Type::ProdType(v) => (v == prod_vec).then(|| derive.clone()),
@@ -16,7 +20,7 @@ pub fn lift_prod(
             .find_type(type_name)
             .and_then(|t| {
                 Type::ProdType(prod_vec.clone())
-                    .lift_to(type_env, t)
+                    .lift_to(type_env, &t)
                     .map(|_| derive.clone())
             }),
 

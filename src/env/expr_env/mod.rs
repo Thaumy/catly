@@ -20,6 +20,10 @@ pub struct ExprEnv<'t> {
 }
 
 impl<'t> ExprEnv<'t> {
+    pub fn empty(type_env: TypeEnv) -> ExprEnv<'t> {
+        Self::new(type_env, vec![])
+    }
+
     pub fn new(type_env: TypeEnv, env_vec: Vec<Item>) -> ExprEnv<'t> {
         let expr_env = ExprEnv {
             type_env,

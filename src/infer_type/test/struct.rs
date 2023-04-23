@@ -27,6 +27,9 @@ fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
 
         def struct8 = { a: Int = () }
         def struct9: Int = { a = 1 }
+
+        def a10 = _
+        def struct10: Int = { a = a10, b = (a10: Int) }
     ";
     parse_env(seq)
 }
@@ -167,6 +170,18 @@ fn test_part9() {
 
     let expr_type = expr_env
         .get_ref("struct9")
+        .unwrap()
+        .infer_type(&type_env, &expr_env);
+
+    assert_matches!(expr_type, Quad::R(TypeMissMatch { .. }))
+}
+
+#[test]
+fn test_part10() {
+    let (type_env, expr_env) = gen_env();
+
+    let expr_type = expr_env
+        .get_ref("struct10")
         .unwrap()
         .infer_type(&type_env, &expr_env);
 

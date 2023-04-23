@@ -123,7 +123,7 @@ pub fn case_ri(
                         .all(|(n, ..)| n != ref_name)
                 )
                 .map(|(_, case_expr_env_inject, then_expr)|
-                    match then_expr.try_with_fallback_type(expect_type).infer_type(
+                    match then_expr.with_optional_fallback_type(expect_type).infer_type(
                         type_env,
                         // 使用 then_expr 的旁路推导需要来自 case_expr 的常量环境注入
                         // 因为 case_expr 可能包含在 then_expr 中会使用的类型信息

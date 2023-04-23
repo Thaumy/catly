@@ -9,6 +9,10 @@ pub fn lift_sum(
     sum_set: &BTreeSet<Type>,
     derive: &Type
 ) -> Option<Type> {
+    if derive.is_primitive() {
+        return None;
+    }
+
     match derive {
         // Superset of Base
         Type::SumType(s) if s.is_superset(sum_set) =>
@@ -20,7 +24,7 @@ pub fn lift_sum(
             .find_type(type_name)
             .and_then(|t| {
                 Type::SumType(sum_set.clone())
-                    .lift_to(type_env, t)
+                    .lift_to(type_env, &t)
                     .map(|_| derive.clone())
             }),
 

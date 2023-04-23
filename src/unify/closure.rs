@@ -9,6 +9,10 @@ pub fn lift_closure(
     o_t: &Type,
     derive: &Type
 ) -> Option<Type> {
+    if derive.is_primitive() {
+        return None;
+    }
+
     match derive {
         // Base
         Type::ClosureType(d_i_t, d_o_t) => Type::ClosureType(
@@ -40,7 +44,7 @@ pub fn lift_closure(
             type_env
                 .find_type(type_name)
                 .and_then(|type_base| {
-                    base.lift_to(type_env, type_base)
+                    base.lift_to(type_env, &type_base)
                 })
                 .map(|_| derive.clone())
         }

@@ -23,6 +23,12 @@ fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
                     a
                 else
                     gcd2 b (rem a b)
+        # 3
+        def gcd3 =
+            a -> b ->
+                match intEq b 0 with
+                | (_: True) -> a
+                | _ -> gcd3 b (rem a b)
         ";
     parse_env(&seq)
 }
@@ -52,6 +58,18 @@ fn test_part2() {
 
     let expr_type = expr_env
         .get_ref("gcd2")
+        .unwrap()
+        .infer_type(&type_env, &expr_env);
+
+    assert_eq!(expr_type, target_type())
+}
+
+#[test]
+fn test_part3() {
+    let (type_env, expr_env) = gen_env();
+
+    let expr_type = expr_env
+        .get_ref("gcd3")
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
