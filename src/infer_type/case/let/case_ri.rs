@@ -81,6 +81,11 @@ pub fn case_ri(
                     // 限定相容且带来了约束, 传播之
                     Quad::ML(rc) => rc.constraint.clone(),
                     // 限定冲突或信息仍然不足, 推导失败
+                    Quad::MR(ri) =>
+                        return ri.with_constraint_acc(
+                            rc.constraint
+                                .exclude_new(assign_name)
+                        ),
                     mr_r => return mr_r
                 };
 
@@ -119,6 +124,8 @@ pub fn case_ri(
                     } else {
                         require_info
                     }
+                    // 与 L 分支的唯一不同是此处需要传播约束
+                    .with_constraint_acc(rc.constraint)
                     .into()
                 }
             }

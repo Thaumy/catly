@@ -57,9 +57,13 @@ impl From<RequireConstraint> for InferTypeRet {
 
 impl Debug for RequireConstraint {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&*format!(
-            "ReqConstraint::{:?} & {:?}",
-            self.r#type, self.constraint
-        ))
+        if self.constraint.is_empty() {
+            f.write_str(&*format!("ReqConstraint::{:?}", self.r#type))
+        } else {
+            f.write_str(&*format!(
+                "ReqConstraint::{:?} & {:?}",
+                self.r#type, self.constraint
+            ))
+        }
     }
 }

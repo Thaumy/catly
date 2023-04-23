@@ -7,6 +7,7 @@ pub mod r#type;
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
+use crate::infer_type::r#type::require_constraint::require_constraint;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
 
@@ -101,24 +102,39 @@ pub fn infer_type(
         }
     };
 
-    match result.clone() {
-        Quad::L(x) => println!(
+    let log = match result.clone() {
+        Quad::L(x) => format!(
             "{:8}{:>10} │ {x:?} of {expr:?}",
             "[infer]", "Inferred"
         ),
-        Quad::ML(x) => println!(
+        Quad::ML(x) => format!(
             "{:8}{:>10} │ {x:?} of {expr:?}",
             "[infer]", "Inferred"
         ),
-        Quad::MR(x) => println!(
+        Quad::MR(x) => format!(
             "{:8}{:>10} │ {x:?} of {expr:?}",
             "[infer]", "Inferred"
         ),
-        Quad::R(x) => println!(
+        Quad::R(x) => format!(
             "{:8}{:>10} │ {x:?} of {expr:?}",
             "[infer]", "Inferred"
         )
     };
 
-    result
+    println!("{log}");
+
+    match &result {
+        Quad::MR(ri) if !ri.constraint.is_empty() => {
+            let constraint_acc = ri.constraint.clone();
+            let expr_env = expr_env
+                .extend_constraint_new(constraint_acc.clone());
+            match infer_type(type_env, &expr_env, expr) {
+                Quad::L(t) => require_constraint(t, constraint_acc),
+                Quad::ML(rc) =>
+                    rc.with_constraint_acc(constraint_acc),
+                _ => result
+            }
+        }
+        _ => result
+    }
 }

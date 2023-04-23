@@ -36,6 +36,7 @@ pub fn case_ri(
     match cond_expr.infer_type(type_env, &new_expr_env) {
         Quad::L(t) => require_constraint(t, constraint_acc),
         Quad::ML(rc) => rc.with_constraint_acc(constraint_acc),
-        mr_r => mr_r
+        Quad::MR(ri) => ri.with_constraint_acc(constraint_acc),
+        r => r
     }
 }

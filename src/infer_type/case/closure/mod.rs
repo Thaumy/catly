@@ -9,6 +9,7 @@ use crate::infer_type::case::closure::case_rc::case_rc;
 use crate::infer_type::case::closure::case_t::case_t;
 use crate::infer_type::r#fn::destruct_namely_type;
 use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
+use crate::infer_type::r#type::require_info::RequireInfo;
 use crate::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt;
@@ -103,10 +104,17 @@ pub fn case(
             input_type
         ),
 
+        Quad::MR(ri) if let Some(input_name) = input_name =>
+            RequireInfo::of(
+                &ri.ref_name,
+                ri.constraint.exclude_new(input_name)
+            )
+            .into(),
+
         // infer_type 不能推导出输出类型(即便进行了类型提示), 或推导错误
         // 推导错误是由类型不匹配导致的, 这种错误无法解决
         // 不能推导出输出类型是由缺乏类型信息导致的
         // 因为 Closure 不存在可以推导输出类型的第二个表达式, 所以不适用于旁路类型推导
-        mr_r => mr_r
+        r => r
     }
 }

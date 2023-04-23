@@ -154,7 +154,11 @@ fn test_part9() {
         .get_ref("let9")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = RequireInfo::of("a", EnvRefConstraint::empty()).into();
+    let r = RequireInfo::of(
+        "a",
+        EnvRefConstraint::single("a9".to_string(), int_type!())
+    )
+    .into();
 
     assert_eq!(expr_type, r)
 }

@@ -48,7 +48,9 @@ pub fn case_ri(
                         require_constraint(t, constraint_acc),
                     Quad::ML(rc) =>
                         rc.with_constraint_acc(constraint_acc),
-                    mr_r => mr_r
+                    Quad::MR(ri) =>
+                        ri.with_constraint_acc(constraint_acc),
+                    r => r
                 }
             }
             // 信息不足以获得 rhs_expr_type, 或类型不相容
@@ -82,7 +84,9 @@ pub fn case_ri(
                         require_constraint(t, constraint_acc),
                     Quad::ML(rc) =>
                         rc.with_constraint_acc(constraint_acc),
-                    mr_r => mr_r
+                    Quad::MR(ri) =>
+                        ri.with_constraint_acc(constraint_acc),
+                    r => r
                 }
             }
             // 信息不足以获得 rhs_expr_type, 或类型不相容

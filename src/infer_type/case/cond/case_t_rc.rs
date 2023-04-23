@@ -39,7 +39,9 @@ pub fn case_t_rc(
                     )
                     .into(),
             },
-        mr_r => return mr_r
+        Quad::MR(ri) =>
+            return ri.with_constraint_acc(constraint_acc),
+        r => return r
     };
 
     match expect_type {
