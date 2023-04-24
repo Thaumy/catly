@@ -4,6 +4,7 @@ mod filter;
 mod find;
 mod gcd;
 mod map;
+mod pi;
 
 fn get_std_code() -> String {
     "
@@ -18,7 +19,10 @@ fn get_std_code() -> String {
         def sub: Int -> Int -> Int = _
         def mul: Int -> Int -> Int = _
         def rem: Int -> Int -> Int = _
-        def intEq: Int -> Int -> Bool = _
+
+        def gt: Int -> Int -> Bool = _
+        def eq: Int -> Int -> Bool = _
+        def lt: Int -> Int -> Bool = _
 
         type EmptyList = Unit
         type IntCons = { head: Int, tail: IntList }

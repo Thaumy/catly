@@ -14,7 +14,7 @@ fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
             n -> list ->
                 match list with
                 | ({ head = head, tail = tail }: IntCons) ->
-                    if intEq head n then
+                    if eq head n then
                         true
                     else
                         find1 n tail
@@ -26,7 +26,7 @@ fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
             n -> (list: IntList) -> (
                 match list with
                 | ({ head = head, tail = tail }: IntCons) ->
-                    if intEq head n then
+                    if eq head n then
                         true
                     else
                         find2 n tail

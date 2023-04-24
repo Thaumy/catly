@@ -29,7 +29,7 @@ fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
             n ->
                 let iter =
                     a -> b -> count ->
-                        if intEq count 0 then
+                        if eq count 0 then
                             b
                         else
                             iter (add a b) a (sub count 1)
@@ -40,7 +40,7 @@ fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
             n ->
                 let iter =
                     a -> b -> count ->
-                        if intEq count 0 then
+                        if eq count 0 then
                             b
                         else
                             iter (add a b) a (sub count 1)

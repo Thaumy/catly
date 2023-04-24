@@ -12,21 +12,21 @@ fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
         # 1
         def gcd1: Int -> Int -> Int =
             a -> b ->
-                if intEq b 0 then
+                if eq b 0 then
                     a
                 else
                     gcd1 b (rem a b)
         # 2
         def gcd2 =
             a -> b ->
-                if intEq b 0 then
+                if eq b 0 then
                     a
                 else
                     gcd2 b (rem a b)
         # 3
         def gcd3 =
             a -> b ->
-                match intEq b 0 with
+                match eq b 0 with
                 | (_: True) -> a
                 | _ -> gcd3 b (rem a b)
         ";

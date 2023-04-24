@@ -564,7 +564,7 @@ pub fn go(mut stack: Vec<Pat>, seq: Vec<In>) -> Pat {
         ([p], None) => {
             let r = p.clone();
 
-            //println!("Success with: {r:?}");
+            // println!("Success with: {r:?}");
 
             r
         }

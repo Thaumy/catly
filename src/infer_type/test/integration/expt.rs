@@ -14,7 +14,7 @@ fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
             b -> n ->
                 let iter =
                     b -> count -> product ->
-                        if intEq count 0 then
+                        if eq count 0 then
                             product
                         else
                             iter b (sub count 1) (mul b product)
@@ -25,7 +25,7 @@ fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
             b -> n ->
                 let iter =
                     b -> count -> product ->
-                        if intEq count 0 then
+                        if eq count 0 then
                             product
                         else
                             iter b (sub count 1) (mul b product)
@@ -36,7 +36,7 @@ fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
             b -> n ->
                 let iter =
                     b -> count -> product ->
-                        match intEq count 0 with
+                        match eq count 0 with
                         | (_: True) -> product
                         | (_: False) -> iter b (sub count 1) (mul b product)
                 in

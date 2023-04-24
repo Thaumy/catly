@@ -47,6 +47,7 @@ where
                     // 将作用于常量环境的约束过滤掉, 收集外部约束用于分支共享
                     let outer_constraint =
                         constraint.filter_new(|(n, _)| {
+                            // 如果约束到任何匹配捕获, 则视为内部约束
                             !env_inject.iter().any(
                                 |(capture_name, ..)| {
                                     capture_name == n

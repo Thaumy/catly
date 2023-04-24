@@ -143,7 +143,7 @@ pub fn go(mut stack: Vec<Pat>, seq: Vec<In>) -> Pat {
                 _ => Pat::Err
             };
 
-            //println!("Success with: {r:?}");
+            // println!("Success with: {r:?}");
 
             r
         }
