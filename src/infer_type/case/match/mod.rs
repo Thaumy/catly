@@ -33,6 +33,7 @@ pub fn case(
             case_t_rc(
                 type_env,
                 &new_expr_env,
+                target_expr,
                 target_expr_type,
                 constraint_acc,
                 expect_type,
@@ -43,15 +44,22 @@ pub fn case(
         // 无法获取 target_expr 类型信息, 启用旁路类型推导
         // 同样, 为了防止内层环境对外层环境造成跨越优先级的约束, 仅当 target_expr 没有类型标注时才能启用旁路推导
         // 相关讨论参见 let case
-        Quad::MR(require_info) if target_expr.is_no_type_annot() =>
+        Quad::MR(require_info) if target_expr.is_no_type_annot() => {
+            let new_expr_env = expr_env.extend_constraint_new(
+                require_info
+                    .constraint
+                    .clone()
+            );
+
             case_ri(
                 type_env,
-                expr_env,
+                &new_expr_env,
                 require_info,
                 expect_type,
                 target_expr,
                 vec
-            ),
+            )
+        }
 
         mr_r => mr_r
     }

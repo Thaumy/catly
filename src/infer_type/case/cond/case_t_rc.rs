@@ -25,7 +25,7 @@ pub fn case_t_rc(
     .some();
 
     let (else_expr_type, constraint_acc) = match else_expr
-        .with_optional_fallback_type(&expect_type)
+        .with_opt_fallback_type(&expect_type)
         .infer_type(type_env, expr_env)
     {
         Quad::L(t) => (t, constraint_acc),

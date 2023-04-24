@@ -126,9 +126,10 @@ pub fn infer_type(
     match &result {
         Quad::MR(ri) if !ri.constraint.is_empty() => {
             let constraint_acc = ri.constraint.clone();
-            let expr_env = expr_env
+            let new_expr_env = expr_env
                 .extend_constraint_new(constraint_acc.clone());
-            match infer_type(type_env, &expr_env, expr) {
+
+            match infer_type(type_env, &new_expr_env, expr) {
                 Quad::L(t) => require_constraint(t, constraint_acc),
                 Quad::ML(rc) =>
                     rc.with_constraint_acc(constraint_acc),

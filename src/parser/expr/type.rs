@@ -77,7 +77,7 @@ impl Expr {
         }
     }
 
-    pub fn with_optional_fallback_type(
+    pub fn with_opt_fallback_type(
         &self,
         r#type: &Option<Type>
     ) -> Expr {

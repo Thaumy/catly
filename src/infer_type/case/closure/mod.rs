@@ -79,7 +79,7 @@ pub fn case(
 
     // Hint and get output_expr_type
     let output_expr_type = output_expr
-        .with_optional_fallback_type(&expect_output_type)
+        .with_opt_fallback_type(&expect_output_type)
         .infer_type(type_env, &expr_env);
 
     // 此处并不将 output_expr_type 与 hint 进行相容性判断

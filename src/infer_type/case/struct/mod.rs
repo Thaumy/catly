@@ -45,7 +45,7 @@ pub fn case(
                 (
                     sf_n.to_string(),
                     sf_t.clone(),
-                    sf_e.with_optional_fallback_type(sf_t)
+                    sf_e.with_opt_fallback_type(sf_t)
                         .with_fallback_type(pf_t)
                 )
             })
@@ -57,7 +57,7 @@ pub fn case(
                 (
                     sf_n.to_string(),
                     sf_t.clone(),
-                    sf_e.with_optional_fallback_type(sf_t)
+                    sf_e.with_opt_fallback_type(sf_t)
                 )
             })
             .collect()

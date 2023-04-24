@@ -29,7 +29,7 @@ fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
         def struct9: Int = { a = 1 }
 
         def a10 = _
-        def struct10: Int = { a = a10, b = (a10: Int) }
+        def struct10 = { a = a10, b = (a10: Int) }
     ";
     parse_env(seq)
 }
@@ -185,5 +185,12 @@ fn test_part10() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    assert_matches!(expr_type, Quad::R(TypeMissMatch { .. }))
+    let r = require_constraint(
+        prod_type![
+            ("a".to_string(), int_type!()),
+            ("b".to_string(), int_type!())
+        ],
+        EnvRefConstraint::single("a10".to_string(), int_type!())
+    );
+    assert_eq!(expr_type, r)
 }

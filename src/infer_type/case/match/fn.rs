@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::env::expr_env::ExprEnv;
+use crate::env::expr_env::{EnvEntry, ExprEnv};
 use crate::env::r#type::env_ref_src::EnvRefSrc;
 use crate::env::r#type::type_constraint::TypeConstraint;
 use crate::env::r#type::type_env::TypeEnv;
@@ -14,13 +14,11 @@ use crate::infra::result::AnyExt as ResAnyExt;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::Type;
 
-type EnvItem = (String, TypeConstraint, EnvRefSrc);
-
 // 将模式匹配意义上的常量表达式解构为表达式环境注入
 pub fn destruct_match_const_to_expr_env_inject<'t>(
     type_env: &TypeEnv,
     expr: &Expr
-) -> Vec<EnvItem> {
+) -> Vec<EnvEntry> {
     // 由于后续的 case_expr_type 会和 target_expr_type 进行相容性测试, 所以这里不负责类型检查
     // 另外在此处实施类型检查是极其复杂的, 这意味着要实现 infer_type 的大部分功能
     match expr {
@@ -54,8 +52,8 @@ pub fn destruct_match_const_to_expr_env_inject<'t>(
                         .and_then(|fields| fields.get(n).cloned());
 
                     let e = e
-                        .with_optional_fallback_type(&prod_hint)
-                        .with_optional_fallback_type(&mt);
+                        .with_opt_fallback_type(&prod_hint)
+                        .with_opt_fallback_type(&mt);
 
                     destruct_match_const_to_expr_env_inject(
                         type_env, &e
@@ -71,7 +69,7 @@ pub fn destruct_match_const_to_expr_env_inject<'t>(
 pub fn is_case_expr_valid(
     type_env: &TypeEnv,
     target_expr_type: &Type,
-    case_expr_and_env_inject: impl Iterator<Item = (Expr, Vec<EnvItem>)>
+    case_expr_and_env_inject: impl Iterator<Item = (Expr, Vec<EnvEntry>)>
 ) -> Result<(), InferTypeRet> {
     // 逐一确认 case_expr_type 与 target_expr_type 的相容性
     // 同时确保 case_expr 是模式匹配意义上的常量

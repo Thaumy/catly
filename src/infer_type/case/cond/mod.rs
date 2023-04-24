@@ -61,7 +61,7 @@ pub fn case(
         &expr_env.extend_constraint_new(constraint_acc.clone());
 
     let then_expr_type = then_expr
-        .with_optional_fallback_type(expect_type)
+        .with_opt_fallback_type(expect_type)
         .infer_type(type_env, expr_env);
 
     match then_expr_type {

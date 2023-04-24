@@ -9,14 +9,14 @@ use crate::infra::alias::{MaybeExpr, MaybeType};
 use crate::infra::option::AnyExt;
 use crate::parser::expr::r#type::Expr;
 
-type Item = (String, TypeConstraint, EnvRefSrc);
+pub type EnvEntry = (String, TypeConstraint, EnvRefSrc);
 
 // 表达式环境
 #[derive(Clone, Debug)]
 pub struct ExprEnv<'t> {
     type_env: TypeEnv,
     prev_env: Option<&'t ExprEnv<'t>>,
-    env: Vec<Item>
+    env: Vec<EnvEntry>
 }
 
 impl<'t> ExprEnv<'t> {
@@ -24,7 +24,10 @@ impl<'t> ExprEnv<'t> {
         Self::new(type_env, vec![])
     }
 
-    pub fn new(type_env: TypeEnv, env_vec: Vec<Item>) -> ExprEnv<'t> {
+    pub fn new(
+        type_env: TypeEnv,
+        env_vec: Vec<EnvEntry>
+    ) -> ExprEnv<'t> {
         let expr_env = ExprEnv {
             type_env,
             prev_env: None,
@@ -47,7 +50,7 @@ impl<'t> ExprEnv<'t> {
         }
     }
 
-    pub fn extend_vec_new(&self, env_vec: Vec<Item>) -> ExprEnv {
+    pub fn extend_vec_new(&self, env_vec: Vec<EnvEntry>) -> ExprEnv {
         let expr_env = ExprEnv {
             type_env: self.type_env.clone(),
             prev_env: self
@@ -106,7 +109,7 @@ impl<'t> ExprEnv<'t> {
     fn find_entry<'s>(
         &self,
         ref_name: impl Into<&'s str>
-    ) -> Option<&Item> {
+    ) -> Option<&EnvEntry> {
         let ref_name = ref_name.into();
         let entry = self
             .env

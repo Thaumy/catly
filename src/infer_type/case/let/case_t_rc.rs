@@ -43,7 +43,7 @@ pub fn case_t_rc(
 
     // Hint scope_expr with expect_type and get scope_expr_type
     let scope_expr_type = scope_expr
-        .with_optional_fallback_type(expect_type)
+        .with_opt_fallback_type(expect_type)
         .infer_type(type_env, &expr_env);
 
     match scope_expr_type {
