@@ -9,7 +9,7 @@ fn blank() -> AnyOrBlank { Either::R(()) }
 type AnyOrBlank = Either<char, ()>;
 
 fn reduce_stack(mut stack: Vec<AnyOrBlank>) -> Vec<AnyOrBlank> {
-    use crate::parser::preprocess::merge_blank::Either::R;
+    use crate::pp::merge_blank::Either::R;
     match &stack[..] {
         // Blank Blank -> Blank
         [.., R(()), R(())] => stack.reduce(2, blank()),
@@ -42,13 +42,18 @@ pub fn pp_merge_blank(seq: &str) -> String {
                 }
                 acc
             });
-    println!("{:8}{:>10} │ {r:?}", "[pp]", "MergeBlank");
+
+    if cfg!(feature = "pp_log") {
+        let log = format!("{:8}{:>10} │ {r:?}", "[pp]", "MergeBlank");
+        println!("{log}");
+    }
+
     r
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::parser::preprocess::merge_blank::pp_merge_blank;
+    use crate::pp::merge_blank::pp_merge_blank;
 
     #[test]
     fn test_blank_pp() {

@@ -16,7 +16,11 @@ pub fn infer_type(
     expr_env: &ExprEnv,
     expr: &Expr
 ) -> InferTypeRet {
-    println!("{:8}{:>10} │ {expr:?}", "[infer]", "TypeOf");
+    if cfg!(feature = "infer_log") {
+        let log =
+            format!("{:8}{:>10} │ {expr:?}", "[infer]", "TypeOf");
+        println!("{log}");
+    }
 
     let result = match expr {
         Expr::Int(expect_type, _) => {
@@ -102,26 +106,27 @@ pub fn infer_type(
         }
     };
 
-    let log = match result.clone() {
-        Quad::L(x) => format!(
-            "{:8}{:>10} │ {x:?} of {expr:?}",
-            "[infer]", "Inferred"
-        ),
-        Quad::ML(x) => format!(
-            "{:8}{:>10} │ {x:?} of {expr:?}",
-            "[infer]", "Inferred"
-        ),
-        Quad::MR(x) => format!(
-            "{:8}{:>10} │ {x:?} of {expr:?}",
-            "[infer]", "Inferred"
-        ),
-        Quad::R(x) => format!(
-            "{:8}{:>10} │ {x:?} of {expr:?}",
-            "[infer]", "Inferred"
-        )
-    };
+    if cfg!(feature = "infer_log_min") {
+        let dbg_type = match result.clone() {
+            Quad::L(x) =>
+                format!("{:8}{:>10} │ {x:?}", "[infer]", "Inferred"),
+            Quad::ML(x) =>
+                format!("{:8}{:>10} │ {x:?}", "[infer]", "Inferred"),
+            Quad::MR(x) =>
+                format!("{:8}{:>10} │ {x:?}", "[infer]", "Inferred"),
+            Quad::R(x) =>
+                format!("{:8}{:>10} │ {x:?}", "[infer]", "Inferred"),
+        };
 
-    println!("{log}");
+        let log = if cfg!(feature = "infer_log") {
+            let dbg_expr = format!(" of {expr:?}");
+            format!("{dbg_type}{dbg_expr}")
+        } else {
+            dbg_type
+        };
+
+        println!("{log}");
+    }
 
     match &result {
         Quad::MR(ri) if !ri.constraint.is_empty() => {

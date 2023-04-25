@@ -5,7 +5,7 @@ use crate::parser::expr::parse_expr;
 use crate::parser::keyword::Keyword;
 use crate::parser::r#type::parse_type;
 
-type In = crate::parser::preprocess::Out;
+type In = crate::pp::Out;
 
 fn move_in(stack: &Vec<Pat>, head: Option<In>) -> Pat {
     match head {
@@ -35,14 +35,22 @@ fn move_in(stack: &Vec<Pat>, head: Option<In>) -> Pat {
 
                 // _ -> Err
                 c => {
-                    println!("Invalid head Pat: {c:?}");
+                    if cfg!(feature = "lr1_log") {
+                        let log = format!("Invalid head Pat: {c:?}");
+                        println!("{log}");
+                    }
+
                     Pat::Err
                 }
             },
 
             // _ -> Err
             (_, p) => {
-                println!("Invalid head Pat: {p:?}");
+                if cfg!(feature = "lr1_log") {
+                    let log = format!("Invalid head Pat: {p:?}");
+                    println!("{log}");
+                }
+
                 Pat::Err
             }
         },
@@ -105,7 +113,11 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
         ([.., Pat::Err], _) => return vec![Pat::Err],
         // Can not reduce
         ([.., Pat::End], _) => {
-            println!("Reduction failed: {stack:?}");
+            if cfg!(feature = "lr1_log") {
+                let log = format!("Reduction failed: {stack:?}");
+                println!("{log}");
+            }
+
             return vec![Pat::Err];
         }
         // keep move in
@@ -114,7 +126,10 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
 
     let reduced_stack = stack;
 
-    // println!("Reduced: {reduced_stack:?}");
+    if cfg!(feature = "lr1_log") {
+        let log = format!("Reduced: {reduced_stack:?}");
+        println!("{log}");
+    }
 
     reduce_stack(reduced_stack, follow)
 }
@@ -123,7 +138,11 @@ pub fn go(mut stack: Vec<Pat>, seq: Vec<In>) -> Pat {
     let (head, tail, follow) = vec_get_head_tail_follow(seq);
 
     stack.push(move_in(&stack, head));
-    // println!("Move in: {stack:?} follow: {follow:?}");
+
+    if cfg!(feature = "lr1_log") {
+        let log = format!("Move in: {stack:?} follow: {follow:?}");
+        println!("{log}");
+    }
 
     let reduced_stack = reduce_stack(stack, follow.clone());
 
@@ -143,7 +162,10 @@ pub fn go(mut stack: Vec<Pat>, seq: Vec<In>) -> Pat {
                 _ => Pat::Err
             };
 
-            // println!("Success with: {r:?}");
+            if cfg!(feature = "lr1_log") {
+                let log = format!("Success with: {r:?}");
+                println!("{log}");
+            }
 
             r
         }

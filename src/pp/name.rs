@@ -38,23 +38,28 @@ impl From<In> for Option<Out> {
     }
 }
 
-type In = crate::parser::preprocess::r#const::Out;
+type In = crate::pp::r#const::Out;
 
 pub fn pp_name(seq: &[In]) -> Option<Vec<Out>> {
     let result = seq.maybe_fold(vec![], |acc, p| {
         let it = (p.clone().into(): Option<Out>)?;
         acc.chain_push(it).some()
     });
-    println!("{:8}{:>10} │ {result:?}", "[pp]", "Name");
+
+    if cfg!(feature = "pp_log") {
+        let log = format!("{:8}{:>10} │ {result:?}", "[pp]", "Name");
+        println!("{log}");
+    }
+
     result
 }
 
 #[cfg(test)]
 mod tests {
     use crate::parser::keyword::Keyword;
-    use crate::parser::preprocess::name::{pp_name, Out};
+    use crate::pp::name::{pp_name, Out};
 
-    type In = crate::parser::preprocess::r#const::Out;
+    type In = crate::pp::r#const::Out;
 
     #[test]
     fn test_pp_keyword() {

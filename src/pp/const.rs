@@ -53,7 +53,10 @@ fn reduce_stack(mut stack: Vec<Pat>) -> Vec<Pat> {
     };
     let reduced_stack = stack;
 
-    // println!("Reduced: {reduced_stack:?}");
+    if cfg!(feature = "lr1_log") {
+        let log = format!("Reduced: {reduced_stack:?}");
+        println!("{log}");
+    }
 
     reduced_stack
 }
@@ -102,7 +105,7 @@ fn go(mut stack: Vec<Pat>, tail: &[In]) -> Vec<Pat> {
     go(reduced_stack, tail)
 }
 
-type In = crate::parser::preprocess::keyword::Out;
+type In = crate::pp::keyword::Out;
 
 pub fn pp_const(seq: &[In]) -> Option<Vec<Out>> {
     let vec = go(vec![], seq);
@@ -110,16 +113,21 @@ pub fn pp_const(seq: &[In]) -> Option<Vec<Out>> {
         let it = (p.clone().into(): Option<Out>)?;
         acc.chain_push(it).some()
     });
-    println!("{:8}{:>10} │ {result:?}", "[pp]", "Const");
+
+    if cfg!(feature = "pp_log") {
+        let log = format!("{:8}{:>10} │ {result:?}", "[pp]", "Const");
+        println!("{log}");
+    }
+
     result
 }
 
 #[cfg(test)]
 mod tests {
     use crate::parser::keyword::Keyword;
-    use crate::parser::preprocess::r#const::{pp_const, Out};
+    use crate::pp::r#const::{pp_const, Out};
 
-    type In = crate::parser::preprocess::keyword::Out;
+    type In = crate::pp::keyword::Out;
 
     #[test]
     fn test_pp_const() {

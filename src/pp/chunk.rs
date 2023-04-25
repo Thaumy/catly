@@ -140,7 +140,10 @@ fn reduce_stack(
 
     let reduced_stack = stack;
 
-    // println!("Reduced: {reduced_stack:?}");
+    if cfg!(feature = "lr1_log") {
+        let log = format!("Reduced: {reduced_stack:?}");
+        println!("{log}");
+    }
 
     reduce_stack(reduced_stack, follow)
 }
@@ -149,7 +152,12 @@ fn go(mut stack: Vec<Pat>, tail: &str) -> Vec<Pat> {
     let (head, tail, follow) = str_get_head_tail_follow(tail);
 
     stack.push(move_in(&stack, head));
-    // println!("Move in: {stack:?} follow: {follow:?}");
+
+    if cfg!(feature = "lr1_log") {
+        let log = format!("Move in: {stack:?} follow: {follow:?}");
+        println!("{log}");
+    }
+
     let reduced_stack = reduce_stack(stack, follow);
 
     match reduced_stack[..] {
@@ -184,13 +192,18 @@ pub fn pp_chunk(seq: &str) -> Option<Vec<Out>> {
         let it = (p.clone().into(): Option<Out>)?;
         acc.chain_push(it).some()
     });
-    println!("{:8}{:>10} │ {result:?}", "[pp]", "Chunk");
+
+    if cfg!(feature = "pp_log") {
+        let log = format!("{:8}{:>10} │ {result:?}", "[pp]", "Chunk");
+        println!("{log}");
+    }
+
     result
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::parser::preprocess::chunk::{pp_chunk, Out};
+    use crate::pp::chunk::{pp_chunk, Out};
 
     #[test]
     fn test_pp_chunk() {

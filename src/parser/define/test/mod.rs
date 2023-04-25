@@ -1,5 +1,5 @@
 use crate::parser::define::{parse_define, Define};
-use crate::parser::preprocess::preprocess;
+use crate::pp::preprocess;
 
 fn f(seq: &str) -> Option<Define> {
     let seq = preprocess(&seq)?;

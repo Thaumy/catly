@@ -4,7 +4,7 @@ use crate::infer_type::r#fn::has_type;
 use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer_type::test::integration::get_std_code;
 use crate::infer_type::test::parse_env;
-use crate::{closure_type, int_type, namely_type};
+use crate::namely_type;
 
 fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
     let seq = get_std_code() +

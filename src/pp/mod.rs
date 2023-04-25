@@ -1,11 +1,11 @@
 use crate::parser::keyword::Keyword;
-use crate::parser::preprocess::chunk::pp_chunk;
-use crate::parser::preprocess::comment::pp_comment;
-use crate::parser::preprocess::keyword::pp_keyword;
-use crate::parser::preprocess::merge_blank::pp_merge_blank;
-use crate::parser::preprocess::name::pp_name;
-use crate::parser::preprocess::r#const::pp_const;
-use crate::parser::preprocess::remove_blank::pp_remove_blank;
+use crate::pp::chunk::pp_chunk;
+use crate::pp::comment::pp_comment;
+use crate::pp::keyword::pp_keyword;
+use crate::pp::merge_blank::pp_merge_blank;
+use crate::pp::name::pp_name;
+use crate::pp::r#const::pp_const;
+use crate::pp::remove_blank::pp_remove_blank;
 
 mod chunk;
 mod comment;

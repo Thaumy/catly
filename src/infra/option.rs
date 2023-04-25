@@ -1,4 +1,4 @@
-type In = crate::parser::preprocess::Out;
+type In = crate::pp::Out;
 
 pub trait FollowExt<T> {
     fn is_expr_end_pat(&self) -> bool;

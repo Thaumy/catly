@@ -1,6 +1,6 @@
 use crate::parser::ast::parse_ast;
 use crate::parser::define::Define;
-use crate::parser::preprocess::preprocess;
+use crate::pp::preprocess;
 
 fn f(seq: &str) -> Option<Vec<Define>> {
     let seq = preprocess(&seq)?;

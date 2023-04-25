@@ -1,8 +1,8 @@
 use crate::infra::either::Either;
 use crate::infra::str::str_get_head_tail;
 use crate::infra::vec::Ext;
-use crate::parser::preprocess::comment::Either::*;
-use crate::parser::preprocess::comment::Pat::*;
+use crate::pp::comment::Either::*;
+use crate::pp::comment::Pat::*;
 
 #[derive(Clone)]
 enum Pat {
@@ -64,13 +64,18 @@ pub fn pp_comment(seq: &str) -> String {
                 }
                 _ => acc
             });
-    println!("{:8}{:>10} │ {r:?}", "[pp]", "Comment");
+
+    if cfg!(feature = "pp_log") {
+        let log = format!("{:8}{:>10} │ {r:?}", "[pp]", "Comment");
+        println!("{log}");
+    }
+
     r
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::parser::preprocess::comment::pp_comment;
+    use crate::pp::comment::pp_comment;
 
     #[test]
     fn test_part1() {

@@ -33,10 +33,15 @@ impl<'t> ExprEnv<'t> {
             prev_env: None,
             env: env_vec
         };
-        println!(
-            "{:8}{:>10} │ {:?}",
-            "[env]", "ExprEnv", expr_env.env
-        );
+
+        if cfg!(feature = "env_log") {
+            let log = format!(
+                "{:8}{:>10} │ {:?}",
+                "[env]", "ExprEnv", expr_env.env
+            );
+            println!("{log}");
+        }
+
         expr_env
     }
 
@@ -58,10 +63,15 @@ impl<'t> ExprEnv<'t> {
                 .some(),
             env: env_vec
         };
-        println!(
-            "{:8}{:>10} │ {:?}",
-            "[env]", "ExprEnv", expr_env.env
-        );
+
+        if cfg!(feature = "env_log") {
+            let log = format!(
+                "{:8}{:>10} │ {:?}",
+                "[env]", "ExprEnv", expr_env.env
+            );
+            println!("{log}");
+        }
+
         expr_env
     }
 
@@ -80,10 +90,15 @@ impl<'t> ExprEnv<'t> {
             tc,
             src.into()
         )]);
-        println!(
-            "{:8}{:>10} │ {:?}",
-            "[env]", "ExprEnv", expr_env.env
-        );
+
+        if cfg!(feature = "env_log") {
+            let log = format!(
+                "{:8}{:>10} │ {:?}",
+                "[env]", "ExprEnv", expr_env.env
+            );
+            println!("{log}");
+        }
+
         expr_env
     }
 
@@ -99,10 +114,15 @@ impl<'t> ExprEnv<'t> {
             .collect();
 
         let expr_env = self.extend_vec_new(vec);
-        println!(
-            "{:8}{:>10} │ {:?}",
-            "[env]", "ExprEnv", expr_env.env
-        );
+
+        if cfg!(feature = "env_log") {
+            let log = format!(
+                "{:8}{:>10} │ {:?}",
+                "[env]", "ExprEnv", expr_env.env
+            );
+            println!("{log}");
+        }
+
         expr_env
     }
 

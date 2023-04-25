@@ -10,10 +10,15 @@ mod pat;
 mod test;
 pub mod r#type;
 
-type In = crate::parser::preprocess::Out;
+type In = crate::pp::Out;
 
 pub fn parse_expr(seq: Vec<In>) -> MaybeExpr {
     let r = go(vec![Pat::Start], seq).into();
-    println!("{:8}{:>10} │ {r:?}", "[parsed]", "Expr");
+
+    if cfg!(feature = "parser_log") {
+        let log = format!("{:8}{:>10} │ {r:?}", "[parsed]", "Expr");
+        println!("{log}");
+    }
+
     r
 }

@@ -1,6 +1,6 @@
 use crate::infra::alias::MaybeType;
-use crate::parser::preprocess::preprocess;
 use crate::parser::r#type::parse_type;
+use crate::pp::preprocess;
 
 fn f(seq: &str) -> MaybeType {
     let seq = preprocess(&seq)?;

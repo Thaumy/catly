@@ -1,6 +1,6 @@
 use crate::infra::alias::MaybeExpr;
 use crate::parser::expr::parse_expr;
-use crate::parser::preprocess::preprocess;
+use crate::pp::preprocess;
 
 pub fn f(seq: &str) -> MaybeExpr {
     let seq = preprocess(&seq)?;

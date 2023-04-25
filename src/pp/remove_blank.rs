@@ -1,4 +1,4 @@
-type In = crate::parser::preprocess::name::Out;
+type In = crate::pp::name::Out;
 
 pub fn pp_remove_blank(seq: &Vec<In>) -> Vec<In> {
     let r = seq
@@ -9,6 +9,11 @@ pub fn pp_remove_blank(seq: &Vec<In>) -> Vec<In> {
         })
         .map(|x| x.clone())
         .collect();
-    println!("{:8}{:>10} │ {r:?}", "[pp]", "RmBlank");
+
+    if cfg!(feature = "pp_log") {
+        let log = format!("{:8}{:>10} │ {r:?}", "[pp]", "RmBlank");
+        println!("{log}");
+    }
+
     r
 }

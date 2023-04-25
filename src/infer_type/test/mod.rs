@@ -2,7 +2,7 @@ use crate::env::expr_env::ExprEnv;
 use crate::env::from_defines;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::parser::ast::parse_ast;
-use crate::parser::preprocess::preprocess;
+use crate::pp::preprocess;
 
 mod apply;
 mod closure;

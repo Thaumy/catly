@@ -27,10 +27,15 @@ impl TypeEnv {
             prev_env: None,
             env: Rc::new(type_vec)
         };
-        println!(
-            "{:8}{:>10} │ {:?}",
-            "[env]", "TypeEnv", type_env.env
-        );
+
+        if cfg!(feature = "env_log") {
+            let log = format!(
+                "{:8}{:>10} │ {:?}",
+                "[env]", "TypeEnv", type_env.env
+            );
+            println!("{log}");
+        }
+
         type_env
     }
 
@@ -54,10 +59,15 @@ impl TypeEnv {
                 .some(),
             env: Rc::new(type_vec)
         };
-        println!(
-            "{:8}{:>10} │ {:?}",
-            "[env]", "TypeEnv", type_env.env
-        );
+
+        if cfg!(feature = "env_log") {
+            let log = format!(
+                "{:8}{:>10} │ {:?}",
+                "[env]", "TypeEnv", type_env.env
+            );
+            println!("{log}");
+        }
+
         type_env
     }
 
@@ -104,10 +114,11 @@ impl TypeEnv {
                 .find_entry(type_name)
                 .is_some()
         };
-        if !is_exist {
-            println!(
+        if !is_exist && cfg!(feature = "env_log") {
+            let log = format!(
                 "NamelyType '{type_name}' not exist in type env"
             );
+            println!("{log}");
         }
         is_exist
     }

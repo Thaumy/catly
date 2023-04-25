@@ -20,7 +20,13 @@ pub fn lift(
     from: &Type,
     to: &Type
 ) -> Option<Type> {
-    println!("{:8}{:>10} │ {from:?} to {to:?}", "[unify]", "Lift");
+    if cfg!(feature = "unify_log") {
+        let log = format!(
+            "{:8}{:>10} │ {from:?} to {to:?}",
+            "[unify]", "Lift"
+        );
+        println!("{log}");
+    }
 
     if let Type::NamelyType(n) = from
         && !type_env.exist_ref(n.as_str()) { return None; }

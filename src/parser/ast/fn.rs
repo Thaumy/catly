@@ -3,7 +3,7 @@ use crate::infra::option::AnyExt;
 use crate::infra::vec::Ext;
 use crate::parser::define::{parse_define, Define};
 
-type In = crate::parser::preprocess::Out;
+type In = crate::pp::Out;
 
 pub fn split_to_top_levels(seq: Vec<In>) -> Vec<Vec<In>> {
     type F =

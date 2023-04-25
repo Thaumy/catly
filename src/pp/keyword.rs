@@ -43,22 +43,27 @@ impl From<In> for Out {
     }
 }
 
-type In = crate::parser::preprocess::chunk::Out;
+type In = crate::pp::chunk::Out;
 
 pub fn pp_keyword(seq: &[In]) -> Vec<Out> {
     let r = seq
         .iter()
         .fold(vec![], |acc, x| acc.chain_push(Out::from(x.clone())));
-    println!("{:8}{:>10} │ {r:?}", "[pp]", "Keyword");
+
+    if cfg!(feature = "pp_log") {
+        let log = format!("{:8}{:>10} │ {r:?}", "[pp]", "Keyword");
+        println!("{log}");
+    }
+
     r
 }
 
 #[cfg(test)]
 mod tests {
     use crate::parser::keyword::Keyword;
-    use crate::parser::preprocess::keyword::{pp_keyword, Out};
+    use crate::pp::keyword::{pp_keyword, Out};
 
-    type In = crate::parser::preprocess::chunk::Out;
+    type In = crate::pp::chunk::Out;
 
     #[test]
     fn test_pp_keyword() {
