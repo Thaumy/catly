@@ -1,6 +1,6 @@
 use std::collections::BTreeSet;
 
-use crate::env::r#type::type_env::TypeEnv;
+use crate::infer::env::type_env::TypeEnv;
 use crate::infra::option::AnyExt;
 use crate::parser::r#type::r#type::Type;
 

@@ -1,4 +1,4 @@
-use crate::env::r#type::type_env::TypeEnv;
+use crate::infer::env::type_env::TypeEnv;
 use crate::parser::r#type::r#type::Type;
 
 pub fn lift_prod(

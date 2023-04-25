@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 use std::fmt::{Debug, Formatter};
 use std::ops::Deref;
 
-use crate::env::r#type::type_env::TypeEnv;
+use crate::infer::env::type_env::TypeEnv;
 use crate::unify::lift;
 
 pub type MaybeType = Option<Type>;

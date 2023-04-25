@@ -1,9 +1,9 @@
 use std::fmt::{Debug, Formatter};
 
-use crate::env::expr_env::ExprEnv;
-use crate::env::r#type::type_env::TypeEnv;
-use crate::infer_type::infer_type;
-use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
+use crate::infer::env::expr_env::ExprEnv;
+use crate::infer::env::type_env::TypeEnv;
+use crate::infer::infer_type::infer_type;
+use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infra::option::AnyExt;
 use crate::parser::r#type::r#type::MaybeType;
 use crate::parser::r#type::r#type::Type;

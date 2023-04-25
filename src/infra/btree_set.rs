@@ -16,6 +16,10 @@ where
 
 #[macro_export]
 macro_rules! btree_set {
+    () => ({
+        use std::collections::BTreeSet;
+        BTreeSet::new()
+    });
     ($($v:expr),* $(,)*) => ({
         use std::collections::BTreeSet;
         let mut bt = BTreeSet::new();

@@ -1,4 +1,4 @@
-use crate::env::r#type::type_env::TypeEnv;
+use crate::infer::env::type_env::TypeEnv;
 use crate::infra::option::AnyExt;
 use crate::unify::namely::lift_namely;
 use crate::{
