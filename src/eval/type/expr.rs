@@ -7,7 +7,6 @@ use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext as BoxAnyExt;
 use crate::infra::vec::Ext as VecAnyExt;
 use crate::parser::expr::r#type::Expr as CtExpr;
-use crate::parser::expr::r#type::StructField as CtStructField;
 use crate::parser::r#type::r#type::Type as CtType;
 
 pub type MaybeExpr = Option<Expr>;

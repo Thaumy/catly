@@ -1,17 +1,11 @@
-mod infer_type;
-mod infer_type_with_hint;
-
-use crate::infer::env::r#type::env_ref_src::EnvRefSrc;
-use crate::infer::env::r#type::type_constraint::TypeConstraint;
-use crate::infer::env::type_env::TypeEnv;
-use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
+use crate::eval::env::type_env::TypeEnv;
+use crate::eval::r#type::expr::Expr;
+use crate::eval::r#type::r#type::Type;
 use crate::infra::option::AnyExt;
-use crate::parser::expr::r#type::{Expr, MaybeExpr};
-use crate::parser::r#type::r#type::MaybeType;
 
-pub type EnvEntry = (String, TypeConstraint, EnvRefSrc);
+pub type EnvEntry = (String, Type, Expr);
 
-// 编译时表达式环境
+// 运行时表达式环境
 #[derive(Clone, Debug)]
 pub struct ExprEnv<'t> {
     type_env: TypeEnv,
@@ -34,10 +28,10 @@ impl<'t> ExprEnv<'t> {
             env: env_vec
         };
 
-        if cfg!(feature = "ct_env_log") {
+        if cfg!(feature = "rt_env_log") {
             let log = format!(
                 "{:8}{:>10} │ {:?}",
-                "[ct env]", "ExprEnv", expr_env.env
+                "[rt env]", "ExprEnv", expr_env.env
             );
             println!("{log}");
         }
@@ -45,8 +39,6 @@ impl<'t> ExprEnv<'t> {
         expr_env
     }
 
-    // 通过将最近的非空环境作为上级环境, 能够提高查找效率
-    // 因为环境不可变, 所以没有风险
     fn latest_none_empty_expr_env(&self) -> &ExprEnv {
         match (self.env.is_empty(), self.prev_env) {
             (true, Some(prev_env)) =>
@@ -64,10 +56,10 @@ impl<'t> ExprEnv<'t> {
             env: env_vec
         };
 
-        if cfg!(feature = "ct_env_log") {
+        if cfg!(feature = "rt_env_log") {
             let log = format!(
                 "{:8}{:>10} │ {:?}",
-                "[ct env]", "ExprEnv", expr_env.env
+                "[rt env]", "ExprEnv", expr_env.env
             );
             println!("{log}");
         }
@@ -78,47 +70,19 @@ impl<'t> ExprEnv<'t> {
     pub fn extend_new(
         &self,
         ref_name: impl Into<String>,
-        r#type: MaybeType,
-        src: MaybeExpr
+        r#type: Type,
+        src: Expr
     ) -> ExprEnv {
-        let tc = r#type
-            .map(|t| t.into())
-            .unwrap_or(TypeConstraint::Free);
-
         let expr_env = self.extend_vec_new(vec![(
             ref_name.into(),
-            tc,
+            r#type,
             src.into()
         )]);
 
-        if cfg!(feature = "ct_env_log") {
+        if cfg!(feature = "rt_env_log") {
             let log = format!(
                 "{:8}{:>10} │ {:?}",
-                "[ct env]", "ExprEnv", expr_env.env
-            );
-            println!("{log}");
-        }
-
-        expr_env
-    }
-
-    pub fn extend_constraint_new(
-        &self,
-        constraint: EnvRefConstraint
-    ) -> ExprEnv {
-        let vec = constraint
-            .iter()
-            .map(|(n, t)| {
-                (n.to_string(), t.clone().into(), EnvRefSrc::NoSrc)
-            })
-            .collect();
-
-        let expr_env = self.extend_vec_new(vec);
-
-        if cfg!(feature = "ct_env_log") {
-            let log = format!(
-                "{:8}{:>10} │ {:?}",
-                "[ct env]", "ExprEnv", expr_env.env
+                "[rt env]", "ExprEnv", expr_env.env
             );
             println!("{log}");
         }
@@ -149,10 +113,7 @@ impl<'t> ExprEnv<'t> {
         ref_name: impl Into<&'s str>
     ) -> Option<&Expr> {
         self.find_entry(ref_name)
-            .and_then(|(.., src)| match src {
-                EnvRefSrc::Src(expr) => expr.some(),
-                EnvRefSrc::NoSrc => None
-            })
+            .map(|(.., src)| src)
     }
 
     pub fn get_ref<'s>(
@@ -160,16 +121,6 @@ impl<'t> ExprEnv<'t> {
         ref_name: impl Into<&'s str>
     ) -> Option<Expr> {
         self.find_entry(ref_name)
-            .map(|(n, tc, _)| {
-                Expr::EnvRef(tc.clone().into(), n.to_string())
-            })
-    }
-
-    pub fn exist_ref<'s>(
-        &self,
-        ref_name: impl Into<&'s str>
-    ) -> bool {
-        self.find_entry(ref_name)
-            .is_some()
+            .map(|(n, t, _)| Expr::EnvRef(t.clone(), n.to_string()))
     }
 }
