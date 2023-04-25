@@ -5,9 +5,9 @@ use crate::env::r#type::env_ref_src::EnvRefSrc;
 use crate::env::r#type::type_constraint::TypeConstraint;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
-use crate::infra::alias::{MaybeExpr, MaybeType};
 use crate::infra::option::AnyExt;
-use crate::parser::expr::r#type::Expr;
+use crate::parser::expr::r#type::{Expr, MaybeExpr};
+use crate::parser::r#type::r#type::MaybeType;
 
 pub type EnvEntry = (String, TypeConstraint, EnvRefSrc);
 

@@ -1,6 +1,6 @@
-use crate::infra::alias::MaybeType;
 use crate::parser::r#type::pat::Pat;
 use crate::parser::r#type::r#fn::go;
+use crate::parser::r#type::r#type::MaybeType;
 
 mod r#fn;
 mod pat;

@@ -3,8 +3,9 @@ use std::fmt::{Debug, Formatter};
 use std::ops::Deref;
 
 use crate::env::r#type::type_env::TypeEnv;
-use crate::infra::alias::MaybeType;
 use crate::unify::lift;
+
+pub type MaybeType = Option<Type>;
 
 pub type ProdField = (String, Type);
 
@@ -83,7 +84,9 @@ impl Type {
 impl Debug for Type {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            Type::NamelyType(n) => f.write_str(&*format!("'{n}'")),
+            Type::NamelyType(t_n) =>
+                f.write_str(&*format!("'{t_n}'")),
+
             Type::ClosureType(i_t, o_t) =>
                 if let Type::ClosureType(..) |
                 Type::PartialClosureType(..) = i_t.clone().deref()
@@ -92,12 +95,13 @@ impl Debug for Type {
                 } else {
                     f.write_str(&*format!("{i_t:?} -> {o_t:?}"))
                 },
-            Type::SumType(s) =>
-                f.write_str(&*format!("SumType{s:?}")),
-            Type::ProdType(v) =>
-                f.write_str(&*format!("ProdType{v:?}")),
 
-            // Input type only
+            Type::SumType(s_s) =>
+                f.write_str(&*format!("SumType{s_s:?}")),
+
+            Type::ProdType(p_v) =>
+                f.write_str(&*format!("ProdType{p_v:?}")),
+
             Type::PartialClosureType(i_t) =>
                 if let Type::ClosureType(..) |
                 Type::PartialClosureType(..) = i_t.clone().deref()

@@ -7,9 +7,9 @@ use crate::env::r#type::type_env::TypeEnv;
 use crate::infer_type::case::r#match::case_ri::case_ri;
 use crate::infer_type::case::r#match::case_t_rc::case_t_rc;
 use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infra::alias::MaybeType;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
+use crate::parser::r#type::r#type::MaybeType;
 
 // TODO: 外部环境约束同层传播完备性
 pub fn case(

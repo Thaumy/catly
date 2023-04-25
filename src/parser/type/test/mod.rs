@@ -1,5 +1,5 @@
-use crate::infra::alias::MaybeType;
 use crate::parser::r#type::parse_type;
+use crate::parser::r#type::r#type::MaybeType;
 use crate::pp::preprocess;
 
 fn f(seq: &str) -> MaybeType {

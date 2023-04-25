@@ -1,4 +1,4 @@
-use crate::infra::alias::MaybeType;
+use crate::parser::r#type::r#type::MaybeType;
 use crate::parser::r#type::r#type::Type;
 
 #[derive(Clone, Debug)]

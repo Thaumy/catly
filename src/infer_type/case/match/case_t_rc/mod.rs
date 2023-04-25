@@ -11,7 +11,7 @@ use crate::infer_type::case::r#match::r#fn::{
 };
 use crate::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infra::alias::MaybeType;
+use crate::parser::r#type::r#type::MaybeType;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::Type;
 

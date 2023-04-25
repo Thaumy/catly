@@ -1,14 +1,13 @@
 use std::collections::BTreeSet;
 
-use crate::infra::alias::{MaybeExpr, MaybeType};
 use crate::infra::btree_set::Ext;
 use crate::infra::iter::IntoIteratorExt;
 use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext as BoxAnyExt;
 use crate::infra::vec::Ext as VecAnyExt;
-use crate::parser::expr::r#type::Expr;
+use crate::parser::expr::r#type::{Expr, MaybeExpr};
 use crate::parser::keyword::Keyword;
-use crate::parser::r#type::r#type::Type;
+use crate::parser::r#type::r#type::{MaybeType, Type};
 
 pub type OptBoxPat = Option<Box<Pat>>;
 
@@ -87,6 +86,7 @@ impl Pat {
     }
     pub fn with_type(self, r#type: Pat) -> Option<Self> {
         let r = match self {
+            Pat::Discard(_) => Pat::Discard(r#type.boxed().some()),
             Pat::Unit(_) => Pat::Unit(r#type.boxed().some()),
             Pat::Int(_, i) => Pat::Int(r#type.boxed().some(), i),
             Pat::LetName(_, n) =>
@@ -99,7 +99,6 @@ impl Pat {
                 Pat::Closure(r#type.boxed().some(), i_n, i_t, o),
             Pat::Struct(_, vec) =>
                 Pat::Struct(r#type.boxed().some(), vec),
-            Pat::Discard(_) => Pat::Discard(r#type.boxed().some()),
             Pat::Match(_, e, vec) =>
                 Pat::Match(r#type.boxed().some(), e, vec),
             Pat::Let(_, a_n, a_t, a_e, e) =>
@@ -203,7 +202,7 @@ impl From<Pat> for MaybeExpr {
                 match (Self::from(*p), vec) {
                     (Some(p), Some(vec)) =>
                         Expr::Match(t.map_into(), p.boxed(), vec),
-                    _ => Expr::Unit(None)
+                    _ => return None
                 }
             }
             Pat::Let(t, a_n, a_t, a_e, e) => {
@@ -227,41 +226,30 @@ impl From<Pat> for MaybeExpr {
 
 impl From<Pat> for MaybeType {
     fn from(pat: Pat) -> Self {
-        let r = match pat {
+        match pat {
             Pat::TypeName(n) => Type::NamelyType(n),
 
-            Pat::ClosureType(i, o) => {
-                match (Self::from(*i), Self::from(*o)) {
-                    (Some(i), Some(o)) =>
-                        Type::ClosureType(i.boxed(), o.boxed()),
-                    _ => return None
-                }
-            }
-            Pat::SumType(ts) => {
-                let set = ts.maybe_fold(BTreeSet::new(), |acc, t| {
-                    let it = (t.clone().into(): MaybeType)?;
-                    acc.chain_insert(it).some()
-                });
+            Pat::ClosureType(i, o) => Type::ClosureType(
+                Self::from(*i)?.boxed(),
+                Self::from(*o)?.boxed()
+            ),
 
-                match set {
-                    Some(set) => Type::SumType(set),
-                    _ => return None
-                }
-            }
-            Pat::ProdType(vec) => {
-                let vec = vec.maybe_fold(vec![], |acc, (n, p)| {
-                    let it = (p.clone().into(): Option<Type>)
-                        .map(|t| (n.to_string(), t))?;
-                    acc.chain_push(it).some()
-                });
+            Pat::SumType(s_s) => s_s
+                .maybe_fold(BTreeSet::new(), |acc, t| {
+                    let t: MaybeType = t.clone().into();
+                    acc.chain_insert(t?).some()
+                })
+                .map(|set| Type::SumType(set))?,
 
-                match vec {
-                    Some(vec) => Type::ProdType(vec),
-                    _ => return None
-                }
-            }
+            Pat::ProdType(p_v) => p_v
+                .maybe_fold(vec![], |acc, (n, p)| {
+                    let n = n.to_string();
+                    let t: MaybeType = p.clone().into();
+                    acc.chain_push((n, t?)).some()
+                })
+                .map(|vec| Type::ProdType(vec))?,
             _ => return None
-        };
-        Some(r)
+        }
+        .some()
     }
 }

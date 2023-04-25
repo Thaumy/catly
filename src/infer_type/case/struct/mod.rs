@@ -7,11 +7,11 @@ use crate::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer_type::r#type::require_info::RequireInfo;
 use crate::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt as OptAnyExt;
 use crate::infra::quad::Quad;
 use crate::infra::result::AnyExt as ResAnyExt;
 use crate::parser::expr::r#type::StructField;
+use crate::parser::r#type::r#type::MaybeType;
 use crate::parser::r#type::r#type::Type;
 
 // TODO: 外部环境约束同层传播完备性

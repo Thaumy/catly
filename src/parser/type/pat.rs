@@ -1,11 +1,12 @@
 use std::collections::BTreeSet;
 
-use crate::infra::alias::MaybeType;
+use crate::btree_set;
 use crate::infra::btree_set::Ext;
 use crate::infra::iter::IntoIteratorExt;
 use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext as BoxAnyExt;
 use crate::infra::vec::Ext as VecAnyExt;
+use crate::parser::r#type::r#type::MaybeType;
 use crate::parser::r#type::r#type::Type;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -46,41 +47,30 @@ impl Pat {
 
 impl From<Pat> for MaybeType {
     fn from(pat: Pat) -> Self {
-        let r = match pat {
-            Pat::TypeName(n) => Type::NamelyType(n),
+        match pat {
+            Pat::TypeName(t_n) => Type::NamelyType(t_n),
 
-            Pat::ClosureType(i, o) => {
-                match (Self::from(*i), Self::from(*o)) {
-                    (Some(i), Some(o)) =>
-                        Type::ClosureType(i.boxed(), o.boxed()),
-                    _ => return None
-                }
-            }
-            Pat::SumType(ts) => {
-                let set = ts.maybe_fold(BTreeSet::new(), |acc, t| {
-                    let it = (t.clone().into(): MaybeType)?;
-                    acc.chain_insert(it).some()
-                });
+            Pat::ClosureType(i_t, o_t) => Type::ClosureType(
+                Self::from(*i_t)?.boxed(),
+                Self::from(*o_t)?.boxed()
+            ),
 
-                match set {
-                    Some(set) => Type::SumType(set),
-                    _ => return None
-                }
-            }
-            Pat::ProdType(vec) => {
-                let vec = vec.maybe_fold(vec![], |acc, (n, p)| {
-                    let it = (p.clone().into(): MaybeType)
-                        .map(|e| (n.to_string(), e))?;
-                    acc.chain_push(it).some()
-                });
+            Pat::SumType(s_s) => s_s
+                .maybe_fold(btree_set![], |acc, t| {
+                    let t: Self = t.clone().into();
+                    acc.chain_insert(t?).some()
+                })
+                .map(|set| Type::SumType(set))?,
 
-                match vec {
-                    Some(vec) => Type::ProdType(vec),
-                    _ => return None
-                }
-            }
+            Pat::ProdType(p_v) => p_v
+                .maybe_fold(vec![], |acc, (n, p)| {
+                    let n = n.to_string();
+                    let t: Self = p.clone().into();
+                    acc.chain_push((n, t?)).some()
+                })
+                .map(|vec| Type::ProdType(vec))?,
             _ => return None
-        };
-        Some(r)
+        }
+        .some()
     }
 }

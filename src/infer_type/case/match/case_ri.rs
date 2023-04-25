@@ -4,13 +4,13 @@ use crate::infer_type::case::r#match::r#fn::destruct_match_const_to_expr_env_inj
 use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer_type::r#type::require_info::RequireInfo;
 use crate::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt as OptAnyExt;
 use crate::infra::quad::{AnyExt, Quad};
 use crate::infra::r#box::Ext;
 use crate::infra::r#fn::id;
 use crate::infra::result::AnyExt as ResAnyExt;
 use crate::parser::expr::r#type::Expr;
+use crate::parser::r#type::r#type::MaybeType;
 
 pub fn case_ri(
     type_env: &TypeEnv,

@@ -1,5 +1,5 @@
-use crate::infra::alias::MaybeExpr;
 use crate::parser::expr::parse_expr;
+use crate::parser::expr::r#type::MaybeExpr;
 use crate::pp::preprocess;
 
 pub fn f(seq: &str) -> MaybeExpr {

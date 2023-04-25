@@ -5,9 +5,9 @@ use crate::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer_type::r#type::require_constraint::require_extended_constraint;
 use crate::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt as OptAnyExt;
 use crate::infra::quad::{AnyExt as QuadAnyExt, Quad};
+use crate::parser::r#type::r#type::MaybeType;
 
 impl<'t> ExprEnv<'t> {
     // 由于表达式对环境中的 ref_name 的使用是一种间接使用, 可能存在多处引用对于 ref_name 的类型要求不一致的情况

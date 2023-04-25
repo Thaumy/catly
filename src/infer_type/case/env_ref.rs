@@ -1,9 +1,9 @@
 use crate::env::expr_env::ExprEnv;
 use crate::env::r#type::type_env::TypeEnv;
 use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
+use crate::parser::r#type::r#type::MaybeType;
 
 // TODO: 外部环境约束同层传播完备性
 pub fn case(

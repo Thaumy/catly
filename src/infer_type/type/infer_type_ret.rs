@@ -6,9 +6,9 @@ use crate::infer_type::r#type::require_constraint::{
 };
 use crate::infer_type::r#type::require_info::RequireInfo;
 use crate::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infra::alias::MaybeType;
 use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
+use crate::parser::r#type::r#type::MaybeType;
 use crate::parser::r#type::r#type::Type;
 
 pub type InferTypeRet =

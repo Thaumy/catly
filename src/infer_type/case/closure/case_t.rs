@@ -2,8 +2,8 @@ use crate::env::r#type::type_env::TypeEnv;
 use crate::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer_type::r#type::require_info::RequireInfo;
-use crate::infra::alias::MaybeType;
 use crate::infra::r#box::Ext;
+use crate::parser::r#type::r#type::MaybeType;
 use crate::parser::r#type::r#type::Type;
 
 pub fn case_t(

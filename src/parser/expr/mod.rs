@@ -1,8 +1,8 @@
 use std::vec;
 
-use crate::infra::alias::MaybeExpr;
 use crate::parser::expr::pat::Pat;
 use crate::parser::expr::r#fn::go;
+use crate::parser::expr::r#type::MaybeExpr;
 
 mod r#fn;
 mod pat;

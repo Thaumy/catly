@@ -1,4 +1,3 @@
-pub mod alias;
 pub mod r#box;
 pub mod btree_set;
 pub mod either;

@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [features]
-default = ["unify_log", "infer_log", "env_log"]
+default = ["unify_log", "infer_log_min", "env_log", "rt_log"]
 lr1_log = []
 pp_log = []
 parser_log = []
@@ -12,6 +12,8 @@ infer_log = ["infer_log_min"]
 infer_log_min = []
 unify_log = []
 env_log = []
+rt_log = ["rt_log_min"]
+rt_log_min = []
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

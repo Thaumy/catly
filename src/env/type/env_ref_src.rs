@@ -1,5 +1,4 @@
-use crate::infra::alias::MaybeExpr;
-use crate::parser::expr::r#type::Expr;
+use crate::parser::expr::r#type::{Expr, MaybeExpr};
 
 // 表示 EnvRef 的源表达式
 #[derive(Clone, Debug)]
