@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [features]
-default = ["unify_log", "infer_log_min", "env_log", "rt_log"]
+# default = ["unify_log", "infer_log", "env_log", "rt_log"]
 lr1_log = []
 pp_log = []
 parser_log = []

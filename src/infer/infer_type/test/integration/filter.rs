@@ -22,11 +22,11 @@ fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
         # 2
         def filter2 =
             # 对于 list 的类型标注是必须的, 因为 SumType 是不封闭的
-            p -> (list: IntList) ->
-                match list with
+            p -> list ->
+                match (list: IntList) with
                 | ({ head = head, tail = tail }: IntCons) ->
                     if p head then
-                        intCons head (filter2 p tail)
+                        (intCons head (filter2 p tail)): IntList
                     else
                         filter2 p tail
                 | (_: EmptyList) -> emptyList

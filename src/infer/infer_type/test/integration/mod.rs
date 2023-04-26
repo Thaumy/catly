@@ -29,7 +29,7 @@ fn get_std_code() -> String {
         type IntList = IntCons | EmptyList
 
         def emptyList = (): EmptyList
-        def intCons = h -> t -> { head = h, tail = t } : IntList
+        def intCons = h -> t -> { head = h, tail = t } : IntCons
     "
     .to_string()
 }

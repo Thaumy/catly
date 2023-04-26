@@ -122,9 +122,9 @@ fn test_part6() {
 fn test_part7() {
     let env = &env();
     let derive = &namely_type!("S1");
-    assert!(lift_namely(env, "Int", derive).is_some());
+    assert!(lift_namely(env, "A", derive).is_some());
 
-    let base = &int_type!();
+    let base = &namely_type!("A");
     assert!(base
         .lift_to(env, derive)
         .is_some());
@@ -135,9 +135,9 @@ fn test_part7() {
 fn test_part8() {
     let env = &env();
     let derive = &namely_type!("S2");
-    assert!(lift_namely(env, "Int", derive).is_some());
+    assert!(lift_namely(env, "C", derive).is_some());
 
-    let base = &int_type!();
+    let base = &namely_type!("C");
     assert!(base
         .lift_to(env, derive)
         .is_some());

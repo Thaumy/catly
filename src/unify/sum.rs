@@ -28,17 +28,22 @@ pub fn lift_sum(
                     .map(|_| derive.clone())
             }),
 
-        // .. | T | ..
-        // where Base can be lifted to T
+        // .. | Base | ..
         Type::SumType(s) => s
             .iter()
-            .any(|t| {
-                Type::SumType(sum_set.clone())
-                    .lift_to(type_env, t)
-                    .is_some()
-            })
+            .any(|t| &Type::SumType(sum_set.clone()) == t)
             .then(|| derive.clone()),
 
+        // 与 int case 同理
+        // // .. | T | ..
+        // // where Base can be lifted to T
+        // Type::SumType(s) => s
+        //     .iter()
+        //     .any(|t| {
+        //         Type::SumType(sum_set.clone())
+        //             .can_lift_to(type_env, t)
+        //     })
+        //     .then(|| derive.clone()),
         _ => None
     }
 }

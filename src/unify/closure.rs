@@ -49,21 +49,30 @@ pub fn lift_closure(
                 .map(|_| derive.clone())
         }
 
-        // .. | T | ..
-        // where Base can be lifted to T
-        Type::SumType(s) => {
-            let base = Type::ClosureType(
-                i_t.clone().boxed(),
-                o_t.clone().boxed()
-            );
-            s.iter()
-                .any(|t| {
-                    base.lift_to(type_env, t)
-                        .is_some()
-                })
-                .then(|| derive.clone())
-        }
+        // .. | Base | ..
+        Type::SumType(s) => s
+            .iter()
+            .any(|t| {
+                &Type::ClosureType(
+                    i_t.clone().boxed(),
+                    o_t.clone().boxed()
+                ) == t
+            })
+            .then(|| derive.clone()),
 
+        // 与 int case 同理
+        // // .. | T | ..
+        // // where Base can be lifted to T
+        // Type::SumType(s) => s
+        //     .iter()
+        //     .any(|t| {
+        //         Type::ClosureType(
+        //             i_t.clone().boxed(),
+        //             o_t.clone().boxed()
+        //         )
+        //         .can_lift_to(type_env, t)
+        //     })
+        //     .then(|| derive.clone()),
         _ => None
     }
 }

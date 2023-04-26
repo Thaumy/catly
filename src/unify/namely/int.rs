@@ -22,17 +22,27 @@ pub fn lift_int(type_env: &TypeEnv, derive: &Type) -> Option<Type> {
                     .map(|_| derive.clone())
             }),
 
-        // .. | T | ..
-        // where Base can be lifted to T
+        // .. | Int | ..
         Type::SumType(s) => s
             .iter()
-            .any(|t| {
-                int_type!()
-                    .lift_to(type_env, t)
-                    .is_some()
+            .any(|t| match t {
+                Type::NamelyType(n) => n == "Int",
+                _ => false
             })
             .then(|| derive.clone()),
 
+        // // 基本类型只能逐步提升至目标类型
+        // // 不允许下列提升过程, 因为可能导致运行时类型擦除
+        // // .. | T | ..
+        // // where Base can be lifted to T
+        // Type::SumType(s) => s
+        //     .iter()
+        //     .any(|t| {
+        //         int_type!()
+        //             .lift_to(type_env, t)
+        //             .is_some()
+        //     })
+        //     .then(|| derive.clone()),
         _ => None
     }
 }

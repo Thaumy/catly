@@ -63,13 +63,13 @@ fn test_part3() {
     let env = &env();
     let s = &btree_set![namely_type!("A"), namely_type!("B")];
     let derive = &namely_type!("S");
-    assert!(lift_sum(env, s, derive).is_some());
+    assert!(lift_sum(env, s, derive).is_none());
 
     let base = &Type::SumType(s.clone());
     assert!(base
         .lift_to(env, derive)
-        .is_some());
-    assert_eq!(base.unify(env, derive), derive.clone().some());
+        .is_none());
+    assert_eq!(base.unify(env, derive), None);
 }
 
 #[test]

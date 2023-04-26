@@ -101,13 +101,13 @@ fn test_part4() {
     let a = &namely_type!("A");
     let b = &namely_type!("B");
     let derive = &namely_type!("FG");
-    assert!(lift_closure(env, a, b.deref(), derive).is_some());
+    assert!(lift_closure(env, a, b.deref(), derive).is_none());
 
     let base = &closure_type!(a.clone(), b.clone());
     assert!(base
         .lift_to(env, derive)
-        .is_some());
-    assert_eq!(base.unify(env, derive), derive.clone().some());
+        .is_none());
+    assert_eq!(base.unify(env, derive), None);
 }
 
 #[test]

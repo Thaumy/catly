@@ -61,13 +61,13 @@ fn test_part3() {
     let env = &env();
     let v = &vec![("a".to_string(), namely_type!("A"))];
     let derive = &namely_type!("SA");
-    assert!(lift_prod(env, v, derive).is_some());
+    assert!(lift_prod(env, v, derive).is_none());
 
     let base = &Type::ProdType(v.clone());
     assert!(base
         .lift_to(env, derive)
-        .is_some());
-    assert_eq!(base.unify(env, derive), derive.clone().some());
+        .is_none());
+    assert_eq!(base.unify(env, derive), None);
 }
 
 #[test]
