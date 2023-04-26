@@ -1,6 +1,6 @@
 use std::fmt::{Debug, Formatter};
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct EvalErr {
     pub info: String
 }

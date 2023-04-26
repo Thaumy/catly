@@ -3,14 +3,14 @@ use crate::eval::r#type::expr::Expr;
 use crate::eval::r#type::r#type::Type;
 use crate::infra::option::AnyExt;
 
-pub type EnvEntry = (String, Type, Expr);
+pub type EnvEntry<'e> = (String, Type, Expr, ExprEnv<'e>);
 
 // 运行时表达式环境
 #[derive(Clone, Debug)]
 pub struct ExprEnv<'t> {
     type_env: TypeEnv,
     prev_env: Option<&'t ExprEnv<'t>>,
-    env: Vec<EnvEntry>
+    env: Vec<EnvEntry<'t>>
 }
 
 impl<'t> ExprEnv<'t> {
@@ -20,7 +20,7 @@ impl<'t> ExprEnv<'t> {
 
     pub fn new(
         type_env: TypeEnv,
-        env_vec: Vec<EnvEntry>
+        env_vec: Vec<EnvEntry<'t>>
     ) -> ExprEnv<'t> {
         let expr_env = ExprEnv {
             type_env,
@@ -47,7 +47,10 @@ impl<'t> ExprEnv<'t> {
         }
     }
 
-    pub fn extend_vec_new(&self, env_vec: Vec<EnvEntry>) -> ExprEnv {
+    pub fn extend_vec_new(
+        &self,
+        env_vec: Vec<EnvEntry<'t>>
+    ) -> ExprEnv {
         let expr_env = ExprEnv {
             type_env: self.type_env.clone(),
             prev_env: self
@@ -71,12 +74,14 @@ impl<'t> ExprEnv<'t> {
         &self,
         ref_name: impl Into<String>,
         r#type: Type,
-        src: Expr
+        src: Expr,
+        src_env: ExprEnv<'t>
     ) -> ExprEnv {
         let expr_env = self.extend_vec_new(vec![(
             ref_name.into(),
             r#type,
-            src.into()
+            src.into(),
+            src_env
         )]);
 
         if cfg!(feature = "rt_env_log") {
@@ -108,19 +113,11 @@ impl<'t> ExprEnv<'t> {
         }
     }
 
-    pub fn get_expr<'s>(
+    pub fn get_expr_and_env<'s>(
         &self,
         ref_name: impl Into<&'s str>
-    ) -> Option<&Expr> {
+    ) -> Option<(&Expr, &ExprEnv)> {
         self.find_entry(ref_name)
-            .map(|(.., src)| src)
-    }
-
-    pub fn get_ref<'s>(
-        &self,
-        ref_name: impl Into<&'s str>
-    ) -> Option<Expr> {
-        self.find_entry(ref_name)
-            .map(|(n, t, _)| Expr::EnvRef(t.clone(), n.to_string()))
+            .map(|(.., src, src_env)| (src, src_env))
     }
 }
