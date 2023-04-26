@@ -101,12 +101,12 @@ where
     let outer_constraint = outer_constraints
         .clone()
         // 与累积约束合并
-        .fold(constraint_acc.ok(), |acc, x| match (acc, x) {
-            (Ok(acc), Ok(c)) => match acc.extend_new(c.clone()) {
+        .try_fold(constraint_acc, |acc, x| match x {
+            Ok(c) => match acc.extend_new(c.clone()) {
                 Some(acc) => acc.ok(),
                 None => TypeMissMatch::of_constraint(&acc, &c).err()
             },
-            (Ok(acc), Err(Quad::MR(ri))) => match acc
+            Err(Quad::MR(ri)) => match acc
                 .extend_new(ri.constraint.clone())
             {
                 Some(acc) => acc.ok(),
@@ -114,8 +114,7 @@ where
                     TypeMissMatch::of_constraint(&acc, &ri.constraint)
                         .err(),
             },
-            (Ok(acc), _) => acc.ok(),
-            (Err(e), _) => e.err()
+            _ => acc.ok()
         });
 
     // 如果合并约束时发生冲突, 立即返回

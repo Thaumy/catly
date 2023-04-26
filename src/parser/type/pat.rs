@@ -2,7 +2,6 @@ use std::collections::BTreeSet;
 
 use crate::btree_set;
 use crate::infra::btree_set::Ext;
-use crate::infra::iter::IntoIteratorExt;
 use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext as BoxAnyExt;
 use crate::infra::vec::Ext as VecAnyExt;
@@ -56,14 +55,16 @@ impl From<Pat> for MaybeType {
             ),
 
             Pat::SumType(s_s) => s_s
-                .maybe_fold(btree_set![], |acc, t| {
+                .iter()
+                .try_fold(btree_set![], |acc, t| {
                     let t: Self = t.clone().into();
                     acc.chain_insert(t?).some()
                 })
                 .map(|set| Type::SumType(set))?,
 
             Pat::ProdType(p_v) => p_v
-                .maybe_fold(vec![], |acc, (n, p)| {
+                .iter()
+                .try_fold(vec![], |acc, (n, p)| {
                     let n = n.to_string();
                     let t: Self = p.clone().into();
                     acc.chain_push((n, t?)).some()

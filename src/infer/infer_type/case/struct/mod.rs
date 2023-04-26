@@ -98,26 +98,20 @@ pub fn case(
 
     let outer_constraint = pf_n_and_pf_t_with_constraint
         .clone()
-        .fold(EnvRefConstraint::empty().ok(), |acc, x| {
-            match (acc, x) {
-                (Ok(acc), Ok((.., c))) =>
-                    match acc.extend_new(c.clone()) {
-                        Some(acc) => acc.ok(),
-                        None => TypeMissMatch::of_constraint(&acc, &c)
-                            .err()
-                    },
-                (Ok(acc), Err(Quad::MR(ri))) =>
-                    match acc.extend_new(ri.constraint.clone()) {
-                        Some(acc) => acc.ok(),
-                        None => TypeMissMatch::of_constraint(
-                            &acc,
-                            &ri.constraint
-                        )
-                        .err()
-                    },
-                (Ok(acc), _) => acc.ok(),
-                (Err(e), _) => e.err()
-            }
+        .try_fold(EnvRefConstraint::empty(), |acc, x| match x {
+            Ok((.., c)) => match acc.extend_new(c.clone()) {
+                Some(acc) => acc.ok(),
+                None => TypeMissMatch::of_constraint(&acc, &c).err()
+            },
+            Err(Quad::MR(ri)) => match acc
+                .extend_new(ri.constraint.clone())
+            {
+                Some(acc) => acc.ok(),
+                None =>
+                    TypeMissMatch::of_constraint(&acc, &ri.constraint)
+                        .err(),
+            },
+            _ => acc.ok()
         });
 
     // 如果合并约束时发生冲突, 立即返回

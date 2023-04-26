@@ -2,7 +2,6 @@ use std::fmt::{Debug, Formatter};
 
 use crate::eval::r#type::r#type::MaybeType;
 use crate::eval::r#type::r#type::Type;
-use crate::infra::iter::IntoIteratorExt;
 use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext as BoxAnyExt;
 use crate::infra::vec::Ext as VecAnyExt;
@@ -115,27 +114,29 @@ impl From<CtExpr> for MaybeExpr {
             CtExpr::Struct(Some(t), s_v) => {
                 let t = convert_type(t)?;
 
-                s_v.maybe_fold(vec![], |acc, (sf_n, sf_t, sf_e)| {
-                    let sf_n = sf_n.to_string();
-                    let sf_t = convert_type(sf_t.clone()?)?;
-                    let sf_e = Self::from(sf_e.clone())?;
-                    acc.chain_push((sf_n, sf_t, sf_e))
-                        .some()
-                })
-                .map(|vec| Expr::Struct(t, vec))?
+                s_v.iter()
+                    .try_fold(vec![], |acc, (sf_n, sf_t, sf_e)| {
+                        let sf_n = sf_n.to_string();
+                        let sf_t = convert_type(sf_t.clone()?)?;
+                        let sf_e = Self::from(sf_e.clone())?;
+                        acc.chain_push((sf_n, sf_t, sf_e))
+                            .some()
+                    })
+                    .map(|vec| Expr::Struct(t, vec))?
             }
 
             CtExpr::Match(Some(t), t_e, c_v) => {
                 let t = convert_type(t)?;
                 let t_e = Self::from(*t_e)?;
 
-                c_v.maybe_fold(vec![], |acc, (c_e, t_e)| {
-                    let c_e = (c_e.clone().into(): MaybeExpr)?;
-                    let t_e = (t_e.clone().into(): MaybeExpr)?;
-                    acc.chain_push((c_e, t_e))
-                        .some()
-                })
-                .map(|vec| Expr::Match(t, t_e.boxed(), vec))?
+                c_v.iter()
+                    .try_fold(vec![], |acc, (c_e, t_e)| {
+                        let c_e = (c_e.clone().into(): MaybeExpr)?;
+                        let t_e = (t_e.clone().into(): MaybeExpr)?;
+                        acc.chain_push((c_e, t_e))
+                            .some()
+                    })
+                    .map(|vec| Expr::Match(t, t_e.boxed(), vec))?
             }
 
             CtExpr::Let(Some(t), a_n, Some(a_t), a_e, o_e) =>

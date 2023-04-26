@@ -7,7 +7,6 @@ use crate::eval::{eval, EvalRet};
 pub fn case_cond(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
-    type_annot: &Type,
     bool_expr: &Expr,
     then_expr: &Expr,
     else_expr: &Expr

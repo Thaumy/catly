@@ -1,4 +1,3 @@
-use crate::infra::iter::IntoIteratorExt;
 use crate::infra::option::AnyExt;
 use crate::infra::vec::Ext;
 use crate::parser::keyword::Keyword;
@@ -41,10 +40,12 @@ impl From<In> for Option<Out> {
 type In = crate::pp::r#const::Out;
 
 pub fn pp_name(seq: &[In]) -> Option<Vec<Out>> {
-    let result = seq.maybe_fold(vec![], |acc, p| {
-        let it = (p.clone().into(): Option<Out>)?;
-        acc.chain_push(it).some()
-    });
+    let result = seq
+        .iter()
+        .try_fold(vec![], |acc, p| {
+            let it = (p.clone().into(): Option<Out>)?;
+            acc.chain_push(it).some()
+        });
 
     if cfg!(feature = "pp_log") {
         let log = format!("{:8}{:>10} │ {result:?}", "[pp]", "Name");

@@ -2,7 +2,6 @@ pub mod r#box;
 pub mod btree_set;
 pub mod either;
 pub mod r#fn;
-pub mod iter;
 pub mod option;
 pub mod quad;
 pub mod result;

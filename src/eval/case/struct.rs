@@ -20,10 +20,9 @@ pub fn case_struct(
                 Err(e) => e.err()
             }
         })
-        .fold(Ok(vec![]), |acc, x| match (acc, x) {
-            (Ok(acc), Ok(sf)) => acc.chain_push(sf).ok(),
-            (_, Err(e)) => e.err(),
-            (Err(e), _) => e.err()
+        .try_fold(vec![], |acc, x| match x {
+            Ok(sf) => acc.chain_push(sf).ok(),
+            Err(e) => e.err()
         });
 
     match struct_vec {

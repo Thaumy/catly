@@ -1,4 +1,3 @@
-use crate::infra::iter::IntoIteratorExt;
 use crate::infra::option::AnyExt;
 use crate::infra::vec::Ext;
 use crate::parser::define::{parse_define, Define};
@@ -38,8 +37,9 @@ pub fn parse_to_defines(seq: Vec<Vec<In>>) -> Option<Vec<Define>> {
         .map(|vec| parse_define(vec.clone()))
         .collect();
 
-    iter.maybe_fold(vec![], |acc, it| {
-        let it = it.clone()?;
-        acc.chain_push(it).some()
-    })
+    iter.iter()
+        .try_fold(vec![], |acc, it| {
+            let it = it.clone()?;
+            acc.chain_push(it).some()
+        })
 }

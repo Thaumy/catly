@@ -83,14 +83,12 @@ where
 
     let outer_constraint = type_and_outer_constraints
         .clone()
-        .fold(constraint_acc.ok(), |acc, x| match (acc, x) {
-            (Ok(acc), Ok((_, c))) =>
-                match acc.extend_new(c.clone()) {
-                    Some(acc) => acc.ok(),
-                    None =>
-                        TypeMissMatch::of_constraint(&acc, &c).err(),
-                },
-            (Ok(acc), Err(Quad::MR(ri))) => match acc
+        .try_fold(constraint_acc, |acc, x| match x {
+            Ok((_, c)) => match acc.extend_new(c.clone()) {
+                Some(acc) => acc.ok(),
+                None => TypeMissMatch::of_constraint(&acc, &c).err()
+            },
+            Err(Quad::MR(ri)) => match acc
                 .extend_new(ri.constraint.clone())
             {
                 Some(acc) => acc.ok(),
@@ -98,8 +96,7 @@ where
                     TypeMissMatch::of_constraint(&acc, &ri.constraint)
                         .err(),
             },
-            (Ok(acc), _) => acc.ok(),
-            (Err(e), _) => e.err()
+            _ => acc.ok()
         });
 
     // 如果合并约束时发生冲突, 立即返回

@@ -10,7 +10,7 @@ use crate::infra::r#box::Ext;
 use crate::infra::r#fn::id;
 use crate::infra::result::AnyExt as ResAnyExt;
 use crate::parser::expr::r#type::Expr;
-use crate::parser::r#type::r#type::MaybeType;
+use crate::parser::r#type::r#type::{MaybeType, Type};
 
 pub fn case_ri(
     type_env: &TypeEnv,
@@ -75,9 +75,9 @@ pub fn case_ri(
         // 该策略认为无法取得 case_expr 的类型可能是由 target_expr 无法取得类型引起的
         // 所以应该过滤出所有能够得到的类型进行合一并 hint target_expr
         .filter(|x| x.is_ok())
-        .fold(None.ok(), |acc, t| {
-            match (acc, t) {
-                (Ok(acc), Ok(t)) => {
+        .try_fold(None, |acc: Option<Type>, t| {
+            match t {
+                Ok(t) => {
                     match acc {
                         // 对于头一个类型, 只需让它成为初始 acc 类型
                         None => t.some().ok(),
@@ -90,8 +90,7 @@ pub fn case_ri(
                         }
                     }
                 }
-                (Ok(_), Err(_)) => original_err.clone().err(),
-                (Err(_), _) => original_err.clone().err()
+                Err(_) => original_err.clone().err()
             }
         });
 

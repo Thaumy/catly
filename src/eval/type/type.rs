@@ -3,7 +3,6 @@ use std::fmt::{Debug, Formatter};
 use std::ops::Deref;
 
 use crate::infra::btree_set::Ext as BtTreeAnyExt;
-use crate::infra::iter::IntoIteratorExt;
 use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext as BoxAnyExt;
 use crate::infra::vec::Ext as VecAnyExt;
@@ -50,14 +49,16 @@ impl From<CtType> for MaybeType {
             ),
 
             CtType::SumType(s_s) => s_s
-                .maybe_fold(BTreeSet::new(), |acc, t| {
+                .iter()
+                .try_fold(BTreeSet::new(), |acc, t| {
                     let t: Self = t.clone().into();
                     acc.chain_insert(t?).some()
                 })
                 .map(|set| Type::SumType(set))?,
 
             CtType::ProdType(p_v) => p_v
-                .maybe_fold(vec![], |acc, (n, t)| {
+                .iter()
+                .try_fold(vec![], |acc, (n, t)| {
                     let n = n.to_string();
                     let t: Self = t.clone().into();
                     acc.chain_push((n, t?)).some()

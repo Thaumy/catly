@@ -1,7 +1,6 @@
 use std::collections::BTreeSet;
 
 use crate::infra::btree_set::Ext;
-use crate::infra::iter::IntoIteratorExt;
 use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext as BoxAnyExt;
 use crate::infra::vec::Ext as VecAnyExt;
@@ -173,13 +172,19 @@ impl From<Pat> for MaybeExpr {
                 _ => return None
             },
             Pat::Struct(t, vec) => {
-                let vec = vec.maybe_fold(vec![], |acc, (n, t, p)| {
-                    let it =
-                        (p.clone().into(): MaybeExpr).map(|e| {
-                            (n.to_string(), t.clone().map_into(), e)
-                        })?;
-                    acc.chain_push(it).some()
-                });
+                let vec =
+                    vec.iter()
+                        .try_fold(vec![], |acc, (n, t, p)| {
+                            let it = (p.clone().into(): MaybeExpr)
+                                .map(|e| {
+                                    (
+                                        n.to_string(),
+                                        t.clone().map_into(),
+                                        e
+                                    )
+                                })?;
+                            acc.chain_push(it).some()
+                        });
 
                 match vec {
                     Some(vec) => Expr::Struct(t.map_into(), vec),
@@ -187,7 +192,7 @@ impl From<Pat> for MaybeExpr {
                 }
             }
             Pat::Match(t, p, vec) => {
-                let vec = vec.maybe_fold(
+                let vec = vec.iter().try_fold(
                     vec![],
                     |acc, (case_p, then_p)| {
                         let case_e =
@@ -235,14 +240,16 @@ impl From<Pat> for MaybeType {
             ),
 
             Pat::SumType(s_s) => s_s
-                .maybe_fold(BTreeSet::new(), |acc, t| {
+                .iter()
+                .try_fold(BTreeSet::new(), |acc, t| {
                     let t: MaybeType = t.clone().into();
                     acc.chain_insert(t?).some()
                 })
                 .map(|set| Type::SumType(set))?,
 
             Pat::ProdType(p_v) => p_v
-                .maybe_fold(vec![], |acc, (n, p)| {
+                .iter()
+                .try_fold(vec![], |acc, (n, p)| {
                     let n = n.to_string();
                     let t: MaybeType = p.clone().into();
                     acc.chain_push((n, t?)).some()
