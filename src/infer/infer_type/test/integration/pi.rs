@@ -6,7 +6,7 @@ use crate::infer::infer_type::test::integration::get_std_code;
 use crate::infer::infer_type::test::parse_env;
 use crate::namely_type;
 
-fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
+fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
     let seq = get_std_code() +
         "
         def gt: Int -> Int -> Bool = _

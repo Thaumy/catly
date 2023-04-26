@@ -4,7 +4,7 @@ use crate::parser::r#type::r#type::Type;
 use crate::unify::namely::lift_namely;
 use crate::{btree_set, int_type, namely_type, sum_type};
 
-fn env() -> TypeEnv {
+fn env<'t>() -> TypeEnv<'t> {
     /* env:
     type A = Int
     type B = A

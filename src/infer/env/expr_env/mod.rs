@@ -14,22 +14,15 @@ pub type EnvEntry = (String, TypeConstraint, EnvRefSrc);
 // 编译时表达式环境
 #[derive(Clone, Debug)]
 pub struct ExprEnv<'t> {
-    type_env: TypeEnv,
     prev_env: Option<&'t ExprEnv<'t>>,
     env: Vec<EnvEntry>
 }
 
 impl<'t> ExprEnv<'t> {
-    pub fn empty(type_env: TypeEnv) -> ExprEnv<'t> {
-        Self::new(type_env, vec![])
-    }
+    pub fn empty() -> ExprEnv<'t> { Self::new(vec![]) }
 
-    pub fn new(
-        type_env: TypeEnv,
-        env_vec: Vec<EnvEntry>
-    ) -> ExprEnv<'t> {
+    pub fn new(env_vec: Vec<EnvEntry>) -> ExprEnv<'t> {
         let expr_env = ExprEnv {
-            type_env,
             prev_env: None,
             env: env_vec
         };
@@ -57,7 +50,6 @@ impl<'t> ExprEnv<'t> {
 
     pub fn extend_vec_new(&self, env_vec: Vec<EnvEntry>) -> ExprEnv {
         let expr_env = ExprEnv {
-            type_env: self.type_env.clone(),
             prev_env: self
                 .latest_none_empty_expr_env()
                 .some(),

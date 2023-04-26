@@ -8,7 +8,7 @@ use crate::infer::infer_type::test::parse_env;
 use crate::infra::quad::Quad;
 use crate::{int_type, namely_type};
 
-fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
+fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
     let seq = "
         type A = Int
         type B = Unit

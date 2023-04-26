@@ -10,7 +10,7 @@ use crate::infer::infer_type::test::parse_env;
 use crate::infra::quad::Quad;
 use crate::{int_type, namely_type, prod_type, unit_type};
 
-fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
+fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
     let seq = "
         def struct1 = { a = 1, b = () }
         def struct2: { a: Int, b: Unit } = { a = 1, b = () }

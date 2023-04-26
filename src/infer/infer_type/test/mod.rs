@@ -16,7 +16,7 @@ mod r#match;
 mod r#struct;
 mod unit;
 
-fn parse_env<'t>(seq: &str) -> (TypeEnv, ExprEnv<'t>) {
+fn parse_env<'t>(seq: &str) -> (TypeEnv<'t>, ExprEnv<'t>) {
     let seq = preprocess(&seq).unwrap();
     let defines = parse_ast(seq).unwrap();
 

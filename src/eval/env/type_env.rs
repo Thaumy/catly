@@ -6,16 +6,16 @@ use crate::infra::r#box::Ext;
 
 // 运行时类型环境
 #[derive(Clone, Debug)]
-pub struct TypeEnv {
-    prev_env: Option<Box<TypeEnv>>,
-    env: Rc<Vec<(String, Type)>>
+pub struct TypeEnv<'t> {
+    prev_env: Option<&'t TypeEnv<'t>>,
+    env: Vec<(String, Type)>
 }
 
-impl TypeEnv {
-    pub fn new(type_vec: Vec<(String, Type)>) -> TypeEnv {
+impl<'t> TypeEnv<'t> {
+    pub fn new(type_vec: Vec<(String, Type)>) -> TypeEnv<'t> {
         let type_env = TypeEnv {
             prev_env: None,
-            env: Rc::new(type_vec)
+            env: type_vec
         };
 
         if cfg!(feature = "rt_env_log") {
@@ -44,10 +44,8 @@ impl TypeEnv {
         let type_env = TypeEnv {
             prev_env: self
                 .latest_none_empty_type_env()
-                .clone()
-                .boxed()
                 .some(),
-            env: Rc::new(type_vec)
+            env: type_vec
         };
 
         if cfg!(feature = "rt_env_log") {

@@ -77,10 +77,7 @@ pub fn is_case_expr_valid(
         .into_iter()
         .map(|(case_expr, env_inject)| {
             // 使用空表达式环境提取 case_expr_type, 这样能让所有对外界的约束得以暴露
-            match case_expr.infer_type(
-                type_env,
-                &ExprEnv::empty(type_env.clone())
-            ) {
+            match case_expr.infer_type(type_env, &ExprEnv::empty()) {
                 Quad::L(case_expr_type) =>
                     InferTypeRet::from_auto_lift(
                         type_env,

@@ -13,7 +13,7 @@ use crate::{
     sum_type
 };
 
-fn env() -> TypeEnv {
+fn env<'t>() -> TypeEnv<'t> {
     /* env:
     type A = Int
     type B = Int

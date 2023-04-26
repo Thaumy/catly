@@ -12,7 +12,7 @@ use crate::infra::quad::Quad;
 use crate::namely_type;
 use crate::parser::expr::r#type::Expr;
 
-fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
+fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
     let seq = "
         type A = Int
     ";

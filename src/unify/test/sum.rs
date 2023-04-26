@@ -4,7 +4,7 @@ use crate::parser::r#type::r#type::Type;
 use crate::unify::sum::lift_sum;
 use crate::{btree_set, namely_type, sum_type};
 
-fn env() -> TypeEnv {
+fn env<'t>() -> TypeEnv<'t> {
     /* env:
     type AB = A | B
     type ABC = A | B | C

@@ -11,7 +11,11 @@ pub fn case(
     expect_type: &MaybeType,
     ref_name: &str
 ) -> InferTypeRet {
-    let result = expr_env.infer_type_with_hint(ref_name, expect_type);
+    let result = expr_env.infer_type_with_hint(
+        type_env,
+        ref_name,
+        expect_type
+    );
 
     if let Quad::R(_) | Quad::MR(_) = result {
         // 引用源类型信息不足或引用源类型不匹配

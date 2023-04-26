@@ -3,7 +3,7 @@ use crate::infra::option::AnyExt;
 use crate::unify::namely::lift_namely;
 use crate::{btree_set, namely_type, sum_type, unit_type};
 
-fn env() -> TypeEnv {
+fn env<'t>() -> TypeEnv<'t> {
     /* env:
     type A = Unit
     type B = A

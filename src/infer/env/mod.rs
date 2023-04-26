@@ -10,7 +10,7 @@ pub mod type_env;
 
 pub fn from_defines<'t>(
     defines: Vec<Define>
-) -> (TypeEnv, ExprEnv<'t>) {
+) -> (TypeEnv<'t>, ExprEnv<'t>) {
     let (tev, eev) = defines.iter().fold(
         (vec![], vec![]),
         |(tev, eev), define| match define {
@@ -30,8 +30,5 @@ pub fn from_defines<'t>(
         }
     );
 
-    let type_env = TypeEnv::new(tev);
-    let expr_env = ExprEnv::new(type_env.clone(), eev);
-
-    (type_env.clone(), expr_env)
+    (TypeEnv::new(tev), ExprEnv::new(eev))
 }

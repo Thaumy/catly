@@ -1,6 +1,7 @@
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::r#type::env_ref_src::EnvRefSrc;
 use crate::infer::env::r#type::type_constraint::TypeConstraint;
+use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_constraint::require_extended_constraint;
@@ -15,10 +16,11 @@ impl<'t> ExprEnv<'t> {
     // 暂不考虑泛型(类型参数)设计, 类型参数允许多个不同的约束作用于同一表达式, 这与现有的约束设计冲突
     pub fn infer_type_with_hint<'s>(
         &self,
+        type_env: &TypeEnv,
         ref_name: impl Into<&'s str> + Clone,
         hint: &MaybeType
     ) -> InferTypeRet {
-        let ref_type = self.infer_type(ref_name.clone());
+        let ref_type = self.infer_type(type_env, ref_name.clone());
 
         match ref_type.clone() {
             // HACK:
@@ -29,11 +31,11 @@ impl<'t> ExprEnv<'t> {
                 match hint {
                     Some(hint) if !hint.is_partial() =>
                         InferTypeRet::from_auto_lift(
-                            &self.type_env,
+                            type_env,
                             hint,
                             &ref_type.clone().some(),
                             // 需要将不完整类型约束到精确类型
-                            EnvRefConstraint::single(ref_name.into(),hint.clone()).some()
+                            EnvRefConstraint::single(ref_name.into(), hint.clone()).some(),
                         ),
                     _ => ref_type.quad_l()
                 }
@@ -74,7 +76,7 @@ impl<'t> ExprEnv<'t> {
                          )) if src_expr.is_no_type_annot() =>
                         match src_expr
                             .with_fallback_type(hint)
-                            .infer_type(&self.type_env, self)
+                            .infer_type(type_env, self)
                         {
                             // 因为此时无类型标注, 所以得到的类型一定是 hint 或更完整的 hint
                             // 将 ref_name 约束到类型结果 t 不会导致约束类型不一致

@@ -7,7 +7,7 @@ use crate::infer::infer_type::r#type::require_info::RequireInfo;
 use crate::infer::infer_type::test::parse_env;
 use crate::{closure_type, int_type, namely_type, unit_type};
 
-fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
+fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
     let seq = "
         def f1 = a -> a
         def f2: Int -> Int = a -> a

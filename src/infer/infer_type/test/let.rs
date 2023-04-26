@@ -11,7 +11,7 @@ use crate::infer::infer_type::test::parse_env;
 use crate::infra::quad::Quad;
 use crate::{int_type, unit_type};
 
-fn gen_env<'t>() -> (TypeEnv, ExprEnv<'t>) {
+fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
     let seq = "
         def let1 = let a = 1 in a
 

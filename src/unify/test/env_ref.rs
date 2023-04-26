@@ -11,7 +11,7 @@ use crate::{
     true_type
 };
 
-fn env() -> TypeEnv {
+fn env<'t>() -> TypeEnv<'t> {
     /* env:
     type A = Int
     type B = A

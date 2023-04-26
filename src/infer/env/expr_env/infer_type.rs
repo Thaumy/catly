@@ -1,6 +1,7 @@
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::r#type::env_ref_src::EnvRefSrc;
 use crate::infer::env::r#type::type_constraint::TypeConstraint;
+use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#fn::has_type;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
@@ -12,6 +13,7 @@ use crate::infra::quad::Quad;
 impl<'t> ExprEnv<'t> {
     pub fn infer_type<'s>(
         &self,
+        type_env: &TypeEnv,
         ref_name: impl Into<&'s str> + Clone
     ) -> InferTypeRet {
         let tc_and_src = self
@@ -44,17 +46,17 @@ impl<'t> ExprEnv<'t> {
                     // 具备约束
                     TypeConstraint::Constraint(t) => match src_expr
                         .with_fallback_type(t)
-                        .infer_type(&self.type_env, &new_expr_env)
+                        .infer_type(type_env, &new_expr_env)
                     {
                         Quad::L(src_expr_type) =>
                             InferTypeRet::from_auto_lift(
-                                &self.type_env,
+                                type_env,
                                 &src_expr_type,
                                 &t.clone().some(),
                                 None
                             ),
                         Quad::ML(rc) => InferTypeRet::from_auto_lift(
-                            &self.type_env,
+                            type_env,
                             &rc.r#type,
                             &t.clone().some(),
                             rc.constraint.some()
@@ -70,7 +72,7 @@ impl<'t> ExprEnv<'t> {
 
                     // 不具备约束
                     TypeConstraint::Free => match src_expr
-                        .infer_type(&self.type_env, &new_expr_env)
+                        .infer_type(type_env, &new_expr_env)
                     {
                         Quad::L(src_expr_type) =>
                             has_type(src_expr_type),
