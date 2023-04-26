@@ -70,7 +70,6 @@ pub fn case_ri(
                 // 以旁路提供的 assign_type_constraint 为提示获取 assign_expr 的类型
                 // 由于限定 assign_expr 为 assign_type_constraint 可能对外层环境产生约束
                 // 需将这些约束传播以确保限定成立
-                // TODO: 类似用例检查
                 let constraint_acc = match assign_expr
                     //Hint assign_expr and get type of it
                     .with_fallback_type(assign_type_constraint)

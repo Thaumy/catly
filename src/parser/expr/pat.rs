@@ -84,7 +84,7 @@ impl Pat {
         }
     }
     pub fn with_type(self, r#type: Pat) -> Option<Self> {
-        let r = match self {
+        match self {
             Pat::Discard(_) => Pat::Discard(r#type.boxed().some()),
             Pat::Unit(_) => Pat::Unit(r#type.boxed().some()),
             Pat::Int(_, i) => Pat::Int(r#type.boxed().some(), i),
@@ -103,8 +103,8 @@ impl Pat {
             Pat::Let(_, a_n, a_t, a_e, e) =>
                 Pat::Let(r#type.boxed().some(), a_n, a_t, a_e, e),
             _ => return None
-        };
-        Some(r)
+        }
+        .some()
     }
     pub fn is_type(&self) -> bool {
         match self {
@@ -135,7 +135,7 @@ impl OptBoxPatExt for Option<Box<Pat>> {
 
 impl From<Pat> for MaybeExpr {
     fn from(pat: Pat) -> Self {
-        let r = match pat {
+        match pat {
             Pat::Discard(t) => Expr::Discard(t.map_into()),
             Pat::Unit(t) => Expr::Unit(t.map_into()),
             Pat::Int(t, i) => Expr::Int(t.map_into(), i),
@@ -224,8 +224,8 @@ impl From<Pat> for MaybeExpr {
             }
 
             _ => return None
-        };
-        Some(r)
+        }
+        .some()
     }
 }
 

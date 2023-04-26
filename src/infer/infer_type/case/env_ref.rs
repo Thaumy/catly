@@ -5,7 +5,6 @@ use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
 use crate::parser::r#type::r#type::MaybeType;
 
-// TODO: 外部环境约束同层传播完备性
 pub fn case(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
@@ -26,8 +25,7 @@ pub fn case(
     };
 
     let (t, constraint) = result.unwrap_type_and_constraint();
-    // TODO: 在所有类似的地方都应用这种检查
-    // TODO: 当提升不完整类型时, 此处可以修改 ReqInfo 到 ref_name
+
     InferTypeRet::from_auto_lift(
         type_env,
         &t,

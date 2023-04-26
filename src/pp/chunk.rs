@@ -172,7 +172,7 @@ fn go(mut stack: Vec<Pat>, tail: &str) -> Vec<Pat> {
 
 impl From<Pat> for Option<Out> {
     fn from(value: Pat) -> Self {
-        let r = match value {
+        match value {
             Pat::DigitChunk(c) => Out::DigitChunk(c.to_string()),
             Pat::LowerStartChunk(c) =>
                 Out::LowerStartChunk(c.to_string()),
@@ -180,26 +180,25 @@ impl From<Pat> for Option<Out> {
                 Out::UpperStartChunk(c.to_string()),
             Pat::Symbol(s) => Out::Symbol(s.clone()),
             _ => return None
-        };
-        Some(r)
+        }
+        .some()
     }
 }
 
 pub fn pp_chunk(seq: &str) -> Option<Vec<Out>> {
-    let vec = go(vec![Pat::Start], seq);
-    let result = vec
+    let r = go(vec![Pat::Start], seq)
         .iter()
         .try_fold(vec![], |acc, p| {
-            let it = (p.clone().into(): Option<Out>)?;
-            acc.chain_push(it).some()
+            let it: Option<Out> = p.clone().into();
+            acc.chain_push(it?).some()
         });
 
     if cfg!(feature = "pp_log") {
-        let log = format!("{:8}{:>10} │ {result:?}", "[pp]", "Chunk");
+        let log = format!("{:8}{:>10} │ {r:?}", "[pp]", "Chunk");
         println!("{log}");
     }
 
-    result
+    r
 }
 
 #[cfg(test)]

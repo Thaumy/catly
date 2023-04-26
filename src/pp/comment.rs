@@ -54,16 +54,14 @@ fn go(
 }
 
 pub fn pp_comment(seq: &str) -> String {
-    let r =
-        go(vec![], seq)
-            .iter()
-            .fold("".to_string(), |mut acc, p| match p {
-                L(c) => {
-                    acc.push(*c);
-                    acc
-                }
-                _ => acc
-            });
+    let r = go(vec![], seq)
+        .iter()
+        .fold(vec![], |acc, p| match p {
+            L(c) => acc.chain_push(*c),
+            R(_) => acc
+        })
+        .into_iter()
+        .collect();
 
     if cfg!(feature = "pp_log") {
         let log = format!("{:8}{:>10} │ {r:?}", "[pp]", "Comment");

@@ -1,18 +1,16 @@
-use crate::infra::either::Either;
 use crate::infra::str::str_get_head_tail;
 use crate::infra::vec::Ext;
 
-fn any(c: char) -> AnyOrBlank { Either::L(c) }
+fn any(c: char) -> AnyOrBlank { Some(c) }
 
-fn blank() -> AnyOrBlank { Either::R(()) }
+fn blank() -> AnyOrBlank { None }
 
-type AnyOrBlank = Either<char, ()>;
+type AnyOrBlank = Option<char>;
 
 fn reduce_stack(mut stack: Vec<AnyOrBlank>) -> Vec<AnyOrBlank> {
-    use crate::pp::merge_blank::Either::R;
     match &stack[..] {
         // Blank Blank -> Blank
-        [.., R(()), R(())] => stack.reduce(2, blank()),
+        [.., None, None] => stack.reduce(2, blank()),
         _ => return stack
     }
     stack
@@ -32,16 +30,10 @@ fn go(mut stack: Vec<AnyOrBlank>, tail: &str) -> Vec<AnyOrBlank> {
 }
 
 pub fn pp_merge_blank(seq: &str) -> String {
-    let r =
-        go(vec![], seq)
-            .iter()
-            .fold("".to_string(), |mut acc, c| {
-                match c {
-                    Either::L(c) => acc.push(*c),
-                    _ => acc.push(' ')
-                }
-                acc
-            });
+    let r = go(vec![], seq)
+        .iter()
+        .map(|c| c.unwrap_or(' '))
+        .collect();
 
     if cfg!(feature = "pp_log") {
         let log = format!("{:8}{:>10} │ {r:?}", "[pp]", "MergeBlank");

@@ -21,9 +21,9 @@ impl<'t> ExprEnv<'t> {
         let ref_type = self.infer_type(ref_name.clone());
 
         match ref_type.clone() {
-            // 特例
-            // 分支约束共享会导致向环境中注入无源不完整类型
-            // 当 hint 为完整类型时可进行合一
+            // HACK:
+            // 特例, 分支约束共享会导致向环境中注入无源不完整类型
+            // 当 hint 为完整类型时可进行反向提升
             // TODO: 考虑对不完整类型的提升规则, 这些规则有助于进一步明确类型信息
             Quad::L(ref_type) if ref_type.is_partial() =>
                 match hint {
@@ -32,7 +32,8 @@ impl<'t> ExprEnv<'t> {
                             &self.type_env,
                             hint,
                             &ref_type.clone().some(),
-                            None,// TODO: 考虑是否需要将约束更新为 hint
+                            // 需要将不完整类型约束到精确类型
+                            EnvRefConstraint::single(ref_name.into(),hint.clone()).some()
                         ),
                     _ => ref_type.quad_l()
                 }

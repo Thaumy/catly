@@ -1,3 +1,4 @@
+use crate::infra::option::AnyExt;
 use crate::infra::str::str_get_head_tail;
 
 #[derive(Copy, Debug, Clone, PartialEq)]
@@ -45,7 +46,7 @@ fn go(stack: Vec<Pat>, seq: &str) -> Option<i64> {
         }
 
         // Success
-        ([Pat::Int(a)], Pat::End) => return Some(*a),
+        ([Pat::Int(a)], Pat::End) => return a.clone().some(),
 
         // Can not parse
         (_, Pat::Err) => return None,

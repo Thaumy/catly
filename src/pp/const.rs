@@ -74,7 +74,7 @@ impl From<In> for Pat {
 
 impl From<Pat> for Option<Out> {
     fn from(value: Pat) -> Self {
-        let r = match value {
+        match value {
             Pat::Symbol(c) => Out::Symbol(c.clone()),
             Pat::LowerStartChunk(c) =>
                 Out::LowerStartChunk(c.clone()),
@@ -87,8 +87,8 @@ impl From<Pat> for Option<Out> {
             Pat::DiscardValue => Out::DiscardValue,
 
             _ => return None
-        };
-        Some(r)
+        }
+        .some()
     }
 }
 
@@ -107,20 +107,19 @@ fn go(mut stack: Vec<Pat>, tail: &[In]) -> Vec<Pat> {
 type In = crate::pp::keyword::Out;
 
 pub fn pp_const(seq: &[In]) -> Option<Vec<Out>> {
-    let vec = go(vec![], seq);
-    let result = vec
+    let r = go(vec![], seq)
         .iter()
         .try_fold(vec![], |acc, p| {
-            let it = (p.clone().into(): Option<Out>)?;
-            acc.chain_push(it).some()
+            let it: Option<Out> = p.clone().into();
+            acc.chain_push(it?).some()
         });
 
     if cfg!(feature = "pp_log") {
-        let log = format!("{:8}{:>10} │ {result:?}", "[pp]", "Const");
+        let log = format!("{:8}{:>10} │ {r:?}", "[pp]", "Const");
         println!("{log}");
     }
 
-    result
+    r
 }
 
 #[cfg(test)]

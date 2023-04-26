@@ -29,7 +29,8 @@ impl EnvRefConstraint {
             .map(|(n, t)| {
                 match hash_map.insert(n.to_string(), t.clone()) {
                     None => true,
-                    Some(old_t) => &old_t == t
+                    // 允许精确类型替代不完整类型
+                    Some(old_t) => t.eq_or_more_specific_than(&old_t)
                 }
             })
             .all(id)
@@ -52,7 +53,8 @@ impl EnvRefConstraint {
             .map(|(n, t)| {
                 match hash_map.insert(n.to_string(), t.clone()) {
                     None => true,
-                    Some(old_t) => &old_t == t
+                    // 允许精确类型替代不完整类型
+                    Some(old_t) => t.eq_or_more_specific_than(&old_t)
                 }
             })
             .all(id)

@@ -14,7 +14,6 @@ use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::MaybeType;
 use crate::parser::r#type::r#type::Type;
 
-// TODO: 外部环境约束同层传播完备性
 pub fn case(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
@@ -46,7 +45,6 @@ pub fn case(
                     .into();
                 };
 
-            // TODO: 相似用例检查
             // 注入获得 lhs_expr_type 时得到的约束到环境, 这些约束可能对取得 rhs_expr_type 有所帮助
             let new_expr_env = &expr_env
                 .extend_constraint_new(constraint_acc.clone());

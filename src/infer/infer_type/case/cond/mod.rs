@@ -13,7 +13,6 @@ use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::MaybeType;
 
-// TODO: 外部环境约束同层传播完备性
 pub fn case(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
@@ -55,7 +54,6 @@ pub fn case(
         mr_r => return mr_r.clone()
     };
 
-    // TODO: 相似用例检查
     // 由于求 bool_expr_type 产生的约束可能对接下来有帮助, 所以需要注入到环境
     let expr_env =
         &expr_env.extend_constraint_new(constraint_acc.clone());
@@ -79,7 +77,6 @@ pub fn case(
                         .into(),
                 };
 
-            // TODO: 相似用例检查
             // 与上同理
             let expr_env = &expr_env
                 .extend_constraint_new(constraint_acc.clone());

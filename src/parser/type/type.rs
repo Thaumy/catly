@@ -79,6 +79,24 @@ impl Type {
             _ => false
         }
     }
+
+    pub fn eq_or_more_specific_than(&self, other: &Type) -> bool {
+        if self == other {
+            return true;
+        }
+
+        match (self, other) {
+            (
+                Type::ClosureType(a, _),
+                Type::PartialClosureType(b)
+            ) => a.eq_or_more_specific_than(b),
+            (Type::ClosureType(a, c), Type::ClosureType(b, d)) =>
+                a.eq_or_more_specific_than(b) &&
+                    c.eq_or_more_specific_than(d),
+            // 目前只有 ClosureType 存在不完整类型
+            _ => false
+        }
+    }
 }
 
 impl Debug for Type {

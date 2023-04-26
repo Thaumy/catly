@@ -18,7 +18,7 @@ pub enum Out {
 
 impl From<In> for Option<Out> {
     fn from(value: In) -> Self {
-        let r = match value {
+        match value {
             In::Symbol(c) => Out::Symbol(c),
             In::LowerStartChunk(c) => match parse_let_name(&c) {
                 Some(n) => Out::LetName(n),
@@ -32,27 +32,27 @@ impl From<In> for Option<Out> {
             In::IntValue(i) => Out::IntValue(i),
             In::UnitValue => Out::UnitValue,
             In::DiscardValue => Out::DiscardValue
-        };
-        Some(r)
+        }
+        .some()
     }
 }
 
 type In = crate::pp::r#const::Out;
 
 pub fn pp_name(seq: &[In]) -> Option<Vec<Out>> {
-    let result = seq
+    let r = seq
         .iter()
         .try_fold(vec![], |acc, p| {
-            let it = (p.clone().into(): Option<Out>)?;
-            acc.chain_push(it).some()
+            let it: Option<Out> = p.clone().into();
+            acc.chain_push(it?).some()
         });
 
     if cfg!(feature = "pp_log") {
-        let log = format!("{:8}{:>10} │ {result:?}", "[pp]", "Name");
+        let log = format!("{:8}{:>10} │ {r:?}", "[pp]", "Name");
         println!("{log}");
     }
 
-    result
+    r
 }
 
 #[cfg(test)]

@@ -3,7 +3,6 @@ use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::case::r#match::r#fn::destruct_match_const_to_expr_env_inject;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_info::RequireInfo;
-use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::AnyExt as OptAnyExt;
 use crate::infra::quad::{AnyExt, Quad};
 use crate::infra::r#box::Ext;
@@ -84,9 +83,7 @@ pub fn case_ri(
                         // 对于之后的每一个类型, 让它和之前 acc 类型合一
                         Some(acc) => match acc.unify(type_env, &t) {
                             Some(new_acc) => new_acc.some().ok(),
-                            None => TypeMissMatch::of_type(&acc, &t)
-                                .quad_r()
-                                .err()
+                            None => original_err.clone().err()
                         }
                     }
                 }

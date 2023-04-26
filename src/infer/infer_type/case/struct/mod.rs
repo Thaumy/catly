@@ -14,7 +14,6 @@ use crate::parser::expr::r#type::StructField;
 use crate::parser::r#type::r#type::MaybeType;
 use crate::parser::r#type::r#type::Type;
 
-// TODO: 外部环境约束同层传播完备性
 pub fn case(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,

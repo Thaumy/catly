@@ -1,3 +1,4 @@
+use crate::infra::option::AnyExt;
 use crate::infra::str::str_get_head_tail;
 use crate::parser::alphanum::{parse_alphanum, parse_upper};
 
@@ -45,7 +46,7 @@ fn go(stack: &Pat, seq: &str) -> Option<String> {
             Pat::TypeName(format!("{}{}", n, c)),
 
         // Success
-        (Pat::TypeName(n), Pat::End) => return Some(n.to_string()),
+        (Pat::TypeName(n), Pat::End) => return n.to_string().some(),
 
         // Can not parse
         (_, Pat::Err) => return None,

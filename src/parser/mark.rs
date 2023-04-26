@@ -1,3 +1,5 @@
+use crate::infra::option::AnyExt;
+
 #[derive(Clone, Debug, PartialEq)]
 pub enum Mark {
     Underline,
@@ -39,7 +41,7 @@ pub fn parse_dash(x: &char) -> bool { x == &'-' }
 pub fn parse_r_angle_bracket(x: &char) -> bool { x == &'>' }
 
 pub fn parse_mark(x: &char) -> Option<Mark> {
-    let r = match x {
+    match x {
         '_' => Mark::Underline,
         '(' => Mark::LeftPar,
         ')' => Mark::RightPar,
@@ -53,8 +55,8 @@ pub fn parse_mark(x: &char) -> Option<Mark> {
         '-' => Mark::Dash,
         '>' => Mark::RightAngleBracket,
         _ => return None
-    };
-    Some(r)
+    }
+    .some()
 }
 
 #[cfg(test)]
