@@ -5,26 +5,26 @@ use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::infer_type;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infra::option::AnyExt;
-use crate::parser::r#type::r#type::MaybeType;
+use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
 
-pub type MaybeExpr = Option<Expr>;
+pub type OptExpr = Option<Expr>;
 
-pub type StructField = (String, MaybeType, Expr);
+pub type StructField = (String, OptType, Expr);
 
 #[derive(Clone, PartialEq)]
 pub enum Expr {
-    Unit(MaybeType),
+    Unit(OptType),
     // TODO: Handle int overflow
-    Int(MaybeType, i64),
-    EnvRef(MaybeType, String),
-    Apply(MaybeType, Box<Expr>, Box<Expr>),
-    Cond(MaybeType, Box<Expr>, Box<Expr>, Box<Expr>),
-    Closure(MaybeType, Option<String>, MaybeType, Box<Expr>),
-    Struct(MaybeType, Vec<StructField>),
-    Discard(MaybeType),
-    Match(MaybeType, Box<Expr>, Vec<(Expr, Expr)>),
-    Let(MaybeType, String, MaybeType, Box<Expr>, Box<Expr>)
+    Int(OptType, i64),
+    EnvRef(OptType, String),
+    Apply(OptType, Box<Expr>, Box<Expr>),
+    Cond(OptType, Box<Expr>, Box<Expr>, Box<Expr>),
+    Closure(OptType, Option<String>, OptType, Box<Expr>),
+    Struct(OptType, Vec<StructField>),
+    Discard(OptType),
+    Match(OptType, Box<Expr>, Vec<(Expr, Expr)>),
+    Let(OptType, String, OptType, Box<Expr>, Box<Expr>)
 }
 
 impl Expr {
@@ -109,7 +109,7 @@ impl Expr {
 
 impl Debug for Expr {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        fn type_annot(t: &MaybeType) -> String {
+        fn type_annot(t: &OptType) -> String {
             match t {
                 Some(t) => format!(":{t:?}"),
                 None => format!("")

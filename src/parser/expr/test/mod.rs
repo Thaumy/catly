@@ -1,8 +1,8 @@
 use crate::parser::expr::parse_expr;
-use crate::parser::expr::r#type::MaybeExpr;
+use crate::parser::expr::r#type::OptExpr;
 use crate::pp::preprocess;
 
-pub fn f(seq: &str) -> MaybeExpr {
+pub fn f(seq: &str) -> OptExpr {
     let seq = preprocess(&seq)?;
     parse_expr(seq)
 }

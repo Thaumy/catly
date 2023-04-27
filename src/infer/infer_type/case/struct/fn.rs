@@ -7,10 +7,10 @@ use crate::infra::quad::AnyExt;
 use crate::infra::r#fn::id;
 use crate::infra::result::AnyExt as ResAnyExt;
 use crate::parser::expr::r#type::Expr;
-use crate::parser::r#type::r#type::MaybeType;
+use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
 
-type StructVec = Vec<(String, MaybeType, Expr)>;
+type StructVec = Vec<(String, OptType, Expr)>;
 type ProdVec = Vec<(String, Type)>;
 
 // 仅从 Struct 结构上进行类型判断, 不对其字段表达式求类型
@@ -20,7 +20,7 @@ type ProdVec = Vec<(String, Type)>;
 // 所以对 Struct 字段表达式求类型并判断其相容性的工作由 struct case 的剩余部分解决
 pub fn is_struct_vec_of_type_then_get_prod_vec(
     type_env: &TypeEnv,
-    expect_type: &MaybeType,
+    expect_type: &OptType,
     struct_vec: &StructVec
 ) -> Result<Option<ProdVec>, InferTypeRet> {
     // 解构 expect_type 并判断与 struct_vec 的相容性

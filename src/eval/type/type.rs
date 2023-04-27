@@ -8,7 +8,7 @@ use crate::infra::r#box::Ext as BoxAnyExt;
 use crate::infra::vec::Ext as VecAnyExt;
 use crate::parser::r#type::r#type::Type as CtType;
 
-pub type MaybeType = Option<Type>;
+pub type OptType = Option<Type>;
 
 pub type ProdField = (String, Type);
 
@@ -38,7 +38,7 @@ impl Debug for Type {
     }
 }
 
-impl From<CtType> for MaybeType {
+impl From<CtType> for OptType {
     fn from(value: CtType) -> Self {
         match value {
             CtType::NamelyType(t_n) => Type::NamelyType(t_n),

@@ -8,14 +8,14 @@ use crate::infer::infer_type::case::r#let::case_t_rc::case_t_rc;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
-use crate::parser::r#type::r#type::MaybeType;
+use crate::parser::r#type::r#type::OptType;
 
 pub fn case(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
-    expect_type: &MaybeType,
+    expect_type: &OptType,
     assign_name: &String,
-    assign_type: &MaybeType,
+    assign_type: &OptType,
     assign_expr: &Expr,
     scope_expr: &Expr
 ) -> InferTypeRet {

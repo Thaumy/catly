@@ -1,6 +1,6 @@
 use crate::parser::r#type::pat::Pat;
 use crate::parser::r#type::r#fn::go;
-use crate::parser::r#type::r#type::MaybeType;
+use crate::parser::r#type::r#type::OptType;
 
 mod r#fn;
 mod pat;
@@ -10,7 +10,7 @@ pub mod r#type;
 
 type In = crate::pp::Out;
 
-pub fn parse_type(seq: Vec<In>) -> MaybeType {
+pub fn parse_type(seq: Vec<In>) -> OptType {
     let r = go(vec![Pat::Start], seq).into();
 
     if cfg!(feature = "parser_log") {

@@ -8,7 +8,7 @@ use crate::infer::infer_type::r#type::require_constraint::require_extended_const
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::AnyExt as OptAnyExt;
 use crate::infra::quad::{AnyExt as QuadAnyExt, Quad};
-use crate::parser::r#type::r#type::MaybeType;
+use crate::parser::r#type::r#type::OptType;
 
 impl<'t> ExprEnv<'t> {
     // 由于表达式对环境中的 ref_name 的使用是一种间接使用, 可能存在多处引用对于 ref_name 的类型要求不一致的情况
@@ -18,7 +18,7 @@ impl<'t> ExprEnv<'t> {
         &self,
         type_env: &TypeEnv,
         ref_name: impl Into<&'s str> + Clone,
-        hint: &MaybeType
+        hint: &OptType
     ) -> InferTypeRet {
         let ref_type = self.infer_type(type_env, ref_name.clone());
 

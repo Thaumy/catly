@@ -1,4 +1,3 @@
-use crate::eval::env::type_env::TypeEnv;
 use crate::eval::r#type::expr::Expr;
 use crate::eval::r#type::r#type::Type;
 use crate::infra::option::AnyExt;

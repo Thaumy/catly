@@ -7,13 +7,13 @@ use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
-use crate::parser::r#type::r#type::MaybeType;
+use crate::parser::r#type::r#type::OptType;
 
 pub fn case_ri(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
     require_info: RequireInfo,
-    expect_type: &MaybeType,
+    expect_type: &OptType,
     assign_name: &str,
     assign_expr: &Expr,
     scope_expr: &Expr

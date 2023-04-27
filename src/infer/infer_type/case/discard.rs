@@ -4,11 +4,11 @@ use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_info::RequireInfo;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::parser::r#type::r#type::MaybeType;
+use crate::parser::r#type::r#type::OptType;
 
 pub fn case(
     type_env: &TypeEnv,
-    expect_type: &MaybeType
+    expect_type: &OptType
 ) -> InferTypeRet {
     match expect_type {
         Some(expect_type) =>

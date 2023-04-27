@@ -14,15 +14,15 @@ use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
-use crate::parser::r#type::r#type::MaybeType;
+use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
 
 pub fn case(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
-    expect_type: &MaybeType,
+    expect_type: &OptType,
     input_name: &Option<String>,
-    input_type: &MaybeType,
+    input_type: &OptType,
     output_expr: &Expr
 ) -> InferTypeRet {
     // Destruct expect_type to ClosureType

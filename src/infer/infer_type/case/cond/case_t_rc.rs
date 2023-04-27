@@ -6,7 +6,7 @@ use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
-use crate::parser::r#type::r#type::MaybeType;
+use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
 
 pub fn case_t_rc(
@@ -14,7 +14,7 @@ pub fn case_t_rc(
     expr_env: &ExprEnv,
     then_expr_type: Type,
     constraint_acc: EnvRefConstraint,
-    expect_type: &MaybeType,
+    expect_type: &OptType,
     else_expr: &Expr
 ) -> InferTypeRet {
     // 当 expect_type 无类型时, 使用 then_expr_type hint

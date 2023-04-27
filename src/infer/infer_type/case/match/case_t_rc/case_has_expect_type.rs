@@ -10,7 +10,7 @@ use crate::infra::result::AnyExt as ResAnyExt;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::Type;
 
-pub fn case_has_expect_type<T>(
+pub fn case_has_expect_type<'t, T>(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
     constraint_acc: EnvRefConstraint,
@@ -18,7 +18,7 @@ pub fn case_has_expect_type<T>(
     expect_type: Type
 ) -> InferTypeRet
 where
-    T: Iterator<Item = (Expr, Vec<EnvEntry>, Expr)> + Clone
+    T: Iterator<Item = &'t (Expr, Vec<EnvEntry>, Expr)> + Clone
 {
     let hinted_cases = hinted_cases.into_iter();
 

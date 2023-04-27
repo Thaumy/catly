@@ -3,21 +3,23 @@ use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::case::r#match::r#fn::destruct_match_const_to_expr_env_inject;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_info::RequireInfo;
+use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::AnyExt as OptAnyExt;
 use crate::infra::quad::{AnyExt, Quad};
-use crate::infra::r#box::Ext;
+use crate::infra::r#box::Ext as BoxAnyExt;
 use crate::infra::r#fn::id;
 use crate::infra::result::AnyExt as ResAnyExt;
+use crate::infra::vec::Ext as VecAnyExt;
 use crate::parser::expr::r#type::Expr;
-use crate::parser::r#type::r#type::{MaybeType, Type};
+use crate::parser::r#type::r#type::{OptType, Type};
 
 pub fn case_ri(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
     require_info: RequireInfo,
-    expect_type: &MaybeType,
+    expect_type: &OptType,
     target_expr: &Expr,
-    vec: &Vec<(Expr, Expr)>
+    case_vec: &Vec<(Expr, Expr)>
 ) -> InferTypeRet {
     // 由于以下推导可能产生错误, 而这些错误没有很好的语义对应已有的错误类型, 所以需要返回原错误
     let original_err = require_info.quad_mr();
@@ -26,19 +28,36 @@ pub fn case_ri(
     // 此时以该类型为 hint 求 match 表达式类型
 
     // 首先取得 case_expr 产生的常量环境, 用作后续检查 case_expr 是否是模式匹配意义上的常量
-    let iter = vec
-        .iter()
-        .map(|(case_expr, then_expr)| {
-            let env_inject = destruct_match_const_to_expr_env_inject(
-                type_env, &case_expr
-            );
-            (case_expr, env_inject, then_expr)
-        });
+    let vec = {
+        let vec = case_vec
+            .iter()
+            .map(|(case_expr, then_expr)| {
+                match destruct_match_const_to_expr_env_inject(
+                    type_env, &case_expr
+                ) {
+                    Ok(env_inject) =>
+                        (case_expr, env_inject, then_expr).ok(),
+                    Err((new, old)) =>
+                        return TypeMissMatch::of(format!("Duplicate capture in case pattern: {new:?} vs {old:?}"))
+                            .quad_r()
+                            .err(),
+                }
+            })
+            .try_fold(vec![], |acc, x| match x {
+                Ok(it) => acc.chain_push(it).ok(),
+                Err(e) => e.err()
+            });
+
+        match vec {
+            Ok(vec) => vec,
+            Err(e) => return e
+        }
+    };
 
     // 因为 case 总是倾向于在最后出现通配, 所以倒序合一更有效
     // 也可以改进对多种类型的合一方法, 使得有最大的机会合一成功
-    let final_case_expr_type = iter
-        .clone()
+    let final_case_expr_type = vec
+        .iter()
         .rev()
         .map(|(case_expr, env_inject, _)| {
             // 不用 hint case_expr, 因为对 target_expr 的类型获取缺乏信息
@@ -99,7 +118,7 @@ pub fn case_ri(
             let expr = Expr::Match(
                 expect_type.clone(),
                 hinted_target_expr.boxed(),
-                vec.clone(),
+                case_vec.clone(),
             );
             expr.infer_type(type_env, expr_env)
         }
@@ -107,7 +126,8 @@ pub fn case_ri(
         // 如果 target_expr 是 EnvRef, 那么在求 then_expr 时可能产生针对 target_expr 的类型约束
         // 以合一后的约束目标为 hint 求 match 表达式类型
         _ if let Expr::EnvRef(_, ref_name) = target_expr => {
-            let hint = iter
+            let hint = vec
+                .iter()
                 .filter(|(_, env_inject, _)|
                     // 过滤出所有不受到 case_expr 解构常量环境同名 EnvRef 影响的 then_expr
                     // 因为这些同名 EnvRef 会覆盖对 match 表达式匹配对象的环境引用
@@ -123,7 +143,7 @@ pub fn case_ri(
                         // 因为 case_expr 可能包含在 then_expr 中会使用的类型信息
                         // 如果不进行注入, 推导可能会因为缺乏类型信息而失败
                         // let case 的旁路推导因为 assign_type 和 assign_expr 均无法提供有效的类型信息, 所以不需要注入
-                        &expr_env.extend_vec_new(env_inject),
+                        &expr_env.extend_vec_new(env_inject.clone()),
                     ) {
                         Quad::ML(rc) => rc.constraint.find(ref_name.as_str()).map(|t| t.clone()),
                         // 将 L 和错误情况一并视作 None, 相关讨论见下文
@@ -146,7 +166,7 @@ pub fn case_ri(
                     let expr = Expr::Match(
                         expect_type.clone(),
                         hinted_target_expr.boxed(),
-                        vec.clone(),
+                        case_vec.clone(),
                     );
                     expr.infer_type(type_env, expr_env)
                 }

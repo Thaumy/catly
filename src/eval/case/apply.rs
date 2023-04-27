@@ -10,6 +10,9 @@ pub fn destruct_env_ref_to_closure<'t>(
 ) -> (Option<String>, Type, Expr, ExprEnv<'t>) {
     match expr {
         Expr::EnvRef(_, ref_name) => {
+            // TODO:
+            // 此处为逐层查找 env_ref
+            // 可以设置穿透的访问链, 提高 env_ref 的检索效率
             let (src_expr, src_env) = expr_env
                 .get_expr_and_env(ref_name.as_str())
                 .unwrap_or_else(|| {
@@ -44,7 +47,7 @@ pub fn case_apply(
             input_name,
             input_type,
             rhs_expr.clone(),
-            output_eval_env.clone()
+            expr_env.clone()
         ),
         None => output_eval_env
     };

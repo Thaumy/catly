@@ -11,13 +11,13 @@ use crate::infra::option::AnyExt as OptAnyExt;
 use crate::infra::quad::Quad;
 use crate::infra::result::AnyExt as ResAnyExt;
 use crate::parser::expr::r#type::StructField;
-use crate::parser::r#type::r#type::MaybeType;
+use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
 
 pub fn case(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
-    expect_type: &MaybeType,
+    expect_type: &OptType,
     struct_vec: &Vec<StructField>
 ) -> InferTypeRet {
     // 解构 expect_type 并判断与 vec 的相容性

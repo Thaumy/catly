@@ -11,13 +11,13 @@ use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
-use crate::parser::r#type::r#type::MaybeType;
+use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
 
 pub fn case(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
-    expect_type: &MaybeType,
+    expect_type: &OptType,
     lhs_expr: &Expr,
     rhs_expr: &Expr
 ) -> InferTypeRet {

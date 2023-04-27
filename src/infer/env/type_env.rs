@@ -1,7 +1,4 @@
-use std::rc::Rc;
-
 use crate::infra::option::AnyExt;
-use crate::infra::r#box::Ext;
 use crate::parser::r#type::r#type::Type;
 use crate::{int_type, unit_type};
 

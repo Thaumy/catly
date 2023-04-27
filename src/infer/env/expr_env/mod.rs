@@ -3,11 +3,10 @@ mod infer_type_with_hint;
 
 use crate::infer::env::r#type::env_ref_src::EnvRefSrc;
 use crate::infer::env::r#type::type_constraint::TypeConstraint;
-use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infra::option::AnyExt;
-use crate::parser::expr::r#type::{Expr, MaybeExpr};
-use crate::parser::r#type::r#type::MaybeType;
+use crate::parser::expr::r#type::{Expr, OptExpr};
+use crate::parser::r#type::r#type::OptType;
 
 pub type EnvEntry = (String, TypeConstraint, EnvRefSrc);
 
@@ -70,8 +69,8 @@ impl<'t> ExprEnv<'t> {
     pub fn extend_new(
         &self,
         ref_name: impl Into<String>,
-        r#type: MaybeType,
-        src: MaybeExpr
+        r#type: OptType,
+        src: OptExpr
     ) -> ExprEnv {
         let tc = r#type
             .map(|t| t.into())

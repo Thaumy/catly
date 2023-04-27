@@ -1,4 +1,4 @@
-use crate::parser::r#type::r#type::MaybeType;
+use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
 
 #[derive(Clone, Debug)]
@@ -13,8 +13,8 @@ impl From<Type> for TypeConstraint {
     fn from(value: Type) -> Self { TypeConstraint::Constraint(value) }
 }
 
-impl From<MaybeType> for TypeConstraint {
-    fn from(value: MaybeType) -> Self {
+impl From<OptType> for TypeConstraint {
+    fn from(value: OptType) -> Self {
         match value {
             Some(t) => TypeConstraint::Constraint(t),
             None => TypeConstraint::Free
@@ -22,7 +22,7 @@ impl From<MaybeType> for TypeConstraint {
     }
 }
 
-impl From<TypeConstraint> for MaybeType {
+impl From<TypeConstraint> for OptType {
     fn from(value: TypeConstraint) -> Self {
         match value {
             TypeConstraint::Constraint(t) => Some(t),

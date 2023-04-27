@@ -1,7 +1,7 @@
 use crate::parser::define::pat::Pat;
 use crate::parser::define::r#fn::go;
 use crate::parser::expr::r#type::Expr;
-use crate::parser::r#type::r#type::MaybeType;
+use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
 
 mod r#fn;
@@ -12,7 +12,7 @@ mod test;
 #[derive(Clone, Debug, PartialEq)]
 pub enum Define {
     TypeDef(String, Type),
-    ExprDef(String, MaybeType, Expr)
+    ExprDef(String, OptType, Expr)
 }
 
 type In = crate::pp::Out;

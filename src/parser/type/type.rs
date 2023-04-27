@@ -5,7 +5,7 @@ use std::ops::Deref;
 use crate::infer::env::type_env::TypeEnv;
 use crate::unify::lift;
 
-pub type MaybeType = Option<Type>;
+pub type OptType = Option<Type>;
 
 pub type ProdField = (String, Type);
 
@@ -33,13 +33,12 @@ impl Type {
             .is_some()
     }
 
-    // TODO: 考虑不完整类型
     // Lift l to r if r exist, then return lifting result
     // Return l if r not exist
     pub fn lift_to_or_left(
         &self,
         type_env: &TypeEnv,
-        to: &MaybeType
+        to: &OptType
     ) -> Option<Type> {
         match to {
             Some(to) => self.lift_to(type_env, to),

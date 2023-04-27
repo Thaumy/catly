@@ -1,8 +1,5 @@
-use std::rc::Rc;
-
 use crate::eval::r#type::r#type::Type;
 use crate::infra::option::AnyExt;
-use crate::infra::r#box::Ext;
 
 // 运行时类型环境
 #[derive(Clone, Debug)]

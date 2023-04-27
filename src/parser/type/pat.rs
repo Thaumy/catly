@@ -5,7 +5,7 @@ use crate::infra::btree_set::Ext;
 use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext as BoxAnyExt;
 use crate::infra::vec::Ext as VecAnyExt;
-use crate::parser::r#type::r#type::MaybeType;
+use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -44,7 +44,7 @@ impl Pat {
     }
 }
 
-impl From<Pat> for MaybeType {
+impl From<Pat> for OptType {
     fn from(pat: Pat) -> Self {
         match pat {
             Pat::TypeName(t_n) => Type::NamelyType(t_n),

@@ -8,7 +8,7 @@ use crate::infer::infer_type::r#type::require_info::RequireInfo;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
-use crate::parser::r#type::r#type::MaybeType;
+use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
 
 pub type InferTypeRet =
@@ -29,7 +29,7 @@ impl InferTypeRet {
     pub fn from_auto_lift(
         type_env: &TypeEnv,
         from: &Type,
-        to: &MaybeType,
+        to: &OptType,
         constraint: Option<EnvRefConstraint>
     ) -> InferTypeRet {
         let constraint =
@@ -65,7 +65,7 @@ impl InferTypeRet {
     }
 }
 
-impl From<InferTypeRet> for MaybeType {
+impl From<InferTypeRet> for OptType {
     fn from(value: InferTypeRet) -> Self {
         match value {
             Quad::L(t) => t.some(),

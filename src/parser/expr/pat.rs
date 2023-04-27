@@ -4,9 +4,9 @@ use crate::infra::btree_set::Ext;
 use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext as BoxAnyExt;
 use crate::infra::vec::Ext as VecAnyExt;
-use crate::parser::expr::r#type::{Expr, MaybeExpr};
+use crate::parser::expr::r#type::{Expr, OptExpr};
 use crate::parser::keyword::Keyword;
-use crate::parser::r#type::r#type::{MaybeType, Type};
+use crate::parser::r#type::r#type::{OptType, Type};
 
 pub type OptBoxPat = Option<Box<Pat>>;
 
@@ -128,12 +128,12 @@ pub trait OptBoxPatExt {
 
 impl OptBoxPatExt for Option<Box<Pat>> {
     fn map_into(self) -> Option<Type> {
-        self.map(|x| <Pat as Into<MaybeType>>::into(*x))
+        self.map(|x| <Pat as Into<OptType>>::into(*x))
             .flatten()
     }
 }
 
-impl From<Pat> for MaybeExpr {
+impl From<Pat> for OptExpr {
     fn from(pat: Pat) -> Self {
         match pat {
             Pat::Discard(t) => Expr::Discard(t.map_into()),
@@ -175,7 +175,7 @@ impl From<Pat> for MaybeExpr {
                 let vec =
                     vec.iter()
                         .try_fold(vec![], |acc, (n, t, p)| {
-                            let it = (p.clone().into(): MaybeExpr)
+                            let it = (p.clone().into(): OptExpr)
                                 .map(|e| {
                                     (
                                         n.to_string(),
@@ -196,9 +196,9 @@ impl From<Pat> for MaybeExpr {
                     vec![],
                     |acc, (case_p, then_p)| {
                         let case_e =
-                            (case_p.clone().into(): MaybeExpr)?;
+                            (case_p.clone().into(): OptExpr)?;
                         let then_e =
-                            (then_p.clone().into(): MaybeExpr)?;
+                            (then_p.clone().into(): OptExpr)?;
                         acc.chain_push((case_e, then_e))
                             .some()
                     }
@@ -229,7 +229,7 @@ impl From<Pat> for MaybeExpr {
     }
 }
 
-impl From<Pat> for MaybeType {
+impl From<Pat> for OptType {
     fn from(pat: Pat) -> Self {
         match pat {
             Pat::TypeName(n) => Type::NamelyType(n),
@@ -242,7 +242,7 @@ impl From<Pat> for MaybeType {
             Pat::SumType(s_s) => s_s
                 .iter()
                 .try_fold(BTreeSet::new(), |acc, t| {
-                    let t: MaybeType = t.clone().into();
+                    let t: OptType = t.clone().into();
                     acc.chain_insert(t?).some()
                 })
                 .map(|set| Type::SumType(set))?,
@@ -251,7 +251,7 @@ impl From<Pat> for MaybeType {
                 .iter()
                 .try_fold(vec![], |acc, (n, p)| {
                     let n = n.to_string();
-                    let t: MaybeType = p.clone().into();
+                    let t: OptType = p.clone().into();
                     acc.chain_push((n, t?)).some()
                 })
                 .map(|vec| Type::ProdType(vec))?,

@@ -3,14 +3,14 @@ use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_info::RequireInfo;
 use crate::infra::r#box::Ext;
-use crate::parser::r#type::r#type::MaybeType;
+use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
 
 pub fn case_t(
     type_env: &TypeEnv,
-    expect_type: &MaybeType,
+    expect_type: &OptType,
     input_name: &Option<String>,
-    input_type: MaybeType,
+    input_type: OptType,
     output_expr_type: Type
 ) -> InferTypeRet {
     let base = match input_type {

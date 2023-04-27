@@ -3,12 +3,12 @@ use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
-use crate::parser::r#type::r#type::MaybeType;
+use crate::parser::r#type::r#type::OptType;
 
 pub fn case(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
-    expect_type: &MaybeType,
+    expect_type: &OptType,
     ref_name: &str
 ) -> InferTypeRet {
     let result = expr_env.infer_type_with_hint(

@@ -6,7 +6,7 @@ use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::AnyExt;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
-use crate::parser::r#type::r#type::MaybeType;
+use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
 
 pub fn case_t_rc(
@@ -15,7 +15,7 @@ pub fn case_t_rc(
     lhs_input_type: Type,
     lhs_output_type: Type,
     constraint_acc: EnvRefConstraint,
-    expect_type: &MaybeType,
+    expect_type: &OptType,
     rhs_expr: &Expr
 ) -> InferTypeRet {
     // Apply 的期望类型也是 lhs_expr 的期望输出类型

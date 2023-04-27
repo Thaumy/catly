@@ -3,6 +3,7 @@
 #![feature(if_let_guard)]
 #![feature(assert_matches)]
 #![feature(iterator_try_reduce)]
+#![feature(iterator_try_collect)]
 extern crate core;
 
 pub mod eval;

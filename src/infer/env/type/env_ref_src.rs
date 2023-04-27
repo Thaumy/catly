@@ -1,4 +1,4 @@
-use crate::parser::expr::r#type::{Expr, MaybeExpr};
+use crate::parser::expr::r#type::{Expr, OptExpr};
 
 // 表示 EnvRef 的源表达式
 #[derive(Clone, Debug)]
@@ -11,8 +11,8 @@ impl From<Expr> for EnvRefSrc {
     fn from(value: Expr) -> Self { EnvRefSrc::Src(value) }
 }
 
-impl From<MaybeExpr> for EnvRefSrc {
-    fn from(value: MaybeExpr) -> Self {
+impl From<OptExpr> for EnvRefSrc {
+    fn from(value: OptExpr) -> Self {
         match value {
             Some(e) => EnvRefSrc::Src(e),
             None => EnvRefSrc::NoSrc
@@ -20,7 +20,7 @@ impl From<MaybeExpr> for EnvRefSrc {
     }
 }
 
-impl From<EnvRefSrc> for MaybeExpr {
+impl From<EnvRefSrc> for OptExpr {
     fn from(value: EnvRefSrc) -> Self {
         match value {
             EnvRefSrc::Src(e) => Some(e),

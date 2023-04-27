@@ -1,6 +1,6 @@
 use std::fmt::{Debug, Formatter};
 
-use crate::eval::r#type::r#type::MaybeType;
+use crate::eval::r#type::r#type::OptType;
 use crate::eval::r#type::r#type::Type;
 use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext as BoxAnyExt;
@@ -8,7 +8,7 @@ use crate::infra::vec::Ext as VecAnyExt;
 use crate::parser::expr::r#type::Expr as CtExpr;
 use crate::parser::r#type::r#type::Type as CtType;
 
-pub type MaybeExpr = Option<Expr>;
+pub type OptExpr = Option<Expr>;
 
 pub type StructField = (String, Type, Expr);
 
@@ -24,6 +24,23 @@ pub enum Expr {
     Discard(Type),
     Match(Type, Box<Expr>, Vec<(Expr, Expr)>),
     Let(Type, String, Type, Box<Expr>, Box<Expr>)
+}
+
+impl Expr {
+    pub fn get_type_annot(&self) -> &Type {
+        match self {
+            Expr::Unit(t) => t,
+            Expr::Int(t, ..) => t,
+            Expr::EnvRef(t, ..) => t,
+            Expr::Apply(t, ..) => t,
+            Expr::Cond(t, ..) => t,
+            Expr::Closure(t, ..) => t,
+            Expr::Struct(t, ..) => t,
+            Expr::Discard(t, ..) => t,
+            Expr::Match(t, ..) => t,
+            Expr::Let(t, ..) => t
+        }
+    }
 }
 
 impl Debug for Expr {
@@ -75,9 +92,9 @@ impl Debug for Expr {
     }
 }
 
-impl From<CtExpr> for MaybeExpr {
+impl From<CtExpr> for OptExpr {
     fn from(value: CtExpr) -> Self {
-        fn convert_type(t: CtType) -> MaybeType { t.into() }
+        fn convert_type(t: CtType) -> OptType { t.into() }
 
         match value {
             CtExpr::Discard(Some(t)) =>
@@ -131,8 +148,8 @@ impl From<CtExpr> for MaybeExpr {
 
                 c_v.iter()
                     .try_fold(vec![], |acc, (c_e, t_e)| {
-                        let c_e = (c_e.clone().into(): MaybeExpr)?;
-                        let t_e = (t_e.clone().into(): MaybeExpr)?;
+                        let c_e = (c_e.clone().into(): OptExpr)?;
+                        let t_e = (t_e.clone().into(): OptExpr)?;
                         acc.chain_push((c_e, t_e))
                             .some()
                     })

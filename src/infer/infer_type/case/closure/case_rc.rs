@@ -4,16 +4,16 @@ use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_info::RequireInfo;
 use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext;
-use crate::parser::r#type::r#type::MaybeType;
+use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
 
 pub fn case_rc(
     type_env: &TypeEnv,
-    expect_type: &MaybeType,
+    expect_type: &OptType,
     output_expr_type: Type,
     constraint_acc: EnvRefConstraint,
     input_name: &Option<String>,
-    input_type: MaybeType
+    input_type: OptType
 ) -> InferTypeRet {
     // 因为需要判断约束是否包含输入, 所以需要匹配输入名
     let (base, constraint_acc) = match input_name {

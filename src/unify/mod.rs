@@ -40,7 +40,7 @@ pub fn lift(
         Type::SumType(s) => lift_sum(type_env, s, to),
         Type::ProdType(v) => lift_prod(type_env, v, to),
 
-        // 不允许提升任何不完全类型, 它们仅能被用作推导提示
+        // 不允许提升任何不完整类型, 它们仅能被用作推导提示
         _ => None
     };
 
