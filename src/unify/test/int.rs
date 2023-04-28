@@ -1,8 +1,11 @@
+use crate::btree_set;
+use crate::infer::env::r#macro::int_type;
+use crate::infer::env::r#macro::namely_type;
+use crate::infer::env::r#macro::sum_type;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infra::option::AnyExt;
 use crate::parser::r#type::r#type::Type;
 use crate::unify::namely::lift_namely;
-use crate::{btree_set, int_type, namely_type, sum_type};
 
 fn env<'t>() -> TypeEnv<'t> {
     /* env:

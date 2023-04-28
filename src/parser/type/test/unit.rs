@@ -1,5 +1,5 @@
+use crate::infer::env::r#macro::unit_type;
 use crate::parser::r#type::test::f;
-use crate::unit_type;
 
 #[test]
 fn test_parse_unit_type() {

@@ -1,7 +1,11 @@
+use crate::btree_set;
+use crate::infer::env::r#macro::int_type;
+use crate::infer::env::r#macro::namely_type;
+use crate::infer::env::r#macro::sum_type;
+use crate::infer::env::r#macro::unit_type;
 use crate::infra::option::AnyExt;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::expr::test::f;
-use crate::{btree_set, int_type, namely_type, sum_type, unit_type};
 
 #[test]
 fn test_part1() {

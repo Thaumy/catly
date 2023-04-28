@@ -18,6 +18,7 @@ fn get_std_code() -> String {
         def add: Int -> Int -> Int = _
         def sub: Int -> Int -> Int = _
         def mul: Int -> Int -> Int = _
+        def mod: Int -> Int -> Int = _
         def rem: Int -> Int -> Int = _
 
         def gt: Int -> Int -> Bool = _

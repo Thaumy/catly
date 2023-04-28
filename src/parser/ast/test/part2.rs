@@ -1,17 +1,15 @@
+use crate::btree_set;
+use crate::infer::env::r#macro::closure_type;
+use crate::infer::env::r#macro::int_type;
+use crate::infer::env::r#macro::namely_type;
+use crate::infer::env::r#macro::prod_type;
+use crate::infer::env::r#macro::sum_type;
+use crate::infer::env::r#macro::unit_type;
 use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext;
 use crate::parser::ast::test::f;
 use crate::parser::define::Define;
 use crate::parser::expr::r#type::Expr;
-use crate::{
-    btree_set,
-    closure_type,
-    int_type,
-    namely_type,
-    prod_type,
-    sum_type,
-    unit_type
-};
 
 #[test]
 fn test_part2() {

@@ -1,5 +1,6 @@
 mod case;
 mod env;
+pub mod r#macro;
 mod r#type;
 
 use crate::eval::case::apply::case_apply;
@@ -45,5 +46,7 @@ pub fn eval(
             case_match(type_env, expr_env, t_e, c_v),
         Expr::Let(_, a_n, a_t, a_e, s_e) =>
             case_let(type_env, expr_env, a_n, a_t, a_e, s_e),
+
+        primitive_op => primitive_op.clone().ok()
     }
 }

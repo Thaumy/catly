@@ -1,7 +1,7 @@
+use crate::infer::env::r#macro::unit_type;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infra::option::AnyExt;
 use crate::parser::r#type::r#type::Type;
-use crate::unit_type;
 
 pub fn lift_unit(type_env: &TypeEnv, derive: &Type) -> Option<Type> {
     match derive {

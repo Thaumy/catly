@@ -1,4 +1,4 @@
-use crate::namely_type;
+use crate::infer::env::r#macro::namely_type;
 use crate::parser::r#type::test::f;
 
 #[test]

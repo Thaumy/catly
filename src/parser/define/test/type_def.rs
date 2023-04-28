@@ -1,6 +1,8 @@
+use crate::infer::env::r#macro::namely_type;
+use crate::infer::env::r#macro::prod_type;
+use crate::infer::env::r#macro::unit_type;
 use crate::parser::define::test::f;
 use crate::parser::define::Define;
-use crate::{namely_type, prod_type, unit_type};
 
 #[test]
 fn test_part1() {

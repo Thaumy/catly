@@ -1,4 +1,4 @@
-use crate::int_type;
+use crate::infer::env::r#macro::int_type;
 use crate::parser::r#type::test::f;
 
 #[test]

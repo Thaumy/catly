@@ -1,8 +1,8 @@
 mod case_ri;
 mod case_t_rc;
 
-use crate::bool_type;
 use crate::infer::env::expr_env::ExprEnv;
+use crate::infer::env::r#macro::bool_type;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::case::cond::case_ri::case_ri;
 use crate::infer::infer_type::case::cond::case_t_rc::case_t_rc;

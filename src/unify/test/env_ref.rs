@@ -1,15 +1,13 @@
+use crate::btree_set;
+use crate::infer::env::r#macro::bool_type;
+use crate::infer::env::r#macro::false_type;
+use crate::infer::env::r#macro::int_type;
+use crate::infer::env::r#macro::namely_type;
+use crate::infer::env::r#macro::sum_type;
+use crate::infer::env::r#macro::true_type;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infra::option::AnyExt;
 use crate::unify::namely::lift_namely;
-use crate::{
-    bool_type,
-    btree_set,
-    false_type,
-    int_type,
-    namely_type,
-    sum_type,
-    true_type
-};
 
 fn env<'t>() -> TypeEnv<'t> {
     /* env:

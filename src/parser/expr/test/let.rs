@@ -1,8 +1,9 @@
+use crate::infer::env::r#macro::int_type;
+use crate::infer::env::r#macro::unit_type;
 use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::expr::test::f;
-use crate::{int_type, unit_type};
 
 #[test]
 fn test_part1() {

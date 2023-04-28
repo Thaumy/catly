@@ -1,5 +1,8 @@
+pub mod primitive_op;
+
 use std::fmt::{Debug, Formatter};
 
+use crate::eval::r#type::expr::primitive_op::PrimitiveOp;
 use crate::eval::r#type::r#type::OptType;
 use crate::eval::r#type::r#type::Type;
 use crate::infra::option::AnyExt;
@@ -23,7 +26,9 @@ pub enum Expr {
     Struct(Type, Vec<StructField>),
     Discard(Type),
     Match(Type, Box<Expr>, Vec<(Expr, Expr)>),
-    Let(Type, String, Type, Box<Expr>, Box<Expr>)
+    Let(Type, String, Type, Box<Expr>, Box<Expr>),
+
+    PrimitiveOp(Type, Box<PrimitiveOp>)
 }
 
 impl Expr {
@@ -38,7 +43,8 @@ impl Expr {
             Expr::Struct(t, ..) => t,
             Expr::Discard(t, ..) => t,
             Expr::Match(t, ..) => t,
-            Expr::Let(t, ..) => t
+            Expr::Let(t, ..) => t,
+            Expr::PrimitiveOp(t, ..) => t
         }
     }
 }
@@ -88,6 +94,9 @@ impl Debug for Expr {
                     type_annot(a_t),
                     type_annot(t)
                 )),
+
+            Expr::PrimitiveOp(t, op) =>
+                f.write_str(&*format!("({op:?}){}", type_annot(t))),
         }
     }
 }

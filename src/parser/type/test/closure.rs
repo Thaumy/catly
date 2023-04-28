@@ -1,5 +1,6 @@
+use crate::infer::env::r#macro::closure_type;
+use crate::infer::env::r#macro::namely_type;
 use crate::parser::r#type::test::f;
-use crate::{closure_type, namely_type};
 
 #[test]
 fn test_part1() {
