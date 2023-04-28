@@ -15,6 +15,7 @@ fn get_std_code() -> String {
         def true = 1: True
         def false = 0: False
 
+        def neg: Int -> Int = _
         def add: Int -> Int -> Int = _
         def sub: Int -> Int -> Int = _
         def mul: Int -> Int -> Int = _
@@ -24,6 +25,10 @@ fn get_std_code() -> String {
         def gt: Int -> Int -> Bool = _
         def eq: Int -> Int -> Bool = _
         def lt: Int -> Int -> Bool = _
+
+        def not: Bool -> Bool = _
+        def and: Bool -> Bool -> Bool = _
+        def or: Bool -> Bool -> Bool = _
 
         type EmptyList = Unit
         type IntCons = { head: Int, tail: IntList }

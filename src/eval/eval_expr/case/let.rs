@@ -1,8 +1,8 @@
 use crate::eval::env::expr_env::ExprEnv;
 use crate::eval::env::type_env::TypeEnv;
+use crate::eval::eval_expr::{eval_expr, EvalRet};
 use crate::eval::r#type::expr::Expr;
 use crate::eval::r#type::r#type::Type;
-use crate::eval::{eval, EvalRet};
 
 pub fn case_let(
     type_env: &TypeEnv,
@@ -19,5 +19,5 @@ pub fn case_let(
         expr_env.clone()
     );
 
-    eval(type_env, &new_expr_env, scope_expr)
+    eval_expr(type_env, &new_expr_env, scope_expr)
 }

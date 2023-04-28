@@ -44,6 +44,7 @@ impl Expr {
             Expr::Discard(t, ..) => t,
             Expr::Match(t, ..) => t,
             Expr::Let(t, ..) => t,
+
             Expr::PrimitiveOp(t, ..) => t
         }
     }

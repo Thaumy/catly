@@ -1,6 +1,6 @@
 use crate::eval::env::expr_env::ExprEnv;
 use crate::eval::env::type_env::TypeEnv;
-use crate::eval::{eval, EvalRet};
+use crate::eval::eval_expr::{eval_expr, EvalRet};
 
 pub fn case_env_ref(
     type_env: &TypeEnv,
@@ -12,5 +12,5 @@ pub fn case_env_ref(
         .unwrap_or_else(|| {
             panic!("EnvRef::{ref_name:?} not found in expr env")
         });
-    eval(type_env, src_env, src_expr)
+    eval_expr(type_env, src_env, src_expr)
 }

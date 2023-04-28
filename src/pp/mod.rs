@@ -30,7 +30,7 @@ pub enum Out {
 type In = name::Out;
 
 impl From<In> for Out {
-    fn from(value: name::Out) -> Self {
+    fn from(value: In) -> Self {
         match value {
             In::Symbol(c) => Out::Symbol(c),
             In::LetName(n) => Out::LetName(n),

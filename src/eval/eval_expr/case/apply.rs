@@ -2,6 +2,7 @@ use std::ops::{Deref, Rem};
 
 use crate::eval::env::expr_env::ExprEnv;
 use crate::eval::env::type_env::TypeEnv;
+use crate::eval::eval_expr::{eval_expr, EvalRet};
 use crate::eval::r#macro::false_type;
 use crate::eval::r#macro::namely_type;
 use crate::eval::r#macro::true_type;
@@ -9,7 +10,6 @@ use crate::eval::r#type::eval_err::EvalErr;
 use crate::eval::r#type::expr::primitive_op::PrimitiveOp;
 use crate::eval::r#type::expr::Expr;
 use crate::eval::r#type::r#type::Type;
-use crate::eval::{eval, EvalRet};
 use crate::infra::either::{AnyExt, Either};
 use crate::infra::option::AnyExt as OptAnyExt;
 use crate::infra::result::AnyExt as ResAnyExt;
@@ -50,7 +50,7 @@ fn eval_to_int(
     expr_env: &ExprEnv,
     expr: &Expr
 ) -> Result<i64, EvalErr> {
-    match eval(type_env, expr_env, expr)? {
+    match eval_expr(type_env, expr_env, expr)? {
         Expr::Int(Type::NamelyType(n), i) if n == "Int" =>
             i.clone().ok(),
         _ => panic!("Impossible non-int expr: {expr:?}")
@@ -62,7 +62,7 @@ fn eval_to_bool(
     expr_env: &ExprEnv,
     expr: &Expr
 ) -> Result<bool, EvalErr> {
-    match eval(type_env, expr_env, expr)? {
+    match eval_expr(type_env, expr_env, expr)? {
         Expr::Int(Type::NamelyType(n), 1) if n == "True" => true.ok(),
         Expr::Int(Type::NamelyType(n), 0) if n == "False" =>
             false.ok(),
@@ -179,7 +179,7 @@ pub fn case_apply(
                 None => output_eval_env
             };
 
-            eval(type_env, &extended_eval_env, &output_expr)
+            eval_expr(type_env, &extended_eval_env, &output_expr)
         }
         Either::R(primitive_op) => primitive_apply(
             type_env,

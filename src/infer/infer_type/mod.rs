@@ -1,4 +1,4 @@
-pub mod case;
+mod case;
 pub mod r#fn;
 #[cfg(test)]
 mod test;

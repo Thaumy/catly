@@ -1,6 +1,7 @@
 type In = crate::pp::name::Out;
+type Out = In;
 
-pub fn pp_remove_blank(seq: &Vec<In>) -> Vec<In> {
+pub fn pp_remove_blank(seq: &Vec<In>) -> Vec<Out> {
     let r = seq
         .iter()
         .filter(|p| match p {
