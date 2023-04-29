@@ -8,13 +8,6 @@ mod pi;
 
 pub fn get_std_code() -> String {
     "
-        type True = Int
-        type False = Int
-        type Bool = True | False
-
-        def true = 1: True
-        def false = 0: False
-
         def neg: Int -> Int = _
         def add: Int -> Int -> Int = _
         def sub: Int -> Int -> Int = _
@@ -30,12 +23,26 @@ pub fn get_std_code() -> String {
         def and: Bool -> Bool -> Bool = _
         def or: Bool -> Bool -> Bool = _
 
+        type True = Int
+        type False = Int
+        type Bool = True | False
+
+        def true = 1: True
+        def false = 0: False
+
         type EmptyList = Unit
         type IntCons = { head: Int, tail: IntList }
         type IntList = IntCons | EmptyList
 
         def emptyList = (): EmptyList
         def intCons = h -> t -> { head = h, tail = t } : IntCons
+
+        type Fraction = { n: Int, d: Int }
+
+        def fraction = n -> d ->
+            { n = n, d = d }: Fraction
+        def int2F = i ->
+            fraction i 1
     "
     .to_string()
 }

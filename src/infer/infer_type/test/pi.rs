@@ -9,16 +9,6 @@ use crate::infer::infer_type::test::get_std_code;
 fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
     let seq = get_std_code() +
         "
-        def gt: Int -> Int -> Bool = _
-
-        type Fraction = { n: Int, d: Int }
-
-        def fraction = n -> d ->
-            { n = n, d = d }: Fraction
-
-        def intToFraction = i ->
-            fraction i 1
-
         def mulF = a -> b ->
             match a with
             | ({ n = an, d = ad }: Fraction) ->
@@ -38,7 +28,7 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
             | ({ n = an, d = ad }: Fraction) ->
                 match b with
                 | ({ n = bn, d = bd}: Fraction) ->
-                    fraction (add an bn) (add ad bd)
+                    fraction (add (add an bd) (add bn ad)) (mul ad bd)
 
         def gtF = a -> b ->
             match a with
@@ -50,19 +40,19 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
         def pi =
             let piSum = a -> b ->
                 if gtF a b then
-                    intToFraction 0
+                    int2F 0
                 else
                     addF
                         (divF
-                            (intToFraction 1)
-                            (mulF a (addF a (intToFraction 2)))
+                            (int2F 1)
+                            (mulF a (addF a (int2F 2)))
                         )
                         (piSum
-                            (addF a (intToFraction 4))
+                            (addF a (int2F 4))
                             b
                         )
             in
-                mulF (intToFraction 8) (piSum (intToFraction 1) (intToFraction 1000))
+                mulF (int2F 8) (piSum (int2F 1) (int2F 1000))
         ";
     parse_env(&seq).unwrap()
 }
