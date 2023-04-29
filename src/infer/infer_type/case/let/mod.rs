@@ -34,7 +34,7 @@ pub fn case(
         Quad::L(_) | Quad::ML(_) => {
             let (assign_expr_type, constraint_acc) =
                 assign_expr_type.unwrap_type_and_constraint();
-            // 过滤掉对 assign_name 的约束
+            // 过滤掉对 assign_name 的约束(对于 ML
             let constraint_acc =
                 constraint_acc.exclude_new(assign_name.as_str());
 
@@ -59,18 +59,24 @@ pub fn case(
         // 旁路类型推导仅在外层信息未知时适用, 因为如果外层信息已知
         // 那么外层信息将具备更高的优先级, 此时使用类型旁路会让内层类型超越外层约束的限制
         // 所以在此处, 仅当 assign_type 和 assign_expr 均无类型信息时, 才能启用旁路类型推导
-        Quad::MR(require_info)
+        Quad::MR(ri)
             if assign_type.is_none() &&
                 assign_expr.is_no_type_annot() =>
+        {
+            let new_expr_env =
+                expr_env.extend_constraint_new(ri.constraint.clone());
+
             case_ri(
                 type_env,
-                &expr_env,
-                require_info,
+                &new_expr_env,
+                &ri.ref_name,
+                ri.constraint,
                 expect_type,
                 assign_name,
                 assign_expr,
                 scope_expr
-            ),
+            )
+        }
 
         mr_r => mr_r
     }

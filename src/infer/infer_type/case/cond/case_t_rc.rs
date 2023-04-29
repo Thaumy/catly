@@ -39,8 +39,10 @@ pub fn case_t_rc(
                     )
                     .into(),
             },
+
         Quad::MR(ri) =>
             return ri.with_constraint_acc(constraint_acc),
+
         r => return r
     };
 

@@ -15,9 +15,10 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
     let seq = "
         def let1 = let a = 1 in a
 
-        def x = _
-        def let2 = let a = 1 in x: Int
-        def let3 = let a = x in a: Int
+        def a2 = _
+        def let2 = let a = 1 in a2: Int
+        def a3 = _
+        def let3 = let a = a3 in a: Int
 
         def let4 = let a = 1, b = () in b
 
@@ -76,7 +77,7 @@ fn test_part2() {
         .infer_type(&type_env, &expr_env);
     let r = require_constraint(
         int_type!(),
-        EnvRefConstraint::single("x".to_string(), int_type!())
+        EnvRefConstraint::single("a2".to_string(), int_type!())
     );
 
     assert_eq!(expr_type, r)
@@ -92,7 +93,7 @@ fn test_part3() {
         .infer_type(&type_env, &expr_env);
     let r = require_constraint(
         int_type!(),
-        EnvRefConstraint::single("x".to_string(), int_type!())
+        EnvRefConstraint::single("a3".to_string(), int_type!())
     );
 
     assert_eq!(expr_type, r)
@@ -227,7 +228,7 @@ fn test_part13() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    assert_matches!(expr_type, Quad::R(..))
+    assert_matches!(expr_type, Quad::MR(..))
 }
 
 #[test]

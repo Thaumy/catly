@@ -12,7 +12,8 @@ use crate::parser::r#type::r#type::OptType;
 pub fn case_ri(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
-    require_info: RequireInfo,
+    require_info_ref_name: &str,
+    constraint_acc: EnvRefConstraint,
     expect_type: &OptType,
     assign_name: &str,
     assign_expr: &Expr,
@@ -48,88 +49,90 @@ pub fn case_ri(
             // 由于 case_ri 分支仅当 assign 缺乏类型信息时才会进入
             // 因为 scope_expr 没有带来约束, 所以 assign 仍需类型信息
             // 改写或返回原错误, 改写是为了让无类型弃元错误正确地附加到 assign_name 上, 而不是被其他层级捕获
-            _ => if require_info.ref_name == "_" {
-                require_info.new_ref_name(assign_name)
+            _ => if require_info_ref_name == "_" {
+                RequireInfo::of(assign_name, constraint_acc)
             } else {
-                require_info
+                RequireInfo::of(require_info_ref_name, constraint_acc)
             }
             .into()
         },
         // 获取 scope_expr_type 时产生了约束
         Quad::ML(rc) => {
-            let assign_type_constraint = rc
-                .constraint
-                .find(assign_name);
-
-            // 如果约束包含了 assign
-            if let Some(assign_type_constraint) =
-                assign_type_constraint
+            // 累积到外部约束
+            let constraint_acc = match constraint_acc
+                .extend_new(rc.constraint.clone())
             {
-                // 获取确保限定成立的外层环境约束
-                // 此时 assign_expr 无类型标注
-                // 以旁路提供的 assign_type_constraint 为提示获取 assign_expr 的类型
-                // 由于限定 assign_expr 为 assign_type_constraint 可能对外层环境产生约束
-                // 需将这些约束传播以确保限定成立
-                let constraint_acc = match assign_expr
-                    //Hint assign_expr and get type of it
-                    .with_fallback_type(assign_type_constraint)
-                    .infer_type(type_env, expr_env)
-                {
-                    // 限定相容且未带来约束
-                    Quad::L(_) => EnvRefConstraint::empty(),
-                    // 限定相容且带来了约束, 传播之
-                    Quad::ML(rc) => rc.constraint.clone(),
-                    // 限定冲突或信息仍然不足, 推导失败
-                    Quad::MR(ri) =>
-                        return ri.with_constraint_acc(
-                            rc.constraint
-                                .exclude_new(assign_name)
-                        ),
-                    mr_r => return mr_r
-                };
-
-                match constraint_acc.extend_new(rc.constraint.clone())
-                {
-                    Some(constraint) => InferTypeRet::from_auto_lift(
-                        type_env,
-                        &rc.r#type,
-                        expect_type,
-                        // 将对 assign 的约束过滤掉, 并拼接起确保限定成立的外层约束作为最终约束
-                        // 因为 assign_expr 和 scope_expr 都有可能产生对 assign_name 的约束
-                        // 所以过滤要在最后进行
-                        constraint
-                            .exclude_new(assign_name)
-                            .some()
-                    ),
-                    None => TypeMissMatch::of_constraint(
+                Some(c) => c,
+                None =>
+                    return TypeMissMatch::of_constraint(
                         &constraint_acc,
                         &rc.constraint
                     )
-                    .into()
-                }
-            } else {
-                // 约束不包含 assign, 关于此处实现的讨论可参见上方的 L 分支
-                match rc
-                    .r#type
-                    .lift_to_or_left(type_env, expect_type)
-                {
-                    None => TypeMissMatch::of_type(
-                        &rc.r#type,
-                        &expect_type.clone().unwrap()
-                    )
                     .into(),
-                    _ => if require_info.ref_name == "_" {
-                        require_info.new_ref_name(assign_name)
+            };
+
+            // 注入表达式环境
+            // 新的环境可能包含对 assign_name 的约束和外层约束
+            // 这些约束将有助于取得 assign_expr 的类型
+            let new_expr_env =
+                expr_env.extend_constraint_new(rc.constraint.clone());
+
+            // 将 assign_name 约束到约束目标仍是必须的
+            // 因为 assign_expr 可能不包含 assign_name
+            let assign_type_constraint = rc
+                .constraint
+                .find(assign_name)
+                .cloned();
+
+            let constraint_acc = match assign_expr
+                .with_opt_fallback_type(&assign_type_constraint)
+                .infer_type(type_env, &new_expr_env)
+            {
+                // 限定相容且未带来约束
+                Quad::L(_) => constraint_acc,
+                // 限定相容且带来了约束, 传播之
+                Quad::ML(rc) => match constraint_acc
+                    .extend_new(rc.constraint.clone())
+                {
+                    Some(c) => c,
+                    None =>
+                        return TypeMissMatch::of_constraint(
+                            &constraint_acc,
+                            &rc.constraint
+                        )
+                        .into(),
+                },
+                // 限定冲突或信息仍然不足, 推导失败
+                Quad::MR(ri) => {
+                    let constraint_acc =
+                        constraint_acc.exclude_new(assign_name);
+
+                    return if ri.ref_name == "_" {
+                        // 拦截无类型弃元到 assign_name
+                        ri.new_ref_name(assign_name)
+                            .with_constraint_acc(constraint_acc)
                     } else {
-                        require_info
-                    }
-                    // 与 L 分支的唯一不同是此处需要传播约束
-                    .with_constraint_acc(rc.constraint)
-                    .into()
+                        ri.with_constraint_acc(constraint_acc)
+                    };
                 }
-            }
+                r => return r
+            };
+
+            InferTypeRet::from_auto_lift(
+                type_env,
+                &rc.r#type,
+                expect_type,
+                // 将对 assign_name 的约束过滤掉
+                // 因为 assign_expr 和 scope_expr 都有可能产生对 assign_name 的约束
+                // 所以过滤要在最后进行, 这在上方获取 assign_expr_type 时的 MR 分支处也有体现
+                constraint_acc
+                    .exclude_new(assign_name)
+                    .some()
+            )
         }
-        // 旁路类型推导失败
-        mr_r => mr_r
+
+        Quad::MR(ri) => ri.with_constraint_acc(constraint_acc),
+
+        r => r
     }
 }

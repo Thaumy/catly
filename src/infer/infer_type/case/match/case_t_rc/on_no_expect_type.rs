@@ -131,7 +131,7 @@ where
         // 所有 then_expr 都缺乏信息
         Ok(None) =>
             return RequireInfo::of("(then expr)", outer_constraint)
-                .into(),
+                .quad_mr(),
     };
 
     let match_expr = Expr::Match(

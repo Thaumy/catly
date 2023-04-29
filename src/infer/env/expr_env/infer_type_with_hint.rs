@@ -2,12 +2,13 @@ use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::r#type::env_ref_src::EnvRefSrc;
 use crate::infer::env::r#type::type_constraint::TypeConstraint;
 use crate::infer::env::type_env::TypeEnv;
+use crate::infer::infer_type::r#fn::has_type;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_constraint::require_extended_constraint;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::AnyExt as OptAnyExt;
-use crate::infra::quad::{AnyExt as QuadAnyExt, Quad};
+use crate::infra::quad::Quad;
 use crate::parser::r#type::r#type::OptType;
 
 impl<'t> ExprEnv<'t> {
@@ -37,7 +38,7 @@ impl<'t> ExprEnv<'t> {
                             // 需要将不完整类型约束到精确类型
                             EnvRefConstraint::single(ref_name.into(), hint.clone()).some(),
                         ),
-                    _ => ref_type.quad_l()
+                    _ => has_type(ref_type)
                 }
             // 缺乏类型信息, 尝试提示
             Quad::MR(ri) if let Some(hint) = hint => {

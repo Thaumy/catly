@@ -3,7 +3,8 @@ use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_constraint::require_constraint;
-use crate::infra::option::AnyExt;
+use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
+use crate::infra::option::AnyExt as OptAnyExt;
 use crate::infra::quad::Quad;
 use crate::infra::r#box::Ext;
 use crate::parser::expr::r#type::Expr;
@@ -11,17 +12,32 @@ use crate::parser::expr::r#type::Expr;
 pub fn case_ri(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
+    constraint_acc: EnvRefConstraint,
     bool_expr: &Expr,
     else_expr: &Expr,
     then_expr: &Expr
 ) -> InferTypeRet {
-    let (else_expr_type, constraint_acc) =
-        match else_expr.infer_type(type_env, expr_env) {
-            Quad::L(t) => (t, EnvRefConstraint::empty()),
-            // 需要收集这些作用于外层环境的约束并传播, 因为它们可能对推导 then_expr_type 有所帮助
-            Quad::ML(rc) => (rc.r#type, rc.constraint),
-            mr_r => return mr_r
-        };
+    let (else_expr_type, constraint_acc) = match else_expr
+        .infer_type(type_env, expr_env)
+    {
+        Quad::L(t) => (t, constraint_acc),
+        // 需要收集这些作用于外层环境的约束并传播, 因为它们可能对推导 then_expr_type 有所帮助
+        Quad::ML(rc) =>
+            match constraint_acc.extend_new(rc.constraint.clone()) {
+                Some(erc) => (rc.r#type, erc),
+                None =>
+                    return TypeMissMatch::of_constraint(
+                        &constraint_acc,
+                        &rc.constraint
+                    )
+                    .into(),
+            },
+
+        Quad::MR(ri) =>
+            return ri.with_constraint_acc(constraint_acc),
+
+        r => return r
+    };
 
     let cond_expr = Expr::Cond(
         else_expr_type.some(),

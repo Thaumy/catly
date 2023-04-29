@@ -75,7 +75,9 @@ pub fn case_t_rc(
                 )
                 .into()
             },
-        // 由于 scope_expr 已被 hint, 且环境已被尽力注入, 所以无法处理这些错误
-        mr_r => mr_r
+
+        Quad::MR(ri) => ri.with_constraint_acc(constraint_acc),
+
+        r => r
     }
 }

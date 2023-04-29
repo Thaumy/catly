@@ -74,6 +74,9 @@ pub fn case_t_rc(
                     .into()
             }
         }
-        mr_r => mr_r
+
+        Quad::MR(ri) => ri.with_constraint_acc(constraint_acc),
+
+        r => r
     }
 }

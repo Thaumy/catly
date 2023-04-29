@@ -80,12 +80,12 @@ pub fn case(
                 };
 
             // 与上同理
-            let expr_env = &expr_env
+            let new_expr_env = &expr_env
                 .extend_constraint_new(constraint_acc.clone());
 
             case_t_rc(
                 type_env,
-                expr_env,
+                new_expr_env,
                 then_expr_type,
                 constraint_acc,
                 expect_type,
@@ -93,12 +93,22 @@ pub fn case(
             )
         }
 
-        Quad::MR(_)
+        Quad::MR(ri)
             if then_expr.is_no_type_annot() &&
                 expect_type.is_none() =>
+        {
+            let new_expr_env = &expr_env
+                .extend_constraint_new(ri.constraint.clone());
+
             case_ri(
-                type_env, expr_env, bool_expr, else_expr, then_expr
-            ),
+                type_env,
+                new_expr_env,
+                ri.constraint,
+                bool_expr,
+                else_expr,
+                then_expr
+            )
+        }
 
         mr_r => mr_r
     }
