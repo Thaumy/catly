@@ -14,8 +14,8 @@ unify_log = []
 env_log = ["ct_env_log", "rt_env_log"]
 ct_env_log = []
 rt_env_log = []
-rt_log = ["rt_log_min"]
-rt_log_min = []
+eval_log = ["eval_log_min"]
+eval_log_min = []
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

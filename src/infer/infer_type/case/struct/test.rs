@@ -39,7 +39,7 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
         def a13 = _
         def struct13 = { a = a13: Int, b = let k = _ in a13: Unit }
     ";
-    parse_env(seq)
+    parse_env(&seq).unwrap()
 }
 
 #[test]

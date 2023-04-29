@@ -16,7 +16,7 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
         def u = (): A
         def k = 20
     ";
-    parse_env(seq)
+    parse_env(&seq).unwrap()
 }
 
 #[test]

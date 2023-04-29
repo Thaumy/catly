@@ -47,7 +47,7 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
         def cond13: Int = if false then (): Unit else 1
         def cond14: Int = if false then () else 1
     ";
-    parse_env(seq)
+    parse_env(&seq).unwrap()
 }
 
 #[test]

@@ -1,4 +1,5 @@
 mod case;
+mod test;
 
 use crate::eval::env::expr_env::ExprEnv;
 use crate::eval::env::type_env::TypeEnv;
@@ -22,12 +23,12 @@ pub fn eval_expr(
     expr_env: &ExprEnv,
     expr: &Expr
 ) -> EvalRet {
-    if cfg!(feature = "rt_log") {
-        let log = format!("{:8}{:>10} │ {expr:?}", "[rt]", "ValOf");
+    if cfg!(feature = "eval_log") {
+        let log = format!("{:8}{:>10} │ {expr:?}", "[eval]", "ValOf");
         println!("{log}");
     }
 
-    match expr {
+    let result = match expr {
         Expr::Discard(t) => case_discard(t),
         Expr::Int(t, i) => case_int(t.clone(), i.clone()),
         Expr::Unit(t) => case_unit(t.clone()),
@@ -45,5 +46,27 @@ pub fn eval_expr(
             case_let(type_env, expr_env, a_n, a_t, a_e, s_e),
 
         primitive_op => primitive_op.clone().ok()
+    };
+
+    if cfg!(feature = "eval_log_min") {
+        let dbg_type = match result.clone() {
+            Ok(expr) => format!(
+                "{:8}{:>10} │ {expr:?}",
+                "[eval]", "Evaluated"
+            ),
+            Err(err) =>
+                format!("{:8}{:>10} │ {err:?}", "[eval]", "Evaluated"),
+        };
+
+        let log = if cfg!(feature = "eval_log") {
+            let dbg_expr = format!(" of {expr:?}");
+            format!("{dbg_type}{dbg_expr}")
+        } else {
+            dbg_type
+        };
+
+        println!("{log}");
     }
+
+    result
 }

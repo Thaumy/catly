@@ -33,7 +33,7 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
                         filter2 p tail
                 | (_: EmptyList) -> emptyList
         ";
-    parse_env(&seq)
+    parse_env(&seq).unwrap()
 }
 
 fn target_type() -> InferTypeRet {

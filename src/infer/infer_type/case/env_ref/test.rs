@@ -25,7 +25,7 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
         def b9 = _
         def envRef9: Unit = a9
     ";
-    parse_env(seq)
+    parse_env(&seq).unwrap()
 }
 
 #[test]

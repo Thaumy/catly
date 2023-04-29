@@ -48,7 +48,7 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
                 in
                     iter 1 0 n
         ";
-    parse_env(&seq)
+    parse_env(&seq).unwrap()
 }
 
 fn target_type() -> InferTypeRet {

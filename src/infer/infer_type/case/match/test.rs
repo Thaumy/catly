@@ -96,7 +96,7 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
             match (): Int with
             | 1 -> 1
     ";
-    parse_env(seq)
+    parse_env(&seq).unwrap()
 }
 
 #[test]

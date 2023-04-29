@@ -46,7 +46,7 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
         def f17: T17 = _ -> 1 # T17 should not be found in type env
         def f18: Unit = _ -> ()
     ";
-    parse_env(seq)
+    parse_env(&seq).unwrap()
 }
 
 #[test]

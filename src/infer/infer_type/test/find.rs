@@ -35,7 +35,7 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
                 | (_: EmptyList) -> false
             ): Bool
         ";
-    parse_env(&seq)
+    parse_env(&seq).unwrap()
 }
 
 fn target_type() -> InferTypeRet {

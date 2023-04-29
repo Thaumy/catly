@@ -15,7 +15,7 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
     let seq = "
         type A = Int
     ";
-    parse_env(seq)
+    parse_env(&seq).unwrap()
 }
 
 #[test]

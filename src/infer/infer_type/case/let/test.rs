@@ -51,7 +51,7 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
 
         def let17 = let a: Unit = 1: Int in 1
     ";
-    parse_env(seq)
+    parse_env(&seq).unwrap()
 }
 
 #[test]
