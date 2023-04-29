@@ -113,7 +113,7 @@ impl<'t> ExprEnv<'t> {
                                 }
                             }
                             mr_r => mr_r
-                        },
+                        }
                     _ => ref_type
                 }
             }

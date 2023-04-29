@@ -1,5 +1,7 @@
 mod case_rc;
 mod case_t;
+#[cfg(test)]
+mod test;
 
 use std::ops::Deref;
 
@@ -55,9 +57,9 @@ pub fn case(
 
                     _ => return TypeMissMatch::of(&format!("{expect_type:?} <> ClosureType/PartialClosureType")).into()
                 },
-                _ => return TypeMissMatch::of(&format!("{expect_type:?} not found in type env")).into()
+                None => return TypeMissMatch::of(&format!("{expect_type:?} not found in type env")).into()
             },
-        _ => (None, None)
+        None => (None, None)
     };
 
     // Hint input_type
@@ -103,6 +105,8 @@ pub fn case(
             input_type
         ),
 
+        // infer_type 不能推导出输出类型(即便进行了类型提示), 但可以传播约束, 为下一轮推导提供信息
+        // Closure 不存在可以推导输出类型的第二个表达式, 所以不适用于旁路类型推导
         Quad::MR(ri) if let Some(input_name) = input_name =>
             RequireInfo::of(
                 &ri.ref_name,
@@ -110,10 +114,6 @@ pub fn case(
             )
             .into(),
 
-        // infer_type 不能推导出输出类型(即便进行了类型提示), 或推导错误
-        // 推导错误是由类型不匹配导致的, 这种错误无法解决
-        // 不能推导出输出类型是由缺乏类型信息导致的
-        // 因为 Closure 不存在可以推导输出类型的第二个表达式, 所以不适用于旁路类型推导
-        r => r
+        mr_r => mr_r
     }
 }

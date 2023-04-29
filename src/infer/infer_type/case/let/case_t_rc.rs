@@ -66,6 +66,9 @@ pub fn case_t_rc(
                     expect_type,
                     constraint.some()
                 ),
+                // 由于在获取 assign_type 时已将附加约束注入环境
+                // 所以此处的约束冲突在理论上永远不会发生
+                // 但是, 检查一下会更保险些
                 None => TypeMissMatch::of_constraint(
                     &constraint_acc,
                     &rc.constraint

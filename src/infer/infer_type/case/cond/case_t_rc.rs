@@ -21,17 +21,17 @@ pub fn case_t_rc(
     let expect_type = match expect_type {
         Some(expect_type) => expect_type.clone(),
         None => then_expr_type.clone()
-    }
-    .some();
+    };
 
     let (else_expr_type, constraint_acc) = match else_expr
-        .with_opt_fallback_type(&expect_type)
+        .with_fallback_type(&expect_type)
         .infer_type(type_env, expr_env)
     {
         Quad::L(t) => (t, constraint_acc),
         Quad::ML(rc) =>
             match constraint_acc.extend_new(rc.constraint.clone()) {
                 Some(constraint) => (rc.r#type, constraint),
+                // 不可能发生的分支, 因为约束已被注入, 为保险而保留
                 None =>
                     return TypeMissMatch::of_constraint(
                         &constraint_acc,
@@ -44,30 +44,18 @@ pub fn case_t_rc(
         r => return r
     };
 
-    match expect_type {
-        Some(expect_type) => {
-            if let None =
-                then_expr_type.lift_to(type_env, &expect_type)
-            {
-                return TypeMissMatch::of_type(
-                    &then_expr_type,
-                    &expect_type
-                )
-                .into();
-            }
-
-            InferTypeRet::from_auto_lift(
-                type_env,
-                &else_expr_type,
-                &expect_type.some(),
-                constraint_acc.some()
-            )
-        }
-        _ => InferTypeRet::from_auto_unify(
-            type_env,
-            &then_expr_type,
-            &else_expr_type,
-            constraint_acc.some()
-        )
+    if then_expr_type
+        .lift_to(type_env, &expect_type)
+        .is_none()
+    {
+        return TypeMissMatch::of_type(&then_expr_type, &expect_type)
+            .into();
     }
+
+    InferTypeRet::from_auto_lift(
+        type_env,
+        &else_expr_type,
+        &expect_type.some(),
+        constraint_acc.some()
+    )
 }

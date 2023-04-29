@@ -1,14 +1,16 @@
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infra::vec::Ext;
+use crate::parser::ast::parse_ast;
 use crate::parser::define::Define;
+use crate::pp::preprocess;
 
 pub mod expr_env;
 pub mod r#macro;
 pub mod r#type;
 pub mod type_env;
 
-pub fn from_defines<'t>(
+fn from_defines<'t>(
     defines: Vec<Define>
 ) -> (TypeEnv<'t>, ExprEnv<'t>) {
     let (tev, eev) = defines.iter().fold(
@@ -31,4 +33,11 @@ pub fn from_defines<'t>(
     );
 
     (TypeEnv::new(tev), ExprEnv::new(eev))
+}
+
+pub fn parse_env<'t>(seq: &str) -> (TypeEnv<'t>, ExprEnv<'t>) {
+    let seq = preprocess(&seq).unwrap();
+    let defines = parse_ast(seq).unwrap();
+
+    from_defines(defines)
 }

@@ -44,7 +44,6 @@ pub fn case_t_rc(
             }
         }
         Quad::ML(rc) => {
-            // 输入类型相容且约束相容
             if rc
                 .r#type
                 .can_lift_to(type_env, &lhs_input_type)
@@ -52,6 +51,7 @@ pub fn case_t_rc(
                 if let Some(constraint) =
                     constraint_acc.extend_new(rc.constraint.clone())
                 {
+                    // 输入类型相容且约束相容
                     InferTypeRet::from_auto_lift(
                         type_env,
                         &lhs_output_type,
@@ -59,6 +59,9 @@ pub fn case_t_rc(
                         constraint.some()
                     )
                 } else {
+                    // 约束不相容
+                    // 同样, 由于 lhs_expr_type 的约束注入, 理论上这个分支也不会执行
+                    // 保留是处于保险考虑
                     TypeMissMatch::of_constraint(
                         &constraint_acc,
                         &rc.constraint
@@ -66,6 +69,7 @@ pub fn case_t_rc(
                     .into()
                 }
             } else {
+                // 输入类型不相容
                 TypeMissMatch::of_type(&rc.r#type, &lhs_input_type)
                     .into()
             }

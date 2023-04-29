@@ -1,5 +1,7 @@
 mod case_ri;
 mod case_t_rc;
+#[cfg(test)]
+mod test;
 
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::r#macro::bool_type;

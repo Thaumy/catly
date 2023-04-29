@@ -1,24 +1,41 @@
-use crate::infer::env::expr_env::ExprEnv;
-use crate::infer::env::from_defines;
-use crate::infer::env::type_env::TypeEnv;
-use crate::parser::ast::parse_ast;
-use crate::pp::preprocess;
+mod expt;
+mod fib;
+mod filter;
+mod find;
+mod gcd;
+mod map;
+mod pi;
 
-mod apply;
-mod closure;
-mod cond;
-mod discard;
-mod env_ref;
-mod int;
-mod integration;
-mod r#let;
-mod r#match;
-mod r#struct;
-mod unit;
+pub fn get_std_code() -> String {
+    "
+        type True = Int
+        type False = Int
+        type Bool = True | False
 
-fn parse_env<'t>(seq: &str) -> (TypeEnv<'t>, ExprEnv<'t>) {
-    let seq = preprocess(&seq).unwrap();
-    let defines = parse_ast(seq).unwrap();
+        def true = 1: True
+        def false = 0: False
 
-    from_defines(defines)
+        def neg: Int -> Int = _
+        def add: Int -> Int -> Int = _
+        def sub: Int -> Int -> Int = _
+        def mul: Int -> Int -> Int = _
+        def mod: Int -> Int -> Int = _
+        def rem: Int -> Int -> Int = _
+
+        def gt: Int -> Int -> Bool = _
+        def eq: Int -> Int -> Bool = _
+        def lt: Int -> Int -> Bool = _
+
+        def not: Bool -> Bool = _
+        def and: Bool -> Bool -> Bool = _
+        def or: Bool -> Bool -> Bool = _
+
+        type EmptyList = Unit
+        type IntCons = { head: Int, tail: IntList }
+        type IntList = IntCons | EmptyList
+
+        def emptyList = (): EmptyList
+        def intCons = h -> t -> { head = h, tail = t } : IntCons
+    "
+    .to_string()
 }

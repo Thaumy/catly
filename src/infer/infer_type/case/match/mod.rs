@@ -1,6 +1,8 @@
 mod case_ri;
 mod case_t_rc;
 mod r#fn;
+#[cfg(test)]
+mod test;
 
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
@@ -39,6 +41,10 @@ pub fn case(
                 vec
             )
         }
+
+        // TODO:
+        // 考虑是否应该在存在 type_annot 时继续进行旁路类型推导
+        // 因为上一轮推导产生的约束可能对推导成功有所帮助
 
         // 无法获取 target_expr 类型信息, 启用旁路类型推导
         // 同样, 为了防止内层环境对外层环境造成跨越优先级的约束, 仅当 target_expr 没有类型标注时才能启用旁路推导

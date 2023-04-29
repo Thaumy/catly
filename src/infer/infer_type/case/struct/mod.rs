@@ -1,4 +1,6 @@
 mod r#fn;
+#[cfg(test)]
+mod test;
 
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;

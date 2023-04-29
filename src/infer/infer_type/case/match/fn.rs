@@ -157,6 +157,7 @@ pub fn is_case_expr_valid<'t>(
                         .into()
                     }
                 }
+
                 // 因为 case_expr 已被 target_expr_type hint
                 // 所以 case_expr_type 一定有足够的信息求得类型(即便求出的类型不相容)
                 // 不可能出现缺乏类型信息的情况
@@ -165,7 +166,7 @@ pub fn is_case_expr_valid<'t>(
                 Quad::MR(ri) => panic!("Impossible branch: {ri:?}"),
 
                 // 类型不相容
-                x => x
+                r => r
             }
         })
         .find(|x| matches!(x, Quad::R(..)))
