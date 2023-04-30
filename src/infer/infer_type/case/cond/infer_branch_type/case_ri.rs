@@ -7,7 +7,7 @@ use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::AnyExt as OptAnyExt;
 use crate::infra::quad::Quad;
 use crate::infra::r#box::Ext;
-use crate::parser::expr::r#type::{Expr, OptExpr};
+use crate::parser::expr::r#type::Expr;
 
 pub fn case_ri(
     type_env: &TypeEnv,
@@ -16,7 +16,7 @@ pub fn case_ri(
     bool_expr: &Expr,
     else_expr: &Expr,
     then_expr: &Expr
-) -> (InferTypeRet, OptExpr) {
+) -> InferTypeRet {
     let (else_expr_type, constraint_acc) = match else_expr
         .infer_type(type_env, expr_env)
     {
@@ -27,20 +27,17 @@ pub fn case_ri(
                 Some(erc) => (rc.r#type, erc),
                 // 理论上无法抵达的分支, 因为 then_expr 的约束会被注入环境
                 None =>
-                    return (
-                        TypeMissMatch::of_constraint(
-                            &constraint_acc,
-                            &rc.constraint
-                        )
-                        .into(),
-                        None
-                    ),
+                    return TypeMissMatch::of_constraint(
+                        &constraint_acc,
+                        &rc.constraint
+                    )
+                    .into(),
             },
 
         Quad::MR(ri) =>
-            return (ri.with_constraint_acc(constraint_acc), None),
+            return ri.with_constraint_acc(constraint_acc),
 
-        r => return (r, None)
+        r => return r
     };
 
     let cond_expr = Expr::Cond(
@@ -53,13 +50,10 @@ pub fn case_ri(
     let new_expr_env =
         expr_env.extend_constraint_new(constraint_acc.clone());
 
-    (
-        match cond_expr.infer_type(type_env, &new_expr_env) {
-            Quad::L(t) => require_constraint(t, constraint_acc),
-            Quad::ML(rc) => rc.with_constraint_acc(constraint_acc),
-            Quad::MR(ri) => ri.with_constraint_acc(constraint_acc),
-            r => r
-        },
-        None
-    )
+    match cond_expr.infer_type(type_env, &new_expr_env) {
+        Quad::L(t) => require_constraint(t, constraint_acc),
+        Quad::ML(rc) => rc.with_constraint_acc(constraint_acc),
+        Quad::MR(ri) => ri.with_constraint_acc(constraint_acc),
+        r => r
+    }
 }

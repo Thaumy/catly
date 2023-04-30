@@ -41,7 +41,6 @@ pub fn infer_type(
             case(type_env, expr_env, expect_type, ref_name)
         }
 
-        // 推导提示
         Expr::Cond(expect_type, bool_expr, then_expr, else_expr) => {
             use case::cond::case;
             case(
@@ -128,8 +127,8 @@ pub fn infer_type(
         println!("{log}");
     }
 
-    match &result {
-        Quad::MR(ri) if !ri.constraint.is_empty() => {
+    match result {
+        Quad::MR(ref ri) if !ri.constraint.is_empty() => {
             let constraint_acc = ri.constraint.clone();
             let new_expr_env = expr_env
                 .extend_constraint_new(constraint_acc.clone());

@@ -51,8 +51,8 @@ pub fn parse_keyword(x: &str) -> Option<Keyword> {
         (parse_with, Keyword::With)
     ];
     map.iter()
-        .find(|kv| kv.0(x))
-        .and_then(|kv| Some(kv.1.clone()))
+        .find(|(p, _)| p(x))
+        .map(|(_, kw)| kw.clone())
 }
 
 #[test]

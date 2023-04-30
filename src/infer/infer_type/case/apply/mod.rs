@@ -23,10 +23,8 @@ pub fn case(
     lhs_expr: &Expr,
     rhs_expr: &Expr
 ) -> InferTypeRet {
-    let lhs_expr_type = lhs_expr.infer_type(type_env, expr_env);
-
-    match lhs_expr_type {
-        Quad::L(_) | Quad::ML(_) => {
+    match lhs_expr.infer_type(type_env, expr_env) {
+        lhs_expr_type @ (Quad::L(_) | Quad::ML(_)) => {
             let (lhs_expr_type, constraint_acc) =
                 lhs_expr_type.unwrap_type_and_constraint();
 

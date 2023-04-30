@@ -37,8 +37,8 @@ pub fn parse_upper(x: &char) -> Option<char> {
 pub fn parse_letter(x: &char) -> Option<Alphanum> {
     use crate::parser::alphanum::Alphanum::{Lower, Upper};
 
-    let f1 = || parse_upper(x).and_then(|c| Some(Upper(c)));
-    let f2 = || parse_lower(x).and_then(|c| Some(Lower(c)));
+    let f1 = || parse_upper(x).map(|c| Upper(c));
+    let f2 = || parse_lower(x).map(|c| Lower(c));
 
     f1().or_else(f2)
 }
@@ -47,7 +47,7 @@ pub fn parse_alphanum(x: &char) -> Option<Alphanum> {
     use crate::parser::alphanum::Alphanum::Digit;
 
     let f1 = || parse_letter(x);
-    let f2 = || parse_digit(x).and_then(|d| Some(Digit(d)));
+    let f2 = || parse_digit(x).map(|d| Digit(d));
 
     f1().or_else(f2)
 }

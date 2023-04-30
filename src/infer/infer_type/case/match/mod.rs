@@ -20,11 +20,9 @@ pub fn case(
     target_expr: &Expr,
     vec: &Vec<(Expr, Expr)>
 ) -> InferTypeRet {
-    let target_expr_type = target_expr.infer_type(type_env, expr_env);
-
-    match target_expr_type {
+    match target_expr.infer_type(type_env, expr_env) {
         // L 与 ML 同样只有是否需要传播对外界环境的约束的区别
-        Quad::L(_) | Quad::ML(_) => {
+        target_expr_type @ (Quad::L(_) | Quad::ML(_)) => {
             let (target_expr_type, constraint_acc) =
                 target_expr_type.unwrap_type_and_constraint();
 

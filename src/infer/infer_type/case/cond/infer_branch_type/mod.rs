@@ -21,12 +21,11 @@ pub fn infer_branch_type(
     then_expr: &Expr,
     else_expr: &Expr
 ) -> InferTypeRet {
-    let then_expr_type = then_expr
+    match then_expr
         .with_opt_fallback_type(expect_type)
-        .infer_type(type_env, expr_env);
-
-    match then_expr_type {
-        Quad::L(_) | Quad::ML(_) => {
+        .infer_type(type_env, expr_env)
+    {
+        then_expr_type @ (Quad::L(_) | Quad::ML(_)) => {
             let (then_expr_type, constraint) =
                 then_expr_type.unwrap_type_and_constraint();
             let constraint_acc =
@@ -69,7 +68,6 @@ pub fn infer_branch_type(
                 else_expr,
                 then_expr
             )
-            .0
         }
 
         Quad::MR(ri) => ri.with_constraint_acc(constraint_acc),
