@@ -67,14 +67,11 @@ fn go(stack: Vec<Pat>, seq: &str) -> Option<i64> {
 
 pub fn parse_int(x: &str) -> Option<i64> { go(vec![Pat::Start], x) }
 
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn test_parse_int() {
-        use crate::parser::value::int::parse_int;
+#[test]
+fn test_part1() {
+    use crate::parser::value::int::parse_int;
 
-        assert_eq!(parse_int("abc"), None);
-        assert_eq!(parse_int("1abc"), None);
-        assert_eq!(parse_int("12345678"), Some(12345678));
-    }
+    assert_eq!(parse_int("abc"), None);
+    assert_eq!(parse_int("1abc"), None);
+    assert_eq!(parse_int("12345678"), Some(12345678));
 }

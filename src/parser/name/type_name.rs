@@ -68,16 +68,10 @@ pub fn parse_type_name(seq: &str) -> Option<String> {
     go(&Pat::Start, seq)
 }
 
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn test_parse_type_name() {
-        use crate::parser::name::type_name::parse_type_name;
+#[test]
+fn test_part1() {
+    use crate::parser::name::type_name::parse_type_name;
 
-        assert_eq!(parse_type_name("a1B2C3"), None);
-        assert_eq!(
-            parse_type_name("A1b2c3"),
-            Some("A1b2c3".to_string())
-        );
-    }
+    assert_eq!(parse_type_name("a1B2C3"), None);
+    assert_eq!(parse_type_name("A1b2c3"), Some("A1b2c3".to_string()));
 }

@@ -52,16 +52,13 @@ pub fn parse_alphanum(x: &char) -> Option<Alphanum> {
     f1().or_else(f2)
 }
 
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn test_part1() {
-        use crate::parser::alphanum::{parse_alphanum, Alphanum};
+#[test]
+fn test_part1() {
+    use crate::parser::alphanum::{parse_alphanum, Alphanum};
 
-        assert_eq!(parse_alphanum(&'a'), Some(Alphanum::Lower('a')));
-        assert_eq!(parse_alphanum(&'A'), Some(Alphanum::Upper('A')));
-        assert_eq!(parse_alphanum(&'1'), Some(Alphanum::Digit(1)));
+    assert_eq!(parse_alphanum(&'a'), Some(Alphanum::Lower('a')));
+    assert_eq!(parse_alphanum(&'A'), Some(Alphanum::Upper('A')));
+    assert_eq!(parse_alphanum(&'1'), Some(Alphanum::Digit(1)));
 
-        assert_eq!(parse_alphanum(&'_'), None);
-    }
+    assert_eq!(parse_alphanum(&'_'), None);
 }

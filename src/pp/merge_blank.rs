@@ -43,15 +43,13 @@ pub fn pp_merge_blank(seq: &str) -> String {
     r
 }
 
-#[cfg(test)]
-mod tests {
+#[test]
+fn test_part1() {
     use crate::pp::merge_blank::pp_merge_blank;
 
-    #[test]
-    fn test_blank_pp() {
-        let seq = "    \n    \r    \t    ";
-        assert_eq!(pp_merge_blank(seq), " ");
-        let seq = "    \n\t\n\r    \t\t\r\n\n    \t\n\r\r    ";
-        assert_eq!(pp_merge_blank(seq), " ");
-    }
+    let seq = "    \n    \r    \t    ";
+    assert_eq!(pp_merge_blank(seq), " ");
+
+    let seq = "    \n\t\n\r    \t\t\r\n\n    \t\n\r\r    ";
+    assert_eq!(pp_merge_blank(seq), " ");
 }

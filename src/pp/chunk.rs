@@ -201,26 +201,23 @@ pub fn pp_chunk(seq: &str) -> Option<Vec<Out>> {
     r
 }
 
-#[cfg(test)]
-mod tests {
+#[test]
+fn test_part1() {
     use crate::pp::chunk::{pp_chunk, Out};
 
-    #[test]
-    fn test_pp_chunk() {
-        let seq = "123 abc,Ab1c}233|foo";
-        let r = vec![
-            Out::DigitChunk("123".to_string()),
-            Out::Symbol(' '),
-            Out::LowerStartChunk("abc".to_string()),
-            Out::Symbol(','),
-            Out::UpperStartChunk("Ab1c".to_string()),
-            Out::Symbol('}'),
-            Out::DigitChunk("233".to_string()),
-            Out::Symbol('|'),
-            Out::LowerStartChunk("foo".to_string()),
-        ];
-        let r = Some(r);
+    let seq = "123 abc,Ab1c}233|foo";
+    let r = vec![
+        Out::DigitChunk("123".to_string()),
+        Out::Symbol(' '),
+        Out::LowerStartChunk("abc".to_string()),
+        Out::Symbol(','),
+        Out::UpperStartChunk("Ab1c".to_string()),
+        Out::Symbol('}'),
+        Out::DigitChunk("233".to_string()),
+        Out::Symbol('|'),
+        Out::LowerStartChunk("foo".to_string()),
+    ]
+    .some();
 
-        assert_eq!(pp_chunk(seq), r);
-    }
+    assert_eq!(pp_chunk(seq), r);
 }

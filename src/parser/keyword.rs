@@ -55,22 +55,19 @@ pub fn parse_keyword(x: &str) -> Option<Keyword> {
         .and_then(|kv| Some(kv.1.clone()))
 }
 
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn test_parse_keyword() {
-        use crate::parser::keyword::{parse_keyword, Keyword};
+#[test]
+fn test_part1() {
+    use crate::parser::keyword::{parse_keyword, Keyword};
 
-        assert_eq!(parse_keyword("type"), Some(Keyword::Type));
-        assert_eq!(parse_keyword("def"), Some(Keyword::Def));
-        assert_eq!(parse_keyword("let"), Some(Keyword::Let));
-        assert_eq!(parse_keyword("in"), Some(Keyword::In));
-        assert_eq!(parse_keyword("if"), Some(Keyword::If));
-        assert_eq!(parse_keyword("then"), Some(Keyword::Then));
-        assert_eq!(parse_keyword("else"), Some(Keyword::Else));
-        assert_eq!(parse_keyword("match"), Some(Keyword::Match));
-        assert_eq!(parse_keyword("with"), Some(Keyword::With));
+    assert_eq!(parse_keyword("type"), Some(Keyword::Type));
+    assert_eq!(parse_keyword("def"), Some(Keyword::Def));
+    assert_eq!(parse_keyword("let"), Some(Keyword::Let));
+    assert_eq!(parse_keyword("in"), Some(Keyword::In));
+    assert_eq!(parse_keyword("if"), Some(Keyword::If));
+    assert_eq!(parse_keyword("then"), Some(Keyword::Then));
+    assert_eq!(parse_keyword("else"), Some(Keyword::Else));
+    assert_eq!(parse_keyword("match"), Some(Keyword::Match));
+    assert_eq!(parse_keyword("with"), Some(Keyword::With));
 
-        assert_eq!(parse_keyword("abc"), None);
-    }
+    assert_eq!(parse_keyword("abc"), None);
 }

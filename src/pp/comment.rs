@@ -71,13 +71,10 @@ pub fn pp_comment(seq: &str) -> String {
     r
 }
 
-#[cfg(test)]
-mod tests {
+#[test]
+fn test_part1() {
     use crate::pp::comment::pp_comment;
-
-    #[test]
-    fn test_part1() {
-        let seq = "match x with# Comment 123# Comment 123
+    let seq = "match x with# Comment 123# Comment 123
 \
              | 1 -> if a then b else c\
              | v -> a -> b -> add a b# Comment 123 Comment 123
@@ -108,7 +105,7 @@ mod tests {
                        )\
                 | _ -> baz# Comment 123 Comment 123";
 
-        let r = "match x with\
+    let r = "match x with\
              | 1 -> if a then b else c\
              | v -> a -> b -> add a b\
              | { a = _, b = { foo = _, bar = _ }, c = 3 } -> \
@@ -125,12 +122,14 @@ mod tests {
                        )\
                 | _ -> baz";
 
-        assert_eq!(pp_comment(seq), r);
-    }
+    assert_eq!(pp_comment(seq), r);
+}
 
-    #[test]
-    fn test_part2() {
-        let seq = "# Comment 123# Comment 123
+#[test]
+fn test_part2() {
+    use crate::pp::comment::pp_comment;
+
+    let seq = "# Comment 123# Comment 123
 \
             let a = 123, # Comment 123 Comment 123
 \
@@ -156,7 +155,7 @@ mod tests {
 \
              add () 456# Comment 123";
 
-        let r = "let a = 123, \
+    let r = "let a = 123, \
                  b = \
                  let x = i -> j -> k, \
                      y = a \
@@ -167,6 +166,5 @@ mod tests {
              let m = (), n = 4 in \
              add () 456";
 
-        assert_eq!(pp_comment(seq), r);
-    }
+    assert_eq!(pp_comment(seq), r);
 }

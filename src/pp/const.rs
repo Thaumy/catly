@@ -122,50 +122,47 @@ pub fn pp_const(seq: &[In]) -> Option<Vec<Out>> {
     r
 }
 
-#[cfg(test)]
-mod tests {
+#[test]
+fn test_part1() {
     use crate::parser::keyword::Keyword;
     use crate::pp::r#const::{pp_const, Out};
 
     type In = crate::pp::keyword::Out;
 
-    #[test]
-    fn test_pp_const() {
-        let seq = vec![
-            In::Symbol('{'),
-            In::Kw(Keyword::Type),
-            In::LowerStartChunk("boob".to_string()),
-            In::Kw(Keyword::Def),
-            In::DigitChunk("8888".to_string()),
-            In::Kw(Keyword::Let),
-            In::Symbol('('),
-            In::Symbol(')'),
-            In::DigitChunk("123".to_string()),
-            In::Kw(Keyword::Then),
-            In::UpperStartChunk("Boob".to_string()),
-            In::Kw(Keyword::Match),
-            In::Symbol('_'),
-            In::Kw(Keyword::With),
-            In::Symbol(' '),
-        ];
-        let r = vec![
-            Out::Symbol('{'),
-            Out::Kw(Keyword::Type),
-            Out::LowerStartChunk("boob".to_string()),
-            Out::Kw(Keyword::Def),
-            Out::IntValue(8888),
-            Out::Kw(Keyword::Let),
-            Out::UnitValue,
-            Out::IntValue(123),
-            Out::Kw(Keyword::Then),
-            Out::UpperStartChunk("Boob".to_string()),
-            Out::Kw(Keyword::Match),
-            Out::DiscardValue,
-            Out::Kw(Keyword::With),
-            Out::Symbol(' '),
-        ];
-        let r = Some(r);
+    let seq = vec![
+        In::Symbol('{'),
+        In::Kw(Keyword::Type),
+        In::LowerStartChunk("boob".to_string()),
+        In::Kw(Keyword::Def),
+        In::DigitChunk("8888".to_string()),
+        In::Kw(Keyword::Let),
+        In::Symbol('('),
+        In::Symbol(')'),
+        In::DigitChunk("123".to_string()),
+        In::Kw(Keyword::Then),
+        In::UpperStartChunk("Boob".to_string()),
+        In::Kw(Keyword::Match),
+        In::Symbol('_'),
+        In::Kw(Keyword::With),
+        In::Symbol(' '),
+    ];
+    let r = vec![
+        Out::Symbol('{'),
+        Out::Kw(Keyword::Type),
+        Out::LowerStartChunk("boob".to_string()),
+        Out::Kw(Keyword::Def),
+        Out::IntValue(8888),
+        Out::Kw(Keyword::Let),
+        Out::UnitValue,
+        Out::IntValue(123),
+        Out::Kw(Keyword::Then),
+        Out::UpperStartChunk("Boob".to_string()),
+        Out::Kw(Keyword::Match),
+        Out::DiscardValue,
+        Out::Kw(Keyword::With),
+        Out::Symbol(' '),
+    ]
+    .some();
 
-        assert_eq!(pp_const(&seq), r);
-    }
+    assert_eq!(pp_const(&seq), r);
 }
