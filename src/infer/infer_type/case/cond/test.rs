@@ -46,6 +46,11 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
         def cond12 = if false then 1 else let a = a12 in _
         def cond13: Int = if false then (): Unit else 1
         def cond14: Int = if false then () else 1
+
+        def a15 = _
+        def cond15: Int = if let a = a15 in true then 1 else a15: Int
+        def a16 = _
+        def cond16: Int = if let a = a16 in true then 1 else 0
     ";
     parse_env(&seq).unwrap()
 }
@@ -235,4 +240,32 @@ fn test_part14() {
         .infer_type(&type_env, &expr_env);
 
     assert_matches!(expr_type, Quad::R(..))
+}
+
+#[test]
+fn test_part15() {
+    let (type_env, expr_env) = gen_env();
+
+    let expr_type = expr_env
+        .get_ref("cond15")
+        .unwrap()
+        .infer_type(&type_env, &expr_env);
+    let r = require_constraint(
+        int_type!(),
+        EnvRefConstraint::single("a15", int_type!())
+    );
+
+    assert_eq!(expr_type, r)
+}
+
+#[test]
+fn test_part16() {
+    let (type_env, expr_env) = gen_env();
+
+    let expr_type = expr_env
+        .get_ref("cond16")
+        .unwrap()
+        .infer_type(&type_env, &expr_env);
+
+    assert_matches!(expr_type, Quad::MR(_))
 }
