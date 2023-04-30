@@ -135,7 +135,5 @@ fn test_part4() {
     );
     let evaluated = eval_expr(&type_env, &expr_env, &expr);
 
-    let r = Expr::Int(namely_type!("Int"), 5);
-
     assert_matches!(evaluated, Result::Err(EvalErr { .. }));
 }
