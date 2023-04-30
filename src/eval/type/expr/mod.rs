@@ -114,8 +114,15 @@ impl From<CtExpr> for OptExpr {
 
             CtExpr::Int(Some(t), i) => Expr::Int(convert_type(t)?, i),
 
-            CtExpr::EnvRef(Some(t), r_n) =>
-                Expr::EnvRef(convert_type(t)?, r_n),
+            CtExpr::EnvRef(Some(t), r_n) => {
+                let t = convert_type(t)?;
+
+                match PrimitiveOp::from_env_ref(r_n.clone().as_str())
+                {
+                    Some(op) => Expr::PrimitiveOp(t, op.boxed()),
+                    None => Expr::EnvRef(t, r_n)
+                }
+            }
 
             CtExpr::Apply(Some(t), l_e, r_e) => Expr::Apply(
                 convert_type(t)?,

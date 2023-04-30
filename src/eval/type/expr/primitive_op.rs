@@ -2,6 +2,7 @@ use crate::eval::r#macro::bool_type;
 use crate::eval::r#macro::closure_type;
 use crate::eval::r#macro::int_type;
 use crate::eval::r#type::expr::Expr;
+use crate::infra::option::AnyExt;
 use crate::infra::r#box::Ext;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -20,6 +21,32 @@ pub enum PrimitiveOp {
     Not,
     And(Option<Expr>),
     Or(Option<Expr>)
+}
+
+impl PrimitiveOp {
+    pub fn from_env_ref<'s>(
+        ref_name: impl Into<&'s str>
+    ) -> Option<PrimitiveOp> {
+        match ref_name.into() {
+            "neg" => PrimitiveOp::Neg,
+            "add" => PrimitiveOp::Add(None),
+            "sub" => PrimitiveOp::Sub(None),
+            "mul" => PrimitiveOp::Mul(None),
+            "mod" => PrimitiveOp::Mod(None),
+            "rem" => PrimitiveOp::Rem(None),
+
+            "gt" => PrimitiveOp::Gt(None),
+            "eq" => PrimitiveOp::Eq(None),
+            "lt" => PrimitiveOp::Lt(None),
+
+            "not" => PrimitiveOp::Not,
+            "and" => PrimitiveOp::And(None),
+            "or" => PrimitiveOp::Or(None),
+
+            _ => return None
+        }
+        .some()
+    }
 }
 
 impl From<PrimitiveOp> for Expr {
