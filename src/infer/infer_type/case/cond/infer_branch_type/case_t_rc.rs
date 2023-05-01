@@ -4,7 +4,7 @@ use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::OptionAnyExt;
-use crate::infra::quad::Quad;
+use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
@@ -25,10 +25,10 @@ pub fn case_t_rc(
 
     let (else_expr_type, constraint_acc) = match else_expr
         .with_fallback_type(&expect_type)
-        .infer_type(type_env, expr_env)
+        .infer_type(type_env, expr_env)?
     {
-        Quad::L(t) => (t, constraint_acc),
-        Quad::ML(rc) =>
+        Triple::L(t) => (t, constraint_acc),
+        Triple::M(rc) =>
             match constraint_acc.extend_new(rc.constraint.clone()) {
                 Some(constraint) => (rc.r#type, constraint),
                 // 不可能发生的分支, 因为约束已被注入, 为保险而保留
@@ -40,10 +40,8 @@ pub fn case_t_rc(
                     .into(),
             },
 
-        Quad::MR(ri) =>
+        Triple::R(ri) =>
             return ri.with_constraint_acc(constraint_acc),
-
-        r => return r
     };
 
     if then_expr_type

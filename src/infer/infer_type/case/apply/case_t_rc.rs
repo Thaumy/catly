@@ -4,7 +4,7 @@ use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::OptionAnyExt;
-use crate::infra::quad::Quad;
+use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
@@ -23,9 +23,9 @@ pub fn case_t_rc(
 
     match rhs_expr
         .with_fallback_type(&lhs_input_type)
-        .infer_type(type_env, expr_env)
+        .infer_type(type_env, expr_env)?
     {
-        Quad::L(rhs_expr_type) => {
+        Triple::L(rhs_expr_type) => {
             // 验证输入的类型相容性
             if rhs_expr_type.can_lift_to(type_env, &lhs_input_type) {
                 // 验证输出的类型相容性
@@ -43,7 +43,7 @@ pub fn case_t_rc(
                 .into()
             }
         }
-        Quad::ML(rc) => {
+        Triple::M(rc) => {
             if rc
                 .r#type
                 .can_lift_to(type_env, &lhs_input_type)
@@ -75,8 +75,6 @@ pub fn case_t_rc(
             }
         }
 
-        Quad::MR(ri) => ri.with_constraint_acc(constraint_acc),
-
-        r => r
+        Triple::R(ri) => ri.with_constraint_acc(constraint_acc)
     }
 }

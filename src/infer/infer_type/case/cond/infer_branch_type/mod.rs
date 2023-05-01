@@ -8,7 +8,7 @@ use crate::infer::infer_type::case::cond::infer_branch_type::case_t_rc::case_t_r
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infra::quad::Quad;
+use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::OptType;
 
@@ -23,9 +23,9 @@ pub fn infer_branch_type(
 ) -> InferTypeRet {
     match then_expr
         .with_opt_fallback_type(expect_type)
-        .infer_type(type_env, expr_env)
+        .infer_type(type_env, expr_env)?
     {
-        then_expr_type @ (Quad::L(_) | Quad::ML(_)) => {
+        then_expr_type @ (Triple::L(_) | Triple::M(_)) => {
             let (then_expr_type, constraint) =
                 then_expr_type.unwrap_type_and_constraint();
             let constraint_acc =
@@ -53,7 +53,7 @@ pub fn infer_branch_type(
             )
         }
 
-        Quad::MR(ri)
+        Triple::R(ri)
             if then_expr.is_no_type_annot() &&
                 expect_type.is_none() =>
         {
@@ -70,8 +70,6 @@ pub fn infer_branch_type(
             )
         }
 
-        Quad::MR(ri) => ri.with_constraint_acc(constraint_acc),
-
-        r => r
+        Triple::R(ri) => ri.with_constraint_acc(constraint_acc)
     }
 }

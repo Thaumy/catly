@@ -5,7 +5,6 @@ use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_constraint::require_constraint;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::OptionAnyExt;
-use crate::infra::quad::Quad;
 use crate::infra::r#box::BoxAnyExt;
 use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
@@ -19,11 +18,11 @@ pub fn case_ri(
     then_expr: &Expr
 ) -> InferTypeRet {
     let (else_expr_type, constraint_acc) = match else_expr
-        .infer_type(type_env, expr_env)
+        .infer_type(type_env, expr_env)?
     {
-        Quad::L(t) => (t, constraint_acc),
+        Triple::L(t) => (t, constraint_acc),
         // 需要收集这些作用于外层环境的约束并传播, 因为它们可能对推导 then_expr_type 有所帮助
-        Quad::ML(rc) =>
+        Triple::M(rc) =>
             match constraint_acc.extend_new(rc.constraint.clone()) {
                 Some(erc) => (rc.r#type, erc),
                 // 理论上无法抵达的分支, 因为 then_expr 的约束会被注入环境
@@ -35,10 +34,8 @@ pub fn case_ri(
                     .into(),
             },
 
-        Quad::MR(ri) =>
+        Triple::R(ri) =>
             return ri.with_constraint_acc(constraint_acc),
-
-        r => return r
     };
 
     let cond_expr = Expr::Cond(

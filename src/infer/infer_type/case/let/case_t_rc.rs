@@ -5,7 +5,7 @@ use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_constraint::require_constraint;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::OptionAnyExt;
-use crate::infra::quad::Quad;
+use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
@@ -46,8 +46,8 @@ pub fn case_t_rc(
         .with_opt_fallback_type(expect_type)
         .infer_type(type_env, &expr_env);
 
-    match scope_expr_type {
-        Quad::L(scope_expr_type) => match scope_expr_type
+    match scope_expr_type? {
+        Triple::L(scope_expr_type) => match scope_expr_type
             .lift_to_or_left(type_env, expect_type)
         {
             Some(t) => require_constraint(t, constraint_acc),
@@ -58,7 +58,7 @@ pub fn case_t_rc(
             .into()
         },
         // 由于 assign_type 存在, 所以此处的约束作用于外层环境, 传播之
-        Quad::ML(rc) =>
+        Triple::M(rc) =>
             match constraint_acc.extend_new(rc.constraint.clone()) {
                 Some(constraint) => InferTypeRet::from_auto_lift(
                     type_env,
@@ -76,8 +76,6 @@ pub fn case_t_rc(
                 .into()
             },
 
-        Quad::MR(ri) => ri.with_constraint_acc(constraint_acc),
-
-        r => r
+        Triple::R(ri) => ri.with_constraint_acc(constraint_acc)
     }
 }

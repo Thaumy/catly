@@ -45,10 +45,7 @@ pub fn case_ri(
                         .err(),
                 }
             })
-            .try_fold(vec![], |acc, x| match x {
-                Ok(it) => acc.chain_push(it).ok(),
-                Err(e) => e.err()
-            });
+            .try_fold(vec![], |acc, x| acc.chain_push(x?).ok());
 
         match vec {
             Ok(vec) => vec,

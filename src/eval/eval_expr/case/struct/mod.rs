@@ -4,6 +4,7 @@ mod test;
 use crate::eval::env::expr_env::ExprEnv;
 use crate::eval::env::type_env::TypeEnv;
 use crate::eval::eval_expr::{eval_expr, EvalRet};
+use crate::eval::r#type::eval_err::EvalErr;
 use crate::eval::r#type::expr::{Expr, StructField};
 use crate::eval::r#type::r#type::Type;
 use crate::infra::result::ResultAnyExt;
@@ -18,14 +19,16 @@ pub fn case_struct(
     let struct_vec = struct_vec
         .iter()
         .map(|(sf_n, sf_t, sf_e)| {
-            match eval_expr(type_env, expr_env, sf_e) {
-                Ok(sf_e) => (sf_n.clone(), sf_t.clone(), sf_e).ok(),
-                Err(e) => e.err()
-            }
+            (
+                sf_n.clone(),
+                sf_t.clone(),
+                eval_expr(type_env, expr_env, sf_e)?
+            )
+                .ok()
         })
-        .try_fold(vec![], |acc, x| match x {
-            Ok(sf) => acc.chain_push(sf).ok(),
-            Err(e) => e.err()
+        .try_fold(vec![], |acc, x| {
+            acc.chain_push(x?)
+                .ok::<EvalErr>()
         });
 
     match struct_vec {

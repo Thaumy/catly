@@ -25,6 +25,7 @@ pub fn case_t(
             let input_name = &input_name
                 .clone()
                 .unwrap_or("_ (closure input)".to_string());
+
             return RequireInfo::of(
                 input_name,
                 EnvRefConstraint::empty()

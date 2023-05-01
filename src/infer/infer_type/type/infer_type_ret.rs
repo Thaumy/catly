@@ -20,8 +20,8 @@ pub type InferTypeRet =
 impl InferTypeRet {
     pub fn try_get_type(&self) -> OptType {
         match self.clone() {
-            Quad::ML(RequireConstraint { r#type: t, .. }) |
-            Quad::L(t) => t.some(),
+            Quad::L(t) |
+            Quad::ML(RequireConstraint { r#type: t, .. }) => t.some(),
             _ => return None
         }
     }
