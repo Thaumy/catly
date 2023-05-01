@@ -14,7 +14,7 @@ use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_info::RequireInfo;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::OptionAnyExt;
-use crate::infra::quad::Quad;
+use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
@@ -78,42 +78,40 @@ pub fn case(
         _ => expr_env.clone()
     };
 
-    // Hint and get output_expr_type
-    let output_expr_type = output_expr
-        .with_opt_fallback_type(&expect_output_type)
-        .infer_type(type_env, &expr_env);
-
     // 此处并不将 output_expr_type 与 hint 进行相容性判断
     // 因为这与 Closure 的类型提升规则相同, 稍后的类型提升会进行该工作
     // 而且提前返回带来的性能提升并不显著
-
-    match output_expr_type {
-        Quad::L(output_expr_type) => case_t(
+    match output_expr
+        // Hint and get output_expr_type
+        .with_opt_fallback_type(&expect_output_type)
+        .infer_type(type_env, &expr_env)?
+    {
+        Triple::L(output_expr_type) => case_t(
             type_env,
             expect_type,
             input_name,
             input_type,
-            output_expr_type
+            output_expr_type,
         ),
 
-        Quad::ML(rc) => case_rc(
+        Triple::M(rc) => case_rc(
             type_env,
             expect_type,
             rc.r#type,
             rc.constraint,
             input_name,
-            input_type
+            input_type,
         ),
 
         // infer_type 不能推导出输出类型(即便进行了类型提示), 但可以传播约束, 为下一轮推导提供信息
         // Closure 不存在可以推导输出类型的第二个表达式, 所以不适用于旁路类型推导
-        Quad::MR(ri) if let Some(input_name) = input_name =>
+        Triple::R(ri) if let Some(input_name) = input_name =>
             RequireInfo::of(
                 &ri.ref_name,
-                ri.constraint.exclude_new(input_name.as_str())
+                ri.constraint.exclude_new(input_name.as_str()),
             )
-            .into(),
+                .into(),
 
-        mr_r => mr_r
+        ri => ri.into()
     }
 }

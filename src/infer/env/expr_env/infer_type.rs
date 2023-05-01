@@ -8,7 +8,7 @@ use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_constraint::require_constraint;
 use crate::infer::infer_type::r#type::require_info::RequireInfo;
 use crate::infra::option::OptionAnyExt;
-use crate::infra::quad::Quad;
+use crate::infra::triple::Triple;
 
 impl<'t> ExprEnv<'t> {
     pub fn infer_type<'s>(
@@ -46,52 +46,53 @@ impl<'t> ExprEnv<'t> {
                     // 具备约束
                     TypeConstraint::Constraint(t) => match src_expr
                         .with_fallback_type(t)
-                        .infer_type(type_env, &new_expr_env)
+                        .infer_type(type_env, &new_expr_env)?
                     {
-                        Quad::L(src_expr_type) =>
+                        Triple::L(src_expr_type) =>
                             InferTypeRet::from_auto_lift(
                                 type_env,
                                 &src_expr_type,
                                 &t.clone().some(),
                                 None
                             ),
-                        Quad::ML(rc) => InferTypeRet::from_auto_lift(
-                            type_env,
-                            &rc.r#type,
-                            &t.clone().some(),
-                            rc.constraint.some()
-                        ),
+                        Triple::M(rc) =>
+                            InferTypeRet::from_auto_lift(
+                                type_env,
+                                &rc.r#type,
+                                &t.clone().some(),
+                                rc.constraint.some()
+                            ),
                         // 如果引用源是无类型弃元
-                        Quad::MR(ri) if ri.ref_name == "_" =>
+                        Triple::R(ri) if ri.ref_name == "_" =>
                         // 为了防止无类型弃元信息被捕获, 改写错误信息
                             ri.new_ref_name(ref_name.into())
                                 .into(),
-                        // 无法处理其他情况
-                        mr_r => mr_r
+
+                        ri => ri.into()
                     },
 
                     // 不具备约束
                     TypeConstraint::Free => match src_expr
-                        .infer_type(type_env, &new_expr_env)
+                        .infer_type(type_env, &new_expr_env)?
                     {
-                        Quad::L(src_expr_type) =>
+                        Triple::L(src_expr_type) =>
                             has_type(src_expr_type),
                         // 由于 ref_name 是 Free 的, 所以此时约束可能作用于 ref_name 本身
                         // 此时作用于 ref_name 的约束相当于 ref_name 的固有类型, 只需将其他约束按需传播
                         // 如果引用源是无类型弃元
-                        Quad::ML(rc) => require_constraint(
+                        Triple::M(rc) => require_constraint(
                             rc.r#type,
                             rc.constraint
                                 .exclude_new(ref_name.into())
                         ),
-                        Quad::MR(ri) if ri.ref_name == "_" =>
+                        Triple::R(ri) if ri.ref_name == "_" =>
                         // 为了防止无类型弃元信息被捕获, 改写错误信息
                             ri.new_ref_name(
                                 ref_name.into().to_string()
                             )
                             .into(),
-                        // 类型不相容
-                        mr_r => mr_r
+
+                        ri => ri.into()
                     }
                 }
             }

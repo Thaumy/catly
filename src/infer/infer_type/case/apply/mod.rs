@@ -11,7 +11,7 @@ use crate::infer::infer_type::case::apply::case_ri::case_ri;
 use crate::infer::infer_type::case::apply::case_t_rc::case_t_rc;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infra::quad::Quad;
+use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
@@ -23,8 +23,8 @@ pub fn case(
     lhs_expr: &Expr,
     rhs_expr: &Expr
 ) -> InferTypeRet {
-    match lhs_expr.infer_type(type_env, expr_env) {
-        lhs_expr_type @ (Quad::L(_) | Quad::ML(_)) => {
+    match lhs_expr.infer_type(type_env, expr_env)? {
+        lhs_expr_type @ (Triple::L(_) | Triple::M(_)) => {
             let (lhs_expr_type, constraint_acc) =
                 lhs_expr_type.unwrap_type_and_constraint();
 
@@ -62,7 +62,7 @@ pub fn case(
 
         // 使用 expect_type 和 rhs_expr_type 进行旁路推导
         // 仅在 lhs_expr 缺乏类型标注时进行处理
-        Quad::MR(ri) if lhs_expr.is_no_type_annot() => {
+        Triple::R(ri) if lhs_expr.is_no_type_annot() => {
             let new_expr_env = &expr_env
                 .extend_constraint_new(ri.constraint.clone());
 
@@ -76,6 +76,6 @@ pub fn case(
             )
         }
 
-        mr_r => mr_r
+        ri => ri.into()
     }
 }

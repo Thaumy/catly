@@ -5,7 +5,7 @@ use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infra::option::OptionAnyExt;
-use crate::infra::quad::Quad;
+use crate::infra::triple::Triple;
 use crate::parser::r#type::r#type::OptType;
 
 pub fn case(
@@ -18,17 +18,17 @@ pub fn case(
         type_env,
         ref_name,
         expect_type
-    );
+    )?;
 
-    if let Quad::R(_) | Quad::MR(_) = result {
-        // 引用源类型信息不足或引用源类型不匹配
+    if let Triple::R(_) = result {
+        // 引用源类型信息不足
         // 引用源类型信息不足, 例如:
         // f -> a -> f a
         // env:
         // def f = _
         // def a = _
         // 无法推导出 a 的类型, 因为 a 的类型是自由的
-        return result;
+        return result.into();
     };
 
     let (t, constraint) = result.unwrap_type_and_constraint();

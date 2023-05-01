@@ -8,7 +8,7 @@ use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_constraint::require_extended_constraint;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::OptionAnyExt;
-use crate::infra::quad::Quad;
+use crate::infra::triple::Triple;
 use crate::parser::r#type::r#type::OptType;
 
 impl<'t> ExprEnv<'t> {
@@ -21,14 +21,14 @@ impl<'t> ExprEnv<'t> {
         ref_name: impl Into<&'s str> + Clone,
         hint: &OptType
     ) -> InferTypeRet {
-        let ref_type = self.infer_type(type_env, ref_name.clone());
+        let ref_type = self.infer_type(type_env, ref_name.clone())?;
 
         match ref_type.clone() {
             // HACK:
             // 特例, 分支约束共享会导致向环境中注入无源不完整类型
             // 当 hint 为完整类型时可进行反向提升
             // TODO: 考虑对不完整类型的提升规则, 这些规则有助于进一步明确类型信息
-            Quad::L(ref_type) if ref_type.is_partial() =>
+            Triple::L(ref_type) if ref_type.is_partial() =>
                 match hint {
                     Some(hint) if !hint.is_partial() =>
                         InferTypeRet::from_auto_lift(
@@ -41,7 +41,7 @@ impl<'t> ExprEnv<'t> {
                     _ => has_type(ref_type)
                 }
             // 缺乏类型信息, 尝试提示
-            Quad::MR(ri) if let Some(hint) = hint => {
+            Triple::R(ri) if let Some(hint) = hint => {
                 let constraint_acc = ri.constraint;
                 let tc_and_src = self
                     .find_entry(ref_name.clone().into())
@@ -77,12 +77,12 @@ impl<'t> ExprEnv<'t> {
                          )) if src_expr.is_no_type_annot() =>
                         match src_expr
                             .with_fallback_type(hint)
-                            .infer_type(type_env, self)
+                            .infer_type(type_env, self)?
                         {
                             // 因为此时无类型标注, 所以得到的类型一定是 hint 或更完整的 hint
                             // 将 ref_name 约束到类型结果 t 不会导致约束类型不一致
                             // 因为 t 要么比 hint 更加完整, 要么等于 hint
-                            Quad::L(t) =>
+                            Triple::L(t) =>
                                 require_extended_constraint(
                                     t.clone(),
                                     constraint_acc,
@@ -91,7 +91,7 @@ impl<'t> ExprEnv<'t> {
                                         t,
                                     ),
                                 ),
-                            Quad::ML(rc) => {
+                            Triple::M(rc) => {
                                 let ref_name_constraint =
                                     EnvRefConstraint::single(
                                         ref_name.into(),
@@ -113,12 +113,12 @@ impl<'t> ExprEnv<'t> {
                                             .into(),
                                 }
                             }
-                            mr_r => mr_r
+                            ri => ri.into()
                         }
-                    _ => ref_type
+                    _ => ref_type.into()
                 }
             }
-            _ => ref_type
+            _ => ref_type.into()
         }
     }
 }

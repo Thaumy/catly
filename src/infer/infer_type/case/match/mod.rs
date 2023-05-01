@@ -9,7 +9,7 @@ use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::case::r#match::case_ri::case_ri;
 use crate::infer::infer_type::case::r#match::case_t_rc::case_t_rc;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infra::quad::Quad;
+use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::OptType;
 
@@ -20,9 +20,9 @@ pub fn case(
     target_expr: &Expr,
     vec: &Vec<(Expr, Expr)>
 ) -> InferTypeRet {
-    match target_expr.infer_type(type_env, expr_env) {
+    match target_expr.infer_type(type_env, expr_env)? {
         // L 与 ML 同样只有是否需要传播对外界环境的约束的区别
-        target_expr_type @ (Quad::L(_) | Quad::ML(_)) => {
+        target_expr_type @ (Triple::L(_) | Triple::M(_)) => {
             let (target_expr_type, constraint_acc) =
                 target_expr_type.unwrap_type_and_constraint();
 
@@ -47,7 +47,7 @@ pub fn case(
         // 无法获取 target_expr 类型信息, 启用旁路类型推导
         // 同样, 为了防止内层环境对外层环境造成跨越优先级的约束, 仅当 target_expr 没有类型标注时才能启用旁路推导
         // 相关讨论参见 let case
-        Quad::MR(ri) if target_expr.is_no_type_annot() => {
+        Triple::R(ri) if target_expr.is_no_type_annot() => {
             let new_expr_env =
                 expr_env.extend_constraint_new(ri.constraint.clone());
 
@@ -61,6 +61,6 @@ pub fn case(
             )
         }
 
-        mr_r => mr_r
+        ri => ri.into()
     }
 }

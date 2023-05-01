@@ -11,6 +11,7 @@ use crate::infra::option::OptionAnyExt;
 use crate::infra::quad::Quad;
 use crate::infra::r#fn::id;
 use crate::infra::result::ResultAnyExt;
+use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::Type;
 
@@ -111,8 +112,8 @@ pub fn is_case_expr_valid<'t>(
         .into_iter()
         .map(|(case_expr, env_inject)| {
             // 使用空表达式环境提取 case_expr_type, 这样能让所有对外界的约束得以暴露
-            match case_expr.infer_type(type_env, &ExprEnv::empty()) {
-                Quad::L(case_expr_type) =>
+            match case_expr.infer_type(type_env, &ExprEnv::empty())? {
+                Triple::L(case_expr_type) =>
                     InferTypeRet::from_auto_lift(
                         type_env,
                         &case_expr_type,
@@ -122,7 +123,7 @@ pub fn is_case_expr_valid<'t>(
                         None
                     ),
                 // 表达式环境为空却产生了约束
-                Quad::ML(rc) => {
+                Triple::M(rc) => {
                     let is_constraint_valid = rc
                         .constraint
                         .iter()
@@ -163,10 +164,7 @@ pub fn is_case_expr_valid<'t>(
                 // 不可能出现缺乏类型信息的情况
                 // 由此也可推断, case_expr_env 中不存在自由类型
                 // 所以在下一步取得 then_expr_type 时, 其产生的约束一定作用于外层
-                Quad::MR(ri) => panic!("Impossible branch: {ri:?}"),
-
-                // 类型不相容
-                r => r
+                Triple::R(ri) => panic!("Impossible branch: {ri:?}")
             }
         })
         .find(|x| matches!(x, Quad::R(..)))

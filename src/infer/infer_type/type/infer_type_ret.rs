@@ -14,36 +14,6 @@ use crate::infra::triple::Triple;
 use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
 
-impl FromResidual for InferTypeRet {
-    fn from_residual(residual: <Self as Try>::Residual) -> Self {
-        residual
-    }
-}
-
-impl Try for InferTypeRet {
-    type Output = Triple<Type, RequireConstraint, RequireInfo>;
-    type Residual = InferTypeRet;
-
-    #[inline]
-    fn from_output(output: Self::Output) -> Self {
-        match output {
-            Triple::L(v) => Self::L(v),
-            Triple::M(v) => Self::ML(v),
-            Triple::R(v) => Self::MR(v)
-        }
-    }
-
-    #[inline]
-    fn branch(self) -> ControlFlow<Self::Residual, Self::Output> {
-        match self {
-            Self::L(v) => ControlFlow::Continue(Triple::L(v)),
-            Self::ML(v) => ControlFlow::Continue(Triple::M(v)),
-            Self::MR(v) => ControlFlow::Continue(Triple::R(v)),
-            e @ Self::R(_) => ControlFlow::Break(e)
-        }
-    }
-}
-
 pub type InferTypeRet =
     Quad<Type, RequireConstraint, RequireInfo, TypeMissMatch>;
 
@@ -111,6 +81,58 @@ impl From<InferTypeRet> for OptType {
         match value {
             Quad::L(t) => t.some(),
             _ => None
+        }
+    }
+}
+
+impl Triple<Type, RequireConstraint, RequireInfo> {
+    pub fn unwrap_type_and_constraint(
+        self
+    ) -> (Type, EnvRefConstraint) {
+        match self {
+            Triple::L(input_type) =>
+                (input_type, EnvRefConstraint::empty()),
+            Triple::M(rc) => (rc.r#type, rc.constraint),
+            _ => panic!("Impossible value: {self:?}")
+        }
+    }
+}
+
+impl From<Triple<Type, RequireConstraint, RequireInfo>>
+    for InferTypeRet
+{
+    fn from(
+        value: Triple<Type, RequireConstraint, RequireInfo>
+    ) -> Self {
+        match value {
+            Triple::L(v) => Self::L(v),
+            Triple::M(v) => Self::ML(v),
+            Triple::R(v) => Self::MR(v)
+        }
+    }
+}
+
+impl FromResidual for InferTypeRet {
+    #[inline]
+    fn from_residual(residual: <Self as Try>::Residual) -> Self {
+        residual
+    }
+}
+
+impl Try for InferTypeRet {
+    type Output = Triple<Type, RequireConstraint, RequireInfo>;
+    type Residual = InferTypeRet;
+
+    #[inline]
+    fn from_output(output: Self::Output) -> Self { output.into() }
+
+    #[inline]
+    fn branch(self) -> ControlFlow<Self::Residual, Self::Output> {
+        match self {
+            Self::L(v) => ControlFlow::Continue(Triple::L(v)),
+            Self::ML(v) => ControlFlow::Continue(Triple::M(v)),
+            Self::MR(v) => ControlFlow::Continue(Triple::R(v)),
+            e @ Self::R(_) => ControlFlow::Break(e)
         }
     }
 }

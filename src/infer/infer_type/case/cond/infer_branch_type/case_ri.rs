@@ -7,6 +7,7 @@ use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::OptionAnyExt;
 use crate::infra::quad::Quad;
 use crate::infra::r#box::BoxAnyExt;
+use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 
 pub fn case_ri(
@@ -50,10 +51,9 @@ pub fn case_ri(
     let new_expr_env =
         expr_env.extend_constraint_new(constraint_acc.clone());
 
-    match cond_expr.infer_type(type_env, &new_expr_env) {
-        Quad::L(t) => require_constraint(t, constraint_acc),
-        Quad::ML(rc) => rc.with_constraint_acc(constraint_acc),
-        Quad::MR(ri) => ri.with_constraint_acc(constraint_acc),
-        r => r
+    match cond_expr.infer_type(type_env, &new_expr_env)? {
+        Triple::L(t) => require_constraint(t, constraint_acc),
+        Triple::M(rc) => rc.with_constraint_acc(constraint_acc),
+        Triple::R(ri) => ri.with_constraint_acc(constraint_acc)
     }
 }

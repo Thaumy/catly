@@ -6,6 +6,7 @@ use crate::infer::infer_type::r#type::require_constraint::require_constraint;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::quad::Quad;
 use crate::infra::r#box::BoxAnyExt;
+use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
@@ -55,14 +56,15 @@ pub fn case_ri(
                 let new_expr_env = expr_env
                     .extend_constraint_new(constraint_acc.clone());
 
-                match apply_expr.infer_type(type_env, &new_expr_env) {
-                    Quad::L(t) =>
+                match apply_expr
+                    .infer_type(type_env, &new_expr_env)?
+                {
+                    Triple::L(t) =>
                         require_constraint(t, constraint_acc),
-                    Quad::ML(rc) =>
+                    Triple::M(rc) =>
                         rc.with_constraint_acc(constraint_acc),
-                    Quad::MR(ri) =>
+                    Triple::R(ri) =>
                         ri.with_constraint_acc(constraint_acc),
-                    r => r
                 }
             }
 
@@ -104,14 +106,15 @@ pub fn case_ri(
                 let new_expr_env = expr_env
                     .extend_constraint_new(constraint_acc.clone());
 
-                match apply_expr.infer_type(type_env, &new_expr_env) {
-                    Quad::L(t) =>
+                match apply_expr
+                    .infer_type(type_env, &new_expr_env)?
+                {
+                    Triple::L(t) =>
                         require_constraint(t, constraint_acc),
-                    Quad::ML(rc) =>
+                    Triple::M(rc) =>
                         rc.with_constraint_acc(constraint_acc),
-                    Quad::MR(ri) =>
+                    Triple::R(ri) =>
                         ri.with_constraint_acc(constraint_acc),
-                    r => r
                 }
             }
 

@@ -9,6 +9,7 @@ use crate::infra::option::OptionAnyExt;
 use crate::infra::quad::{Quad, QuadAnyExt};
 use crate::infra::r#box::BoxAnyExt;
 use crate::infra::result::ResultAnyExt;
+use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 
 pub fn on_no_expect_type<'t, T>(
@@ -143,10 +144,9 @@ where
     let new_expr_env =
         expr_env.extend_constraint_new(outer_constraint.clone());
 
-    match match_expr.infer_type(type_env, &new_expr_env) {
-        Quad::L(t) => require_constraint(t, outer_constraint),
-        Quad::ML(rc) => rc.with_constraint_acc(outer_constraint),
-        Quad::MR(ri) => ri.with_constraint_acc(outer_constraint),
-        r => r
+    match match_expr.infer_type(type_env, &new_expr_env)? {
+        Triple::L(t) => require_constraint(t, outer_constraint),
+        Triple::M(rc) => rc.with_constraint_acc(outer_constraint),
+        Triple::R(ri) => ri.with_constraint_acc(outer_constraint)
     }
 }

@@ -8,7 +8,7 @@ use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::case::r#let::case_ri::case_ri;
 use crate::infer::infer_type::case::r#let::case_t_rc::case_t_rc;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infra::quad::Quad;
+use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::OptType;
 
@@ -24,13 +24,13 @@ pub fn case(
     // Hint assign_expr with assign_type and get assign_expr_type
     match assign_expr
         .with_opt_fallback_type(assign_type)
-        .infer_type(type_env, expr_env)
+        .infer_type(type_env, expr_env)?
     {
         // 在获取 assign_expr_type 时产生了约束, 这些约束一定作用于外层环境, 传播之
         // 这种传播可能是一种约束传播, 在 assign_expr 无类型而 assign_type 存在的情况下
         // assign_type 会对 assign_expr 产生类型限定(通过 hint), 这使得约束从内层传播到了外层
         // L 与 ML 的唯一区别是 ML 额外携带了一些对外层环境的约束, 需要传播这些约束
-        assign_expr_type @ (Quad::L(_) | Quad::ML(_)) => {
+        assign_expr_type @ (Triple::L(_) | Triple::M(_)) => {
             let (assign_expr_type, constraint_acc) =
                 assign_expr_type.unwrap_type_and_constraint();
             // 过滤掉对 assign_name 的约束(对于 ML
@@ -58,7 +58,7 @@ pub fn case(
         // 旁路类型推导仅在外层信息未知时适用, 因为如果外层信息已知
         // 那么外层信息将具备更高的优先级, 此时使用类型旁路会让内层类型超越外层约束的限制
         // 所以在此处, 仅当 assign_type 和 assign_expr 均无类型信息时, 才能启用旁路类型推导
-        Quad::MR(ri)
+        Triple::R(ri)
             if assign_type.is_none() &&
                 assign_expr.is_no_type_annot() =>
         {
@@ -77,6 +77,6 @@ pub fn case(
             )
         }
 
-        mr_r => mr_r
+        ri => ri.into()
     }
 }
