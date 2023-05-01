@@ -29,6 +29,15 @@ impl TypeMissMatch {
             info: format!("Constraint conflict: {l:?} <> {r:?}",)
         }
     }
+
+    pub fn of_dup_capture(
+        old: impl Debug,
+        new: impl Debug
+    ) -> TypeMissMatch {
+        TypeMissMatch::of(format!(
+            "Duplicate capture in case pattern: {old:?} <old/new> {new:?}"
+        ))
+    }
 }
 
 impl From<TypeMissMatch> for InferTypeRet {

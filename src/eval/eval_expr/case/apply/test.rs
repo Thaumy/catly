@@ -1,7 +1,7 @@
 use crate::eval::env::expr_env::ExprEnv;
 use crate::eval::env::type_env::TypeEnv;
 use crate::eval::eval_expr::eval_expr;
-use crate::eval::r#macro::{closure_type, namely_type};
+use crate::eval::r#macro::namely_type;
 use crate::eval::r#type::expr::primitive_op::PrimitiveOp;
 use crate::eval::r#type::expr::Expr;
 use crate::infra::option::AnyExt as OptAnyExt;
@@ -15,7 +15,6 @@ fn test_part1() {
     let expr_env = ExprEnv::new(vec![]);
 
     let expr = Expr::Apply(
-        namely_type!("Int"),
         (PrimitiveOp::Neg.into(): Expr).boxed(),
         Expr::Int(namely_type!("Int"), 10).boxed()
     );
@@ -33,7 +32,6 @@ fn test_part2() {
     let expr_env = ExprEnv::new(vec![]);
 
     let expr = Expr::Apply(
-        closure_type!(namely_type!("Int"), namely_type!("Int")),
         (PrimitiveOp::Add(None).into(): Expr).boxed(),
         Expr::Int(namely_type!("Int"), 10).boxed()
     );
@@ -53,7 +51,6 @@ fn test_part3() {
     let expr_env = ExprEnv::new(vec![]);
 
     let expr = Expr::Apply(
-        namely_type!("Int"),
         (PrimitiveOp::Add(Expr::Int(namely_type!("Int"), 10).some())
             .into(): Expr)
             .boxed(),
@@ -73,7 +70,6 @@ fn test_part4() {
     let expr_env = ExprEnv::new(vec![]);
 
     let expr = Expr::Apply(
-        closure_type!(namely_type!("Int"), namely_type!("Int")),
         (PrimitiveOp::Add(None).into(): Expr).boxed(),
         Expr::Int(namely_type!("Int"), 10).boxed()
     );
@@ -93,7 +89,6 @@ fn test_part5() {
     let expr_env = ExprEnv::new(vec![]);
 
     let expr = Expr::Apply(
-        closure_type!(namely_type!("Bool"), namely_type!("Bool")),
         (PrimitiveOp::And(None).into(): Expr).boxed(),
         Expr::Int(namely_type!("False"), 0).boxed()
     );
@@ -113,7 +108,6 @@ fn test_part6() {
     let expr_env = ExprEnv::new(vec![]);
 
     let expr = Expr::Apply(
-        namely_type!("Bool"),
         (PrimitiveOp::And(Expr::Int(namely_type!("True"), 1).some())
             .into(): Expr)
             .boxed(),

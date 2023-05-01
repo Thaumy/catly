@@ -18,10 +18,8 @@ fn test_part1() {
     let type_env = TypeEnv::new(vec![]);
     let expr_env = ExprEnv::new(vec![]);
 
-    let expr = Expr::Match(
-        namely_type!("Int"),
-        Expr::Int(namely_type!("Int"), 5).boxed(),
-        vec![
+    let expr =
+        Expr::Match(Expr::Int(namely_type!("Int"), 5).boxed(), vec![
             (
                 Expr::Int(namely_type!("Int"), 10),
                 Expr::Int(namely_type!("Int"), 1)
@@ -34,8 +32,7 @@ fn test_part1() {
                 Expr::Discard(namely_type!("Int")),
                 Expr::Int(namely_type!("Int"), 0)
             ),
-        ]
-    );
+        ]);
     let evaluated = eval_expr(&type_env, &expr_env, &expr);
 
     let r = Expr::Int(namely_type!("Int"), 0);
@@ -52,10 +49,8 @@ fn test_part2() {
     let type_env = TypeEnv::new(vec![]);
     let expr_env = ExprEnv::new(vec![]);
 
-    let expr = Expr::Match(
-        namely_type!("Int"),
-        Expr::Int(namely_type!("Int"), 5).boxed(),
-        vec![
+    let expr =
+        Expr::Match(Expr::Int(namely_type!("Int"), 5).boxed(), vec![
             (
                 Expr::Int(namely_type!("Int"), 10),
                 Expr::Int(namely_type!("Int"), 1)
@@ -68,8 +63,7 @@ fn test_part2() {
                 Expr::Discard(namely_type!("Int")),
                 Expr::Int(namely_type!("Int"), 0)
             ),
-        ]
-    );
+        ]);
     let evaluated = eval_expr(&type_env, &expr_env, &expr);
 
     let r = Expr::Int(namely_type!("Int"), 2);
@@ -87,7 +81,6 @@ fn test_part3() {
     let expr_env = ExprEnv::new(vec![]);
 
     let expr = Expr::Match(
-        namely_type!("Int"),
         Expr::Int(namely_type!("Int"), 15).boxed(),
         vec![
             (
@@ -119,10 +112,8 @@ fn test_part4() {
     let type_env = TypeEnv::new(vec![]);
     let expr_env = ExprEnv::new(vec![]);
 
-    let expr = Expr::Match(
-        namely_type!("Int"),
-        Expr::Int(namely_type!("Int"), 5).boxed(),
-        vec![
+    let expr =
+        Expr::Match(Expr::Int(namely_type!("Int"), 5).boxed(), vec![
             (
                 Expr::Int(namely_type!("Int"), 10),
                 Expr::Int(namely_type!("Int"), 1)
@@ -131,8 +122,7 @@ fn test_part4() {
                 Expr::Int(namely_type!("Int"), 20),
                 Expr::Int(namely_type!("Int"), 2)
             ),
-        ]
-    );
+        ]);
     let evaluated = eval_expr(&type_env, &expr_env, &expr);
 
     assert_matches!(evaluated, Result::Err(EvalErr { .. }));

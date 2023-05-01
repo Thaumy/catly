@@ -38,9 +38,11 @@ pub fn case_ri(
                     Ok(env_inject) =>
                         (case_expr, env_inject, then_expr).ok(),
                     Err((new, old)) =>
-                        return TypeMissMatch::of(format!("Duplicate capture in case pattern: {new:?} vs {old:?}"))
-                            .quad_r()
-                            .err(),
+                        return TypeMissMatch::of_dup_capture(
+                            old, new
+                        )
+                        .quad_r()
+                        .err(),
                 }
             })
             .try_fold(vec![], |acc, x| match x {

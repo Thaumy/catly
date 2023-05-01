@@ -13,7 +13,6 @@ fn test_part1() {
     let expr_env = ExprEnv::new(vec![]);
 
     let expr = Expr::Let(
-        namely_type!("Int"),
         "a".to_string(),
         namely_type!("Int"),
         Expr::Int(namely_type!("Int"), 10).boxed(),
@@ -33,12 +32,10 @@ fn test_part2() {
     let expr_env = ExprEnv::new(vec![]);
 
     let expr = Expr::Let(
-        namely_type!("Int"),
         "a".to_string(),
         namely_type!("Int"),
         Expr::Int(namely_type!("Int"), 20).boxed(),
         Expr::Let(
-            namely_type!("Int"),
             "b".to_string(),
             namely_type!("Int"),
             Expr::Int(namely_type!("Int"), 10).boxed(),
@@ -61,17 +58,14 @@ fn test_part3() {
     let expr_env = ExprEnv::new(vec![]);
 
     let expr = Expr::Let(
-        namely_type!("Int"),
         "a".to_string(),
         namely_type!("Int"),
         Expr::Int(namely_type!("Int"), 20).boxed(),
         Expr::Let(
-            namely_type!("Int"),
             "b".to_string(),
             namely_type!("Int"),
             Expr::Int(namely_type!("Int"), 10).boxed(),
             Expr::Let(
-                namely_type!("Int"),
                 "a".to_string(),
                 namely_type!("Int"),
                 Expr::Int(namely_type!("Int"), 5).boxed(),

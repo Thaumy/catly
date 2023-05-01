@@ -13,7 +13,6 @@ fn test_part1() {
     let expr_env = ExprEnv::new(vec![]);
 
     let expr = Expr::Cond(
-        namely_type!("Int"),
         Expr::Int(namely_type!("False"), 0).boxed(),
         Expr::Int(namely_type!("Int"), 10).boxed(),
         Expr::Int(namely_type!("Int"), 20).boxed()
@@ -32,7 +31,6 @@ fn test_part2() {
     let expr_env = ExprEnv::new(vec![]);
 
     let expr = Expr::Cond(
-        namely_type!("Int"),
         Expr::Int(namely_type!("True"), 1).boxed(),
         Expr::Int(namely_type!("Int"), 10).boxed(),
         Expr::Int(namely_type!("Int"), 20).boxed()

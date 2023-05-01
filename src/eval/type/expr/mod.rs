@@ -20,33 +20,34 @@ pub enum Expr {
     Unit(Type),
     Int(Type, i64),
     EnvRef(Type, String),
-    Apply(Type, Box<Expr>, Box<Expr>),
-    Cond(Type, Box<Expr>, Box<Expr>, Box<Expr>),
     Closure(Type, Option<String>, Type, Box<Expr>),
     Struct(Type, Vec<StructField>),
     Discard(Type),
-    Match(Type, Box<Expr>, Vec<(Expr, Expr)>),
-    Let(Type, String, Type, Box<Expr>, Box<Expr>),
 
-    PrimitiveOp(Type, Box<PrimitiveOp>)
+    PrimitiveOp(Type, Box<PrimitiveOp>),
+
+    Cond(Box<Expr>, Box<Expr>, Box<Expr>),
+    Match(Box<Expr>, Vec<(Expr, Expr)>),
+    Apply(Box<Expr>, Box<Expr>),
+    Let(String, Type, Box<Expr>, Box<Expr>)
 }
 
 impl Expr {
-    pub fn get_type_annot(&self) -> &Type {
+    pub fn get_type_annot(&self) -> OptType {
         match self {
             Expr::Unit(t) => t,
             Expr::Int(t, ..) => t,
             Expr::EnvRef(t, ..) => t,
-            Expr::Apply(t, ..) => t,
-            Expr::Cond(t, ..) => t,
             Expr::Closure(t, ..) => t,
             Expr::Struct(t, ..) => t,
             Expr::Discard(t, ..) => t,
-            Expr::Match(t, ..) => t,
-            Expr::Let(t, ..) => t,
 
-            Expr::PrimitiveOp(t, ..) => t
+            Expr::PrimitiveOp(t, ..) => t,
+
+            _ => return None
         }
+        .clone()
+        .some()
     }
 }
 
@@ -66,12 +67,6 @@ impl Debug for Expr {
                 f.write_str(&*format!("{i}{}", type_annot(t))),
             Expr::EnvRef(t, n) =>
                 f.write_str(&*format!("{n}{}", type_annot(t))),
-            Expr::Apply(t, l, r) =>
-                f.write_str(&*format!("(({l:?} {r:?}):{t:?})")),
-            Expr::Cond(t, b, te, fe) => f.write_str(&*format!(
-                "(if {b:?} then {te:?} else {fe:?}){}",
-                type_annot(t)
-            )),
             Expr::Closure(t, i_n, i_t, o_e) =>
                 f.write_str(&*format!(
                     "({}{} -> {o_e:?}){}",
@@ -85,19 +80,21 @@ impl Debug for Expr {
             )),
             Expr::Discard(t) =>
                 f.write_str(&*format!("_{}", type_annot(t))),
-            Expr::Match(t, t_e, vec) => f.write_str(&*format!(
-                "(match {t_e:?} with {vec:?}){}",
-                type_annot(t)
-            )),
-            Expr::Let(t, a_n, a_t, a_e, s_e) =>
-                f.write_str(&*format!(
-                    "(let {a_n}{} = {a_e:?} in {s_e:?}){}",
-                    type_annot(a_t),
-                    type_annot(t)
-                )),
 
             Expr::PrimitiveOp(t, op) =>
                 f.write_str(&*format!("({op:?}){}", type_annot(t))),
+
+            Expr::Cond(b, te, fe) => f.write_str(&*format!(
+                "if {b:?} then {te:?} else {fe:?}",
+            )),
+            Expr::Match(t_e, vec) =>
+                f.write_str(&*format!("match {t_e:?} with {vec:?}",)),
+            Expr::Apply(l, r) =>
+                f.write_str(&*format!("({l:?} {r:?})")),
+            Expr::Let(a_n, a_t, a_e, s_e) => f.write_str(&*format!(
+                "let {a_n}{} = {a_e:?} in {s_e:?}",
+                type_annot(a_t),
+            ))
         }
     }
 }
@@ -124,19 +121,6 @@ impl From<CtExpr> for OptExpr {
                 }
             }
 
-            CtExpr::Apply(Some(t), l_e, r_e) => Expr::Apply(
-                convert_type(t)?,
-                Self::from(*l_e)?.boxed(),
-                Self::from(*r_e)?.boxed()
-            ),
-
-            CtExpr::Cond(Some(t), b_e, t_e, e_e) => Expr::Cond(
-                convert_type(t)?,
-                Self::from(*b_e)?.boxed(),
-                Self::from(*t_e)?.boxed(),
-                Self::from(*e_e)?.boxed()
-            ),
-
             CtExpr::Closure(Some(t), i_n, Some(i_t), o_e) =>
                 Expr::Closure(
                     convert_type(t)?,
@@ -159,8 +143,13 @@ impl From<CtExpr> for OptExpr {
                     .map(|vec| Expr::Struct(t, vec))?
             }
 
-            CtExpr::Match(Some(t), t_e, c_v) => {
-                let t = convert_type(t)?;
+            CtExpr::Cond(Some(_), b_e, t_e, e_e) => Expr::Cond(
+                Self::from(*b_e)?.boxed(),
+                Self::from(*t_e)?.boxed(),
+                Self::from(*e_e)?.boxed()
+            ),
+
+            CtExpr::Match(Some(_), t_e, c_v) => {
                 let t_e = Self::from(*t_e)?;
 
                 c_v.iter()
@@ -170,12 +159,16 @@ impl From<CtExpr> for OptExpr {
                         acc.chain_push((c_e, t_e))
                             .some()
                     })
-                    .map(|vec| Expr::Match(t, t_e.boxed(), vec))?
+                    .map(|vec| Expr::Match(t_e.boxed(), vec))?
             }
 
-            CtExpr::Let(Some(t), a_n, Some(a_t), a_e, o_e) =>
+            CtExpr::Apply(Some(_), l_e, r_e) => Expr::Apply(
+                Self::from(*l_e)?.boxed(),
+                Self::from(*r_e)?.boxed()
+            ),
+
+            CtExpr::Let(Some(_), a_n, Some(a_t), a_e, o_e) =>
                 Expr::Let(
-                    convert_type(t)?,
                     a_n,
                     convert_type(a_t)?,
                     Self::from(*a_e)?.boxed(),

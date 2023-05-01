@@ -33,19 +33,21 @@ pub fn eval_expr(
         Expr::Int(t, i) => case_int(t.clone(), i.clone()),
         Expr::Unit(t) => case_unit(t.clone()),
         Expr::EnvRef(_, r_n) => case_env_ref(type_env, expr_env, r_n),
-        Expr::Apply(_, l_e, r_e) =>
-            case_apply(type_env, expr_env, l_e, r_e),
-        Expr::Cond(_, b_e, t_e, f_e) =>
-            case_cond(type_env, expr_env, b_e, t_e, f_e),
         Expr::Closure(..) => expr.clone().ok(), // 直接返回 closure, 环境将由求取该值的 case 保留
+
+        op @ Expr::PrimitiveOp(..) => op.clone().ok(),
+
         Expr::Struct(t, s_v) =>
             case_struct(type_env, expr_env, t, s_v),
-        Expr::Match(_, t_e, c_v) =>
-            case_match(type_env, expr_env, t_e, c_v),
-        Expr::Let(_, a_n, a_t, a_e, s_e) =>
-            case_let(type_env, expr_env, a_n, a_t, a_e, s_e),
 
-        primitive_op => primitive_op.clone().ok()
+        Expr::Cond(b_e, t_e, f_e) =>
+            case_cond(type_env, expr_env, b_e, t_e, f_e),
+        Expr::Match(t_e, c_v) =>
+            case_match(type_env, expr_env, t_e, c_v),
+        Expr::Apply(l_e, r_e) =>
+            case_apply(type_env, expr_env, l_e, r_e),
+        Expr::Let(a_n, a_t, a_e, s_e) =>
+            case_let(type_env, expr_env, a_n, a_t, a_e, s_e),
     };
 
     if cfg!(feature = "eval_log_min") {

@@ -18,12 +18,13 @@ pub enum Expr {
     // TODO: Handle int overflow
     Int(OptType, i64),
     EnvRef(OptType, String),
-    Apply(OptType, Box<Expr>, Box<Expr>),
-    Cond(OptType, Box<Expr>, Box<Expr>, Box<Expr>),
     Closure(OptType, Option<String>, OptType, Box<Expr>),
     Struct(OptType, Vec<StructField>),
     Discard(OptType),
+
+    Cond(OptType, Box<Expr>, Box<Expr>, Box<Expr>),
     Match(OptType, Box<Expr>, Vec<(Expr, Expr)>),
+    Apply(OptType, Box<Expr>, Box<Expr>),
     Let(OptType, String, OptType, Box<Expr>, Box<Expr>)
 }
 

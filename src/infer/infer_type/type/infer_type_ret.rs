@@ -15,6 +15,14 @@ pub type InferTypeRet =
     Quad<Type, RequireConstraint, RequireInfo, TypeMissMatch>;
 
 impl InferTypeRet {
+    pub fn try_get_type(&self) -> OptType {
+        match self.clone() {
+            Quad::ML(RequireConstraint { r#type: t, .. }) |
+            Quad::L(t) => t.some(),
+            _ => return None
+        }
+    }
+
     pub fn unwrap_type_and_constraint(
         self
     ) -> (Type, EnvRefConstraint) {
