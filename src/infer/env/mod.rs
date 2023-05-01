@@ -1,6 +1,6 @@
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
-use crate::infra::option::AnyExt;
+use crate::infra::option::OptionAnyExt;
 use crate::infra::vec::Ext;
 use crate::parser::ast::parse_ast;
 use crate::parser::define::Define;

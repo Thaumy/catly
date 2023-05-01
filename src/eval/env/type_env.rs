@@ -1,5 +1,5 @@
 use crate::eval::r#type::r#type::Type;
-use crate::infra::option::AnyExt;
+use crate::infra::option::OptionAnyExt;
 
 // 运行时类型环境
 #[derive(Clone, Debug)]

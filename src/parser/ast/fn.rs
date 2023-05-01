@@ -1,4 +1,4 @@
-use crate::infra::option::AnyExt;
+use crate::infra::option::OptionAnyExt;
 use crate::infra::vec::Ext;
 use crate::parser::define::{parse_define, Define};
 

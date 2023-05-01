@@ -1,8 +1,8 @@
 use std::collections::BTreeSet;
 
 use crate::infra::btree_set::Ext;
-use crate::infra::option::AnyExt;
-use crate::infra::r#box::Ext as BoxAnyExt;
+use crate::infra::option::OptionAnyExt;
+use crate::infra::r#box::BoxAnyExt;
 use crate::infra::vec::Ext as VecAnyExt;
 use crate::parser::expr::r#type::{Expr, OptExpr};
 use crate::parser::keyword::Keyword;

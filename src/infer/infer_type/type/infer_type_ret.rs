@@ -1,3 +1,5 @@
+use std::ops::{ControlFlow, FromResidual, Try};
+
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::require_constraint::{
@@ -6,10 +8,41 @@ use crate::infer::infer_type::r#type::require_constraint::{
 };
 use crate::infer::infer_type::r#type::require_info::RequireInfo;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infra::option::AnyExt;
+use crate::infra::option::OptionAnyExt;
 use crate::infra::quad::Quad;
+use crate::infra::triple::Triple;
 use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
+
+impl FromResidual for InferTypeRet {
+    fn from_residual(residual: <Self as Try>::Residual) -> Self {
+        residual
+    }
+}
+
+impl Try for InferTypeRet {
+    type Output = Triple<Type, RequireConstraint, RequireInfo>;
+    type Residual = InferTypeRet;
+
+    #[inline]
+    fn from_output(output: Self::Output) -> Self {
+        match output {
+            Triple::L(v) => Self::L(v),
+            Triple::M(v) => Self::ML(v),
+            Triple::R(v) => Self::MR(v)
+        }
+    }
+
+    #[inline]
+    fn branch(self) -> ControlFlow<Self::Residual, Self::Output> {
+        match self {
+            Self::L(v) => ControlFlow::Continue(Triple::L(v)),
+            Self::ML(v) => ControlFlow::Continue(Triple::M(v)),
+            Self::MR(v) => ControlFlow::Continue(Triple::R(v)),
+            e @ Self::R(_) => ControlFlow::Break(e)
+        }
+    }
+}
 
 pub type InferTypeRet =
     Quad<Type, RequireConstraint, RequireInfo, TypeMissMatch>;

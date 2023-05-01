@@ -4,9 +4,9 @@ use crate::eval::eval_expr::eval_expr;
 use crate::eval::r#macro::namely_type;
 use crate::eval::r#type::expr::primitive_op::PrimitiveOp;
 use crate::eval::r#type::expr::Expr;
-use crate::infra::option::AnyExt as OptAnyExt;
-use crate::infra::r#box::Ext;
-use crate::infra::result::AnyExt as ResAnyExt;
+use crate::infra::option::OptionAnyExt;
+use crate::infra::r#box::BoxAnyExt;
+use crate::infra::result::ResultAnyExt;
 
 // neg 10
 #[test]

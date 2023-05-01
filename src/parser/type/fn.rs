@@ -1,9 +1,10 @@
 use std::collections::BTreeSet;
 
-use crate::infra::option::{AnyExt, FollowExt};
-use crate::infra::r#box::Ext as BoxExt;
+use crate::infra::option::OptionAnyExt;
+use crate::infra::r#box::BoxAnyExt;
 use crate::infra::vec::{vec_get_head_tail_follow, Ext};
 use crate::parser::r#type::pat::Pat;
+use crate::pp::FollowExt;
 
 type In = crate::pp::Out;
 

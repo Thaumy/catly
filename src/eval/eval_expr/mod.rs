@@ -14,7 +14,7 @@ use crate::eval::eval_expr::case::r#struct::case_struct;
 use crate::eval::eval_expr::case::unit::case_unit;
 use crate::eval::r#type::eval_err::EvalErr;
 use crate::eval::r#type::expr::Expr;
-use crate::infra::result::AnyExt;
+use crate::infra::result::ResultAnyExt;
 
 pub type EvalRet = Result<Expr, EvalErr>;
 
@@ -34,11 +34,10 @@ pub fn eval_expr(
         Expr::Unit(t) => case_unit(t.clone()),
         Expr::EnvRef(_, r_n) => case_env_ref(type_env, expr_env, r_n),
         Expr::Closure(..) => expr.clone().ok(), // 直接返回 closure, 环境将由求取该值的 case 保留
-
-        op @ Expr::PrimitiveOp(..) => op.clone().ok(),
-
         Expr::Struct(t, s_v) =>
             case_struct(type_env, expr_env, t, s_v),
+
+        op @ Expr::PrimitiveOp(..) => op.clone().ok(),
 
         Expr::Cond(b_e, t_e, f_e) =>
             case_cond(type_env, expr_env, b_e, t_e, f_e),

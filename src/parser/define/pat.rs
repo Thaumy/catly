@@ -1,4 +1,4 @@
-use crate::infra::option::AnyExt;
+use crate::infra::option::OptionAnyExt;
 use crate::parser::define::{Define, In};
 use crate::parser::expr::r#type::Expr;
 use crate::parser::keyword::Keyword;

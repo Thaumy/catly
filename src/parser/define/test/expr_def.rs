@@ -1,7 +1,7 @@
 use crate::infer::env::r#macro::closure_type;
 use crate::infer::env::r#macro::int_type;
-use crate::infra::option::AnyExt;
-use crate::infra::r#box::Ext;
+use crate::infra::option::OptionAnyExt;
+use crate::infra::r#box::BoxAnyExt;
 use crate::parser::define::test::f;
 use crate::parser::define::Define;
 use crate::parser::expr::r#type::Expr;

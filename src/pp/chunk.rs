@@ -1,4 +1,4 @@
-use crate::infra::option::AnyExt;
+use crate::infra::option::OptionAnyExt;
 use crate::infra::str::str_get_head_tail_follow;
 use crate::infra::vec::Ext;
 use crate::parser::alphanum::{

@@ -13,9 +13,9 @@ use crate::eval::r#type::eval_err::EvalErr;
 use crate::eval::r#type::expr::primitive_op::PrimitiveOp;
 use crate::eval::r#type::expr::Expr;
 use crate::eval::r#type::r#type::Type;
-use crate::infra::either::{AnyExt, Either};
-use crate::infra::option::AnyExt as OptAnyExt;
-use crate::infra::result::AnyExt as ResAnyExt;
+use crate::infra::either::{Either, EitherAnyExt};
+use crate::infra::option::OptionAnyExt;
+use crate::infra::result::ResultAnyExt;
 
 pub fn source_env_ref<'t>(
     expr_env: &'t ExprEnv,

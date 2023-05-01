@@ -9,8 +9,8 @@ use crate::infer::infer_type::case::r#match::r#fn::{destruct_match_const_to_expr
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infra::quad::AnyExt as QuadAnyExt;
-use crate::infra::result::AnyExt as ResAnyExt;
+use crate::infra::quad::QuadAnyExt;
+use crate::infra::result::ResultAnyExt;
 use crate::infra::vec::Ext;
 use crate::parser::r#type::r#type::OptType;
 use crate::parser::expr::r#type::Expr;

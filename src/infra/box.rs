@@ -1,4 +1,5 @@
-pub trait Ext<T> {
+pub trait BoxAnyExt<T> {
+    #[inline]
     fn boxed(self) -> Box<Self>
     where
         Self: Sized
@@ -7,4 +8,4 @@ pub trait Ext<T> {
     }
 }
 
-impl<T> Ext<T> for T where T: Sized {}
+impl<T> BoxAnyExt<T> for T where T: Sized {}

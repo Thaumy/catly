@@ -6,8 +6,8 @@ use crate::eval::eval_expr::eval_expr;
 use crate::eval::r#macro::namely_type;
 use crate::eval::r#type::eval_err::EvalErr;
 use crate::eval::r#type::expr::Expr;
-use crate::infra::r#box::Ext;
-use crate::infra::result::AnyExt;
+use crate::infra::r#box::BoxAnyExt;
+use crate::infra::result::ResultAnyExt;
 
 // match 5 with
 // | 10 -> 1

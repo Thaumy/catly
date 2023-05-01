@@ -5,10 +5,10 @@ use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_constraint::require_constraint;
 use crate::infer::infer_type::r#type::require_info::RequireInfo;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infra::option::AnyExt;
-use crate::infra::quad::{AnyExt as QuadAnyExt, Quad};
-use crate::infra::r#box::Ext;
-use crate::infra::result::AnyExt as ResAnyExt;
+use crate::infra::option::OptionAnyExt;
+use crate::infra::quad::{Quad, QuadAnyExt};
+use crate::infra::r#box::BoxAnyExt;
+use crate::infra::result::ResultAnyExt;
 use crate::parser::expr::r#type::Expr;
 
 pub fn on_no_expect_type<'t, T>(

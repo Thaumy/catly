@@ -4,12 +4,14 @@ pub enum Either<L, R> {
     R(R)
 }
 
-pub trait AnyExt
+pub trait EitherAnyExt
 where
     Self: Sized
 {
+    #[inline]
     fn l<R>(self) -> Either<Self, R> { Either::L(self) }
+    #[inline]
     fn r<L>(self) -> Either<L, Self> { Either::R(self) }
 }
 
-impl<T> AnyExt for T {}
+impl<T> EitherAnyExt for T {}

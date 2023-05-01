@@ -2,8 +2,8 @@ use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_info::RequireInfo;
-use crate::infra::option::AnyExt;
-use crate::infra::r#box::Ext;
+use crate::infra::option::OptionAnyExt;
+use crate::infra::r#box::BoxAnyExt;
 use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
 

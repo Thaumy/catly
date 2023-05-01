@@ -8,19 +8,22 @@ impl<T> Ext<T> for Vec<T>
 where
     T: Clone
 {
+    #[inline]
     fn reduce(&mut self, cost: u8, item: T) {
         for _ in 0..cost {
             self.pop();
         }
         self.push(item);
     }
-    fn chain_push(mut self, item: T) -> Vec<T> {
-        self.push(item);
-        self
-    }
+    #[inline]
     fn push_to_new(&self, item: T) -> Vec<T> {
         let b = self.clone();
         b.chain_push(item)
+    }
+    #[inline]
+    fn chain_push(mut self, item: T) -> Vec<T> {
+        self.push(item);
+        self
     }
 }
 

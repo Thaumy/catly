@@ -7,7 +7,7 @@ use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_constraint::require_constraint;
 use crate::infer::infer_type::r#type::require_info::RequireInfo;
-use crate::infra::option::AnyExt;
+use crate::infra::option::OptionAnyExt;
 use crate::infra::quad::Quad;
 
 impl<'t> ExprEnv<'t> {

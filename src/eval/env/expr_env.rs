@@ -1,6 +1,6 @@
 use crate::eval::r#type::expr::Expr;
 use crate::eval::r#type::r#type::Type;
-use crate::infra::option::AnyExt;
+use crate::infra::option::OptionAnyExt;
 
 pub type EnvEntry<'e> = (String, Type, Expr, ExprEnv<'e>);
 

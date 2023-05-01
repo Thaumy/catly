@@ -1,6 +1,6 @@
 use crate::eval::env::expr_env::{EnvEntry, ExprEnv};
 use crate::eval::r#type::expr::{Expr, StructField};
-use crate::infra::option::AnyExt;
+use crate::infra::option::OptionAnyExt;
 
 fn is_struct_match_pattern_then_env_vec<'t>(
     expr_env: &'t ExprEnv<'t>,
@@ -28,20 +28,20 @@ fn is_struct_match_pattern_then_env_vec<'t>(
 
 fn is_expr_match_pattern_then_env_vec<'t>(
     expr_env: &'t ExprEnv<'t>,
-    expr: &Expr,
+    evaluated_expr: &Expr,
     pattern: &Expr
 ) -> Option<Vec<EnvEntry<'t>>> {
-    if expr.get_type_annot() != pattern.get_type_annot() {
+    if evaluated_expr.get_type_annot() != pattern.get_type_annot() {
         return None;
     }
 
-    match expr {
+    match evaluated_expr {
         Expr::Unit(_) => match pattern {
             Expr::Unit(_) => vec![].some(),
             Expr::EnvRef(p_t, ref_name) => vec![(
                 ref_name.clone(),
                 p_t.clone(),
-                expr.clone(),
+                evaluated_expr.clone(),
                 expr_env.clone()
             )]
             .some(),
@@ -58,7 +58,7 @@ fn is_expr_match_pattern_then_env_vec<'t>(
             Expr::EnvRef(p_t, ref_name) => vec![(
                 ref_name.clone(),
                 p_t.clone(),
-                expr.clone(),
+                evaluated_expr.clone(),
                 expr_env.clone()
             )]
             .some(),
@@ -69,7 +69,7 @@ fn is_expr_match_pattern_then_env_vec<'t>(
             Expr::EnvRef(p_t, ref_name) => vec![(
                 ref_name.clone(),
                 p_t.clone(),
-                expr.clone(),
+                evaluated_expr.clone(),
                 expr_env.clone()
             )]
             .some(),
@@ -84,23 +84,27 @@ fn is_expr_match_pattern_then_env_vec<'t>(
             Expr::EnvRef(p_t, ref_name) => vec![(
                 ref_name.clone(),
                 p_t.clone(),
-                expr.clone(),
+                evaluated_expr.clone(),
                 expr_env.clone()
             )]
             .some(),
             Expr::Discard(_) => vec![].some(),
             _ => panic!("Impossible case pattern: {pattern:?}")
         },
-        _ => panic!("Impossible match target: {expr:?}")
+        _ => panic!("Impossible match target: {evaluated_expr:?}")
     }
 }
 
 // 如果 expr 匹配 pattern, 则返回经由(按需)扩展的表达式环境
 pub fn is_expr_match_pattern_then_env<'t>(
     expr_env: &'t ExprEnv<'t>,
-    expr: &Expr,
+    evaluated_expr: &Expr,
     pattern: &Expr
 ) -> Option<ExprEnv<'t>> {
-    is_expr_match_pattern_then_env_vec(expr_env, expr, pattern)
-        .map(|env_vec| expr_env.extend_vec_new(env_vec))
+    is_expr_match_pattern_then_env_vec(
+        expr_env,
+        evaluated_expr,
+        pattern
+    )
+    .map(|env_vec| expr_env.extend_vec_new(env_vec))
 }

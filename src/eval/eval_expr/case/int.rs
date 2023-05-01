@@ -1,7 +1,7 @@
 use crate::eval::eval_expr::EvalRet;
 use crate::eval::r#type::expr::Expr;
 use crate::eval::r#type::r#type::Type;
-use crate::infra::result::AnyExt;
+use crate::infra::result::ResultAnyExt;
 
 pub fn case_int(type_annot: Type, int_value: i64) -> EvalRet {
     Expr::Int(type_annot, int_value).ok()
@@ -14,7 +14,7 @@ mod test {
     use crate::eval::eval_expr::eval_expr;
     use crate::eval::r#macro::namely_type;
     use crate::eval::r#type::expr::Expr;
-    use crate::infra::result::AnyExt;
+    use crate::infra::result::ResultAnyExt;
 
     // 10: Int
     #[test]

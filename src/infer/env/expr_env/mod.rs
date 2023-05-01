@@ -4,7 +4,7 @@ mod infer_type_with_hint;
 use crate::infer::env::r#type::env_ref_src::EnvRefSrc;
 use crate::infer::env::r#type::type_constraint::TypeConstraint;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
-use crate::infra::option::AnyExt;
+use crate::infra::option::OptionAnyExt;
 use crate::parser::expr::r#type::{Expr, OptExpr};
 use crate::parser::r#type::r#type::OptType;
 

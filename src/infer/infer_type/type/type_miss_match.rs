@@ -2,7 +2,7 @@ use std::fmt::{Debug, Formatter};
 
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infra::quad::AnyExt;
+use crate::infra::quad::QuadAnyExt;
 use crate::parser::r#type::r#type::Type;
 
 #[derive(PartialEq, Clone)]

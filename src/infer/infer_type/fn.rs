@@ -1,7 +1,7 @@
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infra::option::AnyExt as OptAnyExt;
-use crate::infra::quad::AnyExt as QuadAnyExt;
+use crate::infra::option::OptionAnyExt;
+use crate::infra::quad::QuadAnyExt;
 use crate::parser::r#type::r#type::Type;
 
 pub fn destruct_namely_type(

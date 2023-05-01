@@ -3,7 +3,7 @@ use crate::eval::env::type_env::TypeEnv;
 use crate::eval::eval_expr::eval_expr;
 use crate::eval::r#macro::namely_type;
 use crate::eval::r#type::expr::Expr;
-use crate::infra::result::AnyExt;
+use crate::infra::result::ResultAnyExt;
 
 // def a = 10
 #[test]

@@ -4,7 +4,7 @@ use crate::infer::infer_type::r#fn::has_type;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infra::quad::AnyExt;
+use crate::infra::quad::QuadAnyExt;
 use crate::parser::r#type::r#type::Type;
 
 // 经由约束才能使用的类型

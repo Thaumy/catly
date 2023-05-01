@@ -1,5 +1,5 @@
 use crate::infer::env::r#macro::unit_type;
-use crate::infra::option::AnyExt;
+use crate::infra::option::OptionAnyExt;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::expr::test::f;
 

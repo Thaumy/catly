@@ -2,8 +2,8 @@ use crate::eval::r#macro::bool_type;
 use crate::eval::r#macro::closure_type;
 use crate::eval::r#macro::int_type;
 use crate::eval::r#type::expr::Expr;
-use crate::infra::option::AnyExt;
-use crate::infra::r#box::Ext;
+use crate::infra::option::OptionAnyExt;
+use crate::infra::r#box::BoxAnyExt;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum PrimitiveOp {

@@ -1,6 +1,6 @@
 use crate::infer::env::r#macro::int_type;
 use crate::infer::env::r#macro::unit_type;
-use crate::infra::option::AnyExt;
+use crate::infra::option::OptionAnyExt;
 use crate::parser::r#type::r#type::Type;
 
 // 编译时类型环境

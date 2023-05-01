@@ -2,7 +2,7 @@ use std::collections::hash_map::Iter;
 use std::collections::HashMap;
 use std::fmt::{Debug, Formatter};
 
-use crate::infra::option::AnyExt;
+use crate::infra::option::OptionAnyExt;
 use crate::infra::r#fn::id;
 use crate::parser::r#type::r#type::Type;
 

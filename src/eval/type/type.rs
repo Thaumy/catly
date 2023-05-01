@@ -3,8 +3,8 @@ use std::fmt::{Debug, Formatter};
 use std::ops::Deref;
 
 use crate::infra::btree_set::Ext as BtTreeAnyExt;
-use crate::infra::option::AnyExt;
-use crate::infra::r#box::Ext as BoxAnyExt;
+use crate::infra::option::OptionAnyExt;
+use crate::infra::r#box::BoxAnyExt;
 use crate::infra::vec::Ext as VecAnyExt;
 use crate::parser::r#type::r#type::Type as CtType;
 

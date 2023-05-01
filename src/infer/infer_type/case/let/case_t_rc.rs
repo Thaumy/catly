@@ -4,7 +4,7 @@ use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_constraint::require_constraint;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infra::option::AnyExt;
+use crate::infra::option::OptionAnyExt;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::OptType;

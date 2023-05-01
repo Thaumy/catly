@@ -58,3 +58,41 @@ pub fn preprocess(seq: &str) -> Option<Vec<Out>> {
 
     Some(r)
 }
+
+pub trait FollowExt<T> {
+    fn is_expr_end_pat(&self) -> bool;
+    fn is_type_end_pat(&self) -> bool;
+}
+
+impl FollowExt<Out> for Option<Out> {
+    fn is_expr_end_pat(&self) -> bool {
+        match self {
+            None |
+            Some(Out::Symbol(')')) |// ..
+            Some(Out::Symbol('}')) |// Struct
+            Some(Out::Symbol(',')) |// Assign (Struct, Let
+            Some(Out::Symbol('|')) |// Match
+            Some(Out::Symbol('=')) |// Assign (Struct, Let
+            Some(Out::Kw(_))// 这意味着`最近可立即归约`的语言构造具备更高的结合优先级
+            => true,
+            _ => false,
+        }
+    }
+    fn is_type_end_pat(&self) -> bool {
+        match self {
+            None |
+            Some(Out::Symbol(')')) |
+            Some(Out::Symbol('}')) |
+            Some(Out::Symbol(',')) |
+            Some(Out::Symbol('=')) |
+            Some(Out::Kw(_)) |
+            Some(Out::LetName(_)) |
+            Some(Out::TypeName(_)) |
+            Some(Out::IntValue(_)) |
+            Some(Out::UnitValue) |
+            Some(Out::DiscardValue) => true,
+
+            _ => false
+        }
+    }
+}

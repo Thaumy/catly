@@ -4,7 +4,7 @@ use crate::infer::env::r#macro::namely_type;
 use crate::infer::env::r#macro::prod_type;
 use crate::infer::env::r#macro::sum_type;
 use crate::infer::env::r#macro::unit_type;
-use crate::infra::option::AnyExt;
+use crate::infra::option::OptionAnyExt;
 use crate::parser::ast::test::f;
 use crate::parser::define::Define;
 use crate::parser::expr::r#type::Expr;

@@ -6,7 +6,7 @@ use crate::infer::env::r#macro::namely_type;
 use crate::infer::env::r#macro::sum_type;
 use crate::infer::env::r#macro::true_type;
 use crate::infer::env::type_env::TypeEnv;
-use crate::infra::option::AnyExt;
+use crate::infra::option::OptionAnyExt;
 use crate::unify::namely::lift_namely;
 
 fn env<'t>() -> TypeEnv<'t> {

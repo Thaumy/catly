@@ -7,7 +7,7 @@ use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#fn::has_type;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::require_info::RequireInfo;
-use crate::infra::option::AnyExt;
+use crate::infra::option::OptionAnyExt;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
 
