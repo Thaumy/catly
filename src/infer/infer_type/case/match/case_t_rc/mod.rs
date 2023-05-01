@@ -11,7 +11,7 @@ use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::quad::QuadAnyExt;
 use crate::infra::result::ResultAnyExt;
-use crate::infra::vec::Ext;
+use crate::infra::vec::VecExt;
 use crate::parser::r#type::r#type::OptType;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::Type;

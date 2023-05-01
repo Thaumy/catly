@@ -10,7 +10,10 @@ pub mod r#type;
 
 type In = crate::pp::Out;
 
-pub fn parse_type(seq: Vec<In>) -> OptType {
+pub fn parse_type<'t, S>(seq: S) -> OptType
+where
+    S: Iterator<Item = &'t In> + Clone
+{
     let r = go(vec![Pat::Start], seq).into();
 
     if cfg!(feature = "parser_log") {

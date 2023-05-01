@@ -1,7 +1,7 @@
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infra::option::OptionAnyExt;
-use crate::infra::vec::Ext;
+use crate::infra::vec::VecExt;
 use crate::parser::ast::parse_ast;
 use crate::parser::define::Define;
 use crate::pp::preprocess;
@@ -22,17 +22,14 @@ fn from_define_vec<'t>(
                 |(tev, eev), define| match define {
                     Define::TypeDef(n, t) =>
                         (tev.chain_push((n.clone(), t.clone())), eev),
-                    Define::ExprDef(n, et, ee) => {
-                        let tc = et.clone().into();
-                        (
-                            tev,
-                            eev.chain_push((
-                                n.clone(),
-                                tc,
-                                ee.clone().into()
-                            ))
-                        )
-                    }
+                    Define::ExprDef(n, et, ee) => (
+                        tev,
+                        eev.chain_push((
+                            n.clone(),
+                            et.clone().into(),
+                            ee.clone().into()
+                        ))
+                    )
                 }
             );
 

@@ -1,5 +1,6 @@
+use crate::infra::iter::IteratorExt;
 use crate::infra::option::OptionAnyExt;
-use crate::infra::vec::{vec_get_head_tail_follow, Ext};
+use crate::infra::vec::VecExt;
 use crate::parser::define::pat::Pat;
 use crate::parser::expr::parse_expr;
 use crate::parser::keyword::Keyword;
@@ -85,7 +86,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
         }
         // AnyInSeq :`=` -> Type
         ([.., Pat::AnyInSeq(seq)], Some(In::Symbol('='))) =>
-            match parse_type(seq.clone()) {
+            match parse_type(seq.iter()) {
                 Some(t) => stack.reduce(1, Pat::Type(t)),
                 None => return vec![Pat::Err]
             },
@@ -134,27 +135,31 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
     reduce_stack(reduced_stack, follow)
 }
 
-pub fn go(mut stack: Vec<Pat>, seq: Vec<In>) -> Pat {
-    let (head, tail, follow) = vec_get_head_tail_follow(seq);
+pub fn go<'t, S>(mut stack: Vec<Pat>, seq: S) -> Pat
+where
+    S: Iterator<Item = &'t In> + Clone
+{
+    let (head, tail, follow) = seq.get_head_tail_follow();
 
-    stack.push(move_in(&stack, head));
+    stack.push(move_in(&stack, head.cloned()));
 
     if cfg!(feature = "lr1_log") {
         let log = format!("Move in: {stack:?} follow: {follow:?}");
         println!("{log}");
     }
 
-    let reduced_stack = reduce_stack(stack, follow.clone());
+    let reduced_stack = reduce_stack(stack, follow.cloned());
 
     match (&reduced_stack[..], follow) {
         ([p], _) => {
             let head = p.clone();
 
             let r = match head {
+                //TODO
                 Pat::TypeDefHead(n) => match parse_type(tail) {
                     Some(t) => Pat::TypeDef(n, t),
                     _ => Pat::Err
-                },
+                }, //TODO
                 Pat::ExprDefHead(t, n) => match parse_expr(tail) {
                     Some(e) => Pat::ExprDef(n, t, e),
                     _ => Pat::Err

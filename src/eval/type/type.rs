@@ -2,10 +2,10 @@ use std::collections::BTreeSet;
 use std::fmt::{Debug, Formatter};
 use std::ops::Deref;
 
-use crate::infra::btree_set::Ext as BtTreeAnyExt;
+use crate::infra::btree_set::BtreeSetExt;
 use crate::infra::option::OptionAnyExt;
 use crate::infra::r#box::BoxAnyExt;
-use crate::infra::vec::Ext as VecAnyExt;
+use crate::infra::vec::VecExt;
 use crate::parser::r#type::r#type::Type as CtType;
 
 pub type OptType = Option<Type>;

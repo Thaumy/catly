@@ -1,10 +1,10 @@
 use std::collections::BTreeSet;
 
-pub trait Ext<T> {
+pub trait BtreeSetExt<T> {
     fn chain_insert(self, item: T) -> BTreeSet<T>;
 }
 
-impl<T> Ext<T> for BTreeSet<T>
+impl<T> BtreeSetExt<T> for BTreeSet<T>
 where
     T: Ord
 {

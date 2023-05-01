@@ -1,6 +1,6 @@
 use crate::infra::either::Either;
-use crate::infra::str::str_get_head_tail;
-use crate::infra::vec::Ext;
+use crate::infra::iter::IteratorExt;
+use crate::infra::vec::VecExt;
 use crate::pp::comment::Either::*;
 use crate::pp::comment::Pat::*;
 
@@ -42,7 +42,7 @@ fn go(
     mut stack: Vec<Either<char, Pat>>,
     tail: &str
 ) -> Vec<Either<char, Pat>> {
-    let (head, tail) = str_get_head_tail(tail);
+    let (head, tail) = tail.chars().get_head_tail();
     let move_in = match head {
         Some(c) => L(c),
         _ => return stack
@@ -50,7 +50,7 @@ fn go(
 
     stack.push(move_in);
     let reduced_stack = reduce_stack(stack);
-    go(reduced_stack, tail)
+    go(reduced_stack, tail.as_str())
 }
 
 pub fn pp_comment(seq: &str) -> String {

@@ -9,7 +9,7 @@ use crate::infra::quad::{Quad, QuadAnyExt};
 use crate::infra::r#box::BoxAnyExt;
 use crate::infra::r#fn::id;
 use crate::infra::result::ResultAnyExt;
-use crate::infra::vec::Ext as VecAnyExt;
+use crate::infra::vec::VecExt;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::{OptType, Type};
 
@@ -113,11 +113,12 @@ pub fn case_ri(
         // case_expr_type 合一成功, 用该类型 hint target_expr 后 infer_type
         // 不可能出现 Ok(None), 因为 case 的数量在 AST 解析阶段就保证非零
         Ok(Some(hint)) => {
-            let hinted_target_expr = target_expr.with_fallback_type(&hint);
+            let hinted_target_expr =
+                target_expr.with_fallback_type(&hint);
             let expr = Expr::Match(
                 expect_type.clone(),
                 hinted_target_expr.boxed(),
-                case_vec.clone(),
+                case_vec.clone()
             );
             expr.infer_type(type_env, expr_env)
         }
@@ -125,47 +126,49 @@ pub fn case_ri(
         // 如果 target_expr 是 EnvRef, 那么在求 then_expr 时可能产生针对 target_expr 的类型约束
         // 以合一后的约束目标为 hint 求 match 表达式类型
         _ if let Expr::EnvRef(_, ref_name) = target_expr => {
-            let hint = vec
-                .iter()
-                .filter(|(_, env_inject, _)|
+            let hint =
+                vec.iter()
+                    .filter(|(_, env_inject, _)|
                     // 过滤出所有不受到 case_expr 解构常量环境同名 EnvRef 影响的 then_expr
                     // 因为这些同名 EnvRef 会覆盖对 match 表达式匹配对象的环境引用
                     // 如果常量环境中不存在名为 ref_name 的注入, 那么 then_expr 约束的 ref_name 便是匹配目标
                     env_inject
                         .iter()
-                        .all(|(n, ..)| n != ref_name)
-                )
-                .map(|(_, env_inject, then_expr)|
-                    match then_expr.with_opt_fallback_type(expect_type).infer_type(
-                        type_env,
-                        // 使用 then_expr 的旁路推导需要来自 case_expr 的常量环境注入
-                        // 因为 case_expr 可能包含在 then_expr 中会使用的类型信息
-                        // 如果不进行注入, 推导可能会因为缺乏类型信息而失败
-                        // let case 的旁路推导因为 assign_type 和 assign_expr 均无法提供有效的类型信息, 所以不需要注入
-                        &expr_env.extend_vec_new(env_inject.clone()),
-                    ) {
-                        Quad::ML(rc) => rc.constraint.find(ref_name.as_str()).map(|t| t.clone()),
+                        .all(|(n, ..)| n != ref_name))
+                    .map(|(_, env_inject, then_expr)| match then_expr
+                        .with_opt_fallback_type(expect_type)
+                        .infer_type(
+                            type_env,
+                            // 使用 then_expr 的旁路推导需要来自 case_expr 的常量环境注入
+                            // 因为 case_expr 可能包含在 then_expr 中会使用的类型信息
+                            // 如果不进行注入, 推导可能会因为缺乏类型信息而失败
+                            // let case 的旁路推导因为 assign_type 和 assign_expr 均无法提供有效的类型信息, 所以不需要注入
+                            &expr_env
+                                .extend_vec_new(env_inject.clone())
+                        ) {
+                        Quad::ML(rc) => rc
+                            .constraint
+                            .find(ref_name.as_str())
+                            .map(|t| t.clone()),
                         // 将 L 和错误情况一并视作 None, 相关讨论见下文
                         _ => None
-                    }
-                )
-                // 采用激进的类型推导策略
-                // 该策略认为无法取得 then_expr 的类型可能是由 target_expr 无法取得类型引起的
-                // 所以应该过滤出所有能够得到的类型进行合一并 hint target_expr
-                .filter(|x| x.is_some())
-                .reduce(|acc, t| match (acc, t) {
-                    (Some(acc), Some(t)) => acc.unify(type_env, &t),
-                    _ => None
-                })
-                .flatten();
+                    })
+                    // 采用激进的类型推导策略
+                    // 该策略认为无法取得 then_expr 的类型可能是由 target_expr 无法取得类型引起的
+                    // 所以应该过滤出所有能够得到的类型进行合一并 hint target_expr
+                    .filter(|x| x.is_some())
+                    .map(|x| x.unwrap())
+                    .try_reduce(|acc, t| acc.unify(type_env, &t))
+                    .flatten();
 
             match hint {
                 Some(hint) => {
-                    let hinted_target_expr = target_expr.with_fallback_type(&hint);
+                    let hinted_target_expr =
+                        target_expr.with_fallback_type(&hint);
                     let expr = Expr::Match(
                         expect_type.clone(),
                         hinted_target_expr.boxed(),
-                        case_vec.clone(),
+                        case_vec.clone()
                     );
                     expr.infer_type(type_env, expr_env)
                 }

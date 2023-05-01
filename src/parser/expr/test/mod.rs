@@ -4,7 +4,7 @@ use crate::pp::preprocess;
 
 pub fn f(seq: &str) -> OptExpr {
     let seq = preprocess(&seq)?;
-    parse_expr(seq)
+    parse_expr(seq.iter())
 }
 
 mod apply;

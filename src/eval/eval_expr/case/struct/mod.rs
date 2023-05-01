@@ -8,7 +8,7 @@ use crate::eval::r#type::eval_err::EvalErr;
 use crate::eval::r#type::expr::{Expr, StructField};
 use crate::eval::r#type::r#type::Type;
 use crate::infra::result::ResultAnyExt;
-use crate::infra::vec::Ext;
+use crate::infra::vec::VecExt;
 
 pub fn case_struct(
     type_env: &TypeEnv,

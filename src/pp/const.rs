@@ -1,6 +1,6 @@
+use crate::infra::iter::IteratorExt;
 use crate::infra::option::OptionAnyExt;
-use crate::infra::slice::slice_get_head_tail;
-use crate::infra::vec::Ext;
+use crate::infra::vec::VecExt;
 use crate::parser::keyword::Keyword;
 use crate::parser::value::int::parse_int;
 
@@ -92,8 +92,11 @@ impl From<Pat> for Option<Out> {
     }
 }
 
-fn go(mut stack: Vec<Pat>, tail: &[In]) -> Vec<Pat> {
-    let (head, tail) = slice_get_head_tail(tail);
+fn go<'t, S>(mut stack: Vec<Pat>, tail: S) -> Vec<Pat>
+where
+    S: Iterator<Item = &'t In>
+{
+    let (head, tail) = tail.get_head_tail();
     let move_in = match head {
         Some(x) => x.clone().into(),
         _ => return stack
@@ -106,7 +109,10 @@ fn go(mut stack: Vec<Pat>, tail: &[In]) -> Vec<Pat> {
 
 type In = crate::pp::keyword::Out;
 
-pub fn pp_const(seq: &[In]) -> Option<Vec<Out>> {
+pub fn pp_const<'t, S>(seq: S) -> Option<Vec<Out>>
+where
+    S: Iterator<Item = &'t In>
+{
     let r = go(vec![], seq)
         .iter()
         .try_fold(vec![], |acc, p| {
@@ -164,5 +170,5 @@ fn test_part1() {
     ]
     .some();
 
-    assert_eq!(pp_const(&seq), r);
+    assert_eq!(pp_const(seq.iter()), r);
 }

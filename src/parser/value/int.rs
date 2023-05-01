@@ -1,5 +1,5 @@
+use crate::infra::iter::IteratorExt;
 use crate::infra::option::OptionAnyExt;
-use crate::infra::str::str_get_head_tail;
 
 #[derive(Copy, Debug, Clone, PartialEq)]
 enum Pat {
@@ -12,7 +12,7 @@ enum Pat {
 }
 
 fn go(stack: Vec<Pat>, seq: &str) -> Option<i64> {
-    let (head, tail) = str_get_head_tail(seq);
+    let (head, tail) = seq.chars().get_head_tail();
 
     let move_in = match head {
         // _ -> Digit|Err
@@ -62,7 +62,7 @@ fn go(stack: Vec<Pat>, seq: &str) -> Option<i64> {
         }
     };
 
-    go(reduced_stack, tail)
+    go(reduced_stack, tail.as_str())
 }
 
 pub fn parse_int(x: &str) -> Option<i64> { go(vec![Pat::Start], x) }

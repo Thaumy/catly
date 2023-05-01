@@ -1,10 +1,10 @@
 use std::collections::BTreeSet;
 
 use crate::btree_set;
-use crate::infra::btree_set::Ext;
+use crate::infra::btree_set::BtreeSetExt;
 use crate::infra::option::OptionAnyExt;
 use crate::infra::r#box::BoxAnyExt;
-use crate::infra::vec::Ext as VecAnyExt;
+use crate::infra::vec::VecExt;
 use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
 

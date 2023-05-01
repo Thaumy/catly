@@ -1,4 +1,4 @@
-use crate::infra::vec::Ext;
+use crate::infra::vec::VecExt;
 use crate::parser::keyword::Keyword;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -45,9 +45,11 @@ impl From<In> for Out {
 
 type In = crate::pp::chunk::Out;
 
-pub fn pp_keyword(seq: &[In]) -> Vec<Out> {
+pub fn pp_keyword<'t, S>(seq: S) -> Vec<Out>
+where
+    S: Iterator<Item = &'t In>
+{
     let r = seq
-        .iter()
         .fold(vec![], |acc, x| acc.chain_push(Out::from(x.clone())));
 
     if cfg!(feature = "pp_log") {
@@ -98,5 +100,5 @@ fn test_part1() {
         Out::Symbol(' '),
     ];
 
-    assert_eq!(pp_keyword(&seq), r);
+    assert_eq!(pp_keyword(seq.iter()), r);
 }

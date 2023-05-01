@@ -1,6 +1,6 @@
+use crate::infra::iter::IteratorExt;
 use crate::infra::option::OptionAnyExt;
-use crate::infra::str::str_get_head_tail_follow;
-use crate::infra::vec::Ext;
+use crate::infra::vec::VecExt;
 use crate::parser::alphanum::{
     parse_alphanum,
     parse_digit,
@@ -148,7 +148,9 @@ fn reduce_stack(
 }
 
 fn go(mut stack: Vec<Pat>, tail: &str) -> Vec<Pat> {
-    let (head, tail, follow) = str_get_head_tail_follow(tail);
+    let (head, tail, follow) = tail
+        .chars()
+        .get_head_tail_follow();
 
     stack.push(move_in(&stack, head));
 
@@ -166,7 +168,7 @@ fn go(mut stack: Vec<Pat>, tail: &str) -> Vec<Pat> {
             stack.pop(); // remove End
             return stack;
         }
-        _ => go(reduced_stack, tail)
+        _ => go(reduced_stack, tail.as_str())
     }
 }
 

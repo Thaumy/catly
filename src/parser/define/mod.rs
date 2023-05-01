@@ -18,7 +18,7 @@ pub enum Define {
 type In = crate::pp::Out;
 
 pub fn parse_define(seq: Vec<In>) -> Option<Define> {
-    let r = go(vec![Pat::Start], seq).into();
+    let r = go(vec![Pat::Start], seq.iter()).into();
 
     if cfg!(feature = "parser_log") {
         let log = format!("{:8}{:>10} │ {r:?}", "[parsed]", "Define");

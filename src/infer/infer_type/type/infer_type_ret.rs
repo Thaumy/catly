@@ -96,6 +96,17 @@ impl Triple<Type, RequireConstraint, RequireInfo> {
             _ => panic!("Impossible value: {self:?}")
         }
     }
+
+    pub fn with_constraint_acc(
+        self,
+        constraint_acc: EnvRefConstraint
+    ) -> InferTypeRet {
+        match self {
+            Triple::L(t) => require_constraint(t, constraint_acc),
+            Triple::M(rc) => rc.with_constraint_acc(constraint_acc),
+            Triple::R(ri) => ri.with_constraint_acc(constraint_acc)
+        }
+    }
 }
 
 impl From<Triple<Type, RequireConstraint, RequireInfo>>

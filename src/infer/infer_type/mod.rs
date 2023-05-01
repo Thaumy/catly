@@ -9,6 +9,7 @@ use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_constraint::require_constraint;
 use crate::infra::quad::Quad;
+use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 
 pub fn infer_type(
@@ -133,9 +134,9 @@ pub fn infer_type(
             let new_expr_env = expr_env
                 .extend_constraint_new(constraint_acc.clone());
 
-            match infer_type(type_env, &new_expr_env, expr) {
-                Quad::L(t) => require_constraint(t, constraint_acc),
-                Quad::ML(rc) =>
+            match infer_type(type_env, &new_expr_env, expr)? {
+                Triple::L(t) => require_constraint(t, constraint_acc),
+                Triple::M(rc) =>
                     rc.with_constraint_acc(constraint_acc),
                 _ => result
             }

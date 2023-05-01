@@ -2,14 +2,12 @@ use crate::infer::env::expr_env::{EnvEntry, ExprEnv};
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infer::infer_type::r#type::require_constraint::require_constraint;
 use crate::infer::infer_type::r#type::require_info::RequireInfo;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::OptionAnyExt;
 use crate::infra::quad::{Quad, QuadAnyExt};
 use crate::infra::r#box::BoxAnyExt;
 use crate::infra::result::ResultAnyExt;
-use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 
 pub fn on_no_expect_type<'t, T>(
@@ -144,9 +142,7 @@ where
     let new_expr_env =
         expr_env.extend_constraint_new(outer_constraint.clone());
 
-    match match_expr.infer_type(type_env, &new_expr_env)? {
-        Triple::L(t) => require_constraint(t, outer_constraint),
-        Triple::M(rc) => rc.with_constraint_acc(outer_constraint),
-        Triple::R(ri) => ri.with_constraint_acc(outer_constraint)
-    }
+    match_expr
+        .infer_type(type_env, &new_expr_env)?
+        .with_constraint_acc(outer_constraint)
 }

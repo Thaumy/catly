@@ -1,9 +1,11 @@
 type In = crate::pp::name::Out;
 type Out = In;
 
-pub fn pp_remove_blank(seq: &Vec<In>) -> Vec<Out> {
+pub fn pp_remove_blank<'t, S>(seq: S) -> Vec<Out>
+where
+    S: Iterator<Item = &'t In>
+{
     let r = seq
-        .iter()
         .filter(|p| match p {
             In::Symbol(' ') => false,
             _ => true

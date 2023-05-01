@@ -1,20 +1,13 @@
-pub trait Ext<T> {
-    fn reduce(&mut self, cost: u8, item: T);
+pub trait VecExt<T> {
     fn push_to_new(&self, item: T) -> Vec<T>;
     fn chain_push(self, item: T) -> Vec<T>;
+    fn reduce(&mut self, cost: u8, item: T);
 }
 
-impl<T> Ext<T> for Vec<T>
+impl<T> VecExt<T> for Vec<T>
 where
     T: Clone
 {
-    #[inline]
-    fn reduce(&mut self, cost: u8, item: T) {
-        for _ in 0..cost {
-            self.pop();
-        }
-        self.push(item);
-    }
     #[inline]
     fn push_to_new(&self, item: T) -> Vec<T> {
         let b = self.clone();
@@ -25,28 +18,13 @@ where
         self.push(item);
         self
     }
-}
-
-pub fn vec_get_head_tail<T>(vec: Vec<T>) -> (Option<T>, Vec<T>)
-where
-    T: Clone
-{
-    let mut iter = vec.iter();
-    let head = iter.next().cloned();
-    (
-        head,
-        iter.map(|x| x.clone())
-            .collect()
-    )
-}
-
-pub fn vec_get_head_tail_follow<T>(
-    vec: Vec<T>
-) -> (Option<T>, Vec<T>, Option<T>)
-where
-    T: Clone
-{
-    let (head, tail) = vec_get_head_tail(vec);
-    let (follow, _) = vec_get_head_tail(tail.clone());
-    (head, tail, follow)
+    #[inline]
+    fn reduce(&mut self, cost: u8, item: T) {
+        if cost == 0 {
+            self.push(item);
+        } else {
+            self.pop();
+            self.reduce(cost - 1, item);
+        }
+    }
 }

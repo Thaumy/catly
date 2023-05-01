@@ -228,7 +228,7 @@ fn test_part13() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    assert_matches!(expr_type, Quad::MR(..))
+    assert_matches!(expr_type, Quad::R(..))
 }
 
 #[test]

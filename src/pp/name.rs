@@ -1,5 +1,5 @@
 use crate::infra::option::OptionAnyExt;
-use crate::infra::vec::Ext;
+use crate::infra::vec::VecExt;
 use crate::parser::keyword::Keyword;
 use crate::parser::name::let_name::parse_let_name;
 use crate::parser::name::type_name::parse_type_name;
@@ -39,13 +39,14 @@ impl From<In> for Option<Out> {
 
 type In = crate::pp::r#const::Out;
 
-pub fn pp_name(seq: &[In]) -> Option<Vec<Out>> {
-    let r = seq
-        .iter()
-        .try_fold(vec![], |acc, p| {
-            let it: Option<Out> = p.clone().into();
-            acc.chain_push(it?).some()
-        });
+pub fn pp_name<'t, S>(mut seq: S) -> Option<Vec<Out>>
+where
+    S: Iterator<Item = &'t In>
+{
+    let r = seq.try_fold(vec![], |acc, p| {
+        let it: Option<Out> = p.clone().into();
+        acc.chain_push(it?).some()
+    });
 
     if cfg!(feature = "pp_log") {
         let log = format!("{:8}{:>10} │ {r:?}", "[pp]", "Name");
@@ -96,5 +97,5 @@ fn test_part1() {
     ]
     .some();
 
-    assert_eq!(pp_name(&seq), r);
+    assert_eq!(pp_name(seq.iter()), r);
 }

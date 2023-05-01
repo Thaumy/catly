@@ -2,72 +2,15 @@ use std::collections::BTreeSet;
 
 use crate::infra::option::OptionAnyExt;
 use crate::infra::r#box::BoxAnyExt;
-use crate::infra::vec::{vec_get_head_tail_follow, Ext};
+use crate::infra::vec::VecExt;
 use crate::parser::r#type::pat::Pat;
+use crate::parser::r#type::In;
 use crate::pp::FollowExt;
 
-type In = crate::pp::Out;
-
-fn move_in(stack: &Vec<Pat>, head: Option<In>) -> Pat {
-    match head {
-        Some(o) => match (&stack[..], o) {
-            // .. -> LetName
-            (_, In::LetName(n)) => Pat::LetName(None, n),
-            // .. -> TypeName
-            (_, In::TypeName(n)) => Pat::TypeName(n),
-
-            // .. -> Mark
-            (_, In::Symbol(s)) => match s {
-                // '(' -> `(`
-                '(' => Pat::Mark('('),
-                // ')' -> `)`
-                ')' => Pat::Mark(')'),
-
-                // '-' -> `-`
-                '-' => Pat::Mark('-'),
-                // '>' -> `>`
-                '>' => Pat::Mark('>'),
-
-                // '{' -> `{`
-                '{' => Pat::Mark('{'),
-                // '}' -> `}`
-                '}' => Pat::Mark('}'),
-                // ',' -> `,`
-                ',' => Pat::Mark(','),
-
-                // '|' -> `|`
-                '|' => Pat::Mark('|'),
-                // ':' -> `:`
-                ':' => Pat::Mark(':'),
-
-                // _ -> Err
-                c => {
-                    if cfg!(feature = "lr1_log") {
-                        let log = format!("Invalid head Pat: {c:?}");
-                        println!("{log}");
-                    }
-
-                    Pat::Err
-                }
-            },
-
-            // _ -> Err
-            (_, p) => {
-                if cfg!(feature = "lr1_log") {
-                    let log = format!("Invalid head Pat: {p:?}");
-                    println!("{log}");
-                }
-
-                Pat::Err
-            }
-        },
-
-        // ɛ -> End
-        None => Pat::End
-    }
-}
-
-fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
+pub fn reduce_stack(
+    mut stack: Vec<Pat>,
+    follow: Option<In>
+) -> Vec<Pat> {
     match (&stack[..], &follow) {
         // Success
         ([Pat::Start, p, Pat::End], None) => return vec![p.clone()],
@@ -230,31 +173,4 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
     }
 
     reduce_stack(reduced_stack, follow)
-}
-
-pub fn go(mut stack: Vec<Pat>, seq: Vec<In>) -> Pat {
-    let (head, tail, follow) = vec_get_head_tail_follow(seq);
-
-    stack.push(move_in(&stack, head));
-
-    if cfg!(feature = "lr1_log") {
-        let log = format!("Move in: {stack:?} follow: {follow:?}");
-        println!("{log}");
-    }
-
-    let reduced_stack = reduce_stack(stack, follow.clone());
-
-    match (&reduced_stack[..], follow) {
-        ([p], None) => {
-            let r = p.clone();
-
-            if cfg!(feature = "lr1_log") {
-                let log = format!("Success with: {r:?}");
-                println!("{log}");
-            }
-
-            r
-        }
-        _ => go(reduced_stack, tail)
-    }
 }

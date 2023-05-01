@@ -1,5 +1,5 @@
+use crate::infra::iter::IteratorExt;
 use crate::infra::option::OptionAnyExt;
-use crate::infra::str::str_get_head_tail;
 use crate::parser::alphanum::{parse_alphanum, parse_upper};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -14,7 +14,7 @@ enum Pat {
 }
 
 fn go(stack: &Pat, seq: &str) -> Option<String> {
-    let (head, tail) = str_get_head_tail(seq);
+    let (head, tail) = seq.chars().get_head_tail();
 
     let move_in = match (stack, head) {
         // TypeName: [0-9a-zA-Z] -> Alphanum
@@ -61,7 +61,7 @@ fn go(stack: &Pat, seq: &str) -> Option<String> {
         }
     };
 
-    go(&reduced_stack, tail)
+    go(&reduced_stack, tail.as_str())
 }
 
 pub fn parse_type_name(seq: &str) -> Option<String> {

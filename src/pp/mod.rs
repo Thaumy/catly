@@ -1,3 +1,4 @@
+use crate::infra::option::OptionAnyExt;
 use crate::parser::keyword::Keyword;
 use crate::pp::chunk::pp_chunk;
 use crate::pp::comment::pp_comment;
@@ -47,16 +48,15 @@ pub fn preprocess(seq: &str) -> Option<Vec<Out>> {
     let r = pp_comment(seq);
     let r = pp_merge_blank(&r);
     let r = pp_chunk(&r)?;
-    let r = pp_keyword(&r);
-    let r = pp_const(&r)?;
-    let r = pp_name(&r)?;
-    let r = pp_remove_blank(&r);
-    let r = r
-        .iter()
-        .map(|x| Out::from(x.clone()))
-        .collect();
+    let r = pp_keyword(r.iter());
+    let r = pp_const(r.iter())?;
+    let r = pp_name(r.iter())?;
+    let r = pp_remove_blank(r.iter());
 
-    Some(r)
+    r.iter()
+        .map(|x| x.clone().into())
+        .collect::<Vec<Out>>()
+        .some()
 }
 
 pub trait FollowExt<T> {

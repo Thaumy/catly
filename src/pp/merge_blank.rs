@@ -1,5 +1,5 @@
-use crate::infra::str::str_get_head_tail;
-use crate::infra::vec::Ext;
+use crate::infra::iter::IteratorExt;
+use crate::infra::vec::VecExt;
 
 fn any(c: char) -> AnyOrBlank { Some(c) }
 
@@ -17,7 +17,7 @@ fn reduce_stack(mut stack: Vec<AnyOrBlank>) -> Vec<AnyOrBlank> {
 }
 
 fn go(mut stack: Vec<AnyOrBlank>, tail: &str) -> Vec<AnyOrBlank> {
-    let (head, tail) = str_get_head_tail(tail);
+    let (head, tail) = tail.chars().get_head_tail();
     let move_in = match head {
         Some(' ' | '\t' | '\n' | '\r') => blank(),
         Some(c) => any(c),
@@ -26,7 +26,7 @@ fn go(mut stack: Vec<AnyOrBlank>, tail: &str) -> Vec<AnyOrBlank> {
 
     stack.push(move_in);
     let reduced_stack = reduce_stack(stack);
-    go(reduced_stack, tail)
+    go(reduced_stack, tail.as_str())
 }
 
 pub fn pp_merge_blank(seq: &str) -> String {
