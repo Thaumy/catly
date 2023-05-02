@@ -4,7 +4,7 @@ mod test;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infer::infer_type::r#type::require_info::RequireInfo;
+use crate::infer::infer_type::r#type::require_info::ReqInfo;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::parser::r#type::r#type::OptType;
 
@@ -23,6 +23,6 @@ pub fn case(
                 .into()
             },
         // Discard 值必须具备类型信息
-        None => RequireInfo::of("_", EnvRefConstraint::empty()).into()
+        None => ReqInfo::of("_", EnvRefConstraint::empty()).into()
     }
 }

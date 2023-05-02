@@ -6,7 +6,7 @@ use crate::infer::env::r#macro::namely_type;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infer::infer_type::r#type::require_info::RequireInfo;
+use crate::infer::infer_type::r#type::require_info::ReqInfo;
 use crate::infra::option::OptionAnyExt;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
@@ -37,7 +37,7 @@ fn test_part2() {
 
     assert_eq!(
         expr_type,
-        RequireInfo::of("_", EnvRefConstraint::empty()).into()
+        ReqInfo::of("_", EnvRefConstraint::empty()).into()
     )
 }
 

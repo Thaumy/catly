@@ -10,7 +10,7 @@ use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_constraint::require_constraint;
-use crate::infer::infer_type::r#type::require_info::RequireInfo;
+use crate::infer::infer_type::r#type::require_info::ReqInfo;
 use crate::infra::quad::Quad;
 
 fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
@@ -57,7 +57,7 @@ fn test_part1() {
         .get_ref("f1")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = RequireInfo::of("a", EnvRefConstraint::empty()).into();
+    let r = ReqInfo::of("a", EnvRefConstraint::empty()).into();
 
     assert_eq!(expr_type, r)
 }
@@ -214,7 +214,7 @@ fn test_part11() {
         .get_ref("f11")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = RequireInfo::of(
+    let r = ReqInfo::of(
         "a",
         EnvRefConstraint::single("b11".to_string(), int_type!())
     )
@@ -231,7 +231,7 @@ fn test_part12() {
         .get_ref("f12")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = RequireInfo::of(
+    let r = ReqInfo::of(
         "_ (closure input)",
         EnvRefConstraint::empty()
     )
@@ -248,7 +248,7 @@ fn test_part13() {
         .get_ref("f13")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = RequireInfo::of(
+    let r = ReqInfo::of(
         "_ (closure input)",
         EnvRefConstraint::single("a13".to_string(), int_type!())
     )

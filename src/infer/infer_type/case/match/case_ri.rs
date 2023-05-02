@@ -2,7 +2,7 @@ use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::case::r#match::r#fn::destruct_match_const_to_expr_env_inject;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infer::infer_type::r#type::require_info::RequireInfo;
+use crate::infer::infer_type::r#type::require_info::ReqInfo;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::OptionAnyExt;
 use crate::infra::quad::{Quad, QuadAnyExt};
@@ -16,7 +16,7 @@ use crate::parser::r#type::r#type::{OptType, Type};
 pub fn case_ri(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
-    require_info: RequireInfo,
+    require_info: ReqInfo,
     expect_type: &OptType,
     target_expr: &Expr,
     case_vec: &Vec<(Expr, Expr)>

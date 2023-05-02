@@ -4,9 +4,9 @@ use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::require_constraint::{
     require_constraint,
-    RequireConstraint
+    ReqConstraint
 };
-use crate::infer::infer_type::r#type::require_info::RequireInfo;
+use crate::infer::infer_type::r#type::require_info::ReqInfo;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::OptionAnyExt;
 use crate::infra::quad::{Quad, QuadAnyExt};
@@ -15,13 +15,13 @@ use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
 
 pub type InferTypeRet =
-    Quad<Type, RequireConstraint, RequireInfo, TypeMissMatch>;
+    Quad<Type, ReqConstraint, ReqInfo, TypeMissMatch>;
 
 impl InferTypeRet {
     pub fn try_get_type(&self) -> OptType {
         match self.clone() {
             Quad::L(t) |
-            Quad::ML(RequireConstraint { r#type: t, .. }) => t.some(),
+            Quad::ML(ReqConstraint { r#type: t, .. }) => t.some(),
             _ => return None
         }
     }
@@ -45,8 +45,7 @@ impl InferTypeRet {
             constraint.unwrap_or_else(|| EnvRefConstraint::empty());
 
         if from.is_partial() {
-            return RequireInfo::of("(partial type)", constraint)
-                .into();
+            return ReqInfo::of("(partial type)", constraint).into();
         };
 
         match to {
@@ -70,7 +69,7 @@ impl From<InferTypeRet> for OptType {
     }
 }
 
-impl Triple<Type, RequireConstraint, RequireInfo> {
+impl Triple<Type, ReqConstraint, ReqInfo> {
     pub fn unwrap_type_constraint(self) -> (Type, EnvRefConstraint) {
         match self {
             Triple::L(input_type) =>
@@ -92,12 +91,8 @@ impl Triple<Type, RequireConstraint, RequireInfo> {
     }
 }
 
-impl From<Triple<Type, RequireConstraint, RequireInfo>>
-    for InferTypeRet
-{
-    fn from(
-        value: Triple<Type, RequireConstraint, RequireInfo>
-    ) -> Self {
+impl From<Triple<Type, ReqConstraint, ReqInfo>> for InferTypeRet {
+    fn from(value: Triple<Type, ReqConstraint, ReqInfo>) -> Self {
         match value {
             Triple::L(v) => Self::L(v),
             Triple::M(v) => Self::ML(v),
@@ -114,7 +109,7 @@ impl FromResidual for InferTypeRet {
 }
 
 impl Try for InferTypeRet {
-    type Output = Triple<Type, RequireConstraint, RequireInfo>;
+    type Output = Triple<Type, ReqConstraint, ReqInfo>;
     type Residual = InferTypeRet;
 
     #[inline]

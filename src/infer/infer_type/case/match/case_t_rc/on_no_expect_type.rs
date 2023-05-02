@@ -2,7 +2,7 @@ use crate::infer::env::expr_env::{EnvEntry, ExprEnv};
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infer::infer_type::r#type::require_info::RequireInfo;
+use crate::infer::infer_type::r#type::require_info::ReqInfo;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::OptionAnyExt;
 use crate::infra::quad::{Quad, QuadAnyExt};
@@ -51,7 +51,7 @@ where
                     (then_expr_type, outer_constraint).ok()
                 }
                 // 同样需要去除对常量环境的约束
-                Quad::MR(ri) => RequireInfo::of(
+                Quad::MR(ri) => ReqInfo::of(
                     ri.ref_name,
                     ri.constraint
                         .filter_new(|(n, _)| {
@@ -129,7 +129,7 @@ where
         Err(e) => return e,
         // 所有 then_expr 都缺乏信息
         Ok(None) =>
-            return RequireInfo::of("(then expr)", outer_constraint)
+            return ReqInfo::of("(then expr)", outer_constraint)
                 .quad_mr(),
     };
 

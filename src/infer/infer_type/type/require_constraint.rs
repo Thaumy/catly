@@ -8,12 +8,12 @@ use crate::parser::r#type::r#type::Type;
 
 // 经由约束才能使用的类型
 #[derive(PartialEq, Clone)]
-pub struct RequireConstraint {
+pub struct ReqConstraint {
     pub r#type: Type,
     pub constraint: EnvRefConstraint
 }
 
-impl RequireConstraint {
+impl ReqConstraint {
     pub fn with_constraint_acc(
         &self,
         constraint: EnvRefConstraint
@@ -34,7 +34,7 @@ pub fn require_constraint(
     if constraint.is_empty() {
         InferTypeRet::has_type(r#type)
     } else {
-        RequireConstraint { r#type, constraint }.into()
+        ReqConstraint { r#type, constraint }.into()
     }
 }
 
@@ -50,11 +50,11 @@ pub fn require_extended_constraint(
     }
 }
 
-impl From<RequireConstraint> for InferTypeRet {
-    fn from(value: RequireConstraint) -> Self { value.quad_ml() }
+impl From<ReqConstraint> for InferTypeRet {
+    fn from(value: ReqConstraint) -> Self { value.quad_ml() }
 }
 
-impl Debug for RequireConstraint {
+impl Debug for ReqConstraint {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         if self.constraint.is_empty() {
             f.write_str(&*format!("ReqC::{:?}", self.r#type))

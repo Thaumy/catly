@@ -8,8 +8,8 @@ use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::case::cond::infer_branch_type::infer_branch_type;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infer::infer_type::r#type::require_constraint::RequireConstraint;
-use crate::infer::infer_type::r#type::require_info::RequireInfo;
+use crate::infer::infer_type::r#type::require_constraint::ReqConstraint;
+use crate::infer::infer_type::r#type::require_info::ReqInfo;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::quad::QuadAnyExt;
 use crate::infra::triple::Triple;
@@ -70,10 +70,8 @@ pub fn case(
                 else_expr
             )? {
                 // 产生约束, 由于约束是经过累积的, 所以需要改写错误
-                Triple::M(RequireConstraint {
-                    constraint, ..
-                }) =>
-                    RequireInfo::of(ri.ref_name.clone(), constraint)
+                Triple::M(ReqConstraint { constraint, .. }) =>
+                    ReqInfo::of(ri.ref_name.clone(), constraint)
                         .quad_mr(),
                 // 未产生约束, 返回原错误
                 Triple::L(_) => ri.clone().quad_mr(),

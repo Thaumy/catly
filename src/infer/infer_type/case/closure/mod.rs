@@ -9,7 +9,7 @@ use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::case::closure::case_t_rc::case_t_rc;
 use crate::infer::infer_type::r#fn::destruct_namely_type;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infer::infer_type::r#type::require_info::RequireInfo;
+use crate::infer::infer_type::r#type::require_info::ReqInfo;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::OptionAnyExt;
 use crate::infra::triple::Triple;
@@ -100,7 +100,7 @@ pub fn case(
 
         // infer_type 不能推导出输出类型(即便进行了类型提示), 但可以传播约束, 为下一轮推导提供信息
         // Closure 不存在可以推导输出类型的第二个表达式, 所以不适用于旁路类型推导
-        Triple::R(ri) if let Some(input_name) = input_name => RequireInfo::of(
+        Triple::R(ri) if let Some(input_name) = input_name => ReqInfo::of(
             &ri.ref_name,
             ri.constraint
                 .exclude_new(input_name.as_str())

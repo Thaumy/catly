@@ -1,7 +1,7 @@
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infer::infer_type::r#type::require_info::RequireInfo;
+use crate::infer::infer_type::r#type::require_info::ReqInfo;
 use crate::infra::option::OptionAnyExt;
 use crate::infra::r#box::BoxAnyExt;
 use crate::parser::r#type::r#type::OptType;
@@ -25,7 +25,7 @@ pub fn case_t_rc(
                 // input_name 被弃元, 说明 output_expr_type 产生的约束全部作用于外层环境
                 // 此时不可能确定输入类型
                 None =>
-                    return RequireInfo::of(
+                    return ReqInfo::of(
                         "_ (closure input)",
                         constraint_acc
                     )
@@ -44,11 +44,8 @@ pub fn case_t_rc(
                 }
                 None =>
                 // 约束不包含输入, 缺乏推导出输入类型的信息
-                    return RequireInfo::of(
-                        input_name,
-                        constraint_acc
-                    )
-                    .into(),
+                    return ReqInfo::of(input_name, constraint_acc)
+                        .into(),
             }
         }
     };

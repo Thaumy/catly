@@ -7,7 +7,7 @@ use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_constraint::require_constraint;
-use crate::infer::infer_type::r#type::require_info::RequireInfo;
+use crate::infer::infer_type::r#type::require_info::ReqInfo;
 use crate::infra::quad::Quad;
 
 fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
@@ -37,7 +37,7 @@ fn test_part1() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    let r = RequireInfo::of("a", EnvRefConstraint::empty()).into();
+    let r = ReqInfo::of("a", EnvRefConstraint::empty()).into();
 
     assert_eq!(expr_type, r)
 }

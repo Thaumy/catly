@@ -2,7 +2,7 @@ use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infer::infer_type::r#type::require_info::RequireInfo;
+use crate::infer::infer_type::r#type::require_info::ReqInfo;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::OptionAnyExt;
 use crate::infra::triple::Triple;
@@ -50,9 +50,9 @@ pub fn case_ri(
             // 因为 scope_expr 没有带来约束, 所以 assign 仍需类型信息
             // 改写或返回原错误, 改写是为了让无类型弃元错误正确地附加到 assign_name 上, 而不是被其他层级捕获
             _ => if require_info_ref_name == "_" {
-                RequireInfo::of(assign_name, constraint_acc)
+                ReqInfo::of(assign_name, constraint_acc)
             } else {
-                RequireInfo::of(require_info_ref_name, constraint_acc)
+                ReqInfo::of(require_info_ref_name, constraint_acc)
             }
             .into()
         },

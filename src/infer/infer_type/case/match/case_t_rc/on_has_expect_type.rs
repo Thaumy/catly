@@ -3,7 +3,7 @@ use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_constraint::require_constraint;
-use crate::infer::infer_type::r#type::require_info::RequireInfo;
+use crate::infer::infer_type::r#type::require_info::ReqInfo;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::quad::{Quad, QuadAnyExt};
 use crate::infra::result::ResultAnyExt;
@@ -69,7 +69,7 @@ where
                     }
                 }
                 // 同样需要去除对常量环境的约束
-                Quad::MR(ri) => RequireInfo::of(
+                Quad::MR(ri) => ReqInfo::of(
                     ri.ref_name,
                     ri.constraint
                         .filter_new(|(n, _)| {
@@ -129,8 +129,7 @@ where
         .find(|x| matches!(x, Err(Quad::MR(_))))
     {
         Some(Err(Quad::MR(ri))) =>
-            return RequireInfo::of(ri.ref_name, outer_constraint)
-                .into(),
+            return ReqInfo::of(ri.ref_name, outer_constraint).into(),
         _ => {}
     } // 排除了 infer_type 的结果 MR
 

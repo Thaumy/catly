@@ -5,7 +5,7 @@ use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_constraint::require_constraint;
-use crate::infer::infer_type::r#type::require_info::RequireInfo;
+use crate::infer::infer_type::r#type::require_info::ReqInfo;
 use crate::infra::option::OptionAnyExt;
 use crate::infra::triple::Triple;
 
@@ -26,7 +26,7 @@ impl<'t> ExprEnv<'t> {
                 TypeConstraint::Constraint(t) =>
                     InferTypeRet::has_type(t.clone()),
                 // 不存在类型约束
-                TypeConstraint::Free => RequireInfo::of(
+                TypeConstraint::Free => ReqInfo::of(
                     ref_name.into(),
                     EnvRefConstraint::empty()
                 )
@@ -98,7 +98,7 @@ impl<'t> ExprEnv<'t> {
             }
 
             // 缺乏推导信息
-            None => RequireInfo::of(
+            None => ReqInfo::of(
                 ref_name.into(),
                 EnvRefConstraint::empty()
             )

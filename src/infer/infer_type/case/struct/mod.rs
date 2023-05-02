@@ -7,7 +7,7 @@ use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::case::r#struct::r#fn::is_struct_vec_of_type_then_get_prod_vec;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infer::infer_type::r#type::require_info::RequireInfo;
+use crate::infer::infer_type::r#type::require_info::ReqInfo;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::OptionAnyExt;
 use crate::infra::quad::Quad;
@@ -127,8 +127,7 @@ pub fn case(
         .find(|x| matches!(x, Err(Quad::MR(_))))
     {
         Some(Err(Quad::MR(ri))) =>
-            return RequireInfo::of(ri.ref_name, outer_constraint)
-                .into(),
+            return ReqInfo::of(ri.ref_name, outer_constraint).into(),
         _ => {}
     } // 排除了 infer_type 的结果 MR
 
