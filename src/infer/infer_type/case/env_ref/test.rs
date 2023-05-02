@@ -4,8 +4,8 @@ use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::parse_env;
 use crate::infer::env::r#macro::int_type;
 use crate::infer::env::type_env::TypeEnv;
-use crate::infer::infer_type::r#fn::has_type;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
+use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_constraint::require_constraint;
 use crate::infer::infer_type::r#type::require_info::RequireInfo;
 use crate::infra::quad::Quad;
@@ -83,7 +83,7 @@ fn test_part4() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    let r = has_type(int_type!());
+    let r = InferTypeRet::has_type(int_type!());
 
     assert_eq!(expr_type, r)
 }
@@ -97,7 +97,7 @@ fn test_part5() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    let r = has_type(int_type!());
+    let r = InferTypeRet::has_type(int_type!());
 
     assert_eq!(expr_type, r)
 }
@@ -111,7 +111,7 @@ fn test_part6() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    let r = has_type(int_type!());
+    let r = InferTypeRet::has_type(int_type!());
 
     assert_eq!(expr_type, r)
 }

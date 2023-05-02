@@ -1,5 +1,4 @@
-mod case_rc;
-mod case_t;
+mod case_t_rc;
 #[cfg(test)]
 mod test;
 
@@ -7,8 +6,7 @@ use std::ops::Deref;
 
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
-use crate::infer::infer_type::case::closure::case_rc::case_rc;
-use crate::infer::infer_type::case::closure::case_t::case_t;
+use crate::infer::infer_type::case::closure::case_t_rc::case_t_rc;
 use crate::infer::infer_type::r#fn::destruct_namely_type;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_info::RequireInfo;
@@ -86,31 +84,28 @@ pub fn case(
         .with_opt_fallback_type(&expect_output_type)
         .infer_type(type_env, &expr_env)?
     {
-        Triple::L(output_expr_type) => case_t(
-            type_env,
-            expect_type,
-            input_name,
-            input_type,
-            output_expr_type,
-        ),
+        output_expr_type @ (Triple::L(_) | Triple::M(_)) => {
+            let (output_expr_type, constraint_acc) =
+                output_expr_type.unwrap_type_constraint();
 
-        Triple::M(rc) => case_rc(
-            type_env,
-            expect_type,
-            rc.r#type,
-            rc.constraint,
-            input_name,
-            input_type,
-        ),
+            case_t_rc(
+                type_env,
+                expect_type,
+                output_expr_type,
+                constraint_acc,
+                input_name,
+                input_type
+            )
+        }
 
         // infer_type 不能推导出输出类型(即便进行了类型提示), 但可以传播约束, 为下一轮推导提供信息
         // Closure 不存在可以推导输出类型的第二个表达式, 所以不适用于旁路类型推导
-        Triple::R(ri) if let Some(input_name) = input_name =>
-            RequireInfo::of(
-                &ri.ref_name,
-                ri.constraint.exclude_new(input_name.as_str()),
-            )
-                .into(),
+        Triple::R(ri) if let Some(input_name) = input_name => RequireInfo::of(
+            &ri.ref_name,
+            ri.constraint
+                .exclude_new(input_name.as_str())
+        )
+        .into(),
 
         ri => ri.into()
     }

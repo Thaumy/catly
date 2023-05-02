@@ -27,7 +27,7 @@ pub fn infer_branch_type(
     {
         then_expr_type @ (Triple::L(_) | Triple::M(_)) => {
             let (then_expr_type, constraint) =
-                then_expr_type.unwrap_type_and_constraint();
+                then_expr_type.unwrap_type_constraint();
             let constraint_acc =
                 match constraint_acc.extend_new(constraint.clone()) {
                     Some(constraint) => constraint,

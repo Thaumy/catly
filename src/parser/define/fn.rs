@@ -36,7 +36,7 @@ fn move_in(stack: &Vec<Pat>, head: Option<In>) -> Pat {
 
                 // _ -> Err
                 c => {
-                    if cfg!(feature = "lr1_log") {
+                    if cfg!(feature = "parser_lr1_log") {
                         let log = format!("Invalid head Pat: {c:?}");
                         println!("{log}");
                     }
@@ -47,7 +47,7 @@ fn move_in(stack: &Vec<Pat>, head: Option<In>) -> Pat {
 
             // _ -> Err
             (_, p) => {
-                if cfg!(feature = "lr1_log") {
+                if cfg!(feature = "parser_lr1_log") {
                     let log = format!("Invalid head Pat: {p:?}");
                     println!("{log}");
                 }
@@ -114,7 +114,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
         ([.., Pat::Err], _) => return vec![Pat::Err],
         // Can not reduce
         ([.., Pat::End], _) => {
-            if cfg!(feature = "lr1_log") {
+            if cfg!(feature = "parser_lr1_log") {
                 let log = format!("Reduction failed: {stack:?}");
                 println!("{log}");
             }
@@ -127,7 +127,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
 
     let reduced_stack = stack;
 
-    if cfg!(feature = "lr1_log") {
+    if cfg!(feature = "parser_lr1_log") {
         let log = format!("Reduced: {reduced_stack:?}");
         println!("{log}");
     }
@@ -143,7 +143,7 @@ where
 
     stack.push(move_in(&stack, head.cloned()));
 
-    if cfg!(feature = "lr1_log") {
+    if cfg!(feature = "parser_lr1_log") {
         let log = format!("Move in: {stack:?} follow: {follow:?}");
         println!("{log}");
     }
@@ -167,7 +167,7 @@ where
                 _ => Pat::Err
             };
 
-            if cfg!(feature = "lr1_log") {
+            if cfg!(feature = "parser_lr1_log") {
                 let log = format!("Success with: {r:?}");
                 println!("{log}");
             }

@@ -42,7 +42,7 @@ where
                 // 因为 case_expr 的每一部分都具备完整的类型信息, 参见上面的推导过程
                 Quad::L(_) | Quad::ML(_) => {
                     let (then_expr_type, constraint) =
-                        then_expr_type.unwrap_type_and_constraint();
+                        then_expr_type.unwrap_type_constraint();
 
                     // 将作用于常量环境的约束过滤掉, 收集外部约束用于分支共享
                     let outer_constraint =

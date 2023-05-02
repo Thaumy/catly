@@ -2,7 +2,6 @@
 mod test;
 
 use crate::infer::env::type_env::TypeEnv;
-use crate::infer::infer_type::r#fn::has_type;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_info::RequireInfo;
@@ -16,7 +15,7 @@ pub fn case(
     match expect_type {
         Some(expect_type) =>
             if type_env.is_type_valid(expect_type) {
-                has_type(expect_type.clone())
+                InferTypeRet::has_type(expect_type.clone())
             } else {
                 TypeMissMatch::of(&format!(
                     "{expect_type:?} not found in type env"

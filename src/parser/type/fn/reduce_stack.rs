@@ -154,7 +154,7 @@ pub fn reduce_stack(
         ([.., Pat::Err], _) => return vec![Pat::Err],
         // Can not reduce
         ([.., Pat::End], _) => {
-            if cfg!(feature = "lr1_log") {
+            if cfg!(feature = "parser_lr1_log") {
                 let log = format!("Reduction failed: {stack:?}");
                 println!("{log}");
             }
@@ -167,7 +167,7 @@ pub fn reduce_stack(
 
     let reduced_stack = stack;
 
-    if cfg!(feature = "lr1_log") {
+    if cfg!(feature = "parser_lr1_log") {
         let log = format!("Reduced: {reduced_stack:?}");
         println!("{log}");
     }

@@ -7,8 +7,8 @@ use crate::infer::env::r#macro::int_type;
 use crate::infer::env::r#macro::namely_type;
 use crate::infer::env::r#macro::unit_type;
 use crate::infer::env::type_env::TypeEnv;
-use crate::infer::infer_type::r#fn::has_type;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
+use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_constraint::require_constraint;
 use crate::infra::quad::Quad;
 
@@ -63,7 +63,7 @@ fn test_part1() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    let r = has_type(int_type!());
+    let r = InferTypeRet::has_type(int_type!());
 
     assert_eq!(expr_type, r)
 }
@@ -77,7 +77,7 @@ fn test_part2() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    let r = has_type(unit_type!());
+    let r = InferTypeRet::has_type(unit_type!());
 
     assert_eq!(expr_type, r)
 }
@@ -91,7 +91,10 @@ fn test_part3() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    let r = has_type(closure_type!(int_type!(), unit_type!()));
+    let r = InferTypeRet::has_type(closure_type!(
+        int_type!(),
+        unit_type!()
+    ));
 
     assert_eq!(expr_type, r)
 }
@@ -149,7 +152,7 @@ fn test_part7() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    let r = has_type(namely_type!("Int"));
+    let r = InferTypeRet::has_type(namely_type!("Int"));
 
     assert_eq!(expr_type, r)
 }
@@ -163,7 +166,7 @@ fn test_part8() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    let r = has_type(namely_type!("Int"));
+    let r = InferTypeRet::has_type(namely_type!("Int"));
 
     assert_eq!(expr_type, r)
 }
@@ -177,7 +180,7 @@ fn test_part9() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    let r = has_type(namely_type!("Int"));
+    let r = InferTypeRet::has_type(namely_type!("Int"));
 
     assert_eq!(expr_type, r)
 }
@@ -191,7 +194,7 @@ fn test_part10() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    let r = has_type(namely_type!("Int"));
+    let r = InferTypeRet::has_type(namely_type!("Int"));
 
     assert_eq!(expr_type, r)
 }
@@ -205,7 +208,7 @@ fn test_part11() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    let r = has_type(namely_type!("Int"));
+    let r = InferTypeRet::has_type(namely_type!("Int"));
 
     assert_eq!(expr_type, r)
 }
@@ -268,7 +271,10 @@ fn test_part14() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    let r = has_type(closure_type!(int_type!(), int_type!()));
+    let r = InferTypeRet::has_type(closure_type!(
+        int_type!(),
+        int_type!()
+    ));
 
     assert_eq!(expr_type, r)
 }

@@ -35,7 +35,7 @@ pub fn move_in(stack: &Vec<Pat>, head: Option<In>) -> Pat {
 
                 // _ -> Err
                 c => {
-                    if cfg!(feature = "lr1_log") {
+                    if cfg!(feature = "parser_lr1_log") {
                         let log = format!("Invalid head Pat: {c:?}");
                         println!("{log}");
                     }
@@ -46,7 +46,7 @@ pub fn move_in(stack: &Vec<Pat>, head: Option<In>) -> Pat {
 
             // _ -> Err
             (_, p) => {
-                if cfg!(feature = "lr1_log") {
+                if cfg!(feature = "parser_lr1_log") {
                     let log = format!("Invalid head Pat: {p:?}");
                     println!("{log}");
                 }

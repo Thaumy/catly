@@ -2,7 +2,6 @@ use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::r#type::env_ref_src::EnvRefSrc;
 use crate::infer::env::r#type::type_constraint::TypeConstraint;
 use crate::infer::env::type_env::TypeEnv;
-use crate::infer::infer_type::r#fn::has_type;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_constraint::require_constraint;
@@ -24,7 +23,8 @@ impl<'t> ExprEnv<'t> {
             // 当前环境查找到引用名, 但不存在引用源
             Some((tc, EnvRefSrc::NoSrc)) => match tc {
                 // 引用名所对应的类型是类型约束的直接类型
-                TypeConstraint::Constraint(t) => has_type(t.clone()),
+                TypeConstraint::Constraint(t) =>
+                    InferTypeRet::has_type(t.clone()),
                 // 不存在类型约束
                 TypeConstraint::Free => RequireInfo::of(
                     ref_name.into(),
@@ -76,7 +76,7 @@ impl<'t> ExprEnv<'t> {
                         .infer_type(type_env, &new_expr_env)?
                     {
                         Triple::L(src_expr_type) =>
-                            has_type(src_expr_type),
+                            InferTypeRet::has_type(src_expr_type),
                         // 由于 ref_name 是 Free 的, 所以此时约束可能作用于 ref_name 本身
                         // 此时作用于 ref_name 的约束相当于 ref_name 的固有类型, 只需将其他约束按需传播
                         // 如果引用源是无类型弃元

@@ -32,7 +32,7 @@ pub fn case(
         // L 与 ML 的唯一区别是 ML 额外携带了一些对外层环境的约束, 需要传播这些约束
         assign_expr_type @ (Triple::L(_) | Triple::M(_)) => {
             let (assign_expr_type, constraint_acc) =
-                assign_expr_type.unwrap_type_and_constraint();
+                assign_expr_type.unwrap_type_constraint();
             // 过滤掉对 assign_name 的约束(对于 ML
             let constraint_acc =
                 constraint_acc.exclude_new(assign_name.as_str());

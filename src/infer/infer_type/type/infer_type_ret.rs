@@ -9,7 +9,7 @@ use crate::infer::infer_type::r#type::require_constraint::{
 use crate::infer::infer_type::r#type::require_info::RequireInfo;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::OptionAnyExt;
-use crate::infra::quad::Quad;
+use crate::infra::quad::{Quad, QuadAnyExt};
 use crate::infra::triple::Triple;
 use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
@@ -26,9 +26,7 @@ impl InferTypeRet {
         }
     }
 
-    pub fn unwrap_type_and_constraint(
-        self
-    ) -> (Type, EnvRefConstraint) {
+    pub fn unwrap_type_constraint(self) -> (Type, EnvRefConstraint) {
         match self {
             Quad::L(input_type) =>
                 (input_type, EnvRefConstraint::empty()),
@@ -60,20 +58,7 @@ impl InferTypeRet {
         }
     }
 
-    pub fn from_auto_unify(
-        type_env: &TypeEnv,
-        l: &Type,
-        r: &Type,
-        constraint: Option<EnvRefConstraint>
-    ) -> InferTypeRet {
-        let constraint =
-            constraint.unwrap_or_else(|| EnvRefConstraint::empty());
-
-        match l.unify(type_env, r) {
-            Some(t) => require_constraint(t, constraint),
-            None => TypeMissMatch::of_type(l, r).into()
-        }
-    }
+    pub fn has_type(r#type: Type) -> InferTypeRet { r#type.quad_l() }
 }
 
 impl From<InferTypeRet> for OptType {
@@ -86,9 +71,7 @@ impl From<InferTypeRet> for OptType {
 }
 
 impl Triple<Type, RequireConstraint, RequireInfo> {
-    pub fn unwrap_type_and_constraint(
-        self
-    ) -> (Type, EnvRefConstraint) {
+    pub fn unwrap_type_constraint(self) -> (Type, EnvRefConstraint) {
         match self {
             Triple::L(input_type) =>
                 (input_type, EnvRefConstraint::empty()),

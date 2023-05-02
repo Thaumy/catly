@@ -26,7 +26,7 @@ pub fn case(
     match lhs_expr.infer_type(type_env, expr_env)? {
         lhs_expr_type @ (Triple::L(_) | Triple::M(_)) => {
             let (lhs_expr_type, constraint_acc) =
-                lhs_expr_type.unwrap_type_and_constraint();
+                lhs_expr_type.unwrap_type_constraint();
 
             let (lhs_input_type, lhs_output_type) =
                 if let Type::ClosureType(input_type, output_type) =

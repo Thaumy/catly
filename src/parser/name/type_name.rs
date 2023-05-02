@@ -29,7 +29,7 @@ fn go(stack: &Pat, seq: &str) -> Option<String> {
         (_, None) => Pat::End,
         // _ -> Err
         (_, Some(c)) => {
-            if cfg!(feature = "lr1_log") {
+            if cfg!(feature = "parser_lr1_log") {
                 let log = format!("Invalid head Pat: {c:?}");
                 println!("{log}");
             }
@@ -52,7 +52,7 @@ fn go(stack: &Pat, seq: &str) -> Option<String> {
         (_, Pat::Err) => return None,
         // Can not reduce
         (a, b) => {
-            if cfg!(feature = "lr1_log") {
+            if cfg!(feature = "parser_lr1_log") {
                 let log = format!("Reduction failed: {a:?}, {b:?}");
                 println!("{log}");
             }

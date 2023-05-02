@@ -23,7 +23,7 @@ pub fn case_ri(
         // 所以再次 infer_type 时应该将这些约束注入环境, 并对外传播
         rhs_expr_type @ (Triple::L(_) | Triple::M(_)) => {
             let (input_type, constraint) =
-                rhs_expr_type.unwrap_type_and_constraint();
+                rhs_expr_type.unwrap_type_constraint();
             let constraint_acc =
                 match constraint_acc.extend_new(constraint.clone()) {
                     Some(c) => c,

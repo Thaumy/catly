@@ -22,7 +22,7 @@ fn go(stack: Vec<Pat>, seq: &str) -> Option<i64> {
                 Some(d) => Pat::Digit(d),
                 // ɛ -> Err
                 None => {
-                    if cfg!(feature = "lr1_log") {
+                    if cfg!(feature = "parser_lr1_log") {
                         let log = format!("Invalid head Pat: {c:?}");
                         println!("{log}");
                     }
@@ -52,7 +52,7 @@ fn go(stack: Vec<Pat>, seq: &str) -> Option<i64> {
         (_, Pat::Err) => return None,
         // Can not reduce
         (_, b) => {
-            if cfg!(feature = "lr1_log") {
+            if cfg!(feature = "parser_lr1_log") {
                 let log =
                     format!("Reduction failed: {stack:?}, {b:?}");
                 println!("{log}");

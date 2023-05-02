@@ -6,8 +6,8 @@ use crate::infer::env::r#macro::bool_type;
 use crate::infer::env::r#macro::int_type;
 use crate::infer::env::r#macro::unit_type;
 use crate::infer::env::type_env::TypeEnv;
-use crate::infer::infer_type::r#fn::has_type;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
+use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_constraint::require_constraint;
 use crate::infra::quad::Quad;
 
@@ -51,6 +51,9 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
         def cond15: Int = if let a = a15 in true then 1 else a15: Int
         def a16 = _
         def cond16: Int = if let a = a16 in true then 1 else 0
+        def a17 = _
+        def b17 = _
+        def cond17: Int = if let a = a17 in true then let b: Int = b17 in 1 else 0
     ";
     parse_env(&seq).unwrap()
 }
@@ -63,7 +66,7 @@ fn test_part1() {
         .get_ref("cond1")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = has_type(int_type!());
+    let r = InferTypeRet::has_type(int_type!());
 
     assert_eq!(expr_type, r)
 }
@@ -76,7 +79,7 @@ fn test_part2() {
         .get_ref("cond2")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = has_type(unit_type!());
+    let r = InferTypeRet::has_type(unit_type!());
 
     assert_eq!(expr_type, r)
 }
@@ -145,7 +148,7 @@ fn test_part7() {
         .get_ref("cond7")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = has_type(int_type!());
+    let r = InferTypeRet::has_type(int_type!());
 
     assert_eq!(expr_type, r)
 }
@@ -264,6 +267,18 @@ fn test_part16() {
 
     let expr_type = expr_env
         .get_ref("cond16")
+        .unwrap()
+        .infer_type(&type_env, &expr_env);
+
+    assert_matches!(expr_type, Quad::MR(_))
+}
+
+#[test]
+fn test_part17() {
+    let (type_env, expr_env) = gen_env();
+
+    let expr_type = expr_env
+        .get_ref("cond17")
         .unwrap()
         .infer_type(&type_env, &expr_env);
 

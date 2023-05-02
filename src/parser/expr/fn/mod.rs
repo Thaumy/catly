@@ -15,7 +15,7 @@ where
 
     stack.push(move_in(&stack, head.cloned()));
 
-    if cfg!(feature = "lr1_log") {
+    if cfg!(feature = "parser_lr1_log") {
         let log = format!("Move in: {stack:?} follow: {follow:?}");
         println!("{log}");
     }
@@ -26,7 +26,7 @@ where
         ([p], None) => {
             let r = p.clone();
 
-            if cfg!(feature = "lr1_log") {
+            if cfg!(feature = "parser_lr1_log") {
                 let log = format!("Success with: {r:?}");
                 println!("{log}");
             }

@@ -52,7 +52,7 @@ fn reduce_stack(mut stack: Vec<Pat>) -> Vec<Pat> {
     };
     let reduced_stack = stack;
 
-    if cfg!(feature = "lr1_log") {
+    if cfg!(feature = "parser_lr1_log") {
         let log = format!("Reduced: {reduced_stack:?}");
         println!("{log}");
     }

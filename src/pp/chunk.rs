@@ -139,7 +139,7 @@ fn reduce_stack(
 
     let reduced_stack = stack;
 
-    if cfg!(feature = "lr1_log") {
+    if cfg!(feature = "parser_lr1_log") {
         let log = format!("Reduced: {reduced_stack:?}");
         println!("{log}");
     }
@@ -154,7 +154,7 @@ fn go(mut stack: Vec<Pat>, tail: &str) -> Vec<Pat> {
 
     stack.push(move_in(&stack, head));
 
-    if cfg!(feature = "lr1_log") {
+    if cfg!(feature = "parser_lr1_log") {
         let log = format!("Move in: {stack:?} follow: {follow:?}");
         println!("{log}");
     }

@@ -4,18 +4,23 @@ version = "0.1.0"
 edition = "2021"
 
 [features]
-# default = ["unify_log", "infer_log", "env_log", "rt_log"]
-lr1_log = []
+# default = ["infer_log", "env_log"]
+
 pp_log = []
-parser_log = []
-infer_log = ["infer_log_min"]
+
+parser_lr1_log = []
+parser_log = ["parser_lr1_log"]
+
 infer_log_min = []
 unify_log = []
-env_log = ["ct_env_log", "rt_env_log"]
+infer_log = ["infer_log_min", "unify_log"]
+
 ct_env_log = []
 rt_env_log = []
-eval_log = ["eval_log_min"]
+env_log = ["ct_env_log", "rt_env_log"]
+
 eval_log_min = []
+eval_log = ["eval_log_min"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

@@ -91,7 +91,7 @@ pub fn case(
             .map(|(pf_n, pf_t)| match pf_t {
                 Quad::L(_) | Quad::ML(_) => {
                     let (pf_t, constraint) =
-                        pf_t.unwrap_type_and_constraint();
+                        pf_t.unwrap_type_constraint();
                     (pf_n, pf_t, constraint).ok()
                 }
                 mr => mr.err()

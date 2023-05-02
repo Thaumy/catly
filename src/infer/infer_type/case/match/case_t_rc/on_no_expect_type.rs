@@ -36,7 +36,7 @@ where
             match then_expr_type {
                 Quad::L(_) | Quad::ML(_) => {
                     let (then_expr_type, constraint) =
-                        then_expr_type.unwrap_type_and_constraint();
+                        then_expr_type.unwrap_type_constraint();
 
                     // 将作用于常量环境的约束过滤掉, 收集外部约束用于分支共享
                     let outer_constraint =

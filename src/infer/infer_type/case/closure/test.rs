@@ -7,8 +7,8 @@ use crate::infer::env::r#macro::int_type;
 use crate::infer::env::r#macro::namely_type;
 use crate::infer::env::r#macro::unit_type;
 use crate::infer::env::type_env::TypeEnv;
-use crate::infer::infer_type::r#fn::has_type;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
+use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_constraint::require_constraint;
 use crate::infer::infer_type::r#type::require_info::RequireInfo;
 use crate::infra::quad::Quad;
@@ -70,7 +70,10 @@ fn test_part2() {
         .get_ref("f2")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = has_type(closure_type!(int_type!(), int_type!()));
+    let r = InferTypeRet::has_type(closure_type!(
+        int_type!(),
+        int_type!()
+    ));
 
     assert_eq!(expr_type, r)
 }
@@ -83,7 +86,10 @@ fn test_part3() {
         .get_ref("f3")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = has_type(closure_type!(int_type!(), int_type!()));
+    let r = InferTypeRet::has_type(closure_type!(
+        int_type!(),
+        int_type!()
+    ));
 
     assert_eq!(expr_type, r)
 }
@@ -96,7 +102,10 @@ fn test_part4() {
         .get_ref("f4")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = has_type(closure_type!(int_type!(), int_type!()));
+    let r = InferTypeRet::has_type(closure_type!(
+        int_type!(),
+        int_type!()
+    ));
 
     assert_eq!(expr_type, r)
 }
@@ -125,7 +134,7 @@ fn test_part6() {
         .get_ref("f6")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = has_type(closure_type!(
+    let r = InferTypeRet::has_type(closure_type!(
         int_type!(),
         closure_type!(int_type!(), unit_type!())
     ));
@@ -141,7 +150,7 @@ fn test_part7() {
         .get_ref("f7")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = has_type(namely_type!("F"));
+    let r = InferTypeRet::has_type(namely_type!("F"));
 
     assert_eq!(expr_type, r)
 }
@@ -154,7 +163,7 @@ fn test_part8() {
         .get_ref("f8")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = has_type(closure_type!(
+    let r = InferTypeRet::has_type(closure_type!(
         closure_type!(int_type!(), unit_type!()),
         int_type!()
     ));
@@ -170,7 +179,7 @@ fn test_part9() {
         .get_ref("f9")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = has_type(closure_type!(
+    let r = InferTypeRet::has_type(closure_type!(
         int_type!(),
         closure_type!(int_type!(), int_type!())
     ));
@@ -256,7 +265,10 @@ fn test_part14() {
         .get_ref("f14")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = has_type(closure_type!(int_type!(), int_type!()));
+    let r = InferTypeRet::has_type(closure_type!(
+        int_type!(),
+        int_type!()
+    ));
 
     assert_eq!(expr_type, r)
 }
@@ -269,7 +281,10 @@ fn test_part15() {
         .get_ref("f15")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = has_type(closure_type!(int_type!(), int_type!()));
+    let r = InferTypeRet::has_type(closure_type!(
+        int_type!(),
+        int_type!()
+    ));
 
     assert_eq!(expr_type, r)
 }

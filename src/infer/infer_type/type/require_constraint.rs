@@ -1,6 +1,5 @@
 use std::fmt::{Debug, Formatter};
 
-use crate::infer::infer_type::r#fn::has_type;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
@@ -33,7 +32,7 @@ pub fn require_constraint(
     constraint: EnvRefConstraint
 ) -> InferTypeRet {
     if constraint.is_empty() {
-        has_type(r#type)
+        InferTypeRet::has_type(r#type)
     } else {
         RequireConstraint { r#type, constraint }.into()
     }
@@ -58,10 +57,10 @@ impl From<RequireConstraint> for InferTypeRet {
 impl Debug for RequireConstraint {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         if self.constraint.is_empty() {
-            f.write_str(&*format!("ReqConstraint::{:?}", self.r#type))
+            f.write_str(&*format!("ReqC::{:?}", self.r#type))
         } else {
             f.write_str(&*format!(
-                "ReqConstraint::{:?} & {:?}",
+                "ReqC::{:?} & {:?}",
                 self.r#type, self.constraint
             ))
         }

@@ -8,8 +8,10 @@ use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::case::cond::infer_branch_type::infer_branch_type;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
+use crate::infer::infer_type::r#type::require_constraint::RequireConstraint;
+use crate::infer::infer_type::r#type::require_info::RequireInfo;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infra::quad::{Quad, QuadAnyExt};
+use crate::infra::quad::QuadAnyExt;
 use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::OptType;
@@ -63,14 +65,20 @@ pub fn case(
                 new_expr_env,
                 expect_type,
                 bool_expr,
-                constraint_acc,
+                EnvRefConstraint::empty(),
                 then_expr,
                 else_expr
-            ) {
-                // infer_branch_type 会自动管理累积约束, 无需再次收集扩展
-                x @ Quad::ML(_) | x @ Quad::MR(_) => x,
+            )? {
+                // 产生约束, 由于约束是经过累积的, 所以需要改写错误
+                Triple::M(RequireConstraint {
+                    constraint, ..
+                }) =>
+                    RequireInfo::of(ri.ref_name.clone(), constraint)
+                        .quad_mr(),
                 // 未产生约束, 返回原错误
-                _ => ri.clone().quad_mr()
+                Triple::L(_) => ri.clone().quad_mr(),
+                // 分支表达式也无非获取类型, 由于约束已经累积, 传播之
+                r => r.into()
             };
         }
     };

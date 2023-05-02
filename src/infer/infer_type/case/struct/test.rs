@@ -7,8 +7,8 @@ use crate::infer::env::r#macro::namely_type;
 use crate::infer::env::r#macro::prod_type;
 use crate::infer::env::r#macro::unit_type;
 use crate::infer::env::type_env::TypeEnv;
-use crate::infer::infer_type::r#fn::has_type;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
+use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_constraint::require_constraint;
 use crate::infra::quad::Quad;
 
@@ -50,7 +50,7 @@ fn test_part1() {
         .get_ref("struct1")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = has_type(prod_type![
+    let r = InferTypeRet::has_type(prod_type![
         ("a".to_string(), int_type!()),
         ("b".to_string(), unit_type!())
     ]);
@@ -66,7 +66,7 @@ fn test_part2() {
         .get_ref("struct2")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = has_type(prod_type![
+    let r = InferTypeRet::has_type(prod_type![
         ("a".to_string(), int_type!()),
         ("b".to_string(), unit_type!())
     ]);
@@ -82,7 +82,7 @@ fn test_part3() {
         .get_ref("struct3")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = has_type(namely_type!("Prod3"));
+    let r = InferTypeRet::has_type(namely_type!("Prod3"));
 
     assert_eq!(expr_type, r)
 }
@@ -133,10 +133,10 @@ fn test_part6() {
         .get_ref("struct6")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = has_type(prod_type![("a".to_string(), prod_type![(
+    let r = InferTypeRet::has_type(prod_type![(
         "a".to_string(),
-        int_type!()
-    ),])]);
+        prod_type![("a".to_string(), int_type!()),]
+    )]);
 
     assert_eq!(expr_type, r)
 }
@@ -223,7 +223,7 @@ fn test_part12() {
         .get_ref("struct12")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = has_type(namely_type!("Sum12"));
+    let r = InferTypeRet::has_type(namely_type!("Sum12"));
 
     assert_eq!(expr_type, r);
 }

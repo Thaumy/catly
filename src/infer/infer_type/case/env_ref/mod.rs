@@ -31,7 +31,7 @@ pub fn case(
         return result.into();
     };
 
-    let (t, constraint) = result.unwrap_type_and_constraint();
+    let (t, constraint) = result.unwrap_type_constraint();
 
     InferTypeRet::from_auto_lift(
         type_env,

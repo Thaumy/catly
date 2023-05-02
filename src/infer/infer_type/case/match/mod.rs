@@ -24,7 +24,7 @@ pub fn case(
         // L 与 ML 同样只有是否需要传播对外界环境的约束的区别
         target_expr_type @ (Triple::L(_) | Triple::M(_)) => {
             let (target_expr_type, constraint_acc) =
-                target_expr_type.unwrap_type_and_constraint();
+                target_expr_type.unwrap_type_constraint();
 
             let new_expr_env = expr_env
                 .extend_constraint_new(constraint_acc.clone());

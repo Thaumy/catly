@@ -19,7 +19,16 @@ pub fn case_t_rc(
 ) -> InferTypeRet {
     // 当 expect_type 无类型时, 使用 then_expr_type hint
     let expect_type = match expect_type {
-        Some(expect_type) => expect_type.clone(),
+        Some(expect_type) =>
+            if then_expr_type.can_lift_to(type_env, &expect_type) {
+                expect_type.clone()
+            } else {
+                return TypeMissMatch::of_type(
+                    &then_expr_type,
+                    &expect_type
+                )
+                .into();
+            },
         None => then_expr_type.clone()
     };
 
@@ -43,14 +52,6 @@ pub fn case_t_rc(
         Triple::R(ri) =>
             return ri.with_constraint_acc(constraint_acc),
     };
-
-    if then_expr_type
-        .lift_to(type_env, &expect_type)
-        .is_none()
-    {
-        return TypeMissMatch::of_type(&then_expr_type, &expect_type)
-            .into();
-    }
 
     InferTypeRet::from_auto_lift(
         type_env,
