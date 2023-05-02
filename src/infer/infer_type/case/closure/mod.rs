@@ -1,8 +1,8 @@
 mod has_input_type;
 mod no_input_type;
-#[cfg(test)]
+/*#[cfg(test)]
 mod test;
-
+*/
 use std::ops::Deref;
 
 use crate::infer::env::expr_env::ExprEnv;

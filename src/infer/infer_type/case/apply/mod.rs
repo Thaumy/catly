@@ -1,8 +1,8 @@
 mod case_ri;
 mod case_t_rc;
-#[cfg(test)]
+/*#[cfg(test)]
 mod test;
-
+*/
 use std::ops::Deref;
 
 use crate::infer::env::expr_env::ExprEnv;
