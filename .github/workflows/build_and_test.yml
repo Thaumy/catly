@@ -1,4 +1,4 @@
-name: Rust
+name: Build & Test
 
 on:
   push:
@@ -15,8 +15,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Check out
+      uses: actions/checkout@v3
+
+    - name: Step rust toolchain
+      uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: nightly-2023-04-16
+
     - name: Build
       run: cargo build --verbose
-    - name: Run tests
+
+    - name: Test
       run: cargo test --verbose
