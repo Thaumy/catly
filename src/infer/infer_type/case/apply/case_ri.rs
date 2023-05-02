@@ -1,8 +1,6 @@
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
-use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::r#box::BoxAnyExt;
 use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
@@ -12,7 +10,6 @@ use crate::parser::r#type::r#type::Type;
 pub fn case_ri(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
-    constraint_acc: EnvRefConstraint,
     expect_type: &OptType,
     lhs_expr: &Expr,
     rhs_expr: &Expr
@@ -24,16 +21,6 @@ pub fn case_ri(
         rhs_expr_type @ (Triple::L(_) | Triple::M(_)) => {
             let (input_type, constraint) =
                 rhs_expr_type.unwrap_type_constraint();
-            let constraint_acc =
-                match constraint_acc.extend_new(constraint.clone()) {
-                    Some(c) => c,
-                    None =>
-                        return TypeMissMatch::of_constraint(
-                            &constraint_acc,
-                            &constraint
-                        )
-                        .into(),
-                };
 
             let apply_expr = if let Some(output_type) = expect_type {
                 // 可以确定输出类型
@@ -63,14 +50,14 @@ pub fn case_ri(
                 )
             };
 
-            let new_expr_env = expr_env
-                .extend_constraint_new(constraint_acc.clone());
+            let new_expr_env =
+                expr_env.extend_constraint_new(constraint.clone());
 
             apply_expr
                 .infer_type(type_env, &new_expr_env)?
-                .with_constraint_acc(constraint_acc)
+                .with_constraint_acc(constraint)
         }
 
-        Triple::R(ri) => ri.with_constraint_acc(constraint_acc)
+        Triple::R(ri) => ri.into()
     }
 }

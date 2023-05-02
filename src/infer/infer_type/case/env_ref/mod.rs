@@ -14,29 +14,31 @@ pub fn case(
     expect_type: &OptType,
     ref_name: &str
 ) -> InferTypeRet {
-    let result = expr_env.infer_type_with_hint(
+    match expr_env.infer_type_with_hint(
         type_env,
         ref_name,
         expect_type
-    )?;
+    )? {
+        ref_type @ (Triple::L(_) | Triple::M(_)) => {
+            let (t, constraint) = ref_type.unwrap_type_constraint();
 
-    if let Triple::R(_) = result {
-        // 引用源类型信息不足
-        // 引用源类型信息不足, 例如:
-        // f -> a -> f a
-        // env:
-        // def f = _
-        // def a = _
-        // 无法推导出 a 的类型, 因为 a 的类型是自由的
-        return result.into();
-    };
-
-    let (t, constraint) = result.unwrap_type_constraint();
-
-    InferTypeRet::from_auto_lift(
-        type_env,
-        &t,
-        expect_type,
-        constraint.some()
-    )
+            InferTypeRet::from_auto_lift(
+                type_env,
+                &t,
+                expect_type,
+                constraint.some()
+            )
+        }
+        // Triple::R
+        ref_type => {
+            // 引用源类型信息不足
+            // 引用源类型信息不足, 例如:
+            // f -> a -> f a
+            // env:
+            // def f = _
+            // def a = _
+            // 无法推导出 a 的类型, 因为 a 的类型是自由的
+            return ref_type.into();
+        }
+    }
 }

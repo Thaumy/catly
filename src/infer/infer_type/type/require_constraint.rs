@@ -15,15 +15,11 @@ pub struct ReqConstraint {
 
 impl ReqConstraint {
     pub fn with_constraint_acc(
-        &self,
-        constraint: EnvRefConstraint
+        self,
+        acc: EnvRefConstraint
     ) -> InferTypeRet {
         // TODO: 考虑约束顺序对环境的影响
-        require_extended_constraint(
-            self.r#type.clone(),
-            constraint,
-            self.constraint.clone()
-        )
+        require_extended_constraint(self.r#type, acc, self.constraint)
     }
 }
 
@@ -44,8 +40,7 @@ pub fn require_extended_constraint(
     r: EnvRefConstraint
 ) -> InferTypeRet {
     match l.extend_new(r.clone()) {
-        Some(constraint) =>
-            require_constraint(r#type, constraint.clone()),
+        Some(c) => require_constraint(r#type, c.clone()),
         None => TypeMissMatch::of_constraint(&l, &r).into()
     }
 }

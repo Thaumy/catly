@@ -37,19 +37,13 @@ impl ReqInfo {
 
     pub fn with_constraint_acc(
         self,
-        constraint: EnvRefConstraint
+        acc: EnvRefConstraint
     ) -> InferTypeRet {
-        match self
-            .constraint
-            .extend_new(constraint.clone())
-        {
-            Some(constraint) =>
-                ReqInfo::of(&self.ref_name, constraint).into(),
-            None => TypeMissMatch::of_constraint(
-                &self.constraint,
-                &constraint
-            )
-            .into()
+        match acc.extend_new(self.constraint.clone()) {
+            Some(c) => ReqInfo::of(&self.ref_name, c).into(),
+            None =>
+                TypeMissMatch::of_constraint(&acc, &self.constraint)
+                    .into(),
         }
     }
 }

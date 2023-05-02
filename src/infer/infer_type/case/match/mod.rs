@@ -34,10 +34,10 @@ pub fn case(
                 &new_expr_env,
                 target_expr,
                 target_expr_type,
-                constraint_acc,
                 expect_type,
                 vec
-            )
+            )?
+            .with_constraint_acc(constraint_acc)
         }
 
         // TODO:
@@ -48,8 +48,10 @@ pub fn case(
         // 同样, 为了防止内层环境对外层环境造成跨越优先级的约束, 仅当 target_expr 没有类型标注时才能启用旁路推导
         // 相关讨论参见 let case
         Triple::R(ri) if target_expr.is_no_type_annot() => {
-            let new_expr_env =
-                expr_env.extend_constraint_new(ri.constraint.clone());
+            let constraint_acc = ri.constraint.clone();
+
+            let new_expr_env = expr_env
+                .extend_constraint_new(constraint_acc.clone());
 
             case_ri(
                 type_env,
@@ -58,9 +60,10 @@ pub fn case(
                 expect_type,
                 target_expr,
                 vec
-            )
+            )?
+            .with_constraint_acc(constraint_acc)
         }
 
-        ri => ri.into()
+        Triple::R(ri) => ri.into()
     }
 }

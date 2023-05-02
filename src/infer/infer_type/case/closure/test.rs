@@ -231,11 +231,9 @@ fn test_part12() {
         .get_ref("f12")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = ReqInfo::of(
-        "_ (closure input)",
-        EnvRefConstraint::empty()
-    )
-    .into();
+    let r =
+        ReqInfo::of("_ (closure input)", EnvRefConstraint::empty())
+            .into();
 
     assert_eq!(expr_type, r)
 }

@@ -89,6 +89,41 @@ impl Triple<Type, ReqConstraint, ReqInfo> {
             Triple::R(ri) => ri.with_constraint_acc(constraint_acc)
         }
     }
+
+    pub fn exclude_constraint<'s>(
+        self,
+        ref_name: impl Into<&'s str>
+    ) -> InferTypeRet {
+        match self {
+            Triple::M(rc) => ReqConstraint {
+                r#type: rc.r#type,
+                constraint: rc
+                    .constraint
+                    .exclude_new(ref_name)
+            }
+            .into(),
+            Triple::R(ri) => ReqInfo {
+                ref_name: ri.ref_name,
+                constraint: ri
+                    .constraint
+                    .exclude_new(ref_name)
+            }
+            .into(),
+            other => other.into()
+        }
+    }
+
+    pub fn intercept_req_info_name<'s>(
+        self,
+        new_ref_name: impl Into<&'s str>
+    ) -> InferTypeRet {
+        match self {
+            Triple::R(ri) => ri
+                .new_ref_name(new_ref_name.into())
+                .into(),
+            other => other.into()
+        }
+    }
 }
 
 impl From<Triple<Type, ReqConstraint, ReqInfo>> for InferTypeRet {

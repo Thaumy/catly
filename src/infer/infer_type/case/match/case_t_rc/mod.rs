@@ -6,7 +6,6 @@ use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::case::r#match::case_t_rc::on_has_expect_type::on_has_expect_type;
 use crate::infer::infer_type::case::r#match::case_t_rc::on_no_expect_type::on_no_expect_type;
 use crate::infer::infer_type::case::r#match::r#fn::{destruct_match_const_to_expr_env_inject, is_case_expr_valid};
-use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::quad::QuadAnyExt;
@@ -21,7 +20,6 @@ pub fn case_t_rc(
     expr_env: &ExprEnv,
     target_expr: &Expr,
     target_expr_type: Type,
-    constraint_acc: EnvRefConstraint,
     expect_type: &OptType,
     case_vec: &Vec<(Expr, Expr)>
 ) -> InferTypeRet {
@@ -75,7 +73,6 @@ pub fn case_t_rc(
         on_has_expect_type(
             type_env,
             expr_env,
-            constraint_acc,
             hinted_cases.iter(),
             expect_type.clone()
         )
@@ -83,7 +80,6 @@ pub fn case_t_rc(
         on_no_expect_type(
             type_env,
             expr_env,
-            constraint_acc,
             hinted_cases.iter(),
             target_expr,
             case_vec

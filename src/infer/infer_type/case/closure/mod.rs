@@ -1,4 +1,5 @@
-mod case_t_rc;
+mod has_input_type;
+mod no_input_type;
 #[cfg(test)]
 mod test;
 
@@ -6,7 +7,8 @@ use std::ops::Deref;
 
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
-use crate::infer::infer_type::case::closure::case_t_rc::case_t_rc;
+use crate::infer::infer_type::case::closure::has_input_type::has_input_type;
+use crate::infer::infer_type::case::closure::no_input_type::no_input_type;
 use crate::infer::infer_type::r#fn::destruct_namely_type;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_info::ReqInfo;
@@ -88,14 +90,23 @@ pub fn case(
             let (output_expr_type, constraint_acc) =
                 output_expr_type.unwrap_type_constraint();
 
-            case_t_rc(
-                type_env,
-                expect_type,
-                output_expr_type,
-                constraint_acc,
-                input_name,
-                input_type
-            )
+            match input_type {
+                Some(input_type) =>
+                    has_input_type(
+                        type_env,
+                        expect_type,
+                        output_expr_type,
+                        input_type,
+                    )?.with_constraint_acc(constraint_acc),
+                // 如果注入约束到环境, 此处还可从环境中寻找可能的输入类型(从而不必传递约束
+                None => no_input_type(
+                    type_env,
+                    expect_type,
+                    output_expr_type,
+                    constraint_acc,
+                    input_name,
+                )
+            }
         }
 
         // infer_type 不能推导出输出类型(即便进行了类型提示), 但可以传播约束, 为下一轮推导提供信息
@@ -103,9 +114,9 @@ pub fn case(
         Triple::R(ri) if let Some(input_name) = input_name => ReqInfo::of(
             &ri.ref_name,
             ri.constraint
-                .exclude_new(input_name.as_str())
+                .exclude_new(input_name.as_str()),
         )
-        .into(),
+            .into(),
 
         ri => ri.into()
     }

@@ -13,7 +13,6 @@ use crate::parser::expr::r#type::Expr;
 pub fn on_no_expect_type<'t, T>(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
-    constraint_acc: EnvRefConstraint,
     hinted_cases: T,
     target_expr: &Expr,
     case_vec: &Vec<(Expr, Expr)>
@@ -82,7 +81,7 @@ where
 
     let outer_constraint = type_and_outer_constraints
         .clone()
-        .try_fold(constraint_acc, |acc, x| match x {
+        .try_fold(EnvRefConstraint::empty(), |acc, x| match x {
             Ok((_, c)) => match acc.extend_new(c.clone()) {
                 Some(acc) => acc.ok(),
                 None => TypeMissMatch::of_constraint(&acc, &c).err()

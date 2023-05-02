@@ -57,6 +57,7 @@ pub fn case(
         // 约束将在下一轮次被注入环境, 同时也会再次求 bool_expr 类型
         Triple::R(ri) => {
             let constraint_acc = ri.constraint.clone();
+
             let new_expr_env = &expr_env
                 .extend_constraint_new(constraint_acc.clone());
 
@@ -65,19 +66,19 @@ pub fn case(
                 new_expr_env,
                 expect_type,
                 bool_expr,
-                EnvRefConstraint::empty(),
                 then_expr,
                 else_expr
             )? {
-                // 产生约束, 由于约束是经过累积的, 所以需要改写错误
+                // 产生约束, 改写错误以便下一轮对 bool_expr 进行类型获取
                 Triple::M(ReqConstraint { constraint, .. }) =>
                     ReqInfo::of(ri.ref_name.clone(), constraint)
-                        .quad_mr(),
+                        .into(),
                 // 未产生约束, 返回原错误
                 Triple::L(_) => ri.clone().quad_mr(),
                 // 分支表达式也无非获取类型, 由于约束已经累积, 传播之
                 r => r.into()
-            };
+            }?
+            .with_constraint_acc(constraint_acc);
         }
     };
 
@@ -90,8 +91,8 @@ pub fn case(
         new_expr_env,
         expect_type,
         bool_expr,
-        constraint_acc,
         then_expr,
         else_expr
-    )
+    )?
+    .with_constraint_acc(constraint_acc)
 }

@@ -1,8 +1,6 @@
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
-use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infer::infer_type::r#type::require_constraint::require_constraint;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::OptionAnyExt;
 use crate::infra::triple::Triple;
@@ -14,7 +12,6 @@ pub fn case_t_rc(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
     assign_expr_type: Type,
-    constraint_acc: EnvRefConstraint,
     expect_type: &OptType,
     assign_name: &str,
     assign_type: &OptType,
@@ -42,40 +39,21 @@ pub fn case_t_rc(
     );
 
     // Hint scope_expr with expect_type and get scope_expr_type
-    let scope_expr_type = scope_expr
+    match scope_expr
         .with_opt_fallback_type(expect_type)
-        .infer_type(type_env, &expr_env);
-
-    match scope_expr_type? {
-        Triple::L(scope_expr_type) => match scope_expr_type
-            .lift_to_or_left(type_env, expect_type)
-        {
-            Some(t) => require_constraint(t, constraint_acc),
-            None => TypeMissMatch::of_type(
+        .infer_type(type_env, &expr_env)?
+    {
+        scope_expr_type @ (Triple::L(_) | Triple::M(_)) => {
+            let (scope_expr_type, constraint) =
+                scope_expr_type.unwrap_type_constraint();
+            InferTypeRet::from_auto_lift(
+                type_env,
                 &scope_expr_type,
-                &expect_type.clone().unwrap()
+                expect_type,
+                constraint.some()
             )
-            .into()
-        },
-        // 由于 assign_type 存在, 所以此处的约束作用于外层环境, 传播之
-        Triple::M(rc) =>
-            match constraint_acc.extend_new(rc.constraint.clone()) {
-                Some(constraint) => InferTypeRet::from_auto_lift(
-                    type_env,
-                    &rc.r#type,
-                    expect_type,
-                    constraint.some()
-                ),
-                // 由于在获取 assign_type 时已将附加约束注入环境
-                // 所以此处的约束冲突在理论上永远不会发生
-                // 但是, 检查一下会更保险些
-                None => TypeMissMatch::of_constraint(
-                    &constraint_acc,
-                    &rc.constraint
-                )
-                .into()
-            },
+        }
 
-        Triple::R(ri) => ri.with_constraint_acc(constraint_acc)
+        Triple::R(ri) => ri.into()
     }
 }

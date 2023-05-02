@@ -54,10 +54,10 @@ pub fn case(
                 new_expr_env,
                 lhs_input_type,
                 lhs_output_type,
-                constraint_acc,
                 expect_type,
                 rhs_expr
-            )
+            )?
+            .with_constraint_acc(constraint_acc)
         }
 
         // 使用 expect_type 和 rhs_expr_type 进行旁路推导
@@ -69,11 +69,11 @@ pub fn case(
             case_ri(
                 type_env,
                 new_expr_env,
-                ri.constraint,
                 expect_type,
                 &lhs_expr,
                 rhs_expr
-            )
+            )?
+            .with_constraint_acc(ri.constraint)
         }
 
         ri => ri.into()

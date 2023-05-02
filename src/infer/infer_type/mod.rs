@@ -2,6 +2,7 @@ mod case;
 pub mod r#fn;
 #[cfg(test)]
 mod test;
+
 pub mod r#type;
 
 use crate::infer::env::expr_env::ExprEnv;

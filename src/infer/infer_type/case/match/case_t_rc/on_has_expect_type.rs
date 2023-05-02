@@ -13,7 +13,6 @@ use crate::parser::r#type::r#type::Type;
 pub fn on_has_expect_type<'t, T>(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
-    constraint_acc: EnvRefConstraint,
     hinted_cases: T,
     expect_type: Type
 ) -> InferTypeRet
@@ -101,7 +100,7 @@ where
     let outer_constraint = outer_constraints
         .clone()
         // 与累积约束合并
-        .try_fold(constraint_acc, |acc, x| match x {
+        .try_fold(EnvRefConstraint::empty(), |acc, x| match x {
             Ok(c) => match acc.extend_new(c.clone()) {
                 Some(acc) => acc.ok(),
                 None => TypeMissMatch::of_constraint(&acc, &c).err()

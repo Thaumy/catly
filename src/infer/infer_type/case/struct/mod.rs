@@ -64,8 +64,6 @@ pub fn case(
             .collect()
     }: Vec<StructField>;
 
-    //let mut constraint_acc = EnvRefConstraint::empty();
-
     // 不进行层次约束共享的原因和 match case 相同
 
     // 收集约束
