@@ -1,5 +1,7 @@
 # Catly
 
+[![Build & Test](https://github.com/Thaumy/catly/actions/workflows/build_and_test.yml/badge.svg)](https://github.com/Thaumy/catly/actions/workflows/build_and_test.yml)
+
 Catly 是一门图灵完备、惰性求值、静态强类型的函数式语言。
 
 ## 语法概览
