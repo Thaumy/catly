@@ -92,10 +92,8 @@ pub fn infer_type(
         }
 
         Expr::Struct(expect_type, vec) => {
-            /*            use case::r#struct::case;
-                        case(type_env, expr_env, expect_type, vec)
-            */
-            todo!()
+            use case::r#struct::case;
+            case(type_env, expr_env, expect_type, vec)
         }
 
         Expr::Apply(expect_type, lhs_expr, rhs_expr) => {
@@ -104,10 +102,8 @@ pub fn infer_type(
         }
 
         Expr::Match(expect_type, target_expr, vec) => {
-            /*            use case::r#match::case;
-                        case(type_env, expr_env, expect_type, target_expr, vec)
-            */
-            todo!()
+            use case::r#match::case;
+            case(type_env, expr_env, expect_type, target_expr, vec)
         }
     };
 
