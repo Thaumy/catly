@@ -106,6 +106,38 @@ impl Expr {
             _ => false
         }
     }
+
+    pub fn is_fully_typed(&self) -> bool {
+        match self {
+            Expr::Unit(Some(_)) |
+            Expr::Int(Some(_), ..) |
+            Expr::EnvRef(Some(_), ..) |
+            Expr::Discard(Some(_)) => true,
+
+            Expr::Apply(Some(_), l_e, r_e) =>
+                l_e.is_fully_typed() && r_e.is_fully_typed(),
+            Expr::Cond(Some(_), b_e, t_e, e_e) =>
+                b_e.is_fully_typed() &&
+                    t_e.is_fully_typed() &&
+                    e_e.is_fully_typed(),
+            Expr::Closure(Some(_), _, Some(_), o_e) =>
+                o_e.is_fully_typed(),
+            Expr::Struct(Some(_), s_v) =>
+                s_v.iter()
+                    .all(|(_, sf_t, sf_e)| {
+                        sf_t.is_some() && sf_e.is_fully_typed()
+                    }),
+            Expr::Match(Some(_), t_e, c_v) =>
+                t_e.is_fully_typed() &&
+                    c_v.iter().all(|(c_e, t_e)| {
+                        c_e.is_fully_typed() && t_e.is_fully_typed()
+                    }),
+            Expr::Let(Some(_), _, Some(_), a_e, s_e) =>
+                a_e.is_fully_typed() && s_e.is_fully_typed(),
+
+            _ => false
+        }
+    }
 }
 
 impl Debug for Expr {
