@@ -155,15 +155,12 @@ where
             let head = p.clone();
 
             let r = match head {
-                //TODO
-                Pat::TypeDefHead(n) => match parse_type(tail) {
-                    Some(t) => Pat::TypeDef(n, t),
-                    _ => Pat::Err
-                }, //TODO
-                Pat::ExprDefHead(t, n) => match parse_expr(tail) {
-                    Some(e) => Pat::ExprDef(n, t, e),
-                    _ => Pat::Err
-                },
+                Pat::TypeDefHead(n) => parse_type(tail)
+                    .map(|t| Pat::TypeDef(n, t))
+                    .unwrap_or(Pat::Err),
+                Pat::ExprDefHead(t, n) => parse_expr(tail)
+                    .map(|e| Pat::ExprDef(n, t, e))
+                    .unwrap_or(Pat::Err),
                 _ => Pat::Err
             };
 

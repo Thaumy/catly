@@ -3,6 +3,7 @@ use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::OptionAnyExt;
+use crate::infra::r#box::BoxAnyExt;
 use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::OptType;
@@ -13,7 +14,9 @@ pub fn case_t_rc(
     expr_env: &ExprEnv,
     then_expr_type: Type,
     expect_type: &OptType,
-    else_expr: &Expr
+    else_expr: &Expr,
+    typed_bool_expr: Expr,
+    typed_then_expr: Expr
 ) -> InferTypeRet {
     // 当 expect_type 无类型时, 使用 then_expr_type hint
     let expect_type = match expect_type {
@@ -35,14 +38,28 @@ pub fn case_t_rc(
         .infer_type(type_env, expr_env)?
     {
         else_expr_type @ (Triple::L(_) | Triple::M(_)) => {
-            let (else_expr_type, constraint_acc) =
-                else_expr_type.unwrap_type_constraint();
+            let (else_expr_type, constraint_acc, typed_else_expr) =
+                else_expr_type.unwrap_type_constraint_expr();
 
             InferTypeRet::from_auto_lift(
                 type_env,
                 &else_expr_type,
                 &expect_type.some(),
-                constraint_acc.some()
+                constraint_acc.some(),
+                |t| {
+                    Expr::Cond(
+                        t.some(),
+                        typed_bool_expr
+                            .clone()
+                            .boxed(),
+                        typed_then_expr
+                            .clone()
+                            .boxed(),
+                        typed_else_expr
+                            .clone()
+                            .boxed()
+                    )
+                }
             )
         }
 

@@ -31,8 +31,8 @@ pub fn case(
         // assign_type 会对 assign_expr 产生类型限定(通过 hint), 这使得约束从内层传播到了外层
         // L 与 ML 的唯一区别是 ML 额外携带了一些对外层环境的约束, 需要传播这些约束
         assign_expr_type @ (Triple::L(_) | Triple::M(_)) => {
-            let (assign_expr_type, constraint) =
-                assign_expr_type.unwrap_type_constraint();
+            let (assign_expr_type, constraint, typed_assign_expr) =
+                assign_expr_type.unwrap_type_constraint_expr();
             // 过滤掉对 assign_name 的约束(对于 ML
             let constraint_acc =
                 constraint.exclude_new(assign_name.as_str());
@@ -48,7 +48,8 @@ pub fn case(
                 assign_name,
                 assign_type,
                 assign_expr,
-                scope_expr
+                scope_expr,
+                typed_assign_expr
             )?
             .with_constraint_acc(constraint_acc)
         }

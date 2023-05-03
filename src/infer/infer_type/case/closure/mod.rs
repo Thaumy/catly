@@ -87,17 +87,19 @@ pub fn case(
         .infer_type(type_env, &expr_env)?
     {
         output_expr_type @ (Triple::L(_) | Triple::M(_)) => {
-            let (output_expr_type, constraint_acc) =
-                output_expr_type.unwrap_type_constraint();
+            let (output_expr_type, constraint_acc, typed_output_expr) =
+                output_expr_type.unwrap_type_constraint_expr();
 
             match input_type {
-                Some(input_type) =>
-                    has_input_type(
-                        type_env,
-                        expect_type,
-                        output_expr_type,
-                        input_type,
-                    )?.with_constraint_acc(constraint_acc),
+                Some(input_type) => has_input_type(
+                    type_env,
+                    expect_type,
+                    output_expr_type,
+                    input_type,
+                    input_name,
+                    typed_output_expr
+                )?
+                .with_constraint_acc(constraint_acc),
                 // 如果注入约束到环境, 此处还可从环境中寻找可能的输入类型(从而不必传递约束
                 None => no_input_type(
                     type_env,
@@ -105,6 +107,7 @@ pub fn case(
                     output_expr_type,
                     constraint_acc,
                     input_name,
+                    typed_output_expr
                 )
             }
         }
@@ -114,9 +117,9 @@ pub fn case(
         Triple::R(ri) if let Some(input_name) = input_name => ReqInfo::of(
             &ri.ref_name,
             ri.constraint
-                .exclude_new(input_name.as_str()),
+                .exclude_new(input_name.as_str())
         )
-            .into(),
+        .into(),
 
         ri => ri.into()
     }

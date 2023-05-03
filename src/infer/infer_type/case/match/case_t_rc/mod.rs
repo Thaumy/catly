@@ -21,9 +21,9 @@ pub fn case_t_rc(
     target_expr: &Expr,
     target_expr_type: Type,
     expect_type: &OptType,
-    case_vec: &Vec<(Expr, Expr)>
+    case_vec: &Vec<(Expr, Expr)>,
+    typed_target_expr: Expr
 ) -> InferTypeRet {
-    //Map<Iter<(Expr,Expr)>,fn(&(Expr,Expr)) -> (Expr,Vec<EnvEntry>,Expr)>
     // 统一 hint, 并求出 case_expr 解构出的常量环境
     let hinted_cases = {
         let vec = case_vec
@@ -58,31 +58,33 @@ pub fn case_t_rc(
         }
     };
 
-    match is_case_expr_valid(
+    let typed_case_expr = match is_case_expr_valid(
         type_env,
         &target_expr_type,
         hinted_cases
             .iter()
             .map(|(x, y, _)| (x, y))
     ) {
-        Err(e) => return e,
-        _ => {}
-    }
+        Ok(typed_case_expr) => typed_case_expr,
+        Err(e) => return e.into()
+    };
 
     if let Some(expect_type) = expect_type {
         on_has_expect_type(
             type_env,
             expr_env,
             hinted_cases.iter(),
-            expect_type.clone()
+            expect_type.clone(),
+            typed_case_expr,
+            typed_target_expr
         )
     } else {
         on_no_expect_type(
             type_env,
             expr_env,
             hinted_cases.iter(),
-            target_expr,
-            case_vec
+            case_vec,
+            typed_target_expr
         )
     }
 }

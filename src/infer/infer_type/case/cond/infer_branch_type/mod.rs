@@ -16,15 +16,16 @@ pub fn infer_branch_type(
     expect_type: &OptType,
     bool_expr: &Expr,
     then_expr: &Expr,
-    else_expr: &Expr
+    else_expr: &Expr,
+    typed_bool_expr: Expr
 ) -> InferTypeRet {
     match then_expr
         .with_opt_fallback_type(expect_type)
         .infer_type(type_env, expr_env)?
     {
         then_expr_type @ (Triple::L(_) | Triple::M(_)) => {
-            let (then_expr_type, constraint_acc) =
-                then_expr_type.unwrap_type_constraint();
+            let (then_expr_type, constraint_acc, typed_then_expr) =
+                then_expr_type.unwrap_type_constraint_expr();
 
             let new_expr_env = &expr_env
                 .extend_constraint_new(constraint_acc.clone());
@@ -34,7 +35,10 @@ pub fn infer_branch_type(
                 new_expr_env,
                 then_expr_type,
                 expect_type,
-                else_expr
+                else_expr,
+                // TODO: 使用惰性方式传入构造表达式所需的依赖
+                typed_bool_expr,
+                typed_then_expr
             )?
             .with_constraint_acc(constraint_acc)
         }

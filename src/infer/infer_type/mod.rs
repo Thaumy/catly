@@ -25,9 +25,9 @@ pub fn infer_type(
     }
 
     let result = match expr {
-        Expr::Int(expect_type, _) => {
+        Expr::Int(expect_type, i) => {
             use case::int::case;
-            case(type_env, expect_type)
+            case(type_env, expect_type, i)
         }
         Expr::Unit(expect_type) => {
             use case::unit::case;
@@ -92,8 +92,10 @@ pub fn infer_type(
         }
 
         Expr::Struct(expect_type, vec) => {
-            use case::r#struct::case;
-            case(type_env, expr_env, expect_type, vec)
+            /*            use case::r#struct::case;
+                        case(type_env, expr_env, expect_type, vec)
+            */
+            todo!()
         }
 
         Expr::Apply(expect_type, lhs_expr, rhs_expr) => {
@@ -102,8 +104,10 @@ pub fn infer_type(
         }
 
         Expr::Match(expect_type, target_expr, vec) => {
-            use case::r#match::case;
-            case(type_env, expr_env, expect_type, target_expr, vec)
+            /*            use case::r#match::case;
+                        case(type_env, expr_env, expect_type, target_expr, vec)
+            */
+            todo!()
         }
     };
 
@@ -136,7 +140,8 @@ pub fn infer_type(
                 .extend_constraint_new(constraint_acc.clone());
 
             match infer_type(type_env, &new_expr_env, expr)? {
-                Triple::L(t) => require_constraint(t, constraint_acc),
+                Triple::L((t, typed_expr)) =>
+                    require_constraint(t, constraint_acc, typed_expr),
                 Triple::M(rc) =>
                     rc.with_constraint_acc(constraint_acc),
                 _ => result

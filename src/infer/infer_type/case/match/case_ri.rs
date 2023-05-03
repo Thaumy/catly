@@ -61,7 +61,7 @@ pub fn case_ri(
         .map(|(case_expr, env_inject, _)| {
             // 不用 hint case_expr, 因为对 target_expr 的类型获取缺乏信息
             match case_expr.infer_type(type_env, expr_env) {
-                Quad::L(case_expr_type) => case_expr_type.ok(),
+                Quad::L((case_expr_type, _)) => case_expr_type.ok(),
                 Quad::ML(rc) =>
                 // 确保 case_expr 是模式匹配意义上的常量, 原理与 case_t_rc 相同
                     if rc
@@ -118,7 +118,7 @@ pub fn case_ri(
             let expr = Expr::Match(
                 expect_type.clone(),
                 hinted_target_expr.boxed(),
-                case_vec.clone()
+                case_vec.clone(),
             );
             expr.infer_type(type_env, expr_env)
         }
@@ -129,12 +129,12 @@ pub fn case_ri(
             let hint =
                 vec.iter()
                     .filter(|(_, env_inject, _)|
-                    // 过滤出所有不受到 case_expr 解构常量环境同名 EnvRef 影响的 then_expr
-                    // 因为这些同名 EnvRef 会覆盖对 match 表达式匹配对象的环境引用
-                    // 如果常量环境中不存在名为 ref_name 的注入, 那么 then_expr 约束的 ref_name 便是匹配目标
-                    env_inject
-                        .iter()
-                        .all(|(n, ..)| n != ref_name))
+                        // 过滤出所有不受到 case_expr 解构常量环境同名 EnvRef 影响的 then_expr
+                        // 因为这些同名 EnvRef 会覆盖对 match 表达式匹配对象的环境引用
+                        // 如果常量环境中不存在名为 ref_name 的注入, 那么 then_expr 约束的 ref_name 便是匹配目标
+                        env_inject
+                            .iter()
+                            .all(|(n, ..)| n != ref_name))
                     .map(|(_, env_inject, then_expr)| match then_expr
                         .with_opt_fallback_type(expect_type)
                         .infer_type(
@@ -144,7 +144,7 @@ pub fn case_ri(
                             // 如果不进行注入, 推导可能会因为缺乏类型信息而失败
                             // let case 的旁路推导因为 assign_type 和 assign_expr 均无法提供有效的类型信息, 所以不需要注入
                             &expr_env
-                                .extend_vec_new(env_inject.clone())
+                                .extend_vec_new(env_inject.clone()),
                         ) {
                         Quad::ML(rc) => rc
                             .constraint
@@ -168,7 +168,7 @@ pub fn case_ri(
                     let expr = Expr::Match(
                         expect_type.clone(),
                         hinted_target_expr.boxed(),
-                        case_vec.clone()
+                        case_vec.clone(),
                     );
                     expr.infer_type(type_env, expr_env)
                 }

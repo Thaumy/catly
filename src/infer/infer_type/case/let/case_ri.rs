@@ -5,6 +5,7 @@ use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_info::ReqInfo;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::OptionAnyExt;
+use crate::infra::r#box::BoxAnyExt;
 use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::OptType;
@@ -31,7 +32,7 @@ pub fn case_ri(
         // 换言之, Let 表达式可以被直接简化为 scope_expr, 因为 scope_expr 与绑定无关
         // 如果改变实现, 也可在分析 assign_expr_type 的 L/ML 情况时得知这种无关性
         // 但这种实现会增加类型检查的复杂性, 应交由优化器实现
-        Triple::L(scope_expr_type) => match scope_expr_type
+        Triple::L((scope_expr_type, _)) => match scope_expr_type
             .lift_to_or_left(type_env, expect_type)
         {
             // Some 和 None 分支的设计使得在此处编译器能够逐步提示代码错误
@@ -74,40 +75,64 @@ pub fn case_ri(
                 .find(assign_name)
                 .cloned();
 
-            let constraint_acc = match assign_expr
-                .with_opt_fallback_type(&assign_type_constraint)
-                .infer_type(type_env, &new_expr_env)?
-            {
-                // 限定相容且未带来约束
-                Triple::L(_) => constraint_acc,
-                // 限定相容且带来了约束, 传播之
-                Triple::M(rc) => match constraint_acc
-                    .extend_new(rc.constraint.clone())
+            let (assign_expr_type, constraint_acc, typed_assign_expr) =
+                match assign_expr
+                    .with_opt_fallback_type(&assign_type_constraint)
+                    .infer_type(type_env, &new_expr_env)?
                 {
-                    Some(c) => c,
-                    None =>
-                        return TypeMissMatch::of_constraint(
-                            &constraint_acc,
-                            &rc.constraint
-                        )
-                        .into(),
-                },
-                // 仍然缺乏信息
-                Triple::R(ri) =>
-                    return if ri.ref_name == "_" {
-                        // 拦截无类型弃元到 assign_name
-                        ri.new_ref_name(assign_name)
-                            .with_constraint_acc(constraint_acc)
-                    } else {
-                        ri.with_constraint_acc(constraint_acc)
+                    // 限定相容且未带来约束
+                    Triple::L((
+                        assign_expr_type,
+                        typed_assign_expr
+                    )) => (
+                        assign_expr_type,
+                        constraint_acc,
+                        typed_assign_expr
+                    ),
+                    // 限定相容且带来了约束, 传播之
+                    Triple::M(rc) => match constraint_acc
+                        .extend_new(rc.constraint.clone())
+                    {
+                        Some(c) => (rc.r#type, c, rc.typed_expr),
+                        None =>
+                            return TypeMissMatch::of_constraint(
+                                &constraint_acc,
+                                &rc.constraint
+                            )
+                            .into(),
                     },
-            };
+                    // 仍然缺乏信息
+                    Triple::R(ri) =>
+                        return if ri.ref_name == "_" {
+                            // 拦截无类型弃元到 assign_name
+                            ri.new_ref_name(assign_name)
+                                .with_constraint_acc(constraint_acc)
+                        } else {
+                            ri.with_constraint_acc(constraint_acc)
+                        },
+                };
 
             InferTypeRet::from_auto_lift(
                 type_env,
                 &rc.r#type,
                 expect_type,
-                constraint_acc.some()
+                constraint_acc.some(),
+                |t| {
+                    Expr::Let(
+                        t.some(),
+                        assign_name.to_string(),
+                        // TODO: 运行时是否关注 EnvRef 的类型对此处十分重要(case pattern 除外)
+                        // 如果关注类型, 那么此处应使用更大范围的类型, 例如类型约束
+                        // 如果不关注类型, 那么此处甚至可以去掉类型信息
+                        assign_expr_type
+                            .clone()
+                            .some(),
+                        typed_assign_expr
+                            .clone()
+                            .boxed(),
+                        rc.typed_expr.clone().boxed()
+                    )
+                }
             )
         }
 

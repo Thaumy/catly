@@ -24,35 +24,39 @@ pub fn case(
     then_expr: &Expr,
     else_expr: &Expr
 ) -> InferTypeRet {
-    let bool_expr_type = bool_expr
+    match bool_expr
         .with_fallback_type(&bool_type!())
-        .infer_type(type_env, expr_env)?;
+        .infer_type(type_env, expr_env)?
+    {
+        // TODO: 此合并重构的正确性需经由测试
+        bool_expr_type @ (Triple::L(_) | Triple::M(_)) => {
+            let (bool_expr_type, constraint, typed_bool_expr) =
+                bool_expr_type.unwrap_type_constraint_expr();
 
-    // bool_expr must be boolean types
-    let constraint_acc = match &bool_expr_type {
-        Triple::L(bool_expr_type) =>
             if bool_expr_type.can_lift_to(type_env, &bool_type!()) {
-                EnvRefConstraint::empty()
+                // 由于求 bool_expr_type 产生的约束可能对接下来有帮助, 所以需要注入到环境
+                let new_expr_env = &expr_env
+                    .extend_constraint_new(constraint.clone());
+
+                infer_branch_type(
+                    type_env,
+                    new_expr_env,
+                    expect_type,
+                    bool_expr,
+                    then_expr,
+                    else_expr,
+                    typed_bool_expr
+                )?
+                .with_constraint_acc(constraint)
             } else {
+                // bool_expr must be boolean types
                 return TypeMissMatch::of_type(
-                    bool_expr_type,
+                    &bool_expr_type,
                     &bool_type!()
                 )
                 .into();
-            },
-        Triple::M(rc) =>
-            if rc
-                .r#type
-                .can_lift_to(type_env, &bool_type!())
-            {
-                rc.constraint.clone()
-            } else {
-                return TypeMissMatch::of_type(
-                    &rc.r#type,
-                    &bool_type!()
-                )
-                .into();
-            },
+            }
+        }
         // 求取分支类型, 因为分支约束可能有助于求得 bool_expr 类型
         // 约束将在下一轮次被注入环境, 同时也会再次求 bool_expr 类型
         Triple::R(ri) => {
@@ -67,7 +71,10 @@ pub fn case(
                 expect_type,
                 bool_expr,
                 then_expr,
-                else_expr
+                else_expr,
+                // 因为此推导的目的是收集依赖, 不会使用最终产生的结果
+                // 所以使用不完备类型信息的 bool_expr 是可以的(其实就是因为必须要传参
+                bool_expr.clone()
             )? {
                 // 产生约束, 改写错误以便下一轮对 bool_expr 进行类型获取
                 Triple::M(ReqConstraint { constraint, .. }) =>
@@ -80,19 +87,5 @@ pub fn case(
             }?
             .with_constraint_acc(constraint_acc);
         }
-    };
-
-    // 由于求 bool_expr_type 产生的约束可能对接下来有帮助, 所以需要注入到环境
-    let new_expr_env =
-        &expr_env.extend_constraint_new(constraint_acc.clone());
-
-    infer_branch_type(
-        type_env,
-        new_expr_env,
-        expect_type,
-        bool_expr,
-        then_expr,
-        else_expr
-    )?
-    .with_constraint_acc(constraint_acc)
+    }
 }

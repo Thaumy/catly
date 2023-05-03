@@ -3,6 +3,7 @@ use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::OptionAnyExt;
+use crate::infra::r#box::BoxAnyExt;
 use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::OptType;
@@ -16,9 +17,12 @@ pub fn case_t_rc(
     assign_name: &str,
     assign_type: &OptType,
     assign_expr: &Expr,
-    scope_expr: &Expr
+    scope_expr: &Expr,
+    typed_assign_expr: Expr
 ) -> InferTypeRet {
     // Lift assign_expr_type to assign_type
+    // TODO: lift out this
+    // TODO: 相似用例检查
     let assign_type = match assign_expr_type
         .lift_to_or_left(type_env, assign_type)
     {
@@ -34,7 +38,7 @@ pub fn case_t_rc(
     // Env inject
     let expr_env = expr_env.extend_new(
         assign_name.to_string(),
-        assign_type.some(),
+        assign_type.clone().some(),
         assign_expr.clone().some()
     );
 
@@ -44,13 +48,26 @@ pub fn case_t_rc(
         .infer_type(type_env, &expr_env)?
     {
         scope_expr_type @ (Triple::L(_) | Triple::M(_)) => {
-            let (scope_expr_type, constraint) =
-                scope_expr_type.unwrap_type_constraint();
+            let (scope_expr_type, constraint, typed_scope_expr) =
+                scope_expr_type.unwrap_type_constraint_expr();
             InferTypeRet::from_auto_lift(
                 type_env,
                 &scope_expr_type,
                 expect_type,
-                constraint.some()
+                constraint.some(),
+                |t| {
+                    Expr::Let(
+                        t.some(),
+                        assign_name.to_string(),
+                        assign_type.clone().some(),
+                        typed_assign_expr
+                            .clone()
+                            .boxed(),
+                        typed_scope_expr
+                            .clone()
+                            .boxed()
+                    )
+                }
             )
         }
 

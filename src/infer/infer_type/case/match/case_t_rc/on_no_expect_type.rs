@@ -14,8 +14,8 @@ pub fn on_no_expect_type<'t, T>(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
     hinted_cases: T,
-    target_expr: &Expr,
-    case_vec: &Vec<(Expr, Expr)>
+    case_vec: &Vec<(Expr, Expr)>,
+    typed_target_expr: Expr
 ) -> InferTypeRet
 where
     T: Iterator<Item = &'t (Expr, Vec<EnvEntry>, Expr)> + Clone
@@ -24,18 +24,19 @@ where
 
     // 逐一获取 then_expr_type, 并将它们逐个合一, 合一的结果便是 match 表达式的最终类型
     // 同时收集在获取 then_expr_type 的过程中产生的约束
-    let type_and_outer_constraints =
+    let then_expr_type_and_outer_constraints =
         hinted_cases.map(|(_, env_inject, then_expr)| {
-            // 此部分与上方原理相同
-            let then_expr_type = then_expr.infer_type(
+            // 此部分与 on_has_expect_type 原理相同
+            match then_expr.infer_type(
                 type_env,
                 &expr_env.extend_vec_new(env_inject.clone())
-            );
-
-            match then_expr_type {
-                Quad::L(_) | Quad::ML(_) => {
-                    let (then_expr_type, constraint) =
-                        then_expr_type.unwrap_type_constraint();
+            ) {
+                then_expr_type @ (Quad::L(_) | Quad::ML(_)) => {
+                    // 此处不负责对类型完备的 then_expr 进行收集
+                    // 因为即便收集, on_has_expect_type 也要进行重复的收集工作
+                    // 但更多是出于实现的复杂性考虑
+                    let (then_expr_type, constraint, _) =
+                        then_expr_type.unwrap_type_constraint_expr();
 
                     // 将作用于常量环境的约束过滤掉, 收集外部约束用于分支共享
                     let outer_constraint =
@@ -70,7 +71,7 @@ where
         });
 
     // 一旦发现类型不匹配(of then_expr), 立即返回
-    match type_and_outer_constraints
+    match then_expr_type_and_outer_constraints
         .clone()
         // 任选一个错误即可(渐进式错误提示)
         .find(|x| matches!(x, Err(Quad::R(_))))
@@ -79,7 +80,7 @@ where
         _ => {}
     } // 排除了 infer_type 的结果 R
 
-    let outer_constraint = type_and_outer_constraints
+    let outer_constraint = then_expr_type_and_outer_constraints
         .clone()
         .try_fold(EnvRefConstraint::empty(), |acc, x| match x {
             Ok((_, c)) => match acc.extend_new(c.clone()) {
@@ -106,7 +107,7 @@ where
     // 由于缺乏 expect_type, 可能有一部分 then_expr 无法获得类型
     // 需要去除这些无法获得类型的 then_expr, 将剩余类型合一后 hint match match expr
     // 由于 R 情况已被排除, 此处需要排除 MR 情况, 所以仅保留 Ok 即可
-    let final_type = type_and_outer_constraints
+    let final_type = then_expr_type_and_outer_constraints
         .filter(|x| matches!(x, Ok(_)))
         .map(|x| match x {
             Ok((t, _)) => t,
@@ -134,7 +135,9 @@ where
 
     let match_expr = Expr::Match(
         final_type.some(),
-        target_expr.clone().boxed(),
+        typed_target_expr
+            .clone()
+            .boxed(),
         case_vec.clone()
     );
 

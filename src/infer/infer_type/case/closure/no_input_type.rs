@@ -1,9 +1,11 @@
+use crate::infer::env::r#macro::namely_type;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_info::ReqInfo;
 use crate::infra::option::OptionAnyExt;
 use crate::infra::r#box::BoxAnyExt;
+use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
 
@@ -12,7 +14,8 @@ pub fn no_input_type(
     expect_type: &OptType,
     output_expr_type: Type,
     constraint_acc: EnvRefConstraint,
-    input_name: &Option<String>
+    input_name: &Option<String>,
+    typed_output_expr: Expr
 ) -> InferTypeRet {
     // 尝试从获取 output_expr_type 产生的约束中恢复输入类型
     let input_name = match input_name {
@@ -43,7 +46,19 @@ pub fn no_input_type(
                 type_env,
                 &base,
                 expect_type,
-                left_constraint.some()
+                left_constraint.some(),
+                |t| {
+                    Expr::Closure(
+                        t.some(),
+                        input_name.clone().some(),
+                        input_type_constraint
+                            .clone()
+                            .some(),
+                        typed_output_expr
+                            .clone()
+                            .boxed()
+                    )
+                }
             )
         }
         // 约束不包含输入, 缺乏推导出输入类型的信息

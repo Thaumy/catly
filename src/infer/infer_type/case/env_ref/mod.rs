@@ -6,6 +6,7 @@ use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infra::option::OptionAnyExt;
 use crate::infra::triple::Triple;
+use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::OptType;
 
 pub fn case(
@@ -20,13 +21,15 @@ pub fn case(
         expect_type
     )? {
         ref_type @ (Triple::L(_) | Triple::M(_)) => {
-            let (t, constraint) = ref_type.unwrap_type_constraint();
+            let (t, constraint, _) =
+                ref_type.unwrap_type_constraint_expr();
 
             InferTypeRet::from_auto_lift(
                 type_env,
                 &t,
                 expect_type,
-                constraint.some()
+                constraint.some(),
+                |t| Expr::EnvRef(t.some(), ref_name.to_string())
             )
         }
         // Triple::R

@@ -19,8 +19,8 @@ pub fn case_ri(
         // 因为此处产生的约束作用于外层环境, 而这些约束可能对再次推导 Apply 的类型有所帮助
         // 所以再次 infer_type 时应该将这些约束注入环境, 并对外传播
         rhs_expr_type @ (Triple::L(_) | Triple::M(_)) => {
-            let (input_type, constraint) =
-                rhs_expr_type.unwrap_type_constraint();
+            let (input_type, constraint, typed_rhs_expr) =
+                rhs_expr_type.unwrap_type_constraint_expr();
 
             let apply_expr = if let Some(output_type) = expect_type {
                 // 可以确定输出类型
@@ -31,10 +31,12 @@ pub fn case_ri(
 
                 Expr::Apply(
                     expect_type.clone(),
+                    // 使用类型标注不完备的 lhs_expr 是没有问题的, 因为它将在下一轮推导时完备化
                     lhs_expr
                         .with_fallback_type(&closure_type)
                         .boxed(),
-                    rhs_expr.clone().boxed()
+                    // TODO: 使用类型完备化表达式参与推导是否能够成为一种提供类型信息的新方式?
+                    typed_rhs_expr.clone().boxed()
                 )
             } else {
                 let partial_closure_type = Type::PartialClosureType(
@@ -43,10 +45,11 @@ pub fn case_ri(
 
                 Expr::Apply(
                     None,
+                    // 与上同理
                     lhs_expr
                         .with_fallback_type(&partial_closure_type)
                         .boxed(),
-                    rhs_expr.clone().boxed()
+                    typed_rhs_expr.clone().boxed()
                 )
             };
 

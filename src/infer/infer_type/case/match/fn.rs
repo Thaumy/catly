@@ -12,6 +12,7 @@ use crate::infra::quad::Quad;
 use crate::infra::r#fn::id;
 use crate::infra::result::ResultAnyExt;
 use crate::infra::triple::Triple;
+use crate::infra::vec::VecExt;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::Type;
 
@@ -99,13 +100,15 @@ pub fn destruct_match_const_to_expr_env_inject(
         })
 }
 
+// 如果所有的 case_expr 都合法, 则返回所有类型完备的 case_expr
+// 否则, 返回第一个类型不匹配信息
 pub fn is_case_expr_valid<'t>(
     type_env: &TypeEnv,
     target_expr_type: &Type,
     case_expr_and_env_inject: impl Iterator<
         Item = (&'t Expr, &'t Vec<EnvEntry>)
     >
-) -> Result<(), InferTypeRet> {
+) -> Result<Vec<Expr>, TypeMissMatch> {
     // 逐一确认 case_expr_type 与 target_expr_type 的相容性
     // 同时确保 case_expr 是模式匹配意义上的常量
     case_expr_and_env_inject
@@ -113,14 +116,15 @@ pub fn is_case_expr_valid<'t>(
         .map(|(case_expr, env_inject)| {
             // 使用空表达式环境提取 case_expr_type, 这样能让所有对外界的约束得以暴露
             match case_expr.infer_type(type_env, &ExprEnv::empty())? {
-                Triple::L(case_expr_type) =>
+                Triple::L((case_expr_type, typed_case_expr)) =>
                     InferTypeRet::from_auto_lift(
                         type_env,
                         &case_expr_type,
                         &target_expr_type
                             .clone()
                             .some(),
-                        None
+                        None,
+                        |_| typed_case_expr.clone()
                     ),
                 // 表达式环境为空却产生了约束
                 Triple::M(rc) => {
@@ -149,7 +153,8 @@ pub fn is_case_expr_valid<'t>(
                             &target_expr_type
                                 .clone()
                                 .some(),
-                            None
+                            None,
+                            |_| rc.typed_expr.clone()
                         )
                     } else {
                         TypeMissMatch::of(&format!(
@@ -167,7 +172,12 @@ pub fn is_case_expr_valid<'t>(
                 Triple::R(ri) => panic!("Impossible branch: {ri:?}")
             }
         })
-        .find(|x| matches!(x, Quad::R(..)))
-        .map(|x| x.err())
-        .unwrap_or(Ok(()))
+        .try_fold(vec![], |acc, x| match x {
+            Quad::L((_, e)) => acc.chain_push(e).ok(),
+            Quad::ML(rc) => acc
+                .chain_push(rc.typed_expr)
+                .ok(),
+            Quad::MR(_) => panic!("Impossible branch: {x:?}"),
+            Quad::R(err) => err.err()
+        })
 }

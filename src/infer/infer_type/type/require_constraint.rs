@@ -1,16 +1,20 @@
 use std::fmt::{Debug, Formatter};
 
+use crate::infer::env::r#macro::namely_type;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
+use crate::infra::option::OptionAnyExt;
 use crate::infra::quad::QuadAnyExt;
+use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::Type;
 
 // 经由约束才能使用的类型
 #[derive(PartialEq, Clone)]
 pub struct ReqConstraint {
     pub r#type: Type,
-    pub constraint: EnvRefConstraint
+    pub constraint: EnvRefConstraint,
+    pub typed_expr: Expr
 }
 
 impl ReqConstraint {
@@ -19,28 +23,40 @@ impl ReqConstraint {
         acc: EnvRefConstraint
     ) -> InferTypeRet {
         // TODO: 考虑约束顺序对环境的影响
-        require_extended_constraint(self.r#type, acc, self.constraint)
+        require_extended_constraint(
+            self.r#type,
+            acc,
+            self.constraint,
+            self.typed_expr
+        )
     }
 }
 
 pub fn require_constraint(
     r#type: Type,
-    constraint: EnvRefConstraint
+    constraint: EnvRefConstraint,
+    typed_expr: Expr
 ) -> InferTypeRet {
     if constraint.is_empty() {
-        InferTypeRet::has_type(r#type)
+        InferTypeRet::has_type(r#type, typed_expr)
     } else {
-        ReqConstraint { r#type, constraint }.into()
+        ReqConstraint {
+            r#type,
+            constraint,
+            typed_expr
+        }
+        .into()
     }
 }
 
 pub fn require_extended_constraint(
     r#type: Type,
     l: EnvRefConstraint,
-    r: EnvRefConstraint
+    r: EnvRefConstraint,
+    typed_expr: Expr
 ) -> InferTypeRet {
     match l.extend_new(r.clone()) {
-        Some(c) => require_constraint(r#type, c.clone()),
+        Some(c) => require_constraint(r#type, c.clone(), typed_expr),
         None => TypeMissMatch::of_constraint(&l, &r).into()
     }
 }

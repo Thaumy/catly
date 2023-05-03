@@ -25,15 +25,15 @@ enum Pat {
 
     Digit(char),
     DigitStart(char),
-    DigitChunk(String), //Out::DigitStartChunk
+    DigitChunk(String), // Out::DigitStartChunk
 
     Alphanum(char),
 
     LowerStart(char),
-    LowerStartChunk(String), //Out::LowerStartChunk
+    LowerStartChunk(String), // Out::LowerStartChunk
 
     UpperStart(char),
-    UpperStartChunk(String) //Out::UpperStartChunk
+    UpperStartChunk(String) // Out::UpperStartChunk
 }
 
 fn move_in(stack: &Vec<Pat>, head: Option<char>) -> Pat {
