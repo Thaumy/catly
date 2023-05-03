@@ -1,12 +1,11 @@
 mod infer_branch_type;
-/*#[cfg(test)]
+#[cfg(test)]
 mod test;
-*/
+
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::r#macro::bool_type;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::case::cond::infer_branch_type::infer_branch_type;
-use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_constraint::ReqConstraint;
 use crate::infer::infer_type::r#type::require_info::ReqInfo;

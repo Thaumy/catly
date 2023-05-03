@@ -3,8 +3,8 @@ use crate::infer::env::parse_env;
 use crate::infer::env::r#macro::closure_type;
 use crate::infer::env::r#macro::int_type;
 use crate::infer::env::type_env::TypeEnv;
-use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::test::get_std_code;
+use crate::infra::quad::Quad;
 
 fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
     let seq = get_std_code() +
@@ -50,10 +50,6 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
     parse_env(&seq).unwrap()
 }
 
-fn target_type() -> InferTypeRet {
-    InferTypeRet::has_type(closure_type!(int_type!(), int_type!()))
-}
-
 #[test]
 fn test_part1() {
     let (type_env, expr_env) = gen_env();
@@ -63,7 +59,14 @@ fn test_part1() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    assert_eq!(expr_type, target_type())
+    match expr_type {
+        Quad::L((t, e)) => {
+            let r = closure_type!(int_type!(), int_type!());
+            assert_eq!(t, r);
+            assert!(e.is_fully_typed());
+        }
+        _ => panic!()
+    }
 }
 
 #[test]
@@ -75,7 +78,14 @@ fn test_part2() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    assert_eq!(expr_type, target_type())
+    match expr_type {
+        Quad::L((t, e)) => {
+            let r = closure_type!(int_type!(), int_type!());
+            assert_eq!(t, r);
+            assert!(e.is_fully_typed());
+        }
+        _ => panic!()
+    }
 }
 #[test]
 fn test_part3() {
@@ -86,7 +96,14 @@ fn test_part3() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    assert_eq!(expr_type, target_type())
+    match expr_type {
+        Quad::L((t, e)) => {
+            let r = closure_type!(int_type!(), int_type!());
+            assert_eq!(t, r);
+            assert!(e.is_fully_typed());
+        }
+        _ => panic!()
+    }
 }
 #[test]
 fn test_part4() {
@@ -97,5 +114,12 @@ fn test_part4() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    assert_eq!(expr_type, target_type())
+    match expr_type {
+        Quad::L((t, e)) => {
+            let r = closure_type!(int_type!(), int_type!());
+            assert_eq!(t, r);
+            assert!(e.is_fully_typed());
+        }
+        _ => panic!()
+    }
 }

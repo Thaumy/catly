@@ -1,5 +1,4 @@
 use crate::infer::env::expr_env::ExprEnv;
-use crate::infer::env::r#macro::namely_type;
 use crate::infer::env::r#type::env_ref_src::EnvRefSrc;
 use crate::infer::env::r#type::type_constraint::TypeConstraint;
 use crate::infer::env::type_env::TypeEnv;

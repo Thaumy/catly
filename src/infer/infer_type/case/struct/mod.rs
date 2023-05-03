@@ -1,7 +1,7 @@
 mod r#fn;
-/*#[cfg(test)]
+#[cfg(test)]
 mod test;
-*/
+
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::case::r#struct::r#fn::is_struct_vec_of_type_then_get_prod_vec;
@@ -135,6 +135,7 @@ pub fn case(
     );
 
     let typed_struct_vec = sf_n_and_sf_t_with_constraint_and_expr
+        // TODO: use filter_map
         .map(|it| match it {
             Ok((sf_n, sf_t, _, typed_sf_e)) =>
                 (sf_n, sf_t.some(), typed_sf_e),

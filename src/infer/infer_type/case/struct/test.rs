@@ -8,8 +8,6 @@ use crate::infer::env::r#macro::prod_type;
 use crate::infer::env::r#macro::unit_type;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
-use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infer::infer_type::r#type::require_constraint::require_constraint;
 use crate::infra::quad::Quad;
 
 fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
@@ -50,12 +48,18 @@ fn test_part1() {
         .get_ref("struct1")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = InferTypeRet::has_type(prod_type![
-        ("a".to_string(), int_type!()),
-        ("b".to_string(), unit_type!())
-    ]);
 
-    assert_eq!(expr_type, r)
+    match expr_type {
+        Quad::L((t, e)) => {
+            let r = prod_type![
+                ("a".to_string(), int_type!()),
+                ("b".to_string(), unit_type!())
+            ];
+            assert_eq!(t, r);
+            assert!(e.is_fully_typed());
+        }
+        _ => panic!()
+    }
 }
 
 #[test]
@@ -66,12 +70,18 @@ fn test_part2() {
         .get_ref("struct2")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = InferTypeRet::has_type(prod_type![
-        ("a".to_string(), int_type!()),
-        ("b".to_string(), unit_type!())
-    ]);
 
-    assert_eq!(expr_type, r)
+    match expr_type {
+        Quad::L((t, e)) => {
+            let r = prod_type![
+                ("a".to_string(), int_type!()),
+                ("b".to_string(), unit_type!())
+            ];
+            assert_eq!(t, r);
+            assert!(e.is_fully_typed());
+        }
+        _ => panic!()
+    }
 }
 
 #[test]
@@ -82,9 +92,15 @@ fn test_part3() {
         .get_ref("struct3")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = InferTypeRet::has_type(namely_type!("Prod3"));
 
-    assert_eq!(expr_type, r)
+    match expr_type {
+        Quad::L((t, e)) => {
+            let r = namely_type!("Prod3");
+            assert_eq!(t, r);
+            assert!(e.is_fully_typed());
+        }
+        _ => panic!()
+    }
 }
 
 #[test]
@@ -95,15 +111,23 @@ fn test_part4() {
         .get_ref("struct4")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = require_constraint(
-        prod_type![
-            ("a".to_string(), int_type!()),
-            ("b".to_string(), unit_type!())
-        ],
-        EnvRefConstraint::single("x".to_string(), unit_type!())
-    );
 
-    assert_eq!(expr_type, r)
+    match expr_type {
+        Quad::ML(rc) => {
+            let r = prod_type![
+                ("a".to_string(), int_type!()),
+                ("b".to_string(), unit_type!())
+            ];
+            assert_eq!(rc.r#type, r);
+            let r = EnvRefConstraint::single(
+                "x".to_string(),
+                unit_type!()
+            );
+            assert_eq!(rc.constraint, r);
+            assert!(rc.typed_expr.is_fully_typed());
+        }
+        _ => panic!()
+    }
 }
 
 #[test]
@@ -114,15 +138,23 @@ fn test_part5() {
         .get_ref("struct5")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = require_constraint(
-        prod_type![
-            ("a".to_string(), int_type!()),
-            ("b".to_string(), unit_type!())
-        ],
-        EnvRefConstraint::single("x".to_string(), unit_type!())
-    );
 
-    assert_eq!(expr_type, r)
+    match expr_type {
+        Quad::ML(rc) => {
+            let r = prod_type![
+                ("a".to_string(), int_type!()),
+                ("b".to_string(), unit_type!())
+            ];
+            assert_eq!(rc.r#type, r);
+            let r = EnvRefConstraint::single(
+                "x".to_string(),
+                unit_type!()
+            );
+            assert_eq!(rc.constraint, r);
+            assert!(rc.typed_expr.is_fully_typed());
+        }
+        _ => panic!()
+    }
 }
 
 #[test]
@@ -133,12 +165,18 @@ fn test_part6() {
         .get_ref("struct6")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = InferTypeRet::has_type(prod_type![(
-        "a".to_string(),
-        prod_type![("a".to_string(), int_type!()),]
-    )]);
 
-    assert_eq!(expr_type, r)
+    match expr_type {
+        Quad::L((t, e)) => {
+            let r = prod_type![("a".to_string(), prod_type![(
+                "a".to_string(),
+                int_type!()
+            ),])];
+            assert_eq!(t, r);
+            assert!(e.is_fully_typed());
+        }
+        _ => panic!()
+    }
 }
 
 #[test]
@@ -149,15 +187,23 @@ fn test_part7() {
         .get_ref("struct7")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = require_constraint(
-        prod_type![("a".to_string(), prod_type![(
-            "a".to_string(),
-            int_type!()
-        ),])],
-        EnvRefConstraint::single("x".to_string(), int_type!())
-    );
 
-    assert_eq!(expr_type, r)
+    match expr_type {
+        Quad::ML(rc) => {
+            let r = prod_type![("a".to_string(), prod_type![(
+                "a".to_string(),
+                int_type!()
+            ),])];
+            assert_eq!(rc.r#type, r);
+            let r = EnvRefConstraint::single(
+                "x".to_string(),
+                int_type!()
+            );
+            assert_eq!(rc.constraint, r);
+            assert!(rc.typed_expr.is_fully_typed());
+        }
+        _ => panic!()
+    }
 }
 
 #[test]
@@ -193,14 +239,22 @@ fn test_part10() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    let r = require_constraint(
-        prod_type![
-            ("a".to_string(), int_type!()),
-            ("b".to_string(), int_type!())
-        ],
-        EnvRefConstraint::single("a10".to_string(), int_type!())
-    );
-    assert_eq!(expr_type, r)
+    match expr_type {
+        Quad::ML(rc) => {
+            let r = prod_type![
+                ("a".to_string(), int_type!()),
+                ("b".to_string(), int_type!())
+            ];
+            assert_eq!(rc.r#type, r);
+            let r = EnvRefConstraint::single(
+                "a10".to_string(),
+                int_type!()
+            );
+            assert_eq!(rc.constraint, r);
+            assert!(rc.typed_expr.is_fully_typed());
+        }
+        _ => panic!()
+    }
 }
 
 #[test]
@@ -223,9 +277,15 @@ fn test_part12() {
         .get_ref("struct12")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = InferTypeRet::has_type(namely_type!("Sum12"));
 
-    assert_eq!(expr_type, r);
+    match expr_type {
+        Quad::L((t, e)) => {
+            let r = namely_type!("Sum12");
+            assert_eq!(t, r);
+            assert!(e.is_fully_typed());
+        }
+        _ => panic!()
+    }
 }
 
 #[test]

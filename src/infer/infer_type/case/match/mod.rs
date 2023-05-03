@@ -1,9 +1,9 @@
 mod case_ri;
 mod case_t_rc;
 mod r#fn;
-/*#[cfg(test)]
+#[cfg(test)]
 mod test;
-*/
+
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::case::r#match::case_ri::case_ri;

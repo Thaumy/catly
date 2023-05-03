@@ -6,8 +6,6 @@ use crate::infer::env::r#macro::int_type;
 use crate::infer::env::r#macro::unit_type;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
-use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infer::infer_type::r#type::require_constraint::require_constraint;
 use crate::infer::infer_type::r#type::require_info::ReqInfo;
 use crate::infra::quad::Quad;
 
@@ -62,9 +60,15 @@ fn test_part1() {
         .get_ref("let1")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = InferTypeRet::has_type(int_type!());
 
-    assert_eq!(expr_type, r)
+    match expr_type {
+        Quad::L((t, e)) => {
+            let r = int_type!();
+            assert_eq!(t, r);
+            assert!(e.is_fully_typed());
+        }
+        _ => panic!()
+    }
 }
 
 #[test]
@@ -75,12 +79,20 @@ fn test_part2() {
         .get_ref("let2")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = require_constraint(
-        int_type!(),
-        EnvRefConstraint::single("a2".to_string(), int_type!())
-    );
 
-    assert_eq!(expr_type, r)
+    match expr_type {
+        Quad::ML(rc) => {
+            let r = int_type!();
+            assert_eq!(rc.r#type, r);
+            let r = EnvRefConstraint::single(
+                "a2".to_string(),
+                int_type!()
+            );
+            assert_eq!(rc.constraint, r);
+            assert!(rc.typed_expr.is_fully_typed());
+        }
+        _ => panic!()
+    }
 }
 
 #[test]
@@ -91,12 +103,20 @@ fn test_part3() {
         .get_ref("let3")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = require_constraint(
-        int_type!(),
-        EnvRefConstraint::single("a3".to_string(), int_type!())
-    );
 
-    assert_eq!(expr_type, r)
+    match expr_type {
+        Quad::ML(rc) => {
+            let r = int_type!();
+            assert_eq!(rc.r#type, r);
+            let r = EnvRefConstraint::single(
+                "a3".to_string(),
+                int_type!()
+            );
+            assert_eq!(rc.constraint, r);
+            assert!(rc.typed_expr.is_fully_typed());
+        }
+        _ => panic!()
+    }
 }
 
 #[test]
@@ -107,9 +127,15 @@ fn test_part4() {
         .get_ref("let4")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = InferTypeRet::has_type(unit_type!());
 
-    assert_eq!(expr_type, r)
+    match expr_type {
+        Quad::L((t, e)) => {
+            let r = unit_type!();
+            assert_eq!(t, r);
+            assert!(e.is_fully_typed());
+        }
+        _ => panic!()
+    }
 }
 
 #[test]
@@ -158,12 +184,20 @@ fn test_part8() {
         .get_ref("let8")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = require_constraint(
-        int_type!(),
-        EnvRefConstraint::single("a8".to_string(), int_type!())
-    );
 
-    assert_eq!(expr_type, r)
+    match expr_type {
+        Quad::ML(rc) => {
+            let r = int_type!();
+            assert_eq!(rc.r#type, r);
+            let r = EnvRefConstraint::single(
+                "a8".to_string(),
+                int_type!()
+            );
+            assert_eq!(rc.constraint, r);
+            assert!(rc.typed_expr.is_fully_typed());
+        }
+        _ => panic!()
+    }
 }
 
 #[test]
@@ -251,9 +285,15 @@ fn test_part15() {
         .get_ref("let15")
         .unwrap()
         .infer_type(&type_env, &expr_env);
-    let r = InferTypeRet::has_type(int_type!());
 
-    assert_eq!(expr_type, r)
+    match expr_type {
+        Quad::L((t, e)) => {
+            let r = int_type!();
+            assert_eq!(t, r);
+            assert!(e.is_fully_typed());
+        }
+        _ => panic!()
+    }
 }
 
 #[test]
