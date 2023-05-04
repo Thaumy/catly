@@ -30,10 +30,10 @@ fn test_part1() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    let r = InferTypeRet::has_type(
-        namely_type!("A"),
-        Expr::Int(namely_type!("A").some(), 10)
-    );
+    let r = InferTypeRet::has_type(Expr::Int(
+        namely_type!("A").some(),
+        10
+    ));
 
     assert_eq!(expr_type, r)
 }
@@ -59,10 +59,7 @@ fn test_part3() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    let r = InferTypeRet::has_type(
-        int_type!(),
-        Expr::Int(int_type!().some(), 20)
-    );
+    let r = InferTypeRet::has_type(Expr::Int(int_type!().some(), 20));
 
     assert_eq!(expr_type, r)
 }

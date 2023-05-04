@@ -25,10 +25,9 @@ fn test_part1() {
     let expr_type = Expr::Discard(namely_type!("A").some())
         .infer_type(&type_env, &expr_env);
 
-    let r = InferTypeRet::has_type(
-        namely_type!("A"),
-        Expr::Discard(namely_type!("A").some())
-    );
+    let r = InferTypeRet::has_type(Expr::Discard(
+        namely_type!("A").some()
+    ));
 
     assert_eq!(expr_type, r)
 }

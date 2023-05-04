@@ -3,7 +3,6 @@ use std::assert_matches::assert_matches;
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::parse_env;
 use crate::infer::env::r#macro::namely_type;
-use crate::infer::env::r#macro::unit_type;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infra::option::OptionAnyExt;
@@ -30,10 +29,8 @@ fn test_part1() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    let r = InferTypeRet::has_type(
-        namely_type!("A"),
-        Expr::Unit(namely_type!("A").some())
-    );
+    let r =
+        InferTypeRet::has_type(Expr::Unit(namely_type!("A").some()));
 
     assert_eq!(expr_type, r)
 }
@@ -59,10 +56,9 @@ fn test_part3() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    let r = InferTypeRet::has_type(
-        unit_type!(),
-        Expr::Unit(namely_type!("Unit").some())
-    );
+    let r = InferTypeRet::has_type(Expr::Unit(
+        namely_type!("Unit").some()
+    ));
 
     assert_eq!(expr_type, r)
 }

@@ -1,7 +1,7 @@
 mod infer_branch_type;
-/*#[cfg(test)]
+#[cfg(test)]
 mod test;
-*/
+
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::r#macro::bool_type;
 use crate::infer::env::type_env::TypeEnv;

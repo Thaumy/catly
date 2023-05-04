@@ -52,10 +52,11 @@ macro_rules! check_has_type {
     ($ret:expr, $t:expr) => {{
         use crate::infra::quad::Quad;
         match $ret {
-            Quad::L((t, e)) => {
-                let r = $t;
-                assert_eq!(t, r);
+            Quad::L(e) => {
                 assert!(e.is_fully_typed());
+
+                let e_t = e.unwrap_type_annot();
+                assert_eq!(e_t, &$t);
             }
             _ => panic!()
         }
@@ -70,11 +71,13 @@ macro_rules! check_req_constraint {
         use crate::infra::quad::Quad;
         match $ret {
             Quad::ML(rc) => {
-                let r = $t;
-                assert_eq!(rc.r#type, r);
-                let erc = $erc;
-                assert_eq!(rc.constraint, erc);
                 assert!(rc.typed_expr.is_fully_typed());
+
+                let e_t = rc
+                    .typed_expr
+                    .unwrap_type_annot();
+                assert_eq!(e_t, &$t);
+                assert_eq!(rc.constraint, $erc);
             }
             _ => panic!()
         }
