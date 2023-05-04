@@ -115,12 +115,12 @@ pub fn case_ri(
         Ok(Some(hint)) => {
             let hinted_target_expr =
                 target_expr.with_fallback_type(&hint);
-            let expr = Expr::Match(
+            let match_expr = Expr::Match(
                 expect_type.clone(),
                 hinted_target_expr.boxed(),
                 case_vec.clone(),
             );
-            expr.infer_type(type_env, expr_env)
+            match_expr.infer_type(type_env, expr_env)
         }
         // 当 case_expr_type 不能合一时(这包括合一错误或其中一个 case_expr 无法取得类型)
         // 如果 target_expr 是 EnvRef, 那么在求 then_expr 时可能产生针对 target_expr 的类型约束
@@ -165,12 +165,12 @@ pub fn case_ri(
                 Some(hint) => {
                     let hinted_target_expr =
                         target_expr.with_fallback_type(&hint);
-                    let expr = Expr::Match(
+                    let match_expr = Expr::Match(
                         expect_type.clone(),
                         hinted_target_expr.boxed(),
                         case_vec.clone(),
                     );
-                    expr.infer_type(type_env, expr_env)
+                    match_expr.infer_type(type_env, expr_env)
                 }
                 None => original_err
             }

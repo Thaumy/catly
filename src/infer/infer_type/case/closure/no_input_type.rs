@@ -8,14 +8,17 @@ use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
 
-pub fn no_input_type(
+pub fn no_input_type<F>(
     type_env: &TypeEnv,
     expect_type: &OptType,
     output_expr_type: Type,
     constraint_acc: EnvRefConstraint,
     input_name: &Option<String>,
-    typed_output_expr: Expr
-) -> InferTypeRet {
+    typed_expr_cons: F
+) -> InferTypeRet
+where
+    F: Fn(Type, Type) -> Expr
+{
     // 尝试从获取 output_expr_type 产生的约束中恢复输入类型
     let input_name = match input_name {
         Some(n) => n,
@@ -46,18 +49,7 @@ pub fn no_input_type(
                 &base,
                 expect_type,
                 left_constraint.some(),
-                |t| {
-                    Expr::Closure(
-                        t.some(),
-                        input_name.clone().some(),
-                        input_type_constraint
-                            .clone()
-                            .some(),
-                        typed_output_expr
-                            .clone()
-                            .boxed()
-                    )
-                }
+                |t| typed_expr_cons(t, input_type_constraint.clone())
             )
         }
         // 约束不包含输入, 缺乏推导出输入类型的信息

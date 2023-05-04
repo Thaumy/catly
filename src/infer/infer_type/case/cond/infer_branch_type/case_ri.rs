@@ -23,7 +23,6 @@ pub fn case_ri(
                 else_expr_type.some(),
                 bool_expr.clone().boxed(),
                 then_expr.clone().boxed(),
-                // TODO: 提供类型信息的新方式
                 typed_else_expr
                     .clone()
                     .boxed()

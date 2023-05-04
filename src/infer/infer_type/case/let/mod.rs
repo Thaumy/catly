@@ -8,6 +8,9 @@ use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::case::r#let::case_ri::case_ri;
 use crate::infer::infer_type::case::r#let::case_t_rc::case_t_rc;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
+use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
+use crate::infra::option::OptionAnyExt;
+use crate::infra::r#box::BoxAnyExt;
 use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::OptType;
@@ -33,23 +36,53 @@ pub fn case(
         assign_expr_type @ (Triple::L(_) | Triple::M(_)) => {
             let (assign_expr_type, constraint, typed_assign_expr) =
                 assign_expr_type.unwrap_type_constraint_expr();
+
             // 过滤掉对 assign_name 的约束(对于 ML
             let constraint_acc =
                 constraint.exclude_new(assign_name.as_str());
 
+            // Lift assign_expr_type to assign_type
+            let assign_type = match assign_expr_type
+                .lift_to_or_left(type_env, assign_type)
+            {
+                None =>
+                    return TypeMissMatch::of_type(
+                        &assign_expr_type,
+                        &assign_type.clone().unwrap()
+                    )
+                    .into(),
+                Some(t) => t
+            };
+
+            // Inject constraints to env
             let new_expr_env = expr_env
                 .extend_constraint_new(constraint_acc.clone());
+
+            // Inject assign to env
+            let new_expr_env = new_expr_env.extend_new(
+                assign_name.to_string(),
+                assign_type.clone().some(),
+                typed_assign_expr
+                    .clone()
+                    .some()
+            );
 
             case_t_rc(
                 type_env,
                 &new_expr_env,
-                assign_expr_type,
                 expect_type,
-                assign_name,
-                assign_type,
-                assign_expr,
                 scope_expr,
-                typed_assign_expr
+                |type_annot, typed_scope_expr| {
+                    Expr::Let(
+                        type_annot.some(),
+                        assign_name.to_string(),
+                        assign_type.clone().some(),
+                        typed_assign_expr
+                            .clone()
+                            .boxed(),
+                        typed_scope_expr.boxed()
+                    )
+                }
             )?
             .with_constraint_acc(constraint_acc)
         }

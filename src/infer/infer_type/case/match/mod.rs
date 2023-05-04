@@ -32,11 +32,10 @@ pub fn case(
             case_t_rc(
                 type_env,
                 &new_expr_env,
-                target_expr,
+                typed_target_expr,
                 target_expr_type,
                 expect_type,
-                case_vec,
-                typed_target_expr
+                case_vec
             )?
             .with_constraint_acc(constraint_acc)
         }

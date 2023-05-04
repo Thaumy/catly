@@ -3,24 +3,23 @@ use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::OptionAnyExt;
-use crate::infra::r#box::BoxAnyExt;
 use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
 
-pub fn case_t_rc(
+pub fn case_t_rc<F>(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
     lhs_input_type: Type,
     lhs_output_type: Type,
     expect_type: &OptType,
     rhs_expr: &Expr,
-    typed_lhs_expr: Expr
-) -> InferTypeRet {
-    // Apply 的期望类型也是 lhs_expr 的期望输出类型
-    let expect_output_type = expect_type;
-
+    typed_expr_cons: F
+) -> InferTypeRet
+where
+    F: Fn(Type, Expr) -> Expr
+{
     match rhs_expr
         .with_fallback_type(&lhs_input_type)
         .infer_type(type_env, expr_env)?
@@ -35,15 +34,10 @@ pub fn case_t_rc(
                 InferTypeRet::from_auto_lift(
                     type_env,
                     &lhs_output_type,
-                    expect_output_type,
+                    // Apply 的期望类型也是 lhs_expr 的期望输出类型
+                    expect_type,
                     constraint.some(),
-                    |t| {
-                        Expr::Apply(
-                            t.some(),
-                            typed_lhs_expr.clone().boxed(),
-                            typed_rhs_expr.clone().boxed()
-                        )
-                    }
+                    |t| typed_expr_cons(t, typed_rhs_expr.clone())
                 )
             } else {
                 TypeMissMatch::of_type(

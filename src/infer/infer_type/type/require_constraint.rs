@@ -20,7 +20,9 @@ impl ReqConstraint {
         self,
         acc: EnvRefConstraint
     ) -> InferTypeRet {
-        // TODO: 考虑约束顺序对环境的影响
+        // 理论上约束顺序不会对环境造成影响, 因为在某一层环境产生的约束作用于其上层环境中最近注册的引用源
+        // 而将这种约束注入最接近的上层环境不会改变这一就近原则
+        // 实际上各项测试的通过也能说明目前由哈希表实现的约束结构是可行的
         require_extended_constraint(
             self.r#type,
             acc,

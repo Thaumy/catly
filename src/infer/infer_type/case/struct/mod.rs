@@ -127,27 +127,27 @@ pub fn case(
     let prod_type = Type::ProdType(
         sf_n_and_sf_t_with_constraint_and_expr
             .clone()
-            .map(|it| match it {
-                Ok((sf_n, sf_t, ..)) => (sf_n, sf_t),
-                _ => panic!("Impossible value: {it:?}")
-            })
+            .filter_map(|x| x.ok())
+            .map(|(sf_n, sf_t, ..)| (sf_n, sf_t))
             .collect()
     );
-
-    let typed_struct_vec = sf_n_and_sf_t_with_constraint_and_expr
-        // TODO: use filter_map
-        .map(|it| match it {
-            Ok((sf_n, sf_t, _, typed_sf_e)) =>
-                (sf_n, sf_t.some(), typed_sf_e),
-            _ => panic!("Impossible value: {it:?}")
-        })
-        .collect(): Vec<_>;
 
     InferTypeRet::from_auto_lift(
         type_env,
         &prod_type,
         expect_type,
         outer_constraint.some(),
-        |t| Expr::Struct(t.some(), typed_struct_vec.clone())
+        |t| {
+            let typed_struct_vec =
+                sf_n_and_sf_t_with_constraint_and_expr
+                    .clone()
+                    .filter_map(|x| x.ok())
+                    .map(|(sf_n, sf_t, _, typed_sf_e)| {
+                        (sf_n, sf_t.some(), typed_sf_e)
+                    })
+                    .collect(): Vec<_>;
+
+            Expr::Struct(t.some(), typed_struct_vec)
+        }
     )
 }

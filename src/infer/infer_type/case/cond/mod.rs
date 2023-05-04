@@ -27,7 +27,6 @@ pub fn case(
         .with_fallback_type(&bool_type!())
         .infer_type(type_env, expr_env)?
     {
-        // TODO: 此合并重构的正确性需经由测试
         bool_expr_type @ (Triple::L(_) | Triple::M(_)) => {
             let (bool_expr_type, constraint, typed_bool_expr) =
                 bool_expr_type.unwrap_type_constraint_expr();
@@ -41,10 +40,9 @@ pub fn case(
                     type_env,
                     new_expr_env,
                     expect_type,
-                    bool_expr,
+                    typed_bool_expr,
                     then_expr,
-                    else_expr,
-                    typed_bool_expr
+                    else_expr
                 )?
                 .with_constraint_acc(constraint)
             } else {
@@ -68,12 +66,11 @@ pub fn case(
                 type_env,
                 new_expr_env,
                 expect_type,
-                bool_expr,
-                then_expr,
-                else_expr,
                 // 因为此推导的目的是收集依赖, 不会使用最终产生的结果
                 // 所以使用不完备类型信息的 bool_expr 是可以的(其实就是因为必须要传参
-                bool_expr.clone()
+                bool_expr.clone(),
+                then_expr,
+                else_expr
             )? {
                 // 产生约束, 改写错误以便下一轮对 bool_expr 进行类型获取
                 Triple::M(ReqConstraint { constraint, .. }) =>

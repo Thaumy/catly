@@ -18,11 +18,10 @@ use crate::parser::r#type::r#type::Type;
 pub fn case_t_rc(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
-    target_expr: &Expr,
+    typed_target_expr: Expr,
     target_expr_type: Type,
     expect_type: &OptType,
-    case_vec: &Vec<(Expr, Expr)>,
-    typed_target_expr: Expr
+    case_vec: &Vec<(Expr, Expr)>
 ) -> InferTypeRet {
     // 统一 hint, 并求出 case_expr 解构出的常量环境
     let hinted_cases = {
@@ -69,22 +68,26 @@ pub fn case_t_rc(
         Err(e) => return e.into()
     };
 
+    let case_env_inject_and_then_expr = hinted_cases
+        .iter()
+        .map(|(_, y, z)| (y, z));
+
     if let Some(expect_type) = expect_type {
         on_has_expect_type(
             type_env,
             expr_env,
-            hinted_cases.iter(),
+            case_env_inject_and_then_expr,
             expect_type.clone(),
-            typed_case_expr,
-            typed_target_expr
+            &typed_case_expr,
+            &typed_target_expr
         )
     } else {
         on_no_expect_type(
             type_env,
             expr_env,
-            hinted_cases.iter(),
+            case_env_inject_and_then_expr,
             case_vec,
-            typed_target_expr
+            &typed_target_expr
         )
     }
 }

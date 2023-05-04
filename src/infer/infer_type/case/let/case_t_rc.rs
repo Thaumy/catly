@@ -1,47 +1,22 @@
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::OptionAnyExt;
-use crate::infra::r#box::BoxAnyExt;
 use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
 
-pub fn case_t_rc(
+pub fn case_t_rc<F>(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
-    assign_expr_type: Type,
     expect_type: &OptType,
-    assign_name: &str,
-    assign_type: &OptType,
-    assign_expr: &Expr,
     scope_expr: &Expr,
-    typed_assign_expr: Expr
-) -> InferTypeRet {
-    // Lift assign_expr_type to assign_type
-    // TODO: lift out this
-    // TODO: 相似用例检查
-    let assign_type = match assign_expr_type
-        .lift_to_or_left(type_env, assign_type)
-    {
-        None =>
-            return TypeMissMatch::of_type(
-                &assign_expr_type,
-                &assign_type.clone().unwrap()
-            )
-            .into(),
-        Some(t) => t
-    };
-
-    // Env inject
-    let expr_env = expr_env.extend_new(
-        assign_name.to_string(),
-        assign_type.clone().some(),
-        assign_expr.clone().some()
-    );
-
+    typed_expr_cons: F
+) -> InferTypeRet
+where
+    F: Fn(Type, Expr) -> Expr
+{
     // Hint scope_expr with expect_type and get scope_expr_type
     match scope_expr
         .with_opt_fallback_type(expect_type)
@@ -55,19 +30,7 @@ pub fn case_t_rc(
                 &scope_expr_type,
                 expect_type,
                 constraint.some(),
-                |t| {
-                    Expr::Let(
-                        t.some(),
-                        assign_name.to_string(),
-                        assign_type.clone().some(),
-                        typed_assign_expr
-                            .clone()
-                            .boxed(),
-                        typed_scope_expr
-                            .clone()
-                            .boxed()
-                    )
-                }
+                |t| typed_expr_cons(t, typed_scope_expr.clone())
             )
         }
 

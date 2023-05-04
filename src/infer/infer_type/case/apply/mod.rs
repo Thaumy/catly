@@ -11,6 +11,8 @@ use crate::infer::infer_type::case::apply::case_ri::case_ri;
 use crate::infer::infer_type::case::apply::case_t_rc::case_t_rc;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
+use crate::infra::option::OptionAnyExt;
+use crate::infra::r#box::BoxAnyExt;
 use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::OptType;
@@ -56,7 +58,13 @@ pub fn case(
                 lhs_output_type,
                 expect_type,
                 rhs_expr,
-                typed_lhs_expr
+                |type_annot, typed_rhs_expr| {
+                    Expr::Apply(
+                        type_annot.some(),
+                        typed_lhs_expr.clone().boxed(),
+                        typed_rhs_expr.boxed()
+                    )
+                }
             )?
             .with_constraint_acc(constraint_acc)
         }

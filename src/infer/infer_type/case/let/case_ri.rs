@@ -114,7 +114,7 @@ pub fn case_ri(
 
             InferTypeRet::from_auto_lift(
                 type_env,
-                &rc.r#type,
+                &rc.r#type, // rc from infer scope_expr type
                 expect_type,
                 constraint_acc.some(),
                 |t| {

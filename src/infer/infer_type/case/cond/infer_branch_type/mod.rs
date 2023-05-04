@@ -6,6 +6,8 @@ use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::case::cond::infer_branch_type::case_ri::case_ri;
 use crate::infer::infer_type::case::cond::infer_branch_type::case_t_rc::case_t_rc;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
+use crate::infra::option::OptionAnyExt;
+use crate::infra::r#box::BoxAnyExt;
 use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::OptType;
@@ -14,10 +16,9 @@ pub fn infer_branch_type(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
     expect_type: &OptType,
-    bool_expr: &Expr,
+    typed_bool_expr: Expr,
     then_expr: &Expr,
-    else_expr: &Expr,
-    typed_bool_expr: Expr
+    else_expr: &Expr
 ) -> InferTypeRet {
     match then_expr
         .with_opt_fallback_type(expect_type)
@@ -36,9 +37,18 @@ pub fn infer_branch_type(
                 then_expr_type,
                 expect_type,
                 else_expr,
-                // TODO: 使用惰性方式传入构造表达式所需的依赖
-                typed_bool_expr,
-                typed_then_expr
+                |type_annot, typed_else_expr| {
+                    Expr::Cond(
+                        type_annot.some(),
+                        typed_bool_expr
+                            .clone()
+                            .boxed(),
+                        typed_then_expr
+                            .clone()
+                            .boxed(),
+                        typed_else_expr.boxed()
+                    )
+                }
             )?
             .with_constraint_acc(constraint_acc)
         }
@@ -55,7 +65,7 @@ pub fn infer_branch_type(
             case_ri(
                 type_env,
                 new_expr_env,
-                bool_expr,
+                &typed_bool_expr,
                 else_expr,
                 then_expr
             )?

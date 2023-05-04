@@ -13,62 +13,66 @@ use crate::parser::expr::r#type::Expr;
 pub fn on_no_expect_type<'t, T>(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
-    hinted_cases: T,
+    case_env_inject_and_then_expr: T,
     case_vec: &Vec<(Expr, Expr)>,
-    typed_target_expr: Expr
+    typed_target_expr: &Expr
 ) -> InferTypeRet
 where
-    T: Iterator<Item = &'t (Expr, Vec<EnvEntry>, Expr)> + Clone
+    T: Iterator<Item = (&'t Vec<EnvEntry>, &'t Expr)> + Clone
 {
-    let hinted_cases = hinted_cases.into_iter();
+    let case_env_inject_and_then_expr =
+        case_env_inject_and_then_expr.into_iter();
 
     // 逐一获取 then_expr_type, 并将它们逐个合一, 合一的结果便是 match 表达式的最终类型
     // 同时收集在获取 then_expr_type 的过程中产生的约束
     let then_expr_type_and_outer_constraints =
-        hinted_cases.map(|(_, env_inject, then_expr)| {
-            // 此部分与 on_has_expect_type 原理相同
-            match then_expr.infer_type(
-                type_env,
-                &expr_env.extend_vec_new(env_inject.clone())
-            ) {
-                then_expr_type @ (Quad::L(_) | Quad::ML(_)) => {
-                    // 此处不负责对类型完备的 then_expr 进行收集
-                    // 因为即便收集, on_has_expect_type 也要进行重复的收集工作
-                    // 但更多是出于实现的复杂性考虑
-                    let (then_expr_type, constraint, _) =
-                        then_expr_type.unwrap_type_constraint_expr();
+        case_env_inject_and_then_expr.map(
+            |(env_inject, then_expr)| {
+                // 此部分与 on_has_expect_type 原理相同
+                match then_expr.infer_type(
+                    type_env,
+                    &expr_env.extend_vec_new(env_inject.clone())
+                ) {
+                    then_expr_type @ (Quad::L(_) | Quad::ML(_)) => {
+                        // 此处不负责对类型完备的 then_expr 进行收集
+                        // 因为即便收集, on_has_expect_type 也要进行重复的收集工作
+                        // 但更多是出于实现的复杂性考虑
+                        let (then_expr_type, constraint, _) =
+                            then_expr_type
+                                .unwrap_type_constraint_expr();
 
-                    // 将作用于常量环境的约束过滤掉, 收集外部约束用于分支共享
-                    let outer_constraint =
-                        constraint.filter_new(|(n, _)| {
-                            !env_inject.iter().any(
-                                |(capture_name, ..)| {
-                                    capture_name == n
-                                }
-                            )
-                        });
+                        // 将作用于常量环境的约束过滤掉, 收集外部约束用于分支共享
+                        let outer_constraint =
+                            constraint.filter_new(|(n, _)| {
+                                !env_inject.iter().any(
+                                    |(capture_name, ..)| {
+                                        capture_name == n
+                                    }
+                                )
+                            });
 
-                    (then_expr_type, outer_constraint).ok()
+                        (then_expr_type, outer_constraint).ok()
+                    }
+                    // 同样需要去除对常量环境的约束
+                    Quad::MR(ri) => ReqInfo::of(
+                        ri.ref_name,
+                        ri.constraint
+                            .filter_new(|(n, _)| {
+                                !env_inject.iter().any(
+                                    |(capture_name, ..)| {
+                                        capture_name == n
+                                    }
+                                )
+                            })
+                    )
+                    .quad_mr()
+                    .err(),
+
+                    // 获取 then_expr_type 时类型不匹配
+                    r => r.err()
                 }
-                // 同样需要去除对常量环境的约束
-                Quad::MR(ri) => ReqInfo::of(
-                    ri.ref_name,
-                    ri.constraint
-                        .filter_new(|(n, _)| {
-                            !env_inject.iter().any(
-                                |(capture_name, ..)| {
-                                    capture_name == n
-                                }
-                            )
-                        })
-                )
-                .quad_mr()
-                .err(),
-
-                // 获取 then_expr_type 时类型不匹配
-                r => r.err()
             }
-        });
+        );
 
     // 一旦发现类型不匹配(of then_expr), 立即返回
     match then_expr_type_and_outer_constraints
@@ -108,11 +112,8 @@ where
     // 需要去除这些无法获得类型的 then_expr, 将剩余类型合一后 hint match match expr
     // 由于 R 情况已被排除, 此处需要排除 MR 情况, 所以仅保留 Ok 即可
     let final_type = then_expr_type_and_outer_constraints
-        .filter(|x| matches!(x, Ok(_)))
-        .map(|x| match x {
-            Ok((t, _)) => t,
-            _ => panic!("Impossible value: {x:?}")
-        })
+        .filter_map(|x| x.ok())
+        .map(|(t, _)| t)
         .try_reduce(|acc, t| match acc.unify(type_env, &t) {
             Some(acc) => acc.ok(),
             None => TypeMissMatch::of_type(&acc, &t)

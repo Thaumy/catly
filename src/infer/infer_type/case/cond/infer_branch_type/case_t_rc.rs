@@ -3,21 +3,22 @@ use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::OptionAnyExt;
-use crate::infra::r#box::BoxAnyExt;
 use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
 
-pub fn case_t_rc(
+pub fn case_t_rc<F>(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
     then_expr_type: Type,
     expect_type: &OptType,
     else_expr: &Expr,
-    typed_bool_expr: Expr,
-    typed_then_expr: Expr
-) -> InferTypeRet {
+    typed_expr_cons: F
+) -> InferTypeRet
+where
+    F: Fn(Type, Expr) -> Expr
+{
     // 当 expect_type 无类型时, 使用 then_expr_type hint
     let expect_type = match expect_type {
         Some(expect_type) =>
@@ -46,20 +47,7 @@ pub fn case_t_rc(
                 &else_expr_type,
                 &expect_type.some(),
                 constraint_acc.some(),
-                |t| {
-                    Expr::Cond(
-                        t.some(),
-                        typed_bool_expr
-                            .clone()
-                            .boxed(),
-                        typed_then_expr
-                            .clone()
-                            .boxed(),
-                        typed_else_expr
-                            .clone()
-                            .boxed()
-                    )
-                }
+                |t| typed_expr_cons(t, typed_else_expr.clone())
             )
         }
 

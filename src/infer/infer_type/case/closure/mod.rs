@@ -14,6 +14,7 @@ use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_info::ReqInfo;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::OptionAnyExt;
+use crate::infra::r#box::BoxAnyExt;
 use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::OptType;
@@ -90,14 +91,26 @@ pub fn case(
             let (output_expr_type, constraint_acc, typed_output_expr) =
                 output_expr_type.unwrap_type_constraint_expr();
 
+            let typed_expr_cons =
+                |type_annot: Type,
+                 input_type: Type| {
+                    Expr::Closure(
+                        type_annot.some(),
+                        input_name.clone(),
+                        input_type.clone().some(),
+                        typed_output_expr
+                            .clone()
+                            .boxed()
+                    )
+                };
+
             match input_type {
                 Some(input_type) => has_input_type(
                     type_env,
                     expect_type,
                     output_expr_type,
                     input_type,
-                    input_name,
-                    typed_output_expr
+                    typed_expr_cons
                 )?
                 .with_constraint_acc(constraint_acc),
                 // 如果注入约束到环境, 此处还可从环境中寻找可能的输入类型(从而不必传递约束
@@ -107,7 +120,7 @@ pub fn case(
                     output_expr_type,
                     constraint_acc,
                     input_name,
-                    typed_output_expr
+                    typed_expr_cons
                 )
             }
         }
