@@ -189,9 +189,9 @@ impl From<Pat> for Option<Out> {
 
 pub fn pp_chunk(seq: &str) -> Option<Vec<Out>> {
     let r = go(vec![Pat::Start], seq)
-        .iter()
+        .into_iter()
         .try_fold(vec![], |acc, p| {
-            let it: Option<Out> = p.clone().into();
+            let it: Option<Out> = p.into();
             acc.chain_push(it?).some()
         });
 

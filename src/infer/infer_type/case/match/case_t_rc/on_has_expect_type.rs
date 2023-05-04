@@ -12,7 +12,7 @@ use crate::infra::result::ResultAnyExt;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::Type;
 
-pub fn on_has_expect_type<'t, T>(
+pub fn on_has_expect_type<T>(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
     case_env_inject_and_then_expr: T,
@@ -21,7 +21,7 @@ pub fn on_has_expect_type<'t, T>(
     typed_target_expr: &Expr
 ) -> InferTypeRet
 where
-    T: Iterator<Item = (&'t Vec<ExprEnvEntry>, &'t Expr)> + Clone
+    T: Iterator<Item = (Vec<ExprEnvEntry>, Expr)> + Clone
 {
     let case_env_inject_and_then_expr =
         case_env_inject_and_then_expr.into_iter();
@@ -147,10 +147,10 @@ where
         .map(|(e, _)| e);
 
     let typed_cases = typed_case_expr
-        .iter()
+        .clone()
+        .into_iter()
         // 在此处类型检查已经完成, 不会出现无法配对的情况
         .zip(typed_then_expr)
-        .map(|(c_e, t_e)| (c_e.clone(), t_e))
         .collect(): Vec<_>;
 
     require_constraint(

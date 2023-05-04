@@ -45,7 +45,7 @@ pub fn case(
                 // sf: Struct field
                 .map(|((_, pf_t), (sf_n, sf_t, sf_e))| {
                     (
-                        sf_n.to_string(),
+                        sf_n.clone(),
                         // 提示后推导
                         sf_e.with_opt_fallback_type(sf_t)
                             .with_fallback_type(pf_t)
@@ -59,7 +59,7 @@ pub fn case(
                 .iter()
                 .map(|(sf_n, sf_t, sf_e)| {
                     (
-                        sf_n.to_string(),
+                        sf_n.clone(),
                         // 提示后推导
                         sf_e.with_opt_fallback_type(sf_t)
                             .infer_type(type_env, &expr_env)

@@ -55,18 +55,17 @@ impl From<Pat> for OptType {
             ),
 
             Pat::SumType(s_s) => s_s
-                .iter()
+                .into_iter()
                 .try_fold(btree_set![], |acc, t| {
-                    let t: Self = t.clone().into();
+                    let t: Self = t.into();
                     acc.chain_insert(t?).some()
                 })
                 .map(|set| Type::SumType(set))?,
 
             Pat::ProdType(p_v) => p_v
-                .iter()
+                .into_iter()
                 .try_fold(vec![], |acc, (n, p)| {
-                    let n = n.to_string();
-                    let t: Self = p.clone().into();
+                    let t: Self = p.into();
                     acc.chain_push((n, t?)).some()
                 })
                 .map(|vec| Type::ProdType(vec))?,

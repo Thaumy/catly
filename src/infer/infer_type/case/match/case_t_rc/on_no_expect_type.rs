@@ -10,7 +10,7 @@ use crate::infra::r#box::BoxAnyExt;
 use crate::infra::result::ResultAnyExt;
 use crate::parser::expr::r#type::Expr;
 
-pub fn on_no_expect_type<'t, T>(
+pub fn on_no_expect_type<T>(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
     case_env_inject_and_then_expr: T,
@@ -18,7 +18,7 @@ pub fn on_no_expect_type<'t, T>(
     typed_target_expr: &Expr
 ) -> InferTypeRet
 where
-    T: Iterator<Item = (&'t Vec<ExprEnvEntry>, &'t Expr)> + Clone
+    T: Iterator<Item = (Vec<ExprEnvEntry>, Expr)> + Clone
 {
     let case_env_inject_and_then_expr =
         case_env_inject_and_then_expr.into_iter();

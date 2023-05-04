@@ -69,7 +69,7 @@ pub fn case_t_rc(
     };
 
     let case_env_inject_and_then_expr = hinted_cases
-        .iter()
+        .into_iter()
         .map(|(_, y, z)| (y, z));
 
     if let Some(expect_type) = expect_type {

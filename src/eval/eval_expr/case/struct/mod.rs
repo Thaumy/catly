@@ -17,7 +17,7 @@ pub fn case_struct(
     struct_vec: &Vec<StructField>
 ) -> EvalRet {
     let struct_vec = struct_vec
-        .iter()
+        .into_iter()
         .map(|(sf_n, sf_t, sf_e)| {
             (
                 sf_n.clone(),

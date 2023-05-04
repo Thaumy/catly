@@ -49,11 +49,11 @@ pub fn is_struct_vec_of_type_then_get_prod_vec(
                 .ok(),
 
             Some(Type::SumType(sum_vec)) => sum_vec
-                .iter()
+                .into_iter()
                 .map(|t| {
                     is_struct_vec_of_type_then_get_prod_vec(
                         type_env,
-                        &t.clone().some(),
+                        &t.some(),
                         struct_vec
                     )
                 })

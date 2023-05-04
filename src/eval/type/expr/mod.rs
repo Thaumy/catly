@@ -132,11 +132,10 @@ impl From<CtExpr> for OptExpr {
             CtExpr::Struct(Some(t), s_v) => {
                 let t = convert_type(t)?;
 
-                s_v.iter()
+                s_v.into_iter()
                     .try_fold(vec![], |acc, (sf_n, sf_t, sf_e)| {
-                        let sf_n = sf_n.to_string();
-                        let sf_t = convert_type(sf_t.clone()?)?;
-                        let sf_e = Self::from(sf_e.clone())?;
+                        let sf_t = convert_type(sf_t?)?;
+                        let sf_e = Self::from(sf_e)?;
                         acc.chain_push((sf_n, sf_t, sf_e))
                             .some()
                     })
@@ -152,10 +151,10 @@ impl From<CtExpr> for OptExpr {
             CtExpr::Match(Some(_), t_e, c_v) => {
                 let t_e = Self::from(*t_e)?;
 
-                c_v.iter()
+                c_v.into_iter()
                     .try_fold(vec![], |acc, (c_e, t_e)| {
-                        let c_e = (c_e.clone().into(): OptExpr)?;
-                        let t_e = (t_e.clone().into(): OptExpr)?;
+                        let c_e = (c_e.into(): OptExpr)?;
+                        let t_e = (t_e.into(): OptExpr)?;
                         acc.chain_push((c_e, t_e))
                             .some()
                     })

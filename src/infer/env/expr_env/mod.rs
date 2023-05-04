@@ -101,10 +101,8 @@ impl<'t> ExprEnv<'t> {
         constraint: EnvRefConstraint
     ) -> ExprEnv {
         let vec = constraint
-            .iter()
-            .map(|(n, t)| {
-                (n.to_string(), t.clone().into(), EnvRefSrc::NoSrc)
-            })
+            .into_iter()
+            .map(|(n, t)| (n, t.into(), EnvRefSrc::NoSrc))
             .collect();
 
         let expr_env = self.extend_vec_new(vec);

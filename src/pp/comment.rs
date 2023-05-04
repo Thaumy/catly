@@ -55,9 +55,9 @@ fn go(
 
 pub fn pp_comment(seq: &str) -> String {
     let r = go(vec![], seq)
-        .iter()
+        .into_iter()
         .fold(vec![], |acc, p| match p {
-            L(c) => acc.chain_push(*c),
+            L(c) => acc.chain_push(c),
             R(_) => acc
         })
         .into_iter()

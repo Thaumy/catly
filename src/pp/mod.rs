@@ -53,8 +53,8 @@ pub fn preprocess(seq: &str) -> Option<Vec<Out>> {
     let r = pp_name(r.iter())?;
     let r = pp_remove_blank(r.iter());
 
-    r.iter()
-        .map(|x| x.clone().into())
+    r.into_iter()
+        .map(|x| x.into())
         .collect::<Vec<Out>>()
         .some()
 }

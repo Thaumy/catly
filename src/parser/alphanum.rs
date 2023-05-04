@@ -18,9 +18,8 @@ pub fn parse_lower(x: &char) -> Option<char> {
         'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x',
         'y', 'z'
     ];
-    map.iter()
-        .find(|c| c == &x)
-        .copied()
+    map.into_iter()
+        .find(|c| c == x)
 }
 
 pub fn parse_upper(x: &char) -> Option<char> {
@@ -29,9 +28,8 @@ pub fn parse_upper(x: &char) -> Option<char> {
         'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
         'Y', 'Z'
     ];
-    map.iter()
-        .find(|c| c == &x)
-        .copied()
+    map.into_iter()
+        .find(|c| c == x)
 }
 
 pub fn parse_letter(x: &char) -> Option<Alphanum> {

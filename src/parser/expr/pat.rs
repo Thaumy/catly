@@ -172,19 +172,14 @@ impl From<Pat> for OptExpr {
                 _ => return None
             },
             Pat::Struct(t, vec) => {
-                let vec =
-                    vec.iter()
-                        .try_fold(vec![], |acc, (n, t, p)| {
-                            let it = (p.clone().into(): OptExpr)
-                                .map(|e| {
-                                    (
-                                        n.to_string(),
-                                        t.clone().map_into(),
-                                        e
-                                    )
-                                })?;
-                            acc.chain_push(it).some()
-                        });
+                let vec = vec.into_iter().try_fold(
+                    vec![],
+                    |acc, (n, t, p)| {
+                        let it = (p.clone().into(): OptExpr)
+                            .map(|e| (n, t.map_into(), e))?;
+                        acc.chain_push(it).some()
+                    }
+                );
 
                 match vec {
                     Some(vec) => Expr::Struct(t.map_into(), vec),
@@ -192,13 +187,11 @@ impl From<Pat> for OptExpr {
                 }
             }
             Pat::Match(t, p, vec) => {
-                let vec = vec.iter().try_fold(
+                let vec = vec.into_iter().try_fold(
                     vec![],
                     |acc, (case_p, then_p)| {
-                        let case_e =
-                            (case_p.clone().into(): OptExpr)?;
-                        let then_e =
-                            (then_p.clone().into(): OptExpr)?;
+                        let case_e = (case_p.into(): OptExpr)?;
+                        let then_e = (then_p.into(): OptExpr)?;
                         acc.chain_push((case_e, then_e))
                             .some()
                     }
@@ -240,18 +233,17 @@ impl From<Pat> for OptType {
             ),
 
             Pat::SumType(s_s) => s_s
-                .iter()
+                .into_iter()
                 .try_fold(BTreeSet::new(), |acc, t| {
-                    let t: OptType = t.clone().into();
+                    let t: OptType = t.into();
                     acc.chain_insert(t?).some()
                 })
                 .map(|set| Type::SumType(set))?,
 
             Pat::ProdType(p_v) => p_v
-                .iter()
+                .into_iter()
                 .try_fold(vec![], |acc, (n, p)| {
-                    let n = n.to_string();
-                    let t: OptType = p.clone().into();
+                    let t: OptType = p.into();
                     acc.chain_push((n, t?)).some()
                 })
                 .map(|vec| Type::ProdType(vec))?,

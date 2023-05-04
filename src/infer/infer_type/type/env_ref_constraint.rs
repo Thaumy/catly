@@ -1,4 +1,4 @@
-use std::collections::hash_map::Iter;
+use std::collections::hash_map::{IntoIter, Iter};
 use std::collections::HashMap;
 use std::fmt::{Debug, Formatter};
 
@@ -25,9 +25,9 @@ impl EnvRefConstraint {
         let mut hash_map = self.constraint.clone();
         if other
             .constraint
-            .iter()
+            .into_iter()
             .map(|(n, t)| {
-                match hash_map.insert(n.to_string(), t.clone()) {
+                match hash_map.insert(n, t.clone()) {
                     None => true,
                     // 允许精确类型替代不完整类型
                     Some(old_t) => t.eq_or_more_specific_than(&old_t)
@@ -49,9 +49,9 @@ impl EnvRefConstraint {
     ) -> Option<EnvRefConstraint> {
         let mut hash_map = HashMap::new();
         if constraint
-            .iter()
+            .into_iter()
             .map(|(n, t)| {
-                match hash_map.insert(n.to_string(), t.clone()) {
+                match hash_map.insert(n, t.clone()) {
                     None => true,
                     // 允许精确类型替代不完整类型
                     Some(old_t) => t.eq_or_more_specific_than(&old_t)
@@ -90,9 +90,9 @@ impl EnvRefConstraint {
         EnvRefConstraint {
             constraint: self
                 .constraint
-                .iter()
+                .clone()
+                .into_iter()
                 .filter(|(n, t)| p((n, t)))
-                .map(|(n, t)| (n.clone(), t.clone()))
                 .collect()
         }
     }
@@ -122,5 +122,9 @@ impl EnvRefConstraint {
 
     pub fn iter(&self) -> Iter<'_, String, Type> {
         self.constraint.iter()
+    }
+
+    pub fn into_iter(self) -> IntoIter<String, Type> {
+        self.constraint.into_iter()
     }
 }

@@ -3,7 +3,6 @@ use std::collections::HashMap;
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infra::option::OptionAnyExt;
-use crate::infra::vec::VecExt;
 use crate::parser::ast::parse_ast;
 use crate::parser::define::Define;
 use crate::pp::preprocess;

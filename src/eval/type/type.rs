@@ -49,18 +49,17 @@ impl From<CtType> for OptType {
             ),
 
             CtType::SumType(s_s) => s_s
-                .iter()
+                .into_iter()
                 .try_fold(BTreeSet::new(), |acc, t| {
-                    let t: Self = t.clone().into();
+                    let t: Self = t.into();
                     acc.chain_insert(t?).some()
                 })
                 .map(|set| Type::SumType(set))?,
 
             CtType::ProdType(p_v) => p_v
-                .iter()
+                .into_iter()
                 .try_fold(vec![], |acc, (n, t)| {
-                    let n = n.to_string();
-                    let t: Self = t.clone().into();
+                    let t: Self = t.into();
                     acc.chain_push((n, t?)).some()
                 })
                 .map(|vec| Type::ProdType(vec))?,

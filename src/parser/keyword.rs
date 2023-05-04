@@ -50,9 +50,9 @@ pub fn parse_keyword(x: &str) -> Option<Keyword> {
         (parse_match, Keyword::Match),
         (parse_with, Keyword::With)
     ];
-    map.iter()
+    map.into_iter()
         .find(|(p, _)| p(x))
-        .map(|(_, kw)| kw.clone())
+        .map(|(_, kw)| kw)
 }
 
 #[test]

@@ -41,9 +41,7 @@ pub fn destruct_match_const_to_expr_env_inject(
                         |t| match destruct_namely_type(type_env, &t) {
                             Some(Type::ProdType(vec)) =>
                                 HashMap::<String, Type>::from_iter(
-                                    vec.iter().map(|(k, v)| {
-                                        (k.clone(), v.clone())
-                                    })
+                                    vec.into_iter()
                                 )
                                 .some(),
                             _ => None
@@ -61,7 +59,7 @@ pub fn destruct_match_const_to_expr_env_inject(
 
                         let e = e
                             .with_opt_fallback_type(&prod_hint)
-                            .with_opt_fallback_type(&mt);
+                            .with_opt_fallback_type(mt);
 
                         go(type_env, &e)
                     })
@@ -73,7 +71,7 @@ pub fn destruct_match_const_to_expr_env_inject(
     }
 
     go(type_env, expr)
-        .iter()
+        .into_iter()
         .try_fold(
             HashMap::new(),
             |mut acc, (capture_name, tc, src)| match acc.insert(
@@ -81,12 +79,8 @@ pub fn destruct_match_const_to_expr_env_inject(
                 (tc.clone(), src.clone())
             ) {
                 Some((old_tc, old_src)) => (
-                    (capture_name.clone(), tc.clone(), src.clone()),
-                    (
-                        capture_name.clone(),
-                        old_tc.clone(),
-                        old_src.clone()
-                    )
+                    (capture_name.clone(), tc, src),
+                    (capture_name, old_tc, old_src)
                 )
                     .err(),
                 None => acc.ok()
@@ -94,8 +88,8 @@ pub fn destruct_match_const_to_expr_env_inject(
         )
         .map(|hash_map| {
             hash_map
-                .iter()
-                .map(|(x, (y, z))| (x.clone(), y.clone(), z.clone()))
+                .into_iter()
+                .map(|(x, (y, z))| (x, y, z))
                 .collect()
         })
 }
