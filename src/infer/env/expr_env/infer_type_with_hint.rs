@@ -30,7 +30,13 @@ impl<'t> ExprEnv<'t> {
             // 特例, 分支约束共享会导致向环境中注入无源不完整类型
             // 当 hint 为完整类型时可进行反向提升
             // TODO: 考虑对不完整类型的提升规则, 这些规则有助于进一步明确类型信息
-            Triple::L((ref_type, _)) if ref_type.is_partial() =>
+            Triple::L(typed_expr)
+                if typed_expr
+                    .clone()
+                    .unwrap_type_annot()
+                    .is_partial() =>
+            {
+                let ref_type = typed_expr.unwrap_type_annot();
                 match hint {
                     Some(hint) if !hint.is_partial() =>
                         InferTypeRet::from_auto_lift(
@@ -51,11 +57,12 @@ impl<'t> ExprEnv<'t> {
                                 )
                             }
                         ),
-                    _ => InferTypeRet::has_type(
-                        ref_type.clone(),
-                        Expr::EnvRef(ref_type.some(), ref_name)
-                    )
-                },
+                    _ => InferTypeRet::has_type(Expr::EnvRef(
+                        ref_type.clone().some(),
+                        ref_name
+                    ))
+                }
+            }
             // 缺乏类型信息, 尝试提示
             Triple::R(ri) if let Some(hint) = hint => {
                 let constraint_acc = ri.constraint;
@@ -66,26 +73,24 @@ impl<'t> ExprEnv<'t> {
                 match tc_and_src {
                     // 环境中不存在引用名
                     None => require_extended_constraint(
-                        hint.clone(),
+                        Expr::EnvRef(hint.clone().some(), ref_name.clone()),
                         constraint_acc,
                         EnvRefConstraint::single(
-                            ref_name.clone(),
+                            ref_name,
                             hint.clone()
-                        ),
-                        Expr::EnvRef(hint.clone().some(), ref_name)
+                        )
                     ),
                     // 引用名自由无源
                     Some((
                         TypeConstraint::Free,
                         EnvRefSrc::NoSrc
                     )) => require_extended_constraint(
-                        hint.clone(),
+                        Expr::EnvRef(hint.clone().some(), ref_name.clone()),
                         constraint_acc,
                         EnvRefConstraint::single(
-                            ref_name.clone(),
+                            ref_name,
                             hint.clone()
-                        ),
-                        Expr::EnvRef(hint.clone().some(), ref_name)
+                        )
                     ),
                     // 引用名自由有源, 且引用源无类型标注
                     // 如果 hint 有效, 应对 ref_name 产生到 hint 的约束
@@ -100,24 +105,26 @@ impl<'t> ExprEnv<'t> {
                             // 因为此时无类型标注, 所以得到的类型一定是 hint 或更完整的 hint
                             // 将 ref_name 约束到类型结果 t 不会导致约束类型不一致
                             // 因为 t 要么比 hint 更加完整, 要么等于 hint
-                            Triple::L((t, _)) =>
+                            Triple::L(typed_expr) => {
+                                let t =
+                                    typed_expr.unwrap_type_annot();
                                 require_extended_constraint(
-                                    t.clone(),
-                                    constraint_acc,
-                                    EnvRefConstraint::single(
-                                        ref_name.clone(),
-                                        t.clone()
-                                    ),
                                     Expr::EnvRef(
                                         t.clone().some(),
-                                        ref_name
+                                        ref_name.clone()
+                                    ),
+                                    constraint_acc,
+                                    EnvRefConstraint::single(
+                                        ref_name,
+                                        t.clone()
                                     )
-                                ),
+                                )
+                            }
                             Triple::M(rc) => {
                                 let ref_name_constraint =
                                     EnvRefConstraint::single(
                                         ref_name,
-                                        rc.r#type.clone()
+                                        rc.typed_expr.unwrap_type_annot().clone()
                                     );
 
                                 match constraint_acc.extend_new(

@@ -32,7 +32,7 @@ where
         case_env_inject_and_then_expr.map(
             |(env_inject, then_expr)| {
                 // 此处 then_expr 已由上方统一 hint
-                let then_expr_type = then_expr.infer_type(
+                let result = then_expr.infer_type(
                     type_env,
                     // then_expr 需要在原环境和常量环境的拼接中求类型
                     &expr_env.extend_vec_new(env_inject.clone())
@@ -42,16 +42,15 @@ where
                 // 但这样做的效率并不高, 因为 match 可能有很多分支, 且难以预测最佳的注入顺序(这貌似是个NP问题?
                 // 交由分支约束共享逻辑可简化实现, 并具备可观的性能
 
-                match then_expr_type {
+                match result {
                     // 如果获取 then_expr_type 时产生了约束, 这些约束一定作用于外层环境
                     // 因为 case_expr 的每一部分都具备完整的类型信息, 参见上面的推导过程
                     Quad::L(_) | Quad::ML(_) => {
-                        let (
-                            then_expr_type,
-                            constraint,
-                            typed_then_expr
-                        ) = then_expr_type
-                            .unwrap_type_constraint_expr();
+                        let (typed_then_expr, constraint) =
+                            result.unwrap_expr_constraint();
+
+                        let then_expr_type =
+                            typed_then_expr.unwrap_type_annot();
 
                         // 将作用于常量环境的约束过滤掉, 收集外部约束用于分支共享
                         let outer_constraint =
@@ -155,14 +154,13 @@ where
         .collect(): Vec<_>;
 
     require_constraint(
-        expect_type.clone(),
-        outer_constraint,
         Expr::Match(
             expect_type.some(),
             typed_target_expr
                 .clone()
                 .boxed(),
             typed_cases
-        )
+        ),
+        outer_constraint
     )
 }

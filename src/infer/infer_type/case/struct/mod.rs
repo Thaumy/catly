@@ -83,8 +83,11 @@ pub fn case(
         .clone()
         .map(|(sf_n, sf_t)| match sf_t {
             Quad::L(_) | Quad::ML(_) => {
-                let (sf_t, constraint, typed_sf_e) =
-                    sf_t.unwrap_type_constraint_expr();
+                let (typed_sf_e, constraint) =
+                    sf_t.unwrap_expr_constraint();
+                let sf_t = typed_sf_e
+                    .unwrap_type_annot()
+                    .clone();
                 (sf_n, sf_t, constraint, typed_sf_e).ok()
             }
             mr => mr.err()

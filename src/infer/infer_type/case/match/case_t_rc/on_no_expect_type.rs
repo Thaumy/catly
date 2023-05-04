@@ -33,13 +33,16 @@ where
                     type_env,
                     &expr_env.extend_vec_new(env_inject.clone())
                 ) {
-                    then_expr_type @ (Quad::L(_) | Quad::ML(_)) => {
+                    result @ (Quad::L(_) | Quad::ML(_)) => {
                         // 此处不负责对类型完备的 then_expr 进行收集
                         // 因为即便收集, on_has_expect_type 也要进行重复的收集工作
                         // 但更多是出于实现的复杂性考虑
-                        let (then_expr_type, constraint, _) =
-                            then_expr_type
-                                .unwrap_type_constraint_expr();
+                        let (typed_then_expr, constraint) = result
+                            .unwrap_expr_constraint()
+                            .clone();
+                        let then_expr_type = typed_then_expr
+                            .unwrap_type_annot()
+                            .clone();
 
                         // 将作用于常量环境的约束过滤掉, 收集外部约束用于分支共享
                         let outer_constraint =

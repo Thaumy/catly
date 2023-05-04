@@ -87,9 +87,10 @@ pub fn case(
         .with_opt_fallback_type(&expect_output_type)
         .infer_type(type_env, &expr_env)?
     {
-        output_expr_type @ (Triple::L(_) | Triple::M(_)) => {
-            let (output_expr_type, constraint_acc, typed_output_expr) =
-                output_expr_type.unwrap_type_constraint_expr();
+        result @ (Triple::L(_) | Triple::M(_)) => {
+            let (typed_output_expr, constraint_acc) =
+                result.unwrap_expr_constraint();
+            let output_expr_type=typed_output_expr.unwrap_type_annot();
 
             let typed_expr_cons =
                 |type_annot: Type,

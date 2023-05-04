@@ -17,10 +17,9 @@ pub fn case(
     match expect_type {
         Some(expect_type) =>
             if type_env.is_type_valid(expect_type) {
-                InferTypeRet::has_type(
-                    expect_type.clone(),
-                    Expr::Discard(expect_type.clone().some())
-                )
+                InferTypeRet::has_type(Expr::Discard(
+                    expect_type.clone().some()
+                ))
             } else {
                 TypeMissMatch::of(&format!(
                     "{expect_type:?} not found in type env"

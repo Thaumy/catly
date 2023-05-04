@@ -24,9 +24,9 @@ pub fn infer_branch_type(
         .with_opt_fallback_type(expect_type)
         .infer_type(type_env, expr_env)?
     {
-        then_expr_type @ (Triple::L(_) | Triple::M(_)) => {
-            let (then_expr_type, constraint_acc, typed_then_expr) =
-                then_expr_type.unwrap_type_constraint_expr();
+        result @ (Triple::L(_) | Triple::M(_)) => {
+            let (typed_then_expr, constraint_acc) =
+                result.unwrap_expr_constraint();
 
             let new_expr_env = &expr_env
                 .extend_constraint_new(constraint_acc.clone());
@@ -34,7 +34,9 @@ pub fn infer_branch_type(
             case_t_rc(
                 type_env,
                 new_expr_env,
-                then_expr_type,
+                typed_then_expr
+                    .unwrap_type_annot()
+                    .clone(),
                 expect_type,
                 else_expr,
                 |type_annot, typed_else_expr| {

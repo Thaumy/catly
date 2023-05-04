@@ -138,6 +138,27 @@ impl Expr {
             _ => false
         }
     }
+
+    pub fn get_type_annot(&self) -> Option<&Type> {
+        match self {
+            Expr::Unit(Some(t)) => t,
+            Expr::Int(Some(t), ..) => t,
+            Expr::EnvRef(Some(t), ..) => t,
+            Expr::Apply(Some(t), ..) => t,
+            Expr::Cond(Some(t), ..) => t,
+            Expr::Closure(Some(t), ..) => t,
+            Expr::Struct(Some(t), ..) => t,
+            Expr::Discard(Some(t)) => t,
+            Expr::Match(Some(t), ..) => t,
+            Expr::Let(Some(t), ..) => t,
+            _ => return None
+        }
+        .some()
+    }
+
+    pub fn unwrap_type_annot(&self) -> &Type {
+        self.get_type_annot().unwrap()
+    }
 }
 
 impl Debug for Expr {

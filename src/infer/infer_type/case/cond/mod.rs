@@ -27,9 +27,11 @@ pub fn case(
         .with_fallback_type(&bool_type!())
         .infer_type(type_env, expr_env)?
     {
-        bool_expr_type @ (Triple::L(_) | Triple::M(_)) => {
-            let (bool_expr_type, constraint, typed_bool_expr) =
-                bool_expr_type.unwrap_type_constraint_expr();
+        result @ (Triple::L(_) | Triple::M(_)) => {
+            let (typed_bool_expr, constraint) =
+                result.unwrap_expr_constraint();
+
+            let bool_expr_type = typed_bool_expr.unwrap_type_annot();
 
             if bool_expr_type.can_lift_to(type_env, &bool_type!()) {
                 // 由于求 bool_expr_type 产生的约束可能对接下来有帮助, 所以需要注入到环境

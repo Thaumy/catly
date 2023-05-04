@@ -116,16 +116,19 @@ pub fn is_case_expr_valid<'t>(
         .map(|(case_expr, env_inject)| {
             // 使用空表达式环境提取 case_expr_type, 这样能让所有对外界的约束得以暴露
             match case_expr.infer_type(type_env, &ExprEnv::empty())? {
-                Triple::L((case_expr_type, typed_case_expr)) =>
+                Triple::L(typed_case_expr) => {
+                    let case_expr_type =
+                        typed_case_expr.unwrap_type_annot();
                     InferTypeRet::from_auto_lift(
                         type_env,
-                        &case_expr_type,
+                        case_expr_type,
                         &target_expr_type
                             .clone()
                             .some(),
                         None,
                         |_| typed_case_expr.clone()
-                    ),
+                    )
+                }
                 // 表达式环境为空却产生了约束
                 Triple::M(rc) => {
                     let is_constraint_valid = rc
@@ -149,7 +152,8 @@ pub fn is_case_expr_valid<'t>(
                     if is_constraint_valid {
                         InferTypeRet::from_auto_lift(
                             type_env,
-                            &rc.r#type,
+                            rc.typed_expr
+                                .unwrap_type_annot(),
                             &target_expr_type
                                 .clone()
                                 .some(),
@@ -173,7 +177,7 @@ pub fn is_case_expr_valid<'t>(
             }
         })
         .try_fold(vec![], |acc, x| match x {
-            Quad::L((_, e)) => acc.chain_push(e).ok(),
+            Quad::L(e) => acc.chain_push(e).ok(),
             Quad::ML(rc) => acc
                 .chain_push(rc.typed_expr)
                 .ok(),

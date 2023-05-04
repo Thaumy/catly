@@ -38,13 +38,13 @@ where
         .with_fallback_type(&expect_type)
         .infer_type(type_env, expr_env)?
     {
-        else_expr_type @ (Triple::L(_) | Triple::M(_)) => {
-            let (else_expr_type, constraint_acc, typed_else_expr) =
-                else_expr_type.unwrap_type_constraint_expr();
+        result @ (Triple::L(_) | Triple::M(_)) => {
+            let (typed_else_expr, constraint_acc) =
+                result.unwrap_expr_constraint();
 
             InferTypeRet::from_auto_lift(
                 type_env,
-                &else_expr_type,
+                &typed_else_expr.unwrap_type_annot(),
                 &expect_type.some(),
                 constraint_acc.some(),
                 |t| typed_expr_cons(t, typed_else_expr.clone())

@@ -22,12 +22,12 @@ where
         .with_opt_fallback_type(expect_type)
         .infer_type(type_env, &expr_env)?
     {
-        scope_expr_type @ (Triple::L(_) | Triple::M(_)) => {
-            let (scope_expr_type, constraint, typed_scope_expr) =
-                scope_expr_type.unwrap_type_constraint_expr();
+        result @ (Triple::L(_) | Triple::M(_)) => {
+            let (typed_scope_expr, constraint) =
+                result.unwrap_expr_constraint();
             InferTypeRet::from_auto_lift(
                 type_env,
-                &scope_expr_type,
+                typed_scope_expr.unwrap_type_annot(),
                 expect_type,
                 constraint.some(),
                 |t| typed_expr_cons(t, typed_scope_expr.clone())

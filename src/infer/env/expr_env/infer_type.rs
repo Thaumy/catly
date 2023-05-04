@@ -27,10 +27,10 @@ impl<'t> ExprEnv<'t> {
             Some((tc, EnvRefSrc::NoSrc)) => match tc {
                 // 引用名所对应的类型是类型约束的直接类型
                 TypeConstraint::Constraint(t) =>
-                    InferTypeRet::has_type(
-                        t.clone(),
-                        Expr::EnvRef(t.clone().some(), ref_name)
-                    ),
+                    InferTypeRet::has_type(Expr::EnvRef(
+                        t.clone().some(),
+                        ref_name
+                    )),
                 // 不存在类型约束
                 TypeConstraint::Free =>
                     ReqInfo::of(ref_name, EnvRefConstraint::empty())
@@ -52,10 +52,10 @@ impl<'t> ExprEnv<'t> {
                         .with_fallback_type(t)
                         .infer_type(type_env, &new_expr_env)?
                     {
-                        Triple::L((src_expr_type, _)) =>
+                        Triple::L(typed_src_expr) =>
                             InferTypeRet::from_auto_lift(
                                 type_env,
-                                &src_expr_type,
+                                &typed_src_expr.unwrap_type_annot(),
                                 &t.clone().some(),
                                 None,
                                 // 由于这里构建的是具备类型的 EnvRef, 所以不应该使用引用源返回
@@ -69,7 +69,8 @@ impl<'t> ExprEnv<'t> {
                         Triple::M(rc) =>
                             InferTypeRet::from_auto_lift(
                                 type_env,
-                                &rc.r#type,
+                                &rc.typed_expr
+                                    .unwrap_type_annot(),
                                 &t.clone().some(),
                                 rc.constraint.some(),
                                 // 与上同理
@@ -93,22 +94,21 @@ impl<'t> ExprEnv<'t> {
                     TypeConstraint::Free => match src_expr
                         .infer_type(type_env, &new_expr_env)?
                     {
-                        Triple::L((src_expr_type, _)) =>
-                            InferTypeRet::has_type(
-                                src_expr_type.clone(),
-                                Expr::EnvRef(
-                                    src_expr_type.some(),
-                                    ref_name
-                                )
-                            ),
+                        Triple::L(typed_src_expr) =>
+                            InferTypeRet::has_type(Expr::EnvRef(
+                                typed_src_expr
+                                    .unwrap_type_annot()
+                                    .clone()
+                                    .some(),
+                                ref_name
+                            )),
                         // 由于 ref_name 是 Free 的, 所以此时约束可能作用于 ref_name 本身
                         // 此时作用于 ref_name 的约束相当于 ref_name 的固有类型, 只需将其他约束按需传播
                         // 如果引用源是无类型弃元
                         Triple::M(rc) => require_constraint(
-                            rc.r#type,
+                            rc.typed_expr,
                             rc.constraint
-                                .exclude_new(ref_name.as_str()),
-                            rc.typed_expr
+                                .exclude_new(ref_name.as_str())
                         ),
                         Triple::R(ri) if ri.ref_name == "_" =>
                         // 为了防止无类型弃元信息被捕获, 改写错误信息

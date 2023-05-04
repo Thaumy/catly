@@ -8,7 +8,6 @@ use crate::infer::infer_type::r#type::require_constraint::{
 };
 use crate::infer::infer_type::r#type::require_info::ReqInfo;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infra::option::OptionAnyExt;
 use crate::infra::quad::{Quad, QuadAnyExt};
 use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
@@ -16,24 +15,14 @@ use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
 
 pub type InferTypeRet =
-    Quad<(Type, Expr), ReqConstraint, ReqInfo, TypeMissMatch>;
+    Quad<Expr, ReqConstraint, ReqInfo, TypeMissMatch>;
 
 impl InferTypeRet {
-    pub fn try_get_type(&self) -> OptType {
-        match self.clone() {
-            Quad::L((t, _)) |
-            Quad::ML(ReqConstraint { r#type: t, .. }) => t.some(),
-            _ => return None
-        }
-    }
-
-    pub fn unwrap_type_constraint_expr(
-        self
-    ) -> (Type, EnvRefConstraint, Expr) {
+    pub fn unwrap_expr_constraint(self) -> (Expr, EnvRefConstraint) {
         match self {
-            Quad::L((input_type, typed_expr)) =>
-                (input_type, EnvRefConstraint::empty(), typed_expr),
-            Quad::ML(rc) => (rc.r#type, rc.constraint, rc.typed_expr),
+            Quad::L(typed_expr) =>
+                (typed_expr, EnvRefConstraint::empty()),
+            Quad::ML(rc) => (rc.typed_expr, rc.constraint),
             _ => panic!("Impossible value: {self:?}")
         }
     }
@@ -57,35 +46,28 @@ impl InferTypeRet {
 
         match to {
             Some(to) => match from.lift_to(type_env, to) {
-                Some(t) => require_constraint(
-                    t.clone(),
-                    constraint,
-                    typed_expr(t)
-                ),
+                Some(t) =>
+                    require_constraint(typed_expr(t), constraint),
                 None => TypeMissMatch::of_type(from, to).into()
             },
             None => require_constraint(
-                from.clone(),
-                constraint,
-                typed_expr(from.clone())
+                typed_expr(from.clone()),
+                constraint
             )
         }
     }
 
-    pub fn has_type(r#type: Type, typed_expr: Expr) -> InferTypeRet {
-        (r#type, typed_expr).quad_l()
+    pub fn has_type(typed_expr: Expr) -> InferTypeRet {
+        typed_expr.quad_l()
     }
 }
 
-impl Triple<(Type, Expr), ReqConstraint, ReqInfo> {
-    pub fn unwrap_type_constraint_expr(
-        self
-    ) -> (Type, EnvRefConstraint, Expr) {
+impl Triple<Expr, ReqConstraint, ReqInfo> {
+    pub fn unwrap_expr_constraint(self) -> (Expr, EnvRefConstraint) {
         match self {
-            Triple::L((input_type, typed_expr)) =>
-                (input_type, EnvRefConstraint::empty(), typed_expr),
-            Triple::M(rc) =>
-                (rc.r#type, rc.constraint, rc.typed_expr),
+            Triple::L(typed_expr) =>
+                (typed_expr, EnvRefConstraint::empty()),
+            Triple::M(rc) => (rc.typed_expr, rc.constraint),
             _ => panic!("Impossible value: {self:?}")
         }
     }
@@ -95,8 +77,8 @@ impl Triple<(Type, Expr), ReqConstraint, ReqInfo> {
         constraint_acc: EnvRefConstraint
     ) -> InferTypeRet {
         match self {
-            Triple::L((t, typed_expr)) =>
-                require_constraint(t, constraint_acc, typed_expr),
+            Triple::L(typed_expr) =>
+                require_constraint(typed_expr, constraint_acc),
             Triple::M(rc) => rc.with_constraint_acc(constraint_acc),
             Triple::R(ri) => ri.with_constraint_acc(constraint_acc)
         }
@@ -108,7 +90,6 @@ impl Triple<(Type, Expr), ReqConstraint, ReqInfo> {
     ) -> InferTypeRet {
         match self {
             Triple::M(rc) => ReqConstraint {
-                r#type: rc.r#type,
                 constraint: rc
                     .constraint
                     .exclude_new(ref_name),
@@ -139,12 +120,8 @@ impl Triple<(Type, Expr), ReqConstraint, ReqInfo> {
     }
 }
 
-impl From<Triple<(Type, Expr), ReqConstraint, ReqInfo>>
-    for InferTypeRet
-{
-    fn from(
-        value: Triple<(Type, Expr), ReqConstraint, ReqInfo>
-    ) -> Self {
+impl From<Triple<Expr, ReqConstraint, ReqInfo>> for InferTypeRet {
+    fn from(value: Triple<Expr, ReqConstraint, ReqInfo>) -> Self {
         match value {
             Triple::L(v) => Self::L(v),
             Triple::M(v) => Self::ML(v),
@@ -161,7 +138,7 @@ impl FromResidual for InferTypeRet {
 }
 
 impl Try for InferTypeRet {
-    type Output = Triple<(Type, Expr), ReqConstraint, ReqInfo>;
+    type Output = Triple<Expr, ReqConstraint, ReqInfo>;
     type Residual = InferTypeRet;
 
     #[inline]

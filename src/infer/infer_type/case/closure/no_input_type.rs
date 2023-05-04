@@ -11,7 +11,7 @@ use crate::parser::r#type::r#type::Type;
 pub fn no_input_type<F>(
     type_env: &TypeEnv,
     expect_type: &OptType,
-    output_expr_type: Type,
+    output_expr_type: &Type,
     constraint_acc: EnvRefConstraint,
     input_name: &Option<String>,
     typed_expr_cons: F
@@ -41,7 +41,9 @@ where
                 input_type_constraint
                     .clone()
                     .boxed(),
-                output_expr_type.boxed()
+                output_expr_type
+                    .clone()
+                    .boxed()
             );
 
             InferTypeRet::from_auto_lift(

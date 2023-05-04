@@ -20,13 +20,13 @@ pub fn case(
         ref_name,
         expect_type
     )? {
-        ref_type @ (Triple::L(_) | Triple::M(_)) => {
-            let (src_type, constraint, _) =
-                ref_type.unwrap_type_constraint_expr();
+        result @ (Triple::L(_) | Triple::M(_)) => {
+            let (typed_src_expr, constraint) =
+                result.unwrap_expr_constraint();
 
             InferTypeRet::from_auto_lift(
                 type_env,
-                &src_type,
+                typed_src_expr.unwrap_type_annot(),
                 expect_type,
                 constraint.some(),
                 |t| Expr::EnvRef(t.some(), ref_name.to_string())

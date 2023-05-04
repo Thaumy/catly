@@ -22,9 +22,9 @@ pub fn case(
 ) -> InferTypeRet {
     match target_expr.infer_type(type_env, expr_env)? {
         // L 与 ML 同样只有是否需要传播对外界环境的约束的区别
-        target_expr_type @ (Triple::L(_) | Triple::M(_)) => {
-            let (target_expr_type, constraint_acc, typed_target_expr) =
-                target_expr_type.unwrap_type_constraint_expr();
+        result @ (Triple::L(_) | Triple::M(_)) => {
+            let (typed_target_expr, constraint_acc) =
+                result.unwrap_expr_constraint();
 
             let new_expr_env = expr_env
                 .extend_constraint_new(constraint_acc.clone());
@@ -33,7 +33,6 @@ pub fn case(
                 type_env,
                 &new_expr_env,
                 typed_target_expr,
-                target_expr_type,
                 expect_type,
                 case_vec
             )?

@@ -2,7 +2,8 @@ mod case;
 pub mod r#fn;
 /*#[cfg(test)]
 mod test;
-*/pub mod r#type;
+*/
+pub mod r#type;
 
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
@@ -135,8 +136,8 @@ pub fn infer_type(
                 .extend_constraint_new(constraint_acc.clone());
 
             match infer_type(type_env, &new_expr_env, expr)? {
-                Triple::L((t, typed_expr)) =>
-                    require_constraint(t, constraint_acc, typed_expr),
+                Triple::L(typed_expr) =>
+                    require_constraint(typed_expr, constraint_acc),
                 Triple::M(rc) =>
                     rc.with_constraint_acc(constraint_acc),
                 _ => result

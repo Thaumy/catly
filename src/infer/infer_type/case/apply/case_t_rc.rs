@@ -24,9 +24,11 @@ where
         .with_fallback_type(&lhs_input_type)
         .infer_type(type_env, expr_env)?
     {
-        rhs_expr_type @ (Triple::L(_) | Triple::M(_)) => {
-            let (rhs_expr_type, constraint, typed_rhs_expr) =
-                rhs_expr_type.unwrap_type_constraint_expr();
+        result @ (Triple::L(_) | Triple::M(_)) => {
+            let (typed_rhs_expr, constraint) =
+                result.unwrap_expr_constraint();
+
+            let rhs_expr_type = typed_rhs_expr.unwrap_type_annot();
 
             // 验证输入的类型相容性
             if rhs_expr_type.can_lift_to(type_env, &lhs_input_type) {

@@ -18,9 +18,11 @@ pub fn case_ri(
     match rhs_expr.infer_type(type_env, expr_env)? {
         // 因为此处产生的约束作用于外层环境, 而这些约束可能对再次推导 Apply 的类型有所帮助
         // 所以再次 infer_type 时应该将这些约束注入环境, 并对外传播
-        rhs_expr_type @ (Triple::L(_) | Triple::M(_)) => {
-            let (input_type, constraint, typed_rhs_expr) =
-                rhs_expr_type.unwrap_type_constraint_expr();
+        result @ (Triple::L(_) | Triple::M(_)) => {
+            let (typed_rhs_expr, constraint) =
+                result.unwrap_expr_constraint();
+
+            let input_type = typed_rhs_expr.unwrap_type_annot();
 
             let apply_expr = if let Some(output_type) = expect_type {
                 // 可以确定输出类型

@@ -61,7 +61,10 @@ pub fn case_ri(
         .map(|(case_expr, env_inject, _)| {
             // 不用 hint case_expr, 因为对 target_expr 的类型获取缺乏信息
             match case_expr.infer_type(type_env, expr_env) {
-                Quad::L((case_expr_type, _)) => case_expr_type.ok(),
+                Quad::L(typed_case_expr) => typed_case_expr
+                    .unwrap_type_annot()
+                    .clone()
+                    .ok(),
                 Quad::ML(rc) =>
                 // 确保 case_expr 是模式匹配意义上的常量, 原理与 case_t_rc 相同
                     if rc
@@ -79,7 +82,10 @@ pub fn case_ri(
                         // 这些 EnvRef 会首先尝试提升到 hint...
                         // 总之, 所有的努力都是对某种可能的推导结果的合法尝试, 因此无需收集约束
                         // 相反, 收集约束并判断这些约束是否与 hint 后产生的约束等同, 可能会限制某些推导可能
-                        rc.r#type.ok()
+                        rc.typed_expr
+                            .unwrap_type_annot()
+                            .clone()
+                            .ok()
                     } else {
                         // 虽然本质上是 case_expr 非模式匹配常量
                         // 但是实际上还是 target_expr 信息不足所致, 原错误返回之

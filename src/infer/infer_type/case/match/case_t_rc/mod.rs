@@ -13,16 +13,16 @@ use crate::infra::result::ResultAnyExt;
 use crate::infra::vec::VecExt;
 use crate::parser::r#type::r#type::OptType;
 use crate::parser::expr::r#type::Expr;
-use crate::parser::r#type::r#type::Type;
 
 pub fn case_t_rc(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
     typed_target_expr: Expr,
-    target_expr_type: Type,
     expect_type: &OptType,
     case_vec: &Vec<(Expr, Expr)>
 ) -> InferTypeRet {
+    let target_expr_type = typed_target_expr.unwrap_type_annot();
+
     // 统一 hint, 并求出 case_expr 解构出的常量环境
     let hinted_cases = {
         let vec = case_vec

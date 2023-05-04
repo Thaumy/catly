@@ -8,7 +8,7 @@ use crate::parser::r#type::r#type::Type;
 pub fn has_input_type<F>(
     type_env: &TypeEnv,
     expect_type: &OptType,
-    output_expr_type: Type,
+    output_expr_type: &Type,
     input_type: Type,
     typed_expr_cons: F
 ) -> InferTypeRet
@@ -17,7 +17,9 @@ where
 {
     let base = Type::ClosureType(
         input_type.clone().boxed(),
-        output_expr_type.boxed()
+        output_expr_type
+            .clone()
+            .boxed()
     );
 
     InferTypeRet::from_auto_lift(
