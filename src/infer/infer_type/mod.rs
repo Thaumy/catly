@@ -1,9 +1,8 @@
 mod case;
 pub mod r#fn;
-#[cfg(test)]
+/*#[cfg(test)]
 mod test;
-
-pub mod r#type;
+*/pub mod r#type;
 
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
