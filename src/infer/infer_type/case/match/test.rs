@@ -6,6 +6,10 @@ use crate::infer::env::r#macro::int_type;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::require_info::ReqInfo;
+use crate::infer::infer_type::test::{
+    check_has_type,
+    check_req_constraint
+};
 use crate::infra::quad::Quad;
 
 fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
@@ -106,14 +110,8 @@ fn test_part1() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    match expr_type {
-        Quad::L((t, e)) => {
-            let r = int_type!();
-            assert_eq!(t, r);
-            assert!(e.is_fully_typed());
-        }
-        _ => panic!()
-    }
+    let t = int_type!();
+    check_has_type!(expr_type, t)
 }
 
 #[test]
@@ -125,14 +123,8 @@ fn test_part2() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    match expr_type {
-        Quad::L((t, e)) => {
-            let r = int_type!();
-            assert_eq!(t, r);
-            assert!(e.is_fully_typed());
-        }
-        _ => panic!()
-    }
+    let t = int_type!();
+    check_has_type!(expr_type, t)
 }
 
 #[test]
@@ -144,14 +136,8 @@ fn test_part3() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    match expr_type {
-        Quad::L((t, e)) => {
-            let r = int_type!();
-            assert_eq!(t, r);
-            assert!(e.is_fully_typed());
-        }
-        _ => panic!()
-    }
+    let t = int_type!();
+    check_has_type!(expr_type, t)
 }
 
 #[test]
@@ -163,19 +149,9 @@ fn test_part4() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    match expr_type {
-        Quad::ML(rc) => {
-            let r = int_type!();
-            assert_eq!(rc.r#type, r);
-            let r = EnvRefConstraint::single(
-                "b".to_string(),
-                int_type!()
-            );
-            assert_eq!(rc.constraint, r);
-            assert!(rc.typed_expr.is_fully_typed());
-        }
-        _ => panic!()
-    }
+    let t = int_type!();
+    let erc = EnvRefConstraint::single("b".to_string(), int_type!());
+    check_req_constraint!(expr_type, t, erc)
 }
 
 #[test]
@@ -187,19 +163,9 @@ fn test_part5() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    match expr_type {
-        Quad::ML(rc) => {
-            let r = int_type!();
-            assert_eq!(rc.r#type, r);
-            let r = EnvRefConstraint::single(
-                "c".to_string(),
-                int_type!()
-            );
-            assert_eq!(rc.constraint, r);
-            assert!(rc.typed_expr.is_fully_typed());
-        }
-        _ => panic!()
-    }
+    let t = int_type!();
+    let erc = EnvRefConstraint::single("c".to_string(), int_type!());
+    check_req_constraint!(expr_type, t, erc)
 }
 
 #[test]
@@ -211,14 +177,8 @@ fn test_part6() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    match expr_type {
-        Quad::L((t, e)) => {
-            let r = int_type!();
-            assert_eq!(t, r);
-            assert!(e.is_fully_typed());
-        }
-        _ => panic!()
-    }
+    let t = int_type!();
+    check_has_type!(expr_type, t)
 }
 
 #[test]
@@ -230,14 +190,8 @@ fn test_part7() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    match expr_type {
-        Quad::L((t, e)) => {
-            let r = int_type!();
-            assert_eq!(t, r);
-            assert!(e.is_fully_typed());
-        }
-        _ => panic!()
-    }
+    let t = int_type!();
+    check_has_type!(expr_type, t)
 }
 
 #[test]
@@ -249,19 +203,9 @@ fn test_part8() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    match expr_type {
-        Quad::ML(rc) => {
-            let r = int_type!();
-            assert_eq!(rc.r#type, r);
-            let r = EnvRefConstraint::single(
-                "a8".to_string(),
-                int_type!()
-            );
-            assert_eq!(rc.constraint, r);
-            assert!(rc.typed_expr.is_fully_typed());
-        }
-        _ => panic!()
-    }
+    let t = int_type!();
+    let erc = EnvRefConstraint::single("a8".to_string(), int_type!());
+    check_req_constraint!(expr_type, t, erc)
 }
 
 #[test]

@@ -8,6 +8,10 @@ use crate::infer::env::r#macro::namely_type;
 use crate::infer::env::r#macro::unit_type;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
+use crate::infer::infer_type::test::{
+    check_has_type,
+    check_req_constraint
+};
 use crate::infra::quad::Quad;
 
 fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
@@ -61,14 +65,8 @@ fn test_part1() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    match expr_type {
-        Quad::L((t, e)) => {
-            let r = int_type!();
-            assert_eq!(t, r);
-            assert!(e.is_fully_typed());
-        }
-        _ => panic!()
-    }
+    let t = int_type!();
+    check_has_type!(expr_type, t)
 }
 
 #[test]
@@ -80,14 +78,8 @@ fn test_part2() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    match expr_type {
-        Quad::L((t, e)) => {
-            let r = unit_type!();
-            assert_eq!(t, r);
-            assert!(e.is_fully_typed());
-        }
-        _ => panic!()
-    }
+    let t = unit_type!();
+    check_has_type!(expr_type, t)
 }
 
 #[test]
@@ -99,14 +91,8 @@ fn test_part3() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    match expr_type {
-        Quad::L((t, e)) => {
-            let r = closure_type!(int_type!(), unit_type!());
-            assert_eq!(t, r);
-            assert!(e.is_fully_typed());
-        }
-        _ => panic!()
-    }
+    let t = closure_type!(int_type!(), unit_type!());
+    check_has_type!(expr_type, t)
 }
 
 #[test]
@@ -142,19 +128,12 @@ fn test_part6() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    match expr_type {
-        Quad::ML(rc) => {
-            let r = namely_type!("Int");
-            assert_eq!(rc.r#type, r);
-            let r = EnvRefConstraint::single(
-                "b6".to_string(),
-                namely_type!("Int")
-            );
-            assert_eq!(rc.constraint, r);
-            assert!(rc.typed_expr.is_fully_typed());
-        }
-        _ => panic!()
-    }
+    let t = namely_type!("Int");
+    let erc = EnvRefConstraint::single(
+        "b6".to_string(),
+        namely_type!("Int")
+    );
+    check_req_constraint!(expr_type, t, erc);
 }
 
 #[test]
@@ -166,14 +145,8 @@ fn test_part7() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    match expr_type {
-        Quad::L((t, e)) => {
-            let r = namely_type!("Int");
-            assert_eq!(t, r);
-            assert!(e.is_fully_typed());
-        }
-        _ => panic!()
-    }
+    let t = namely_type!("Int");
+    check_has_type!(expr_type, t)
 }
 
 #[test]
@@ -185,14 +158,8 @@ fn test_part8() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    match expr_type {
-        Quad::L((t, e)) => {
-            let r = namely_type!("Int");
-            assert_eq!(t, r);
-            assert!(e.is_fully_typed());
-        }
-        _ => panic!()
-    }
+    let t = namely_type!("Int");
+    check_has_type!(expr_type, t)
 }
 
 #[test]
@@ -204,14 +171,8 @@ fn test_part9() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    match expr_type {
-        Quad::L((t, e)) => {
-            let r = namely_type!("Int");
-            assert_eq!(t, r);
-            assert!(e.is_fully_typed());
-        }
-        _ => panic!()
-    }
+    let t = namely_type!("Int");
+    check_has_type!(expr_type, t)
 }
 
 #[test]
@@ -223,14 +184,8 @@ fn test_part10() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    match expr_type {
-        Quad::L((t, e)) => {
-            let r = namely_type!("Int");
-            assert_eq!(t, r);
-            assert!(e.is_fully_typed());
-        }
-        _ => panic!()
-    }
+    let t = namely_type!("Int");
+    check_has_type!(expr_type, t)
 }
 
 #[test]
@@ -242,14 +197,8 @@ fn test_part11() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    match expr_type {
-        Quad::L((t, e)) => {
-            let r = namely_type!("Int");
-            assert_eq!(t, r);
-            assert!(e.is_fully_typed());
-        }
-        _ => panic!()
-    }
+    let t = namely_type!("Int");
+    check_has_type!(expr_type, t)
 }
 
 #[test]
@@ -261,19 +210,12 @@ fn test_part12() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    match expr_type {
-        Quad::ML(rc) => {
-            let r = namely_type!("Int");
-            assert_eq!(rc.r#type, r);
-            let r = EnvRefConstraint::single(
-                "a12".to_string(),
-                closure_type!(int_type!(), int_type!())
-            );
-            assert_eq!(rc.constraint, r);
-            assert!(rc.typed_expr.is_fully_typed());
-        }
-        _ => panic!()
-    }
+    let t = namely_type!("Int");
+    let erc = EnvRefConstraint::single(
+        "a12".to_string(),
+        closure_type!(int_type!(), int_type!())
+    );
+    check_req_constraint!(expr_type, t, erc)
 }
 
 #[test]
@@ -285,28 +227,21 @@ fn test_part13() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    match expr_type {
-        Quad::ML(rc) => {
-            let r = namely_type!("Int");
-            assert_eq!(rc.r#type, r);
-            let r = EnvRefConstraint::single(
-                "a13".to_string(),
+    let t = namely_type!("Int");
+    let erc = EnvRefConstraint::single(
+        "a13".to_string(),
+        closure_type!(
+            int_type!(),
+            closure_type!(
+                int_type!(),
                 closure_type!(
                     int_type!(),
-                    closure_type!(
-                        int_type!(),
-                        closure_type!(
-                            int_type!(),
-                            closure_type!(int_type!(), int_type!())
-                        )
-                    )
+                    closure_type!(int_type!(), int_type!())
                 )
-            );
-            assert_eq!(rc.constraint, r);
-            assert!(rc.typed_expr.is_fully_typed());
-        }
-        _ => panic!()
-    }
+            )
+        )
+    );
+    check_req_constraint!(expr_type, t, erc)
 }
 
 #[test]
@@ -318,14 +253,8 @@ fn test_part14() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    match expr_type {
-        Quad::L((t, e)) => {
-            let r = closure_type!(int_type!(), int_type!());
-            assert_eq!(t, r);
-            assert!(e.is_fully_typed());
-        }
-        _ => panic!()
-    }
+    let t = closure_type!(int_type!(), int_type!());
+    check_has_type!(expr_type, t)
 }
 
 #[test]

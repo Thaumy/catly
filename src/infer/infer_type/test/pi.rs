@@ -2,8 +2,7 @@ use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::parse_env;
 use crate::infer::env::r#macro::namely_type;
 use crate::infer::env::type_env::TypeEnv;
-use crate::infer::infer_type::test::get_std_code;
-use crate::infra::quad::Quad;
+use crate::infer::infer_type::test::{check_has_type, get_std_code};
 
 fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
     let seq = get_std_code() +
@@ -65,12 +64,6 @@ fn test_part1() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    match expr_type {
-        Quad::L((t, e)) => {
-            let r = namely_type!("Fraction");
-            assert_eq!(t, r);
-            assert!(e.is_fully_typed());
-        }
-        _ => panic!()
-    }
+    let t = namely_type!("Fraction");
+    check_has_type!(expr_type, t)
 }

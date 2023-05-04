@@ -46,3 +46,39 @@ pub fn get_std_code() -> String {
     "
     .to_string()
 }
+
+#[allow(unused_macros)]
+macro_rules! check_has_type {
+    ($ret:expr, $t:expr) => {{
+        use crate::infra::quad::Quad;
+        match $ret {
+            Quad::L((t, e)) => {
+                let r = $t;
+                assert_eq!(t, r);
+                assert!(e.is_fully_typed());
+            }
+            _ => panic!()
+        }
+    }};
+}
+#[allow(unused_imports)]
+pub(super) use check_has_type;
+
+#[allow(unused_macros)]
+macro_rules! check_req_constraint {
+    ($ret:expr, $t:expr, $erc:expr) => {{
+        use crate::infra::quad::Quad;
+        match $ret {
+            Quad::ML(rc) => {
+                let r = $t;
+                assert_eq!(rc.r#type, r);
+                let erc = $erc;
+                assert_eq!(rc.constraint, erc);
+                assert!(rc.typed_expr.is_fully_typed());
+            }
+            _ => panic!()
+        }
+    }};
+}
+#[allow(unused_imports)]
+pub(super) use check_req_constraint;

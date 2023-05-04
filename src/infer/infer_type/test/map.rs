@@ -3,8 +3,7 @@ use crate::infer::env::parse_env;
 use crate::infer::env::r#macro::closure_type;
 use crate::infer::env::r#macro::int_type;
 use crate::infer::env::type_env::TypeEnv;
-use crate::infer::infer_type::test::get_std_code;
-use crate::infra::quad::Quad;
+use crate::infer::infer_type::test::{check_has_type, get_std_code};
 
 fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
     let seq = get_std_code() +
@@ -39,20 +38,14 @@ fn test_part1() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    match expr_type {
-        Quad::L((t, e)) => {
-            let r = closure_type!(
-                closure_type!(int_type!(), int_type!()),
-                closure_type!(
-                    Type::NamelyType("IntList".to_string()),
-                    Type::NamelyType("IntList".to_string())
-                )
-            );
-            assert_eq!(t, r);
-            assert!(e.is_fully_typed());
-        }
-        _ => panic!()
-    }
+    let t = closure_type!(
+        closure_type!(int_type!(), int_type!()),
+        closure_type!(
+            Type::NamelyType("IntList".to_string()),
+            Type::NamelyType("IntList".to_string())
+        )
+    );
+    check_has_type!(expr_type, t)
 }
 
 #[test]
@@ -64,18 +57,12 @@ fn test_part2() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    match expr_type {
-        Quad::L((t, e)) => {
-            let r = closure_type!(
-                closure_type!(int_type!(), int_type!()),
-                closure_type!(
-                    Type::NamelyType("IntList".to_string()),
-                    Type::NamelyType("IntList".to_string())
-                )
-            );
-            assert_eq!(t, r);
-            assert!(e.is_fully_typed());
-        }
-        _ => panic!()
-    }
+    let t = closure_type!(
+        closure_type!(int_type!(), int_type!()),
+        closure_type!(
+            Type::NamelyType("IntList".to_string()),
+            Type::NamelyType("IntList".to_string())
+        )
+    );
+    check_has_type!(expr_type, t)
 }
