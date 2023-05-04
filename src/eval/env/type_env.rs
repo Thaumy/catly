@@ -1,15 +1,17 @@
 use crate::eval::r#type::r#type::Type;
 use crate::infra::option::OptionAnyExt;
 
+pub type TypeEnvEntry = (String, Type);
+
 // 运行时类型环境
 #[derive(Clone, Debug)]
 pub struct TypeEnv<'t> {
     prev_env: Option<&'t TypeEnv<'t>>,
-    env: Vec<(String, Type)>
+    env: Vec<TypeEnvEntry>
 }
 
 impl<'t> TypeEnv<'t> {
-    pub fn new(type_vec: Vec<(String, Type)>) -> TypeEnv<'t> {
+    pub fn new(type_vec: Vec<TypeEnvEntry>) -> TypeEnv<'t> {
         let type_env = TypeEnv {
             prev_env: None,
             env: type_vec
@@ -34,10 +36,7 @@ impl<'t> TypeEnv<'t> {
         }
     }
 
-    pub fn extend_new(
-        &self,
-        type_vec: Vec<(String, Type)>
-    ) -> TypeEnv {
+    pub fn extend_new(&self, type_vec: Vec<TypeEnvEntry>) -> TypeEnv {
         let type_env = TypeEnv {
             prev_env: self
                 .latest_none_empty_type_env()
@@ -59,7 +58,7 @@ impl<'t> TypeEnv<'t> {
     fn find_entry<'s>(
         &self,
         type_name: impl Into<&'s str>
-    ) -> Option<&(String, Type)> {
+    ) -> Option<&TypeEnvEntry> {
         let type_name = type_name.into();
         let entry = self
             .env

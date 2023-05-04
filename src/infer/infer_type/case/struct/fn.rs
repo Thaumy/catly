@@ -7,11 +7,11 @@ use crate::infra::quad::QuadAnyExt;
 use crate::infra::r#fn::id;
 use crate::infra::result::ResultAnyExt;
 use crate::parser::expr::r#type::Expr;
-use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
+use crate::parser::r#type::r#type::{OptType, ProdField};
 
 type StructVec = Vec<(String, OptType, Expr)>;
-type ProdVec = Vec<(String, Type)>;
+type ProdVec = Vec<ProdField>;
 
 // 仅从 Struct 结构上进行类型判断, 不对其字段表达式求类型
 // 对于 SumType 中存在多个类型均和 Struct 结构兼容的情况, 仅取第一个兼容类型

@@ -1,9 +1,9 @@
 use crate::infer::env::type_env::TypeEnv;
-use crate::parser::r#type::r#type::Type;
+use crate::parser::r#type::r#type::{ProdField, Type};
 
 pub fn lift_prod(
     type_env: &TypeEnv,
-    prod_vec: &Vec<(String, Type)>,
+    prod_vec: &Vec<ProdField>,
     derive: &Type
 ) -> Option<Type> {
     if derive.is_primitive() {
