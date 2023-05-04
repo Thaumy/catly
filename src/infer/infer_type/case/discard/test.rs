@@ -22,14 +22,14 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
 fn test_part1() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = Expr::Discard(namely_type!("A").some())
+    let infer_result = Expr::Discard(namely_type!("A").some())
         .infer_type(&type_env, &expr_env);
 
     let r = InferTypeRet::has_type(Expr::Discard(
         namely_type!("A").some()
     ));
 
-    assert_eq!(expr_type, r)
+    assert_eq!(infer_result, r)
 }
 
 #[test]
@@ -49,8 +49,8 @@ fn test_part2() {
 fn test_part3() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = Expr::Discard(namely_type!("B").some())
+    let infer_result = Expr::Discard(namely_type!("B").some())
         .infer_type(&type_env, &expr_env);
 
-    assert_matches!(expr_type, Quad::R(..))
+    assert_matches!(infer_result, Quad::R(..))
 }

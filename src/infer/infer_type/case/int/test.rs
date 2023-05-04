@@ -25,7 +25,7 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
 fn test_part1() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_expr("i1")
         .unwrap()
         .infer_type(&type_env, &expr_env);
@@ -35,31 +35,31 @@ fn test_part1() {
         10
     ));
 
-    assert_eq!(expr_type, r)
+    assert_eq!(infer_result, r)
 }
 
 #[test]
 fn test_part2() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_expr("i2")
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    assert_matches!(expr_type, Quad::R(..))
+    assert_matches!(infer_result, Quad::R(..))
 }
 
 #[test]
 fn test_part3() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_expr("i3")
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
     let r = InferTypeRet::has_type(Expr::Int(int_type!().some(), 20));
 
-    assert_eq!(expr_type, r)
+    assert_eq!(infer_result, r)
 }

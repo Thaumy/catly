@@ -48,7 +48,7 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
 fn test_part1() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_ref("struct1")
         .unwrap()
         .infer_type(&type_env, &expr_env);
@@ -57,14 +57,14 @@ fn test_part1() {
         ("a".to_string(), int_type!()),
         ("b".to_string(), unit_type!())
     ];
-    check_has_type!(expr_type, t)
+    check_has_type!(infer_result, t)
 }
 
 #[test]
 fn test_part2() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_ref("struct2")
         .unwrap()
         .infer_type(&type_env, &expr_env);
@@ -73,27 +73,27 @@ fn test_part2() {
         ("a".to_string(), int_type!()),
         ("b".to_string(), unit_type!())
     ];
-    check_has_type!(expr_type, t)
+    check_has_type!(infer_result, t)
 }
 
 #[test]
 fn test_part3() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_ref("struct3")
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
     let t = namely_type!("Prod3");
-    check_has_type!(expr_type, t)
+    check_has_type!(infer_result, t)
 }
 
 #[test]
 fn test_part4() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_ref("struct4")
         .unwrap()
         .infer_type(&type_env, &expr_env);
@@ -103,14 +103,14 @@ fn test_part4() {
         ("b".to_string(), unit_type!())
     ];
     let erc = EnvRefConstraint::single("x".to_string(), unit_type!());
-    check_req_constraint!(expr_type, t, erc)
+    check_req_constraint!(infer_result, t, erc)
 }
 
 #[test]
 fn test_part5() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_ref("struct5")
         .unwrap()
         .infer_type(&type_env, &expr_env);
@@ -120,14 +120,14 @@ fn test_part5() {
         ("b".to_string(), unit_type!())
     ];
     let erc = EnvRefConstraint::single("x".to_string(), unit_type!());
-    check_req_constraint!(expr_type, t, erc)
+    check_req_constraint!(infer_result, t, erc)
 }
 
 #[test]
 fn test_part6() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_ref("struct6")
         .unwrap()
         .infer_type(&type_env, &expr_env);
@@ -136,14 +136,14 @@ fn test_part6() {
         "a".to_string(),
         int_type!()
     ),])];
-    check_has_type!(expr_type, t)
+    check_has_type!(infer_result, t)
 }
 
 #[test]
 fn test_part7() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_ref("struct7")
         .unwrap()
         .infer_type(&type_env, &expr_env);
@@ -153,38 +153,38 @@ fn test_part7() {
         int_type!()
     ),])];
     let erc = EnvRefConstraint::single("x".to_string(), int_type!());
-    check_req_constraint!(expr_type, t, erc)
+    check_req_constraint!(infer_result, t, erc)
 }
 
 #[test]
 fn test_part8() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_ref("struct8")
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    assert_matches!(expr_type, Quad::R(..))
+    assert_matches!(infer_result, Quad::R(..))
 }
 
 #[test]
 fn test_part9() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_ref("struct9")
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    assert_matches!(expr_type, Quad::R(..))
+    assert_matches!(infer_result, Quad::R(..))
 }
 
 #[test]
 fn test_part10() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_ref("struct10")
         .unwrap()
         .infer_type(&type_env, &expr_env);
@@ -195,42 +195,42 @@ fn test_part10() {
     ];
     let erc =
         EnvRefConstraint::single("a10".to_string(), int_type!());
-    check_req_constraint!(expr_type, t, erc)
+    check_req_constraint!(infer_result, t, erc)
 }
 
 #[test]
 fn test_part11() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_ref("struct11")
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    assert_matches!(expr_type, Quad::R { .. })
+    assert_matches!(infer_result, Quad::R { .. })
 }
 
 #[test]
 fn test_part12() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_ref("struct12")
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
     let t = namely_type!("Sum12");
-    check_has_type!(expr_type, t)
+    check_has_type!(infer_result, t)
 }
 
 #[test]
 fn test_part13() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_ref("struct13")
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    assert_matches!(expr_type, Quad::R { .. });
+    assert_matches!(infer_result, Quad::R { .. });
 }

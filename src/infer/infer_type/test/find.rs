@@ -40,7 +40,7 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
 fn test_part1() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_ref("find1")
         .unwrap()
         .infer_type(&type_env, &expr_env);
@@ -52,14 +52,14 @@ fn test_part1() {
             bool_type!()
         )
     );
-    check_has_type!(expr_type, t)
+    check_has_type!(infer_result, t)
 }
 
 #[test]
 fn test_part2() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_ref("find2")
         .unwrap()
         .infer_type(&type_env, &expr_env);
@@ -71,5 +71,5 @@ fn test_part2() {
             bool_type!()
         )
     );
-    check_has_type!(expr_type, t)
+    check_has_type!(infer_result, t)
 }

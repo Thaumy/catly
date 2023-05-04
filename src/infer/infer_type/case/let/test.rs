@@ -60,113 +60,113 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
 fn test_part1() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_ref("let1")
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
     let t = int_type!();
-    check_has_type!(expr_type, t)
+    check_has_type!(infer_result, t)
 }
 
 #[test]
 fn test_part2() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_ref("let2")
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
     let t = int_type!();
     let erc = EnvRefConstraint::single("a2".to_string(), int_type!());
-    check_req_constraint!(expr_type, t, erc)
+    check_req_constraint!(infer_result, t, erc)
 }
 
 #[test]
 fn test_part3() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_ref("let3")
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
     let t = int_type!();
     let erc = EnvRefConstraint::single("a3".to_string(), int_type!());
-    check_req_constraint!(expr_type, t, erc)
+    check_req_constraint!(infer_result, t, erc)
 }
 
 #[test]
 fn test_part4() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_ref("let4")
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
     let t = unit_type!();
-    check_has_type!(expr_type, t)
+    check_has_type!(infer_result, t)
 }
 
 #[test]
 fn test_part5() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_ref("let5")
         .unwrap()
         .infer_type(&type_env, &expr_env);
     let r = ReqInfo::of("a", EnvRefConstraint::empty()).into();
 
-    assert_eq!(expr_type, r)
+    assert_eq!(infer_result, r)
 }
 
 #[test]
 fn test_part6() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_ref("let6")
         .unwrap()
         .infer_type(&type_env, &expr_env);
     let r = ReqInfo::of("x", EnvRefConstraint::empty()).into();
 
-    assert_eq!(expr_type, r)
+    assert_eq!(infer_result, r)
 }
 
 #[test]
 fn test_part7() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_ref("let7")
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    assert_matches!(expr_type, Quad::R(..))
+    assert_matches!(infer_result, Quad::R(..))
 }
 
 #[test]
 fn test_part8() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_ref("let8")
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
     let t = int_type!();
     let erc = EnvRefConstraint::single("a8".to_string(), int_type!());
-    check_req_constraint!(expr_type, t, erc)
+    check_req_constraint!(infer_result, t, erc)
 }
 
 #[test]
 fn test_part9() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_ref("let9")
         .unwrap()
         .infer_type(&type_env, &expr_env);
@@ -176,102 +176,102 @@ fn test_part9() {
     )
     .into();
 
-    assert_eq!(expr_type, r)
+    assert_eq!(infer_result, r)
 }
 
 #[test]
 fn test_part10() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_ref("let10")
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    assert_matches!(expr_type, Quad::R(..))
+    assert_matches!(infer_result, Quad::R(..))
 }
 
 #[test]
 fn test_part11() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_ref("let11")
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    assert_matches!(expr_type, Quad::R(..))
+    assert_matches!(infer_result, Quad::R(..))
 }
 
 #[test]
 fn test_part12() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_ref("let12")
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    assert_matches!(expr_type, Quad::MR(..))
+    assert_matches!(infer_result, Quad::MR(..))
 }
 
 #[test]
 fn test_part13() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_ref("let13")
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    assert_matches!(expr_type, Quad::R(..))
+    assert_matches!(infer_result, Quad::R(..))
 }
 
 #[test]
 fn test_part14() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_ref("let14")
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    assert_matches!(expr_type, Quad::R(..))
+    assert_matches!(infer_result, Quad::R(..))
 }
 
 #[test]
 fn test_part15() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_ref("let15")
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
     let t = int_type!();
-    check_has_type!(expr_type, t)
+    check_has_type!(infer_result, t)
 }
 
 #[test]
 fn test_part16() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_ref("let16")
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    assert_matches!(expr_type, Quad::R(..))
+    assert_matches!(infer_result, Quad::R(..))
 }
 
 #[test]
 fn test_part17() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_ref("let17")
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    assert_matches!(expr_type, Quad::R(..))
+    assert_matches!(infer_result, Quad::R(..))
 }

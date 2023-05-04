@@ -24,7 +24,7 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
 fn test_part1() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_expr("u1")
         .unwrap()
         .infer_type(&type_env, &expr_env);
@@ -32,26 +32,26 @@ fn test_part1() {
     let r =
         InferTypeRet::has_type(Expr::Unit(namely_type!("A").some()));
 
-    assert_eq!(expr_type, r)
+    assert_eq!(infer_result, r)
 }
 
 #[test]
 fn test_part2() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_expr("u2")
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    assert_matches!(expr_type, Quad::R(..))
+    assert_matches!(infer_result, Quad::R(..))
 }
 
 #[test]
 fn test_part3() {
     let (type_env, expr_env) = gen_env();
 
-    let expr_type = expr_env
+    let infer_result = expr_env
         .get_expr("u3")
         .unwrap()
         .infer_type(&type_env, &expr_env);
@@ -60,5 +60,5 @@ fn test_part3() {
         namely_type!("Unit").some()
     ));
 
-    assert_eq!(expr_type, r)
+    assert_eq!(infer_result, r)
 }
