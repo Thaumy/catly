@@ -1,4 +1,4 @@
-use crate::infer::env::expr_env::{EnvEntry, ExprEnv};
+use crate::infer::env::expr_env::{ExprEnv, ExprEnvEntry};
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
@@ -21,7 +21,7 @@ pub fn on_has_expect_type<'t, T>(
     typed_target_expr: &Expr
 ) -> InferTypeRet
 where
-    T: Iterator<Item = (&'t Vec<EnvEntry>, &'t Expr)> + Clone
+    T: Iterator<Item = (&'t Vec<ExprEnvEntry>, &'t Expr)> + Clone
 {
     let case_env_inject_and_then_expr =
         case_env_inject_and_then_expr.into_iter();

@@ -3,11 +3,13 @@ use crate::infer::env::r#macro::unit_type;
 use crate::infra::option::OptionAnyExt;
 use crate::parser::r#type::r#type::Type;
 
+pub type TypeEnvEntry = (String, Type);
+
 // 编译时类型环境
 #[derive(Clone, Debug)]
 pub struct TypeEnv<'t> {
     prev_env: Option<&'t TypeEnv<'t>>,
-    env: Vec<(String, Type)>
+    env: Vec<TypeEnvEntry>
 }
 
 impl<'t> TypeEnv<'t> {

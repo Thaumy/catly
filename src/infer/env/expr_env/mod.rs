@@ -8,19 +8,19 @@ use crate::infra::option::OptionAnyExt;
 use crate::parser::expr::r#type::{Expr, OptExpr};
 use crate::parser::r#type::r#type::OptType;
 
-pub type EnvEntry = (String, TypeConstraint, EnvRefSrc);
+pub type ExprEnvEntry = (String, TypeConstraint, EnvRefSrc);
 
 // 编译时表达式环境
 #[derive(Clone, Debug)]
 pub struct ExprEnv<'t> {
     prev_env: Option<&'t ExprEnv<'t>>,
-    env: Vec<EnvEntry>
+    env: Vec<ExprEnvEntry>
 }
 
 impl<'t> ExprEnv<'t> {
     pub fn empty() -> ExprEnv<'t> { Self::new(vec![]) }
 
-    pub fn new(env_vec: Vec<EnvEntry>) -> ExprEnv<'t> {
+    pub fn new(env_vec: Vec<ExprEnvEntry>) -> ExprEnv<'t> {
         let expr_env = ExprEnv {
             prev_env: None,
             env: env_vec
@@ -47,7 +47,10 @@ impl<'t> ExprEnv<'t> {
         }
     }
 
-    pub fn extend_vec_new(&self, env_vec: Vec<EnvEntry>) -> ExprEnv {
+    pub fn extend_vec_new(
+        &self,
+        env_vec: Vec<ExprEnvEntry>
+    ) -> ExprEnv {
         let expr_env = ExprEnv {
             prev_env: self
                 .latest_none_empty_expr_env()
@@ -120,7 +123,7 @@ impl<'t> ExprEnv<'t> {
     fn find_entry<'s>(
         &self,
         ref_name: impl Into<&'s str>
-    ) -> Option<&EnvEntry> {
+    ) -> Option<&ExprEnvEntry> {
         let ref_name = ref_name.into();
         let entry = self
             .env

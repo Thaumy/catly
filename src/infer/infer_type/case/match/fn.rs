@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::infer::env::expr_env::{EnvEntry, ExprEnv};
+use crate::infer::env::expr_env::{ExprEnv, ExprEnvEntry};
 use crate::infer::env::r#type::env_ref_src::EnvRefSrc;
 use crate::infer::env::r#type::type_constraint::TypeConstraint;
 use crate::infer::env::type_env::TypeEnv;
@@ -21,8 +21,8 @@ use crate::parser::r#type::r#type::Type;
 pub fn destruct_match_const_to_expr_env_inject(
     type_env: &TypeEnv,
     expr: &Expr
-) -> Result<Vec<EnvEntry>, (EnvEntry, EnvEntry)> {
-    fn go<'t>(type_env: &TypeEnv, expr: &Expr) -> Vec<EnvEntry> {
+) -> Result<Vec<ExprEnvEntry>, (ExprEnvEntry, ExprEnvEntry)> {
+    fn go<'t>(type_env: &TypeEnv, expr: &Expr) -> Vec<ExprEnvEntry> {
         // 由于后续的 case_expr_type 会和 target_expr_type 进行相容性测试, 所以这里不负责类型检查
         // 另外在此处实施类型检查是极其复杂的, 这意味着要实现 infer_type 的大部分功能
         match expr {
@@ -106,7 +106,7 @@ pub fn is_case_expr_valid<'t>(
     type_env: &TypeEnv,
     target_expr_type: &Type,
     case_expr_and_env_inject: impl Iterator<
-        Item = (&'t Expr, &'t Vec<EnvEntry>)
+        Item = (&'t Expr, &'t Vec<ExprEnvEntry>)
     >
 ) -> Result<Vec<Expr>, TypeMissMatch> {
     // 逐一确认 case_expr_type 与 target_expr_type 的相容性

@@ -2,19 +2,19 @@ use crate::eval::r#type::expr::Expr;
 use crate::eval::r#type::r#type::Type;
 use crate::infra::option::OptionAnyExt;
 
-pub type EnvEntry<'e> = (String, Type, Expr, ExprEnv<'e>);
+pub type ExprEnvEntry<'e> = (String, Type, Expr, ExprEnv<'e>);
 
 // 运行时表达式环境
 #[derive(Clone, Debug)]
 pub struct ExprEnv<'t> {
     prev_env: Option<&'t ExprEnv<'t>>,
-    env: Vec<EnvEntry<'t>>
+    env: Vec<ExprEnvEntry<'t>>
 }
 
 impl<'t> ExprEnv<'t> {
     pub fn empty() -> ExprEnv<'t> { Self::new(vec![]) }
 
-    pub fn new(env_vec: Vec<EnvEntry<'t>>) -> ExprEnv<'t> {
+    pub fn new(env_vec: Vec<ExprEnvEntry<'t>>) -> ExprEnv<'t> {
         let expr_env = ExprEnv {
             prev_env: None,
             env: env_vec
@@ -41,7 +41,7 @@ impl<'t> ExprEnv<'t> {
 
     pub fn extend_vec_new(
         &self,
-        env_vec: Vec<EnvEntry<'t>>
+        env_vec: Vec<ExprEnvEntry<'t>>
     ) -> ExprEnv {
         let expr_env = ExprEnv {
             prev_env: self
@@ -89,7 +89,7 @@ impl<'t> ExprEnv<'t> {
     fn find_entry<'s>(
         &self,
         ref_name: impl Into<&'s str>
-    ) -> Option<&EnvEntry> {
+    ) -> Option<&ExprEnvEntry> {
         let ref_name = ref_name.into();
         let entry = self
             .env

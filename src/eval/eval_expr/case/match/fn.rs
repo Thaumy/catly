@@ -1,4 +1,4 @@
-use crate::eval::env::expr_env::{EnvEntry, ExprEnv};
+use crate::eval::env::expr_env::{ExprEnv, ExprEnvEntry};
 use crate::eval::r#type::expr::{Expr, StructField};
 use crate::infra::option::OptionAnyExt;
 
@@ -6,12 +6,12 @@ fn is_struct_match_pattern_then_env_vec<'t>(
     expr_env: &'t ExprEnv<'t>,
     struct_vec: &Vec<StructField>,
     pattern_vec: &Vec<StructField>
-) -> Option<Vec<EnvEntry<'t>>> {
+) -> Option<Vec<ExprEnvEntry<'t>>> {
     if struct_vec.len() != pattern_vec.len() {
         return None;
     }
 
-    let collected: Option<Vec<Vec<EnvEntry<'t>>>> = struct_vec
+    let collected: Option<Vec<Vec<ExprEnvEntry<'t>>>> = struct_vec
         .iter()
         .zip(pattern_vec.iter())
         .map(|((s_n, s_t, s_e), (p_n, p_t, p_e))| {
@@ -30,7 +30,7 @@ fn is_expr_match_pattern_then_env_vec<'t>(
     expr_env: &'t ExprEnv<'t>,
     evaluated_expr: &Expr,
     pattern: &Expr
-) -> Option<Vec<EnvEntry<'t>>> {
+) -> Option<Vec<ExprEnvEntry<'t>>> {
     if evaluated_expr.get_type_annot() != pattern.get_type_annot() {
         return None;
     }

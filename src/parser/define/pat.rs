@@ -31,8 +31,8 @@ pub enum Pat {
 impl From<Pat> for Option<Define> {
     fn from(pat: Pat) -> Self {
         match pat {
-            Pat::TypeDef(d, t) => Define::TypeDef(d, t),
-            Pat::ExprDef(d, t, e) => Define::ExprDef(d, t, e),
+            Pat::TypeDef(n, t) => Define::TypeDef(n, t),
+            Pat::ExprDef(n, t, e) => Define::ExprDef(n, t, e),
             _ => return None
         }
         .some()
