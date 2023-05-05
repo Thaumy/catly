@@ -1,8 +1,9 @@
-use crate::eval::r#type::expr::Expr;
+use crate::eval::r#type::expr::{Expr, OptExpr};
 use crate::eval::r#type::r#type::Type;
 use crate::infra::option::OptionAnyExt;
 
-pub type ExprEnvEntry<'e> = (String, Type, Expr, ExprEnv<'e>);
+pub type ExprEnvEntry<'e> =
+    (String, Type, OptExpr, Option<ExprEnv<'e>>);
 
 // 运行时表达式环境
 #[derive(Clone, Debug)]
@@ -72,7 +73,7 @@ impl<'t> ExprEnv<'t> {
             ref_name.into(),
             r#type,
             src.into(),
-            src_env
+            src_env.some()
         )]);
 
         if cfg!(feature = "rt_env_log") {
@@ -109,6 +110,17 @@ impl<'t> ExprEnv<'t> {
         ref_name: impl Into<&'s str>
     ) -> Option<(&Expr, &ExprEnv)> {
         self.find_entry(ref_name)
-            .map(|(.., src, src_env)| (src, src_env))
+            .and_then(|(.., src, src_env)| {
+                let src_env = match src_env {
+                    Some(env) => env,
+                    // 如果找不到源环境, 则说明该引用存在于顶层环境, 即当前环境
+                    None => self
+                };
+                let src_expr = match src {
+                    Some(expr) => expr,
+                    None => return None
+                };
+                (src_expr, src_env).some()
+            })
     }
 }

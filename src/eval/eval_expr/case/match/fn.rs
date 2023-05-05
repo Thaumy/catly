@@ -41,8 +41,8 @@ fn is_expr_match_pattern_then_env_vec<'t>(
             Expr::EnvRef(p_t, ref_name) => vec![(
                 ref_name.clone(),
                 p_t.clone(),
-                evaluated_expr.clone(),
-                expr_env.clone()
+                evaluated_expr.clone().some(),
+                expr_env.clone().some()
             )]
             .some(),
             Expr::Discard(_) => vec![].some(),
@@ -58,8 +58,8 @@ fn is_expr_match_pattern_then_env_vec<'t>(
             Expr::EnvRef(p_t, ref_name) => vec![(
                 ref_name.clone(),
                 p_t.clone(),
-                evaluated_expr.clone(),
-                expr_env.clone()
+                evaluated_expr.clone().some(),
+                expr_env.clone().some()
             )]
             .some(),
             Expr::Discard(_) => vec![].some(),
@@ -69,8 +69,8 @@ fn is_expr_match_pattern_then_env_vec<'t>(
             Expr::EnvRef(p_t, ref_name) => vec![(
                 ref_name.clone(),
                 p_t.clone(),
-                evaluated_expr.clone(),
-                expr_env.clone()
+                evaluated_expr.clone().some(),
+                expr_env.clone().some()
             )]
             .some(),
             Expr::Discard(_) => vec![].some(),
@@ -84,8 +84,8 @@ fn is_expr_match_pattern_then_env_vec<'t>(
             Expr::EnvRef(p_t, ref_name) => vec![(
                 ref_name.clone(),
                 p_t.clone(),
-                evaluated_expr.clone(),
-                expr_env.clone()
+                evaluated_expr.clone().some(),
+                expr_env.clone().some()
             )]
             .some(),
             Expr::Discard(_) => vec![].some(),
