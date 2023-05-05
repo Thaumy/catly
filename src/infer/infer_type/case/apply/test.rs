@@ -1,7 +1,7 @@
 use std::assert_matches::assert_matches;
 
 use crate::infer::env::expr_env::ExprEnv;
-use crate::infer::env::parse_env;
+use crate::infer::env::parse_to_env;
 use crate::infer::env::r#macro::closure_type;
 use crate::infer::env::r#macro::int_type;
 use crate::infer::env::r#macro::namely_type;
@@ -53,7 +53,7 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
         def apply17 = ((a: Unit) -> 1) ((let a = a17: Int in 1): Int)
         def apply18 = ((a: Int) -> 1) ((): Unit)
     ";
-    parse_env(&seq).unwrap()
+    parse_to_env(&seq).unwrap()
 }
 
 #[test]

@@ -1,7 +1,7 @@
 use std::assert_matches::assert_matches;
 
 use crate::infer::env::expr_env::ExprEnv;
-use crate::infer::env::parse_env;
+use crate::infer::env::parse_to_env;
 use crate::infer::env::r#macro::closure_type;
 use crate::infer::env::r#macro::int_type;
 use crate::infer::env::r#macro::namely_type;
@@ -48,7 +48,7 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
         def f17: T17 = _ -> 1 # T17 should not be found in type env
         def f18: Unit = _ -> ()
     ";
-    parse_env(&seq).unwrap()
+    parse_to_env(&seq).unwrap()
 }
 
 #[test]

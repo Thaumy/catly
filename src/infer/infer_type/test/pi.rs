@@ -1,5 +1,5 @@
 use crate::infer::env::expr_env::ExprEnv;
-use crate::infer::env::parse_env;
+use crate::infer::env::parse_to_env;
 use crate::infer::env::r#macro::namely_type;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::test::{check_has_type, get_std_code};
@@ -52,7 +52,7 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
             in
                 mulF (int2F 8) (piSum (int2F 1) (int2F 1000))
         ";
-    parse_env(&seq).unwrap()
+    parse_to_env(&seq).unwrap()
 }
 
 #[test]

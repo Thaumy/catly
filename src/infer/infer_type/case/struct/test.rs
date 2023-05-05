@@ -1,7 +1,7 @@
 use std::assert_matches::assert_matches;
 
 use crate::infer::env::expr_env::ExprEnv;
-use crate::infer::env::parse_env;
+use crate::infer::env::parse_to_env;
 use crate::infer::env::r#macro::int_type;
 use crate::infer::env::r#macro::namely_type;
 use crate::infer::env::r#macro::prod_type;
@@ -41,7 +41,7 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
         def a13 = _
         def struct13 = { a = a13: Int, b = let k = _ in a13: Unit }
     ";
-    parse_env(&seq).unwrap()
+    parse_to_env(&seq).unwrap()
 }
 
 #[test]

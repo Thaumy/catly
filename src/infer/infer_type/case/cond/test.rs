@@ -1,7 +1,7 @@
 use std::assert_matches::assert_matches;
 
 use crate::infer::env::expr_env::ExprEnv;
-use crate::infer::env::parse_env;
+use crate::infer::env::parse_to_env;
 use crate::infer::env::r#macro::bool_type;
 use crate::infer::env::r#macro::int_type;
 use crate::infer::env::r#macro::unit_type;
@@ -57,7 +57,7 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
         def b17 = _
         def cond17: Int = if let a = a17 in true then let b: Int = b17 in 1 else 0
     ";
-    parse_env(&seq).unwrap()
+    parse_to_env(&seq).unwrap()
 }
 
 #[test]

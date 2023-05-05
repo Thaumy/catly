@@ -1,5 +1,5 @@
 use crate::infer::env::expr_env::ExprEnv;
-use crate::infer::env::parse_env;
+use crate::infer::env::parse_to_env;
 use crate::infer::env::r#macro::bool_type;
 use crate::infer::env::r#macro::closure_type;
 use crate::infer::env::r#macro::int_type;
@@ -31,7 +31,7 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
                         filter2 p tail
                 | (_: EmptyList) -> emptyList
         ";
-    parse_env(&seq).unwrap()
+    parse_to_env(&seq).unwrap()
 }
 
 #[test]
