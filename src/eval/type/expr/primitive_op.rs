@@ -55,7 +55,8 @@ impl From<PrimitiveOp> for Expr {
             // neg
             PrimitiveOp::Neg => Expr::PrimitiveOp(
                 closure_type!(int_type!(), int_type!()),
-                value.boxed()
+                value.boxed(),
+                None
             ),
             // add
             PrimitiveOp::Add(None) => Expr::PrimitiveOp(
@@ -63,11 +64,13 @@ impl From<PrimitiveOp> for Expr {
                     int_type!(),
                     closure_type!(int_type!(), int_type!())
                 ),
-                value.boxed()
+                value.boxed(),
+                None
             ),
             PrimitiveOp::Add(Some(_)) => Expr::PrimitiveOp(
                 closure_type!(int_type!(), int_type!()),
-                value.boxed()
+                value.boxed(),
+                None
             ),
             // sub
             PrimitiveOp::Sub(None) => Expr::PrimitiveOp(
@@ -75,11 +78,13 @@ impl From<PrimitiveOp> for Expr {
                     int_type!(),
                     closure_type!(int_type!(), int_type!())
                 ),
-                value.boxed()
+                value.boxed(),
+                None
             ),
             PrimitiveOp::Sub(Some(_)) => Expr::PrimitiveOp(
                 closure_type!(int_type!(), int_type!()),
-                value.boxed()
+                value.boxed(),
+                None
             ),
             // mul
             PrimitiveOp::Mul(None) => Expr::PrimitiveOp(
@@ -87,11 +92,13 @@ impl From<PrimitiveOp> for Expr {
                     int_type!(),
                     closure_type!(int_type!(), int_type!())
                 ),
-                value.boxed()
+                value.boxed(),
+                None
             ),
             PrimitiveOp::Mul(Some(_)) => Expr::PrimitiveOp(
                 closure_type!(int_type!(), int_type!()),
-                value.boxed()
+                value.boxed(),
+                None
             ),
             // mod
             PrimitiveOp::Mod(None) => Expr::PrimitiveOp(
@@ -99,11 +106,13 @@ impl From<PrimitiveOp> for Expr {
                     int_type!(),
                     closure_type!(int_type!(), int_type!())
                 ),
-                value.boxed()
+                value.boxed(),
+                None
             ),
             PrimitiveOp::Mod(Some(_)) => Expr::PrimitiveOp(
                 closure_type!(int_type!(), int_type!()),
-                value.boxed()
+                value.boxed(),
+                None
             ),
             // rem
             PrimitiveOp::Rem(None) => Expr::PrimitiveOp(
@@ -111,11 +120,13 @@ impl From<PrimitiveOp> for Expr {
                     int_type!(),
                     closure_type!(int_type!(), int_type!())
                 ),
-                value.boxed()
+                value.boxed(),
+                None
             ),
             PrimitiveOp::Rem(Some(_)) => Expr::PrimitiveOp(
                 closure_type!(int_type!(), int_type!()),
-                value.boxed()
+                value.boxed(),
+                None
             ),
 
             // gt
@@ -124,11 +135,13 @@ impl From<PrimitiveOp> for Expr {
                     int_type!(),
                     closure_type!(int_type!(), bool_type!())
                 ),
-                value.boxed()
+                value.boxed(),
+                None
             ),
             PrimitiveOp::Gt(Some(_)) => Expr::PrimitiveOp(
                 closure_type!(int_type!(), bool_type!()),
-                value.boxed()
+                value.boxed(),
+                None
             ),
             // eq
             PrimitiveOp::Eq(None) => Expr::PrimitiveOp(
@@ -136,11 +149,13 @@ impl From<PrimitiveOp> for Expr {
                     int_type!(),
                     closure_type!(int_type!(), bool_type!())
                 ),
-                value.boxed()
+                value.boxed(),
+                None
             ),
             PrimitiveOp::Eq(Some(_)) => Expr::PrimitiveOp(
                 closure_type!(int_type!(), bool_type!()),
-                value.boxed()
+                value.boxed(),
+                None
             ),
             // lt
             PrimitiveOp::Lt(None) => Expr::PrimitiveOp(
@@ -148,17 +163,20 @@ impl From<PrimitiveOp> for Expr {
                     int_type!(),
                     closure_type!(int_type!(), bool_type!())
                 ),
-                value.boxed()
+                value.boxed(),
+                None
             ),
             PrimitiveOp::Lt(Some(_)) => Expr::PrimitiveOp(
                 closure_type!(int_type!(), bool_type!()),
-                value.boxed()
+                value.boxed(),
+                None
             ),
 
             // not
             PrimitiveOp::Not => Expr::PrimitiveOp(
                 closure_type!(bool_type!(), bool_type!()),
-                value.boxed()
+                value.boxed(),
+                None
             ),
             // and
             PrimitiveOp::And(None) => Expr::PrimitiveOp(
@@ -166,11 +184,13 @@ impl From<PrimitiveOp> for Expr {
                     bool_type!(),
                     closure_type!(bool_type!(), bool_type!())
                 ),
-                value.boxed()
+                value.boxed(),
+                None
             ),
             PrimitiveOp::And(Some(_)) => Expr::PrimitiveOp(
                 closure_type!(bool_type!(), bool_type!()),
-                value.boxed()
+                value.boxed(),
+                None
             ),
             // or
             PrimitiveOp::Or(None) => Expr::PrimitiveOp(
@@ -178,11 +198,13 @@ impl From<PrimitiveOp> for Expr {
                     bool_type!(),
                     closure_type!(bool_type!(), bool_type!())
                 ),
-                value.boxed()
+                value.boxed(),
+                None
             ),
             PrimitiveOp::Or(Some(_)) => Expr::PrimitiveOp(
                 closure_type!(bool_type!(), bool_type!()),
-                value.boxed()
+                value.boxed(),
+                None
             )
         }
     }

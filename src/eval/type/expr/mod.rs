@@ -2,6 +2,7 @@ pub mod primitive_op;
 
 use std::fmt::{Debug, Formatter};
 
+use crate::eval::env::expr_env::ExprEnv;
 use crate::eval::r#type::expr::primitive_op::PrimitiveOp;
 use crate::eval::r#type::r#type::OptType;
 use crate::eval::r#type::r#type::Type;
@@ -15,16 +16,22 @@ pub type OptExpr = Option<Expr>;
 
 pub type StructField = (String, Type, Expr);
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone)]
 pub enum Expr {
     Unit(Type),
     Int(Type, i64),
     EnvRef(Type, String),
-    Closure(Type, Option<String>, Type, Box<Expr>),
+    Closure(
+        Type,
+        Option<String>,
+        Type,
+        Box<Expr>,
+        Option<Box<ExprEnv>>
+    ),
     Struct(Type, Vec<StructField>),
     Discard(Type),
 
-    PrimitiveOp(Type, Box<PrimitiveOp>),
+    PrimitiveOp(Type, Box<PrimitiveOp>, Option<Box<ExprEnv>>),
 
     Cond(Box<Expr>, Box<Expr>, Box<Expr>),
     Match(Box<Expr>, Vec<(Expr, Expr)>),
@@ -67,7 +74,7 @@ impl Debug for Expr {
                 f.write_str(&*format!("{i}{}", type_annot(t))),
             Expr::EnvRef(t, n) =>
                 f.write_str(&*format!("{n}{}", type_annot(t))),
-            Expr::Closure(t, i_n, i_t, o_e) =>
+            Expr::Closure(t, i_n, i_t, o_e, _) =>
                 f.write_str(&*format!(
                     "({}{} -> {o_e:?}){}",
                     closure_input_name(i_n),
@@ -81,7 +88,7 @@ impl Debug for Expr {
             Expr::Discard(t) =>
                 f.write_str(&*format!("_{}", type_annot(t))),
 
-            Expr::PrimitiveOp(t, op) =>
+            Expr::PrimitiveOp(t, op, _) =>
                 f.write_str(&*format!("({op:?}){}", type_annot(t))),
 
             Expr::Cond(b, te, fe) => f.write_str(&*format!(
@@ -116,7 +123,8 @@ impl From<CtExpr> for OptExpr {
 
                 match PrimitiveOp::from_env_ref(r_n.clone().as_str())
                 {
-                    Some(op) => Expr::PrimitiveOp(t, op.boxed()),
+                    Some(op) =>
+                        Expr::PrimitiveOp(t, op.boxed(), None),
                     None => Expr::EnvRef(t, r_n)
                 }
             }
@@ -126,7 +134,8 @@ impl From<CtExpr> for OptExpr {
                     convert_type(t)?,
                     i_n,
                     convert_type(i_t)?,
-                    Self::from(*o_e)?.boxed()
+                    Self::from(*o_e)?.boxed(),
+                    None
                 ),
 
             CtExpr::Struct(Some(t), s_v) => {
