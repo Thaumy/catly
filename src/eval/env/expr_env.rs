@@ -1,21 +1,21 @@
 use crate::eval::r#type::expr::{Expr, OptExpr};
 use crate::eval::r#type::r#type::Type;
 use crate::infra::option::OptionAnyExt;
+use crate::infra::r#box::BoxAnyExt;
 
-pub type ExprEnvEntry<'e> =
-    (String, Type, OptExpr, Option<ExprEnv<'e>>);
+pub type ExprEnvEntry = (String, Type, OptExpr, Option<ExprEnv>);
 
 // 运行时表达式环境
 #[derive(Clone, Debug)]
-pub struct ExprEnv<'t> {
-    prev_env: Option<&'t ExprEnv<'t>>,
-    env: Vec<ExprEnvEntry<'t>>
+pub struct ExprEnv {
+    prev_env: Option<Box<ExprEnv>>,
+    env: Vec<ExprEnvEntry>
 }
 
-impl<'t> ExprEnv<'t> {
-    pub fn empty() -> ExprEnv<'t> { Self::new(vec![]) }
+impl ExprEnv {
+    pub fn empty() -> ExprEnv { Self::new(vec![]) }
 
-    pub fn new(env_vec: Vec<ExprEnvEntry<'t>>) -> ExprEnv<'t> {
+    pub fn new(env_vec: Vec<ExprEnvEntry>) -> ExprEnv {
         let expr_env = ExprEnv {
             prev_env: None,
             env: env_vec
@@ -32,17 +32,17 @@ impl<'t> ExprEnv<'t> {
         expr_env
     }
 
-    fn latest_none_empty_expr_env(&self) -> &ExprEnv {
-        match (self.env.is_empty(), self.prev_env) {
+    fn latest_none_empty_expr_env(&self) -> Box<ExprEnv> {
+        match (self.env.is_empty(), &self.prev_env) {
             (true, Some(prev_env)) =>
                 prev_env.latest_none_empty_expr_env(),
-            _ => self
+            _ => Box::new(self.clone())
         }
     }
 
     pub fn extend_vec_new(
         &self,
-        env_vec: Vec<ExprEnvEntry<'t>>
+        env_vec: Vec<ExprEnvEntry>
     ) -> ExprEnv {
         let expr_env = ExprEnv {
             prev_env: self
@@ -66,15 +66,43 @@ impl<'t> ExprEnv<'t> {
         &self,
         ref_name: impl Into<String>,
         r#type: Type,
-        src: Expr,
-        src_env: ExprEnv<'t>
+        src_expr: Expr,
+        src_env: ExprEnv
     ) -> ExprEnv {
         let expr_env = self.extend_vec_new(vec![(
             ref_name.into(),
             r#type,
-            src.into(),
+            src_expr.into(),
             src_env.some()
         )]);
+
+        if cfg!(feature = "rt_env_log") {
+            let log = format!(
+                "{:8}{:>10} │ {:?}",
+                "[rt env]", "ExprEnv", expr_env.env
+            );
+            println!("{log}");
+        }
+
+        expr_env
+    }
+
+    pub fn extend_heap_new(
+        self,
+        ref_name: impl Into<String>,
+        r#type: Type,
+        src_expr: Expr,
+        src_env: ExprEnv
+    ) -> ExprEnv {
+        let expr_env = ExprEnv {
+            prev_env: self.boxed().some(),
+            env: vec![(
+                ref_name.into(),
+                r#type,
+                src_expr.some(),
+                src_env.some()
+            )]
+        };
 
         if cfg!(feature = "rt_env_log") {
             let log = format!(
@@ -98,7 +126,7 @@ impl<'t> ExprEnv<'t> {
             .rev()
             .find(|(n, ..)| n == ref_name);
 
-        match (entry, self.prev_env) {
+        match (entry, &self.prev_env) {
             (Some(entry), _) => entry.some(),
             (None, Some(prev_env)) => prev_env.find_entry(ref_name),
             _ => None

@@ -3,15 +3,15 @@ use crate::eval::r#type::expr::{Expr, StructField};
 use crate::infra::option::OptionAnyExt;
 
 fn is_struct_match_pattern_then_env_vec<'t>(
-    expr_env: &'t ExprEnv<'t>,
+    expr_env: &'t ExprEnv,
     struct_vec: &Vec<StructField>,
     pattern_vec: &Vec<StructField>
-) -> Option<Vec<ExprEnvEntry<'t>>> {
+) -> Option<Vec<ExprEnvEntry>> {
     if struct_vec.len() != pattern_vec.len() {
         return None;
     }
 
-    let collected: Option<Vec<Vec<ExprEnvEntry<'t>>>> = struct_vec
+    let collected: Option<Vec<Vec<ExprEnvEntry>>> = struct_vec
         .iter()
         .zip(pattern_vec.iter())
         .map(|((s_n, s_t, s_e), (p_n, p_t, p_e))| {
@@ -27,10 +27,10 @@ fn is_struct_match_pattern_then_env_vec<'t>(
 }
 
 fn is_expr_match_pattern_then_env_vec<'t>(
-    expr_env: &'t ExprEnv<'t>,
+    expr_env: &'t ExprEnv,
     evaluated_expr: &Expr,
     pattern: &Expr
-) -> Option<Vec<ExprEnvEntry<'t>>> {
+) -> Option<Vec<ExprEnvEntry>> {
     if evaluated_expr.get_type_annot() != pattern.get_type_annot() {
         return None;
     }
@@ -97,10 +97,10 @@ fn is_expr_match_pattern_then_env_vec<'t>(
 
 // 如果 expr 匹配 pattern, 则返回经由(按需)扩展的表达式环境
 pub fn is_expr_match_pattern_then_env<'t>(
-    expr_env: &'t ExprEnv<'t>,
+    expr_env: &'t ExprEnv,
     evaluated_expr: &Expr,
     pattern: &Expr
-) -> Option<ExprEnv<'t>> {
+) -> Option<ExprEnv> {
     is_expr_match_pattern_then_env_vec(
         expr_env,
         evaluated_expr,

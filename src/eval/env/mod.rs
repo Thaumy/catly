@@ -40,7 +40,7 @@ pub mod type_env;
 fn ct_expr_env_vec_to_rt_expr_env_vec<'t>(
     ct_type_env: CtTypeEnv,
     ct_expr_env_vec: Vec<CtExprEnvEntry>
-) -> Result<Vec<ExprEnvEntry<'t>>, InferErr> {
+) -> Result<Vec<ExprEnvEntry>, InferErr> {
     let inferred_defs = infer_type_of_defs(
         ct_type_env,
         CtExprEnv::new(vec![]),
@@ -64,14 +64,14 @@ fn ct_expr_env_vec_to_rt_expr_env_vec<'t>(
             }
             _ => panic!("Impossible type constraint: {tc:?}")
         })
-        .collect::<Vec<ExprEnvEntry<'t>>>()
+        .collect::<Vec<ExprEnvEntry>>()
         .ok()
 }
 
 fn def_map_to_env_vec<'t>(
     type_def_map: HashMap<String, CtType>,
     expr_def_map: HashMap<String, (OptCtType, CtExpr)>
-) -> Result<(Vec<TypeEnvEntry>, Vec<ExprEnvEntry<'t>>), InferErr> {
+) -> Result<(Vec<TypeEnvEntry>, Vec<ExprEnvEntry>), InferErr> {
     let (ct_type_env_vec, ct_expr_env_vec) =
         def_map_to_ct_env_vec(type_def_map, expr_def_map);
 
@@ -94,9 +94,7 @@ fn def_map_to_env_vec<'t>(
     (rt_type_env_vec, rt_expr_env_vec).ok()
 }
 
-pub fn parse_to_env<'t>(
-    seq: &str
-) -> Option<(TypeEnv<'t>, ExprEnv<'t>)> {
+pub fn parse_to_env<'t>(seq: &str) -> Option<(TypeEnv<'t>, ExprEnv)> {
     let seq = preprocess(&seq)?;
     let def_vec = parse_ast(seq)?;
 
