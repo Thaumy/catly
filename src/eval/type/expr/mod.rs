@@ -16,7 +16,7 @@ pub type OptExpr = Option<Expr>;
 
 pub type StructField = (String, Type, Expr);
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub enum Expr {
     Unit(Type),
     Int(Type, i64),

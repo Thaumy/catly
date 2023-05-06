@@ -6,7 +6,7 @@ use crate::infra::r#box::BoxAnyExt;
 pub type ExprEnvEntry = (String, Type, OptExpr, Option<ExprEnv>);
 
 // 运行时表达式环境
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct ExprEnv {
     prev_env: Option<Box<ExprEnv>>,
     env: Vec<ExprEnvEntry>
