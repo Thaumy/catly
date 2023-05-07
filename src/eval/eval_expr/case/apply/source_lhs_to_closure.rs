@@ -1,19 +1,11 @@
-use std::ops::{Deref, Rem};
+use std::ops::Deref;
 
 use crate::eval::env::expr_env::ExprEnv;
 use crate::eval::env::type_env::TypeEnv;
-use crate::eval::eval_expr::case::apply::primitive_apply::primitive_apply;
-use crate::eval::eval_expr::{eval_expr, EvalRet};
-use crate::eval::r#macro::false_type;
-use crate::eval::r#macro::namely_type;
-use crate::eval::r#macro::true_type;
-use crate::eval::r#type::eval_err::EvalErr;
 use crate::eval::r#type::expr::primitive_op::PrimitiveOp;
 use crate::eval::r#type::expr::Expr;
 use crate::eval::r#type::r#type::Type;
 use crate::infra::either::{Either, EitherAnyExt};
-use crate::infra::option::OptionAnyExt;
-use crate::infra::result::ResultAnyExt;
 
 pub fn source_lhs_to_closure<'t>(
     type_env: &'t TypeEnv,

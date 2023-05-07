@@ -5,7 +5,6 @@ use crate::eval::eval_expr::eval_expr;
 use crate::eval::eval_expr::test::get_std_code;
 use crate::eval::r#macro::namely_type;
 use crate::eval::r#type::expr::Expr;
-use crate::infra::r#box::BoxAnyExt;
 use crate::infra::result::ResultAnyExt;
 
 fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv) {

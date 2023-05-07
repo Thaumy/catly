@@ -3,27 +3,21 @@ use std::collections::HashMap;
 use crate::eval::env::expr_env::{ExprEnv, ExprEnvEntry};
 use crate::eval::env::type_env::{TypeEnv, TypeEnvEntry};
 use crate::eval::r#type::expr::OptExpr;
-use crate::eval::r#type::r#type::{OptType, Type};
+use crate::eval::r#type::r#type::OptType;
 use crate::infer::env::def_map_to_env_vec as def_map_to_ct_env_vec;
 use crate::infer::env::def_vec_to_def_map;
 use crate::infer::env::expr_env::ExprEnv as CtExprEnv;
 use crate::infer::env::expr_env::ExprEnvEntry as CtExprEnvEntry;
-use crate::infer::env::r#type::env_ref_src::EnvRefSrc;
 use crate::infer::env::r#type::type_constraint::TypeConstraint;
 use crate::infer::env::type_env::TypeEnv as CtTypeEnv;
-use crate::infer::env::type_env::TypeEnvEntry as CtTypeEnvEntry;
-use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
-use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infer::infer_type_of_defs::{
     infer_type_of_defs,
     InferErr
 };
 use crate::infra::option::OptionAnyExt;
-use crate::infra::quad::Quad;
 use crate::infra::result::ResultAnyExt;
 use crate::infra::vec::VecExt;
 use crate::parser::ast::parse_ast;
-use crate::parser::define::Define;
 use crate::parser::expr::r#type::{
     Expr as CtExpr,
     OptExpr as OptCtExpr

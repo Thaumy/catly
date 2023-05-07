@@ -1,5 +1,3 @@
-use crate::eval::r#type::expr::Expr;
-
 mod expt;
 mod fib;
 mod filter;

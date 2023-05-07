@@ -1,4 +1,4 @@
-use std::ops::{Deref, Rem};
+use std::ops::Rem;
 
 use crate::eval::env::expr_env::ExprEnv;
 use crate::eval::env::type_env::TypeEnv;
@@ -10,7 +10,6 @@ use crate::eval::r#type::eval_err::EvalErr;
 use crate::eval::r#type::expr::primitive_op::PrimitiveOp;
 use crate::eval::r#type::expr::Expr;
 use crate::eval::r#type::r#type::Type;
-use crate::infra::either::{Either, EitherAnyExt};
 use crate::infra::option::OptionAnyExt;
 use crate::infra::result::ResultAnyExt;
 
