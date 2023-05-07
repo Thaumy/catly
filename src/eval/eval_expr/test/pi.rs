@@ -5,7 +5,7 @@ use crate::eval::eval_expr::eval_expr;
 use crate::eval::eval_expr::test::get_std_code;
 use crate::eval::r#macro::namely_type;
 use crate::eval::r#type::expr::Expr;
-use crate::infra::r#box::BoxAnyExt;
+use crate::infra::rc::RcAnyExt;
 use crate::infra::result::ResultAnyExt;
 
 fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv) {
@@ -39,7 +39,7 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv) {
                 | ({ n = bn, d = bd}: Fraction) ->
                     gt (mul an bd) (mul bn ad)
 
-        def pi =
+        def pi1 =
             let piSum = a -> b ->
                 if gtF a b then
                     int2F 0
@@ -54,7 +54,22 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv) {
                             b
                         )
             in
-                mulF (int2F 8) (piSum (int2F 1) (int2F 6))
+                mulF (int2F 16) (piSum (int2F 1) (int2F 6))
+
+        def piSum2 = a -> b ->
+            if gtF a b then
+                int2F 0
+            else
+                addF
+                    (divF
+                        (int2F 1)
+                        (mulF a (addF a (int2F 2)))
+                    )
+                    (piSum2
+                        (addF a (int2F 4))
+                        b
+                    )
+        def pi2 = mulF (int2F 16) (piSum2 (int2F 1) (int2F 18))
         ";
     parse_to_env(&seq).unwrap()
 }
@@ -64,8 +79,21 @@ fn test_part1() {
     let (type_env, expr_env) = gen_env();
 
     let expr =
-        Expr::EnvRef(namely_type!("Fraction"), "pi".to_string());
-    let evaluated = eval_expr(&type_env, expr_env.boxed(), &expr);
+        Expr::EnvRef(namely_type!("Fraction"), "pi1".to_string());
+    let evaluated = eval_expr(&type_env, expr_env.rc(), &expr);
+
+    let r = Expr::Int(namely_type!("Int"), 0);
+
+    assert_eq!(evaluated, r.ok());
+}
+
+#[test]
+fn test_part2() {
+    let (type_env, expr_env) = gen_env();
+
+    let expr =
+        Expr::EnvRef(namely_type!("Fraction"), "pi2".to_string());
+    let evaluated = eval_expr(&type_env, expr_env.rc(), &expr);
 
     let r = Expr::Int(namely_type!("Int"), 0);
 
