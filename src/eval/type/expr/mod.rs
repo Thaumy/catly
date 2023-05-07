@@ -75,9 +75,9 @@ impl Debug for Expr {
                 f.write_str(&*format!("{i}{}", type_annot(t))),
             Expr::EnvRef(t, n) =>
                 f.write_str(&*format!("{n}{}", type_annot(t))),
-            Expr::Closure(t, i_n, i_t, o_e, _) =>
+            Expr::Closure(t, i_n, i_t, o_e, env) =>
                 f.write_str(&*format!(
-                    "({}{} -> {o_e:?}){}",
+                    "({}{} ->[env:{env:p}] {o_e:?}){}",
                     closure_input_name(i_n),
                     type_annot(i_t),
                     type_annot(t)
@@ -89,8 +89,11 @@ impl Debug for Expr {
             Expr::Discard(t) =>
                 f.write_str(&*format!("_{}", type_annot(t))),
 
-            Expr::PrimitiveOp(t, op, _) =>
-                f.write_str(&*format!("({op:?}){}", type_annot(t))),
+            Expr::PrimitiveOp(t, op, l_env) =>
+                f.write_str(&*format!(
+                    "([l_env:{l_env:p}]{op:?}){}",
+                    type_annot(t)
+                )),
 
             Expr::Cond(b, te, fe) => f.write_str(&*format!(
                 "if {b:?} then {te:?} else {fe:?}",

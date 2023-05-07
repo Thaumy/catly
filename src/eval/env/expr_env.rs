@@ -3,8 +3,6 @@ use std::rc::Rc;
 use crate::eval::r#type::expr::{Expr, OptExpr};
 use crate::eval::r#type::r#type::Type;
 use crate::infra::option::OptionAnyExt;
-use crate::infra::r#box::BoxAnyExt;
-use crate::infra::rc::RcAnyExt;
 
 pub type ExprEnvEntry = (String, Type, OptExpr, Option<Rc<ExprEnv>>);
 
@@ -78,34 +76,6 @@ impl ExprEnv {
             src_expr.into(),
             src_env.some()
         )]);
-
-        if cfg!(feature = "rt_env_log") {
-            let log = format!(
-                "{:8}{:>10} │ {:?}",
-                "[rt env]", "ExprEnv", expr_env.env
-            );
-            println!("{log}");
-        }
-
-        expr_env
-    }
-
-    pub fn extend_heap_new(
-        self,
-        ref_name: impl Into<String>,
-        r#type: Type,
-        src_expr: Expr,
-        src_env: Rc<ExprEnv>
-    ) -> ExprEnv {
-        let expr_env = ExprEnv {
-            prev_env: self.rc().some(),
-            env: vec![(
-                ref_name.into(),
-                r#type,
-                src_expr.some(),
-                src_env.some()
-            )]
-        };
 
         if cfg!(feature = "rt_env_log") {
             let log = format!(

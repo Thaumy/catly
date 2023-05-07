@@ -1,4 +1,4 @@
-use std::collections::{BTreeSet, HashMap};
+use std::collections::BTreeSet;
 
 use crate::eval::r#type::r#type::Type;
 use crate::infra::option::OptionAnyExt;

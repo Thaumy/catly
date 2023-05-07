@@ -31,7 +31,7 @@ use crate::pp::preprocess;
 pub mod expr_env;
 pub mod type_env;
 
-fn ct_expr_env_vec_to_rt_expr_env_vec<'t>(
+fn ct_expr_env_vec_to_rt_expr_env_vec(
     ct_type_env: CtTypeEnv,
     ct_expr_env_vec: Vec<CtExprEnvEntry>
 ) -> Result<Vec<ExprEnvEntry>, InferErr> {
@@ -62,7 +62,7 @@ fn ct_expr_env_vec_to_rt_expr_env_vec<'t>(
         .ok()
 }
 
-fn def_map_to_env_vec<'t>(
+fn def_map_to_env_vec(
     type_def_map: HashMap<String, CtType>,
     expr_def_map: HashMap<String, (OptCtType, CtExpr)>
 ) -> Result<(Vec<TypeEnvEntry>, Vec<ExprEnvEntry>), InferErr> {

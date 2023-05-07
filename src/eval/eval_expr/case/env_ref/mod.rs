@@ -12,6 +12,9 @@ pub fn case_env_ref(
     expr_env: Rc<ExprEnv>,
     ref_name: &String
 ) -> EvalRet {
+    // TODO:
+    // 此处为逐层查找 env_ref
+    // 可以设置穿透的访问链, 提高 env_ref 的检索效率
     let (src_expr, src_env) = expr_env
         .get_src_expr_and_env(ref_name.as_str())
         .unwrap_or_else(|| {

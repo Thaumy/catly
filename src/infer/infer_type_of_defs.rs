@@ -4,7 +4,6 @@ use crate::infer::env::r#type::type_constraint::TypeConstraint;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infra::option::OptionAnyExt;
 use crate::infra::quad::Quad;
 use crate::infra::result::ResultAnyExt;
 use crate::infra::vec::VecExt;
@@ -169,36 +168,35 @@ pub fn infer_type_of_defs<'t>(
         // 仍有 def 需要推导, 且本轮次产生了新的约束
         // 将已推导出类型的 def 和约束合并到环境, 进行下一轮推导
 
-        let need_to_infer = need_to_infer
-            .into_iter()
-            // 对于推导产生的约束, 将约束作用于目标, 留给下一轮次推导使用
-            .map(|(n, tc, src)| match tc {
-                TypeConstraint::Free => {
-                    let tc = match constraint_acc
-                        .iter()
-                        .find(|(inferred_n, t)| inferred_n == &&n)
+        let need_to_infer =
+            need_to_infer
+                .into_iter()
+                // 对于推导产生的约束, 将约束作用于目标, 留给下一轮次推导使用
+                .map(|(n, tc, src)| match tc {
+                    TypeConstraint::Free => {
+                        let tc = match constraint_acc.iter().find(
+                            |(inferred_n, ..)| inferred_n == &&n
+                        ) {
+                            Some((_, t)) => t.clone().into(),
+                            None => tc
+                        };
+                        (n, tc, src)
+                    }
+                    // 推导也可能向环境中注入部分类型
+                    TypeConstraint::Constraint(ref t)
+                        if t.is_partial() =>
                     {
-                        Some((_, t)) => t.clone().into(),
-                        None => tc
-                    };
-                    (n, tc, src)
-                }
-                // 推导也可能向环境中注入部分类型
-                TypeConstraint::Constraint(ref t)
-                    if t.is_partial() =>
-                {
-                    let tc = match constraint_acc
-                        .iter()
-                        .find(|(inferred_n, t)| inferred_n == &&n)
-                    {
-                        Some((_, t)) => t.clone().into(),
-                        None => tc
-                    };
-                    (n, tc, src)
-                }
-                _ => (n, tc, src)
-            })
-            .collect();
+                        let tc = match constraint_acc.iter().find(
+                            |(inferred_n, ..)| inferred_n == &&n
+                        ) {
+                            Some((_, t)) => t.clone().into(),
+                            None => tc
+                        };
+                        (n, tc, src)
+                    }
+                    _ => (n, tc, src)
+                })
+                .collect();
 
         // 对于完成推导的 def, 去除其引用源以防止被再次推导
         let new_expr_env_vec = inferred

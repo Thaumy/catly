@@ -8,9 +8,9 @@ use crate::eval::env::type_env::TypeEnv;
 use crate::eval::eval_expr::{eval_expr, EvalRet};
 use crate::eval::r#type::expr::Expr;
 use crate::eval::r#type::r#type::Type;
-use crate::infra::r#box::BoxAnyExt;
 use crate::infra::rc::RcAnyExt;
 
+// TODO: 验证 assign_expr 的求值策略(猜测为惰性)
 pub fn case_let(
     type_env: &TypeEnv,
     expr_env: Rc<ExprEnv>,

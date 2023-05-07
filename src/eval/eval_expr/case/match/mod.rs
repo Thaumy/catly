@@ -11,7 +11,6 @@ use crate::eval::eval_expr::{eval_expr, EvalRet};
 use crate::eval::r#type::eval_err::EvalErr;
 use crate::eval::r#type::expr::Expr;
 use crate::infra::option::OptionAnyExt;
-use crate::infra::r#box::BoxAnyExt;
 use crate::infra::rc::RcAnyExt;
 use crate::infra::result::ResultAnyExt;
 
