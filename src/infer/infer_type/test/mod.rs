@@ -8,7 +8,7 @@ mod pi;
 
 pub fn get_std_code() -> String {
     "
-        def neg: Int -> Int = _
+        def neg: Int -> Int = _ # compiler built-in
         def add: Int -> Int -> Int = _
         def sub: Int -> Int -> Int = _
         def mul: Int -> Int -> Int = _

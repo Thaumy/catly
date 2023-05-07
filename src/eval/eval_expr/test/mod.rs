@@ -8,7 +8,7 @@ mod pi;
 
 pub fn get_std_code() -> String {
     "
-        def neg: Int -> Int = _
+        def neg: Int -> Int = _ # compiler built-in
         def add: Int -> Int -> Int = _
         def sub: Int -> Int -> Int = _
         def mul: Int -> Int -> Int = _
@@ -36,7 +36,7 @@ pub fn get_std_code() -> String {
         type IntList = IntCons | EmptyList
 
         def emptyList = (): EmptyList
-        def intCons = h -> t -> { head = h, tail = t } : IntCons
+        def intCons = h -> t -> { head = h, tail = t }: IntCons
 
         type Fraction = { n: Int, d: Int }
 
@@ -47,7 +47,7 @@ pub fn get_std_code() -> String {
                 gcd b (rem a b)
 
         def fraction = n -> d ->
-            if gt n 1000 then
+            if or (gt n 1000) (gt d 1000) then
                 let
                     g = gcd n d
                 in

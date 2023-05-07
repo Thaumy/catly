@@ -444,7 +444,7 @@ type IntCons = { head: Int, tail: IntList }
 type IntList = IntCons | EmptyList
 
 def emptyList = (): EmptyList
-def intCons = h -> t -> { head = h, tail = t } : IntCons
+def intCons = h -> t -> { head = h, tail = t }: IntCons
 
 type Fraction = { n: Int, d: Int }
 
@@ -455,7 +455,7 @@ def gcd = a -> b ->
         gcd b (rem a b)
 
 def fraction = n -> d ->
-    if gt n 1000 then
+    if or (gt n 1000) (gt d 1000) then
         let
             g = gcd n d
         in
