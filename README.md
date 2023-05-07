@@ -396,6 +396,7 @@ Catly
 | add  |  求和  |  Int -> Int -> Int   |
 | sub  |  求差  |  Int -> Int -> Int   |
 | mul  |  求积  |  Int -> Int -> Int   |
+| div  |  整除  |  Int -> Int -> Int   |
 | mod  |  取模  |  Int -> Int -> Int   |
 | rem  |  取余  |  Int -> Int -> Int   |
 |  gt  |  大于  |  Int -> Int -> Bool  |
@@ -415,10 +416,11 @@ Catly 标准库将在代码执行前嵌入程序结构，用于提供一些预�
 <summary>Expand</summary>
 
 ```Catly
-def neg: Int -> Int = _
+def neg: Int -> Int = _ # compiler built-in
 def add: Int -> Int -> Int = _
 def sub: Int -> Int -> Int = _
 def mul: Int -> Int -> Int = _
+def div: Int -> Int -> Int = _
 def mod: Int -> Int -> Int = _
 def rem: Int -> Int -> Int = _
 
@@ -446,8 +448,21 @@ def intCons = h -> t -> { head = h, tail = t } : IntCons
 
 type Fraction = { n: Int, d: Int }
 
+def gcd = a -> b ->
+    if eq b 0 then
+        a
+    else
+        gcd b (rem a b)
+
 def fraction = n -> d ->
-    { n = n, d = d }: Fraction
+    if gt n 1000 then
+        let
+            g = gcd n d
+        in
+            { n = div n g, d = div d g }: Fraction
+    else
+        { n = n, d = d }: Fraction
+
 def int2F = i ->
     fraction i 1
 ```

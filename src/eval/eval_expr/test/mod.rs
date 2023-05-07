@@ -12,6 +12,7 @@ pub fn get_std_code() -> String {
         def add: Int -> Int -> Int = _
         def sub: Int -> Int -> Int = _
         def mul: Int -> Int -> Int = _
+        def div: Int -> Int -> Int = _
         def mod: Int -> Int -> Int = _
         def rem: Int -> Int -> Int = _
 
@@ -39,8 +40,21 @@ pub fn get_std_code() -> String {
 
         type Fraction = { n: Int, d: Int }
 
+        def gcd = a -> b ->
+            if eq b 0 then
+                a
+            else
+                gcd b (rem a b)
+
         def fraction = n -> d ->
-            { n = n, d = d }: Fraction
+            if gt n 1000 then
+                let
+                    g = gcd n d
+                in
+                    { n = div n g, d = div d g }: Fraction
+            else
+                { n = n, d = d }: Fraction
+
         def int2F = i ->
             fraction i 1
     "

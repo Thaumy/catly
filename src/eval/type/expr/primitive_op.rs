@@ -11,6 +11,7 @@ pub enum PrimitiveOp {
     Add(Option<Expr>),
     Sub(Option<Expr>),
     Mul(Option<Expr>),
+    Div(Option<Expr>),
     Mod(Option<Expr>),
     Rem(Option<Expr>),
 
@@ -32,6 +33,7 @@ impl PrimitiveOp {
             "add" => PrimitiveOp::Add(None),
             "sub" => PrimitiveOp::Sub(None),
             "mul" => PrimitiveOp::Mul(None),
+            "div" => PrimitiveOp::Div(None),
             "mod" => PrimitiveOp::Mod(None),
             "rem" => PrimitiveOp::Rem(None),
 
@@ -96,6 +98,20 @@ impl From<PrimitiveOp> for Expr {
                 None
             ),
             PrimitiveOp::Mul(Some(_)) => Expr::PrimitiveOp(
+                closure_type!(int_type!(), int_type!()),
+                value.boxed(),
+                None
+            ),
+            // div
+            PrimitiveOp::Div(None) => Expr::PrimitiveOp(
+                closure_type!(
+                    int_type!(),
+                    closure_type!(int_type!(), int_type!())
+                ),
+                value.boxed(),
+                None
+            ),
+            PrimitiveOp::Div(Some(_)) => Expr::PrimitiveOp(
                 closure_type!(int_type!(), int_type!()),
                 value.boxed(),
                 None
