@@ -5,6 +5,7 @@ pub mod r#fn;
 pub mod iter;
 pub mod option;
 pub mod quad;
+pub mod rc;
 pub mod result;
 pub mod triple;
 pub mod vec;
