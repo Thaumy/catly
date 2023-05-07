@@ -5,6 +5,7 @@ use crate::eval::r#macro::{closure_type, namely_type};
 use crate::eval::r#type::expr::Expr;
 use crate::infra::option::OptionAnyExt;
 use crate::infra::r#box::BoxAnyExt;
+use crate::infra::rc::RcAnyExt;
 use crate::infra::result::ResultAnyExt;
 
 // (a: Int) -> 1
@@ -20,7 +21,7 @@ fn test_part1() {
         Expr::Int(namely_type!("Int"), 1).boxed(),
         None
     );
-    let evaluated = eval_expr(&type_env, expr_env.boxed(), &expr);
+    let evaluated = eval_expr(&type_env, expr_env.rc(), &expr);
 
     assert_ne!(evaluated, expr.ok());
 }
@@ -38,7 +39,7 @@ fn test_part2() {
         Expr::Int(namely_type!("Int"), 1).boxed(),
         None
     );
-    let evaluated = eval_expr(&type_env, expr_env.boxed(), &expr);
+    let evaluated = eval_expr(&type_env, expr_env.rc(), &expr);
 
     assert_ne!(evaluated, expr.ok());
 }
@@ -47,7 +48,7 @@ fn test_part2() {
 #[test]
 fn test_part3() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![]).boxed();
+    let expr_env = ExprEnv::new(vec![]).rc();
 
     let expr = Expr::Closure(
         closure_type!(namely_type!("Int"), namely_type!("Int")),
@@ -73,7 +74,7 @@ fn test_part3() {
 #[test]
 fn test_part4() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![]).boxed();
+    let expr_env = ExprEnv::new(vec![]).rc();
 
     let expr = Expr::Closure(
         closure_type!(namely_type!("Int"), namely_type!("Int")),

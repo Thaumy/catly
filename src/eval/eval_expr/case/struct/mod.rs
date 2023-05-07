@@ -1,6 +1,8 @@
 #[cfg(test)]
 mod test;
 
+use std::rc::Rc;
+
 use crate::eval::env::expr_env::ExprEnv;
 use crate::eval::env::type_env::TypeEnv;
 use crate::eval::eval_expr::{eval_expr, EvalRet};
@@ -12,7 +14,7 @@ use crate::infra::vec::VecExt;
 
 pub fn case_struct(
     type_env: &TypeEnv,
-    expr_env: Box<ExprEnv>,
+    expr_env: Rc<ExprEnv>,
     type_annot: &Type,
     struct_vec: &Vec<StructField>
 ) -> EvalRet {

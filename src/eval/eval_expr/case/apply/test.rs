@@ -6,6 +6,7 @@ use crate::eval::r#type::expr::primitive_op::PrimitiveOp;
 use crate::eval::r#type::expr::Expr;
 use crate::infra::option::OptionAnyExt;
 use crate::infra::r#box::BoxAnyExt;
+use crate::infra::rc::RcAnyExt;
 use crate::infra::result::ResultAnyExt;
 
 // neg 10
@@ -18,7 +19,7 @@ fn test_part1() {
         (PrimitiveOp::Neg.into(): Expr).boxed(),
         Expr::Int(namely_type!("Int"), 10).boxed()
     );
-    let evaluated = eval_expr(&type_env, expr_env.boxed(), &expr);
+    let evaluated = eval_expr(&type_env, expr_env.rc(), &expr);
 
     let r = Expr::Int(namely_type!("Int"), -10);
 
@@ -35,7 +36,7 @@ fn test_part2() {
         (PrimitiveOp::Add(None).into(): Expr).boxed(),
         Expr::Int(namely_type!("Int"), 10).boxed()
     );
-    let evaluated = eval_expr(&type_env, expr_env.boxed(), &expr);
+    let evaluated = eval_expr(&type_env, expr_env.rc(), &expr);
 
     let r =
         PrimitiveOp::Add(Expr::Int(namely_type!("Int"), 10).some())
@@ -48,7 +49,7 @@ fn test_part2() {
 #[test]
 fn test_part3() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![]).boxed();
+    let expr_env = ExprEnv::new(vec![]).rc();
 
     let expr = Expr::Apply(
         (PrimitiveOp::Add(Expr::Int(namely_type!("Int"), 10).some())
@@ -67,7 +68,7 @@ fn test_part3() {
 #[test]
 fn test_part4() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![]).boxed();
+    let expr_env = ExprEnv::new(vec![]).rc();
 
     let expr = Expr::Apply(
         (PrimitiveOp::Add(None).into(): Expr).boxed(),
@@ -86,7 +87,7 @@ fn test_part4() {
 #[test]
 fn test_part5() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![]).boxed();
+    let expr_env = ExprEnv::new(vec![]).rc();
 
     let expr = Expr::Apply(
         (PrimitiveOp::And(None).into(): Expr).boxed(),
@@ -105,7 +106,7 @@ fn test_part5() {
 #[test]
 fn test_part6() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![]).boxed();
+    let expr_env = ExprEnv::new(vec![]).rc();
 
     let expr = Expr::Apply(
         (PrimitiveOp::And(Expr::Int(namely_type!("True"), 1).some())

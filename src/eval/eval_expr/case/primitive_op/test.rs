@@ -6,13 +6,14 @@ use crate::eval::r#type::expr::primitive_op::PrimitiveOp;
 use crate::eval::r#type::expr::Expr;
 use crate::infra::option::OptionAnyExt;
 use crate::infra::r#box::BoxAnyExt;
+use crate::infra::rc::RcAnyExt;
 use crate::infra::result::ResultAnyExt;
 
 // add
 #[test]
 fn test_part1() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![]).boxed();
+    let expr_env = ExprEnv::new(vec![]).rc();
 
     let expr = Expr::PrimitiveOp(
         closure_type!(namely_type!("Int"), namely_type!("Int")),
@@ -28,7 +29,7 @@ fn test_part1() {
 #[test]
 fn test_part2() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![]).boxed();
+    let expr_env = ExprEnv::new(vec![]).rc();
 
     let expr = Expr::PrimitiveOp(
         closure_type!(namely_type!("Int"), namely_type!("Int")),
@@ -45,7 +46,7 @@ fn test_part2() {
 #[test]
 fn test_part3() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![]).boxed();
+    let expr_env = ExprEnv::new(vec![]).rc();
 
     let expr = Expr::PrimitiveOp(
         closure_type!(namely_type!("Int"), namely_type!("Int")),
@@ -67,7 +68,7 @@ fn test_part3() {
 #[test]
 fn test_part4() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![]).boxed();
+    let expr_env = ExprEnv::new(vec![]).rc();
 
     let expr = Expr::PrimitiveOp(
         closure_type!(namely_type!("Int"), namely_type!("Int")),

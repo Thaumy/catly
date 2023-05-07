@@ -1,4 +1,5 @@
 use std::ops::Deref;
+use std::rc::Rc;
 
 use crate::eval::env::expr_env::ExprEnv;
 use crate::eval::env::type_env::TypeEnv;
@@ -9,11 +10,11 @@ use crate::infra::either::{Either, EitherAnyExt};
 
 pub fn source_lhs_to_closure<'t>(
     type_env: &'t TypeEnv,
-    expr_env: Box<ExprEnv>,
+    expr_env: Rc<ExprEnv>,
     expr: &Expr
 ) -> Either<
-    (Option<String>, Type, Expr, Box<ExprEnv>),
-    (PrimitiveOp, Box<ExprEnv>)
+    (Option<String>, Type, Expr, Rc<ExprEnv>),
+    (PrimitiveOp, Rc<ExprEnv>)
 > {
     match expr {
         Expr::EnvRef(_, ref_name) => {

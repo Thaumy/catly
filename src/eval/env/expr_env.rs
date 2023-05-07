@@ -1,14 +1,17 @@
+use std::rc::Rc;
+
 use crate::eval::r#type::expr::{Expr, OptExpr};
 use crate::eval::r#type::r#type::Type;
 use crate::infra::option::OptionAnyExt;
 use crate::infra::r#box::BoxAnyExt;
+use crate::infra::rc::RcAnyExt;
 
-pub type ExprEnvEntry = (String, Type, OptExpr, Option<Box<ExprEnv>>);
+pub type ExprEnvEntry = (String, Type, OptExpr, Option<Rc<ExprEnv>>);
 
 // 运行时表达式环境
 #[derive(Clone, Debug, PartialEq)]
 pub struct ExprEnv {
-    prev_env: Option<Box<ExprEnv>>,
+    prev_env: Option<Rc<ExprEnv>>,
     env: Vec<ExprEnvEntry>
 }
 
@@ -32,11 +35,11 @@ impl ExprEnv {
         expr_env
     }
 
-    fn latest_none_empty_expr_env(&self) -> Box<ExprEnv> {
+    fn latest_none_empty_expr_env(&self) -> Rc<ExprEnv> {
         match (self.env.is_empty(), &self.prev_env) {
             (true, Some(prev_env)) =>
                 prev_env.latest_none_empty_expr_env(),
-            _ => Box::new(self.clone())
+            _ => Rc::new(self.clone())
         }
     }
 
@@ -67,7 +70,7 @@ impl ExprEnv {
         ref_name: impl Into<String>,
         r#type: Type,
         src_expr: Expr,
-        src_env: Box<ExprEnv>
+        src_env: Rc<ExprEnv>
     ) -> ExprEnv {
         let expr_env = self.extend_vec_new(vec![(
             ref_name.into(),
@@ -92,10 +95,10 @@ impl ExprEnv {
         ref_name: impl Into<String>,
         r#type: Type,
         src_expr: Expr,
-        src_env: Box<ExprEnv>
+        src_env: Rc<ExprEnv>
     ) -> ExprEnv {
         let expr_env = ExprEnv {
-            prev_env: self.boxed().some(),
+            prev_env: self.rc().some(),
             env: vec![(
                 ref_name.into(),
                 r#type,
@@ -136,13 +139,13 @@ impl ExprEnv {
     pub fn get_src_expr_and_env<'s>(
         &self,
         ref_name: impl Into<&'s str>
-    ) -> Option<(&Expr, Box<ExprEnv>)> {
+    ) -> Option<(&Expr, Rc<ExprEnv>)> {
         self.find_entry(ref_name)
             .and_then(|(.., src, src_env)| {
                 let src_env = match src_env {
                     Some(env) => env.clone(),
                     // 如果找不到源环境, 则说明该引用存在于顶层环境, 即当前环境
-                    None => Box::new(self.clone())
+                    None => Rc::new(self.clone())
                 };
                 let src_expr = match src {
                     Some(expr) => expr,
@@ -155,13 +158,13 @@ impl ExprEnv {
     pub fn get_ref_expr_and_env<'s>(
         &self,
         ref_name: impl Into<&'s str>
-    ) -> Option<(Expr, Box<ExprEnv>)> {
+    ) -> Option<(Expr, Rc<ExprEnv>)> {
         self.find_entry(ref_name)
             .and_then(|(ref_name, t, _, src_env)| {
                 let src_env = match src_env {
                     Some(env) => env.clone(),
                     // 如果找不到源环境, 则说明该引用存在于顶层环境, 即当前环境
-                    None => Box::new(self.clone())
+                    None => Rc::new(self.clone())
                 };
                 (Expr::EnvRef(t.clone(), ref_name.clone()), src_env)
                     .some()

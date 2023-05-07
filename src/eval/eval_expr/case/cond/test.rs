@@ -4,13 +4,14 @@ use crate::eval::eval_expr::eval_expr;
 use crate::eval::r#macro::namely_type;
 use crate::eval::r#type::expr::Expr;
 use crate::infra::r#box::BoxAnyExt;
+use crate::infra::rc::RcAnyExt;
 use crate::infra::result::ResultAnyExt;
 
 // if false then 10 else 20
 #[test]
 fn test_part1() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![]).boxed();
+    let expr_env = ExprEnv::new(vec![]).rc();
 
     let expr = Expr::Cond(
         Expr::Int(namely_type!("False"), 0).boxed(),
@@ -28,7 +29,7 @@ fn test_part1() {
 #[test]
 fn test_part2() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![]).boxed();
+    let expr_env = ExprEnv::new(vec![]).rc();
 
     let expr = Expr::Cond(
         Expr::Int(namely_type!("True"), 1).boxed(),

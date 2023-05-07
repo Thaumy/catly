@@ -1,6 +1,8 @@
 #[cfg(test)]
 mod test;
 
+use std::rc::Rc;
+
 use crate::eval::env::expr_env::ExprEnv;
 use crate::eval::env::type_env::TypeEnv;
 use crate::eval::eval_expr::{eval_expr, EvalRet};
@@ -9,7 +11,7 @@ use crate::eval::r#type::r#type::Type;
 
 pub fn case_cond(
     type_env: &TypeEnv,
-    expr_env: Box<ExprEnv>,
+    expr_env: Rc<ExprEnv>,
     bool_expr: &Expr,
     then_expr: &Expr,
     else_expr: &Expr

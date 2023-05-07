@@ -2,6 +2,8 @@ mod case;
 #[cfg(test)]
 mod test;
 
+use std::rc::Rc;
+
 use crate::eval::env::expr_env::ExprEnv;
 use crate::eval::env::type_env::TypeEnv;
 use crate::eval::eval_expr::case::apply::case_apply;
@@ -22,7 +24,7 @@ pub type EvalRet = Result<Expr, EvalErr>;
 
 pub fn eval_expr(
     type_env: &TypeEnv,
-    expr_env: Box<ExprEnv>,
+    expr_env: Rc<ExprEnv>,
     expr: &Expr
 ) -> EvalRet {
     if cfg!(feature = "eval_log") {

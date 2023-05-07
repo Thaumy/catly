@@ -7,6 +7,7 @@ use crate::eval::r#macro::namely_type;
 use crate::eval::r#type::eval_err::EvalErr;
 use crate::eval::r#type::expr::Expr;
 use crate::infra::r#box::BoxAnyExt;
+use crate::infra::rc::RcAnyExt;
 use crate::infra::result::ResultAnyExt;
 
 // match 5 with
@@ -16,7 +17,7 @@ use crate::infra::result::ResultAnyExt;
 #[test]
 fn test_part1() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![]).boxed();
+    let expr_env = ExprEnv::new(vec![]).rc();
 
     let expr =
         Expr::Match(Expr::Int(namely_type!("Int"), 5).boxed(), vec![
@@ -47,7 +48,7 @@ fn test_part1() {
 #[test]
 fn test_part2() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![]).boxed();
+    let expr_env = ExprEnv::new(vec![]).rc();
 
     let expr =
         Expr::Match(Expr::Int(namely_type!("Int"), 5).boxed(), vec![
@@ -78,7 +79,7 @@ fn test_part2() {
 #[test]
 fn test_part3() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![]).boxed();
+    let expr_env = ExprEnv::new(vec![]).rc();
 
     let expr = Expr::Match(
         Expr::Int(namely_type!("Int"), 15).boxed(),
@@ -110,7 +111,7 @@ fn test_part3() {
 #[test]
 fn test_part4() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![]).boxed();
+    let expr_env = ExprEnv::new(vec![]).rc();
 
     let expr =
         Expr::Match(Expr::Int(namely_type!("Int"), 5).boxed(), vec![

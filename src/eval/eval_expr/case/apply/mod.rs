@@ -3,6 +3,8 @@ mod source_lhs_to_closure;
 #[cfg(test)]
 mod test;
 
+use std::rc::Rc;
+
 use crate::eval::env::expr_env::ExprEnv;
 use crate::eval::env::type_env::TypeEnv;
 use crate::eval::eval_expr::case::apply::primitive_apply::primitive_apply;
@@ -11,11 +13,12 @@ use crate::eval::eval_expr::{eval_expr, EvalRet};
 use crate::eval::r#type::expr::Expr;
 use crate::infra::either::Either;
 use crate::infra::r#box::BoxAnyExt;
+use crate::infra::rc::RcAnyExt;
 use crate::infra::result::ResultAnyExt;
 
 pub fn case_apply(
     type_env: &TypeEnv,
-    expr_env: Box<ExprEnv>,
+    expr_env: Rc<ExprEnv>,
     lhs_expr: &Expr,
     rhs_expr: &Expr
 ) -> EvalRet {
@@ -41,7 +44,7 @@ pub fn case_apply(
                         rhs_expr.clone(),
                         expr_env.clone()
                     )
-                    .boxed(),
+                    .rc(),
                 None => output_eval_env.clone()
             };
 

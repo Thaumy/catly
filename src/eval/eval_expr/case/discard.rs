@@ -17,12 +17,13 @@ mod test {
     use crate::eval::r#macro::namely_type;
     use crate::eval::r#type::expr::Expr;
     use crate::infra::r#box::BoxAnyExt;
+    use crate::infra::rc::RcAnyExt;
 
     // _: Int
     #[test]
     fn test_part1() {
         let type_env = TypeEnv::new(vec![]);
-        let expr_env = ExprEnv::new(vec![]).boxed();
+        let expr_env = ExprEnv::new(vec![]).rc();
 
         let expr = Expr::Discard(namely_type!("Int"));
         let evaluated = eval_expr(&type_env, expr_env, &expr);

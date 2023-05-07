@@ -1,9 +1,11 @@
+use std::rc::Rc;
+
 use crate::eval::env::expr_env::{ExprEnv, ExprEnvEntry};
 use crate::eval::r#type::expr::{Expr, StructField};
 use crate::infra::option::OptionAnyExt;
 
 fn is_struct_match_pattern_then_env_vec(
-    expr_env: Box<ExprEnv>,
+    expr_env: Rc<ExprEnv>,
     struct_vec: &Vec<StructField>,
     pattern_vec: &Vec<StructField>
 ) -> Option<Vec<ExprEnvEntry>> {
@@ -31,7 +33,7 @@ fn is_struct_match_pattern_then_env_vec(
 }
 
 fn is_expr_match_pattern_then_env_vec(
-    expr_env: Box<ExprEnv>,
+    expr_env: Rc<ExprEnv>,
     evaluated_expr: &Expr,
     pattern: &Expr
 ) -> Option<Vec<ExprEnvEntry>> {
@@ -101,7 +103,7 @@ fn is_expr_match_pattern_then_env_vec(
 
 // 如果 expr 匹配 pattern, 则返回经由(按需)扩展的表达式环境
 pub fn is_expr_match_pattern_then_env(
-    expr_env: Box<ExprEnv>,
+    expr_env: Rc<ExprEnv>,
     evaluated_expr: &Expr,
     pattern: &Expr
 ) -> Option<ExprEnv> {

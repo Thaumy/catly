@@ -1,4 +1,5 @@
 use std::ops::Rem;
+use std::rc::Rc;
 
 use crate::eval::env::expr_env::ExprEnv;
 use crate::eval::env::type_env::TypeEnv;
@@ -15,7 +16,7 @@ use crate::infra::result::ResultAnyExt;
 
 fn eval_to_int(
     type_env: &TypeEnv,
-    expr_env: Box<ExprEnv>,
+    expr_env: Rc<ExprEnv>,
     expr: &Expr
 ) -> Result<i64, EvalErr> {
     match eval_expr(type_env, expr_env, expr)? {
@@ -27,7 +28,7 @@ fn eval_to_int(
 
 fn eval_to_bool(
     type_env: &TypeEnv,
-    expr_env: Box<ExprEnv>,
+    expr_env: Rc<ExprEnv>,
     expr: &Expr
 ) -> Result<bool, EvalErr> {
     match eval_expr(type_env, expr_env, expr)? {
@@ -41,7 +42,7 @@ fn eval_to_bool(
 // TODO: refactor to sub mod
 pub fn primitive_apply(
     type_env: &TypeEnv,
-    expr_env: Box<ExprEnv>,
+    expr_env: Rc<ExprEnv>,
     primitive_op: &PrimitiveOp,
     rhs_expr: &Expr
 ) -> EvalRet {
@@ -81,6 +82,11 @@ pub fn primitive_apply(
             PrimitiveOp::Mul(rhs_expr.clone().some()).into(),
         PrimitiveOp::Mul(Some(e)) =>
             int_expr(lhs_int(e)? * rhs_int()?),
+        // div
+        PrimitiveOp::Div(None) =>
+            PrimitiveOp::Mul(rhs_expr.clone().some()).into(),
+        PrimitiveOp::Div(Some(e)) =>
+            int_expr(lhs_int(e)? / rhs_int()?),
         // mod
         PrimitiveOp::Mod(None) =>
             PrimitiveOp::Mod(rhs_expr.clone().some()).into(),

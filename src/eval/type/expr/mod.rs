@@ -1,6 +1,7 @@
 pub mod primitive_op;
 
 use std::fmt::{Debug, Formatter};
+use std::rc::Rc;
 
 use crate::eval::env::expr_env::ExprEnv;
 use crate::eval::r#type::expr::primitive_op::PrimitiveOp;
@@ -26,12 +27,12 @@ pub enum Expr {
         Option<String>,
         Type,
         Box<Expr>,
-        Option<Box<ExprEnv>>
+        Option<Rc<ExprEnv>>
     ),
     Struct(Type, Vec<StructField>),
     Discard(Type),
 
-    PrimitiveOp(Type, Box<PrimitiveOp>, Option<Box<ExprEnv>>),
+    PrimitiveOp(Type, Box<PrimitiveOp>, Option<Rc<ExprEnv>>),
 
     Cond(Box<Expr>, Box<Expr>, Box<Expr>),
     Match(Box<Expr>, Vec<(Expr, Expr)>),

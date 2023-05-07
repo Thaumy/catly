@@ -2,18 +2,22 @@ mod r#fn;
 #[cfg(test)]
 mod test;
 
+use std::rc::Rc;
+
 use crate::eval::env::expr_env::ExprEnv;
 use crate::eval::env::type_env::TypeEnv;
 use crate::eval::eval_expr::case::r#match::r#fn::is_expr_match_pattern_then_env;
 use crate::eval::eval_expr::{eval_expr, EvalRet};
 use crate::eval::r#type::eval_err::EvalErr;
 use crate::eval::r#type::expr::Expr;
+use crate::infra::option::OptionAnyExt;
 use crate::infra::r#box::BoxAnyExt;
+use crate::infra::rc::RcAnyExt;
 use crate::infra::result::ResultAnyExt;
 
 pub fn case_match(
     type_env: &TypeEnv,
-    expr_env: Box<ExprEnv>,
+    expr_env: Rc<ExprEnv>,
     target_expr: &Expr,
     case_vec: &Vec<(Expr, Expr)>
 ) -> EvalRet {
@@ -33,8 +37,8 @@ pub fn case_match(
             )
         })
         .find(|x| matches!(x, (Some(_), _)))
-        .map(|(env, then_expr)| {
-            eval_expr(type_env, env.unwrap().boxed(), then_expr)
+        .and_then(|(env, then_expr)| {
+            eval_expr(type_env, env?.rc(), then_expr).some()
         })
         .unwrap_or_else(|| {
             EvalErr::of(format!(
