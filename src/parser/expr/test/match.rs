@@ -3,7 +3,7 @@ use crate::infer::env::r#macro::int_type;
 use crate::infer::env::r#macro::sum_type;
 use crate::infer::env::r#macro::unit_type;
 use crate::infra::option::OptionAnyExt;
-use crate::infra::r#box::BoxAnyExt;
+use crate::infra::rc::RcAnyExt;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::expr::test::f;
 
@@ -11,23 +11,23 @@ use crate::parser::expr::test::f;
 fn test_part1() {
     let r = Expr::Match(
         None,
-        Expr::EnvRef(None, "x".to_string()).boxed(),
+        Expr::EnvRef(None, "x".to_string()).rc(),
         vec![
             (
                 Expr::Int(None, 1),
                 Expr::Apply(
                     None,
-                    Expr::EnvRef(None, "neg".to_string()).boxed(),
-                    Expr::Int(None, 1).boxed()
+                    Expr::EnvRef(None, "neg".to_string()).rc(),
+                    Expr::Int(None, 1).rc()
                 )
             ),
             (
                 Expr::Int(None, 2),
                 Expr::Cond(
                     None,
-                    Expr::EnvRef(None, "abc".to_string()).boxed(),
-                    Expr::Unit(None).boxed(),
-                    Expr::Int(None, 0).boxed()
+                    Expr::EnvRef(None, "abc".to_string()).rc(),
+                    Expr::Unit(None).rc(),
+                    Expr::Int(None, 0).rc()
                 )
             ),
             (
@@ -70,16 +70,16 @@ fn test_part1() {
 fn test_part2() {
     let r = Expr::Match(
         None,
-        Expr::EnvRef(None, "x".to_string()).boxed(),
+        Expr::EnvRef(None, "x".to_string()).rc(),
         vec![
-            (Expr::Int(None, 1), Expr::Cond(None, Expr::EnvRef(None, "a".to_string()).boxed(), Expr::EnvRef(None, "b".to_string()).boxed(), Expr::EnvRef(None, "c".to_string()).boxed())),
-            (Expr::EnvRef(None, "v".to_string()), Expr::Closure(None, "a".to_string().some(), None, Expr::Closure(None, "b".to_string().some(), None, Expr::Apply(None, Expr::Apply(None, Expr::EnvRef(None, "add".to_string()).boxed(), Expr::EnvRef(None, "a".to_string()).boxed()).boxed(), Expr::EnvRef(None, "b".to_string()).boxed()).boxed()).boxed())),
+            (Expr::Int(None, 1), Expr::Cond(None, Expr::EnvRef(None, "a".to_string()).rc(), Expr::EnvRef(None, "b".to_string()).rc(), Expr::EnvRef(None, "c".to_string()).rc())),
+            (Expr::EnvRef(None, "v".to_string()), Expr::Closure(None, "a".to_string().some(), None, Expr::Closure(None, "b".to_string().some(), None, Expr::Apply(None, Expr::Apply(None, Expr::EnvRef(None, "add".to_string()).rc(), Expr::EnvRef(None, "a".to_string()).rc()).rc(), Expr::EnvRef(None, "b".to_string()).rc()).rc()).rc())),
             (Expr::Struct(None, vec![("a".to_string(), None, Expr::Discard(None)), ("b".to_string(), None, Expr::Struct(None, vec![("foo".to_string(), None, Expr::Discard(None)), ("bar".to_string(), None, Expr::Discard(None))])), ("c".to_string(), None, Expr::Int(None, 3))]), Expr::Struct(None, vec![("x".to_string(), None, Expr::Int(None, 123)), ("y".to_string(), None, Expr::EnvRef(None, "c".to_string()))])),
             (
                 Expr::Discard(None),
                 Expr::Match(
                     None,
-                    Expr::EnvRef(None, "y".to_string()).boxed(),
+                    Expr::EnvRef(None, "y".to_string()).rc(),
                     vec![
                         (Expr::Int(None, 1), Expr::Unit(None)),
                         (
@@ -94,16 +94,16 @@ fn test_part2() {
                                     None,
                                     Expr::Match(
                                         None,
-                                        Expr::EnvRef(None, "z".to_string()).boxed(),
+                                        Expr::EnvRef(None, "z".to_string()).rc(),
                                         vec![
                                             (Expr::Discard(None), Expr::Int(None, 114514)),
-                                            (Expr::EnvRef(None, "a".to_string()), Expr::Closure(None, "x".to_string().some(), None, Expr::Closure(None, "y".to_string().some(), None, Expr::Apply(None, Expr::Apply(None, Expr::EnvRef(None, "add".to_string()).boxed(), Expr::Unit(None).boxed()).boxed(), Expr::EnvRef(None, "y".to_string()).boxed()).boxed()).boxed())),
-                                            (Expr::EnvRef(None, "i".to_string()), Expr::Match(None, Expr::EnvRef(None, "w".to_string()).boxed(), vec![(Expr::Discard(None), Expr::Int(None, 0))])),
+                                            (Expr::EnvRef(None, "a".to_string()), Expr::Closure(None, "x".to_string().some(), None, Expr::Closure(None, "y".to_string().some(), None, Expr::Apply(None, Expr::Apply(None, Expr::EnvRef(None, "add".to_string()).rc(), Expr::Unit(None).rc()).rc(), Expr::EnvRef(None, "y".to_string()).rc()).rc()).rc())),
+                                            (Expr::EnvRef(None, "i".to_string()), Expr::Match(None, Expr::EnvRef(None, "w".to_string()).rc(), vec![(Expr::Discard(None), Expr::Int(None, 0))])),
                                         ],
                                     )
-                                    .boxed(),
+                                    .rc(),
                                 )
-                                .boxed(),
+                                .rc(),
                             ),
                         ),
                         (Expr::Discard(None), Expr::EnvRef(None, "baz".to_string())),
@@ -169,10 +169,10 @@ fn test_part2() {
 fn test_part3() {
     let r = Expr::Match(
         int_type!().some(),
-        Expr::EnvRef(None, "x".to_string()).boxed(),
+        Expr::EnvRef(None, "x".to_string()).rc(),
         vec![
-            (Expr::Int(int_type!().some(), 1), Expr::Cond(None, Expr::EnvRef(None, "a".to_string()).boxed(), Expr::EnvRef(None, "b".to_string()).boxed(), Expr::EnvRef(None, "c".to_string()).boxed())),
-            (Expr::EnvRef(None, "v".to_string()), Expr::Closure(None, "a".to_string().some(), None, Expr::Closure(None, "b".to_string().some(), None, Expr::Apply(None, Expr::Apply(None, Expr::EnvRef(None, "add".to_string()).boxed(), Expr::EnvRef(None, "a".to_string()).boxed()).boxed(), Expr::EnvRef(None, "b".to_string()).boxed()).boxed()).boxed())),
+            (Expr::Int(int_type!().some(), 1), Expr::Cond(None, Expr::EnvRef(None, "a".to_string()).rc(), Expr::EnvRef(None, "b".to_string()).rc(), Expr::EnvRef(None, "c".to_string()).rc())),
+            (Expr::EnvRef(None, "v".to_string()), Expr::Closure(None, "a".to_string().some(), None, Expr::Closure(None, "b".to_string().some(), None, Expr::Apply(None, Expr::Apply(None, Expr::EnvRef(None, "add".to_string()).rc(), Expr::EnvRef(None, "a".to_string()).rc()).rc(), Expr::EnvRef(None, "b".to_string()).rc()).rc()).rc())),
             (
                 Expr::Struct(None, vec![("a".to_string(), None, Expr::Discard(None)), ("b".to_string(), None, Expr::Struct(None, vec![("foo".to_string(), None, Expr::Discard(None)), ("bar".to_string(), None, Expr::Discard(None))])), ("c".to_string(), None, Expr::Int(None, 3))]),
                 Expr::Struct(sum_type![int_type!(), unit_type!()].some(), vec![("x".to_string(), None, Expr::Int(None, 123)), ("y".to_string(), None, Expr::EnvRef(None, "c".to_string()))]),
@@ -181,7 +181,7 @@ fn test_part3() {
                 Expr::Discard(int_type!().some()),
                 Expr::Match(
                     int_type!().some(),
-                    Expr::EnvRef(None, "y".to_string()).boxed(),
+                    Expr::EnvRef(None, "y".to_string()).rc(),
                     vec![
                         (Expr::Int(None, 1), Expr::Unit(None)),
                         (
@@ -196,16 +196,16 @@ fn test_part3() {
                                     None,
                                     Expr::Match(
                                         None,
-                                        Expr::EnvRef(None, "z".to_string()).boxed(),
+                                        Expr::EnvRef(None, "z".to_string()).rc(),
                                         vec![
                                             (Expr::Discard(None), Expr::Int(None, 114514)),
-                                            (Expr::EnvRef(None, "a".to_string()), Expr::Closure(None, "x".to_string().some(), None, Expr::Closure(None, "y".to_string().some(), None, Expr::Apply(None, Expr::Apply(None, Expr::EnvRef(None, "add".to_string()).boxed(), Expr::Unit(None).boxed()).boxed(), Expr::EnvRef(None, "y".to_string()).boxed()).boxed()).boxed())),
-                                            (Expr::EnvRef(None, "i".to_string()), Expr::Match(None, Expr::EnvRef(None, "w".to_string()).boxed(), vec![(Expr::Discard(None), Expr::Int(None, 0))])),
+                                            (Expr::EnvRef(None, "a".to_string()), Expr::Closure(None, "x".to_string().some(), None, Expr::Closure(None, "y".to_string().some(), None, Expr::Apply(None, Expr::Apply(None, Expr::EnvRef(None, "add".to_string()).rc(), Expr::Unit(None).rc()).rc(), Expr::EnvRef(None, "y".to_string()).rc()).rc()).rc())),
+                                            (Expr::EnvRef(None, "i".to_string()), Expr::Match(None, Expr::EnvRef(None, "w".to_string()).rc(), vec![(Expr::Discard(None), Expr::Int(None, 0))])),
                                         ],
                                     )
-                                    .boxed(),
+                                    .rc(),
                                 )
-                                .boxed(),
+                                .rc(),
                             ),
                         ),
                         (Expr::Discard(None), Expr::EnvRef(None, "baz".to_string())),

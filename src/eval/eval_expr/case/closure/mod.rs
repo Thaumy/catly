@@ -14,7 +14,7 @@ pub fn case_closure(
     type_annot: &Type,
     input_name: &Option<String>,
     input_type: &Type,
-    output_expr: &Box<Expr>,
+    output_expr: &Rc<Expr>,
     eval_env: Rc<ExprEnv>
 ) -> EvalRet {
     Expr::Closure(

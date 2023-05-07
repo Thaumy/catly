@@ -25,7 +25,7 @@ impl InferErr {
     }
 }
 
-pub fn infer_type_of_defs<'t>(
+pub fn infer_type_of_defs(
     type_env: TypeEnv,
     expr_env: ExprEnv,
     expr_env_vec: Vec<ExprEnvEntry>

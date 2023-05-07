@@ -1,7 +1,8 @@
 use std::collections::BTreeSet;
+use std::ops::Deref;
 
 use crate::infra::option::OptionAnyExt;
-use crate::infra::r#box::BoxAnyExt;
+use crate::infra::rc::RcAnyExt;
 use crate::infra::vec::VecExt;
 use crate::parser::r#type::pat::Pat;
 use crate::parser::r#type::In;
@@ -21,7 +22,7 @@ pub fn reduce_stack(
             if follow.is_type_end_pat() && p.is_type() =>
         {
             let top =
-                Pat::LetName(p.clone().boxed().some(), n.to_string());
+                Pat::LetName(p.clone().rc().some(), n.to_string());
             stack.reduce(3, top)
         }
 
@@ -36,14 +37,14 @@ pub fn reduce_stack(
 
         // Type Arrow -> ClosureTypeHead
         ([.., p, Pat::Arrow], _) if p.is_type() => {
-            let top = Pat::ClosureTypeHead(p.clone().boxed());
+            let top = Pat::ClosureTypeHead(p.clone().rc());
             stack.reduce(2, top)
         }
         // ClosureTypeHead Type :TypeEndPat -> ClosureType
         ([.., Pat::ClosureTypeHead(t), p], follow)
             if follow.is_type_end_pat() && p.is_type() =>
         {
-            let top = Pat::ClosureType(t.clone(), p.clone().boxed());
+            let top = Pat::ClosureType(t.clone(), p.clone().rc());
             stack.reduce(2, top)
         }
 
@@ -99,8 +100,8 @@ pub fn reduce_stack(
             Some(In::Symbol('}' | ','))
         ) => {
             let top = Pat::TypedLetNameSeq(vec![
-                (a_n.clone(), *a_t.clone()),
-                (b_n.clone(), *b_t.clone()),
+                (a_n.clone(), a_t.deref().clone()),
+                (b_n.clone(), b_t.deref().clone()),
             ]);
             stack.reduce(3, top)
         }
@@ -111,7 +112,7 @@ pub fn reduce_stack(
             Some(In::Symbol('}' | ','))
         ) => {
             let top = Pat::TypedLetNameSeq(
-                seq.push_to_new((n.clone(), *t.clone()))
+                seq.push_to_new((n.clone(), t.deref().clone()))
             );
             stack.reduce(3, top)
         }
@@ -137,7 +138,8 @@ pub fn reduce_stack(
             [.., Pat::Mark('{'), Pat::LetName(Some(t), n), Pat::Mark('}')],
             _
         ) => {
-            let top = Pat::ProdType(vec![(n.clone(), *t.clone())]);
+            let top =
+                Pat::ProdType(vec![(n.clone(), t.deref().clone())]);
             stack.reduce(3, top)
         }
         // `{` LetName `,` `}` -> ProdType
@@ -146,7 +148,8 @@ pub fn reduce_stack(
             [.., Pat::Mark('{'), Pat::LetName(Some(t), n), Pat::Mark(','), Pat::Mark('}')],
             _
         ) => {
-            let top = Pat::ProdType(vec![(n.clone(), *t.clone())]);
+            let top =
+                Pat::ProdType(vec![(n.clone(), t.deref().clone())]);
             stack.reduce(4, top)
         }
 

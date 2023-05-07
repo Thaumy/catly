@@ -34,13 +34,13 @@ pub fn eval_expr(
 
     let result = match expr {
         Expr::Discard(t) => case_discard(t),
-        Expr::Int(t, i) => case_int(t.clone(), i.clone()),
-        Expr::Unit(t) => case_unit(t.clone()),
+        Expr::Int(t, i) => case_int(t, i),
+        Expr::Unit(t) => case_unit(t),
         Expr::EnvRef(_, r_n) => case_env_ref(type_env, expr_env, r_n),
         // Closure 在如果被求值, 那么它一定是首次被求值(因为求值是惰性的), 所以一定未捕获环境
         // 此时它将捕获当前环境作为求值环境, 接着会立即被 Apply 消费
         Expr::Closure(t, i_n, i_t, o_e, None) =>
-            case_closure(t, i_n, i_t, o_e, expr_env.clone()),
+            case_closure(t, i_n, i_t, o_e, expr_env),
         // 不可能发生的情况, 不存在捕获环境的滞留 Closure, 因为求值是惰性的
         Expr::Closure(.., Some(_)) =>
             panic!("Impossible expr: {expr:?}"),

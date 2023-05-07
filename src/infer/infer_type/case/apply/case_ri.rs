@@ -1,7 +1,7 @@
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infra::r#box::BoxAnyExt;
+use crate::infra::rc::RcAnyExt;
 use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::OptType;
@@ -27,8 +27,8 @@ pub fn case_ri(
             let apply_expr = if let Some(output_type) = expect_type {
                 // 可以确定输出类型
                 let closure_type = Type::ClosureType(
-                    input_type.clone().boxed(),
-                    output_type.clone().boxed()
+                    input_type.clone().rc(),
+                    output_type.clone().rc()
                 );
 
                 Expr::Apply(
@@ -36,22 +36,21 @@ pub fn case_ri(
                     // 使用类型标注不完备的 lhs_expr 是没有问题的, 因为它将在下一轮推导时完备化
                     lhs_expr
                         .with_fallback_type(&closure_type)
-                        .boxed(),
+                        .rc(),
                     // TODO: 使用类型完备化表达式参与推导是否能够成为一种提供类型信息的新方式?
-                    typed_rhs_expr.clone().boxed()
+                    typed_rhs_expr.clone().rc()
                 )
             } else {
-                let partial_closure_type = Type::PartialClosureType(
-                    input_type.clone().boxed()
-                );
+                let partial_closure_type =
+                    Type::PartialClosureType(input_type.clone().rc());
 
                 Expr::Apply(
                     None,
                     // 与上同理
                     lhs_expr
                         .with_fallback_type(&partial_closure_type)
-                        .boxed(),
-                    typed_rhs_expr.clone().boxed()
+                        .rc(),
+                    typed_rhs_expr.clone().rc()
                 )
             };
 

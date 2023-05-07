@@ -3,7 +3,7 @@ use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_info::ReqInfo;
 use crate::infra::option::OptionAnyExt;
-use crate::infra::r#box::BoxAnyExt;
+use crate::infra::rc::RcAnyExt;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
@@ -40,10 +40,8 @@ where
             let base = Type::ClosureType(
                 input_type_constraint
                     .clone()
-                    .boxed(),
-                output_expr_type
-                    .clone()
-                    .boxed()
+                    .rc(),
+                output_expr_type.clone().rc()
             );
 
             InferTypeRet::from_auto_lift(

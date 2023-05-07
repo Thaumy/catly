@@ -1,4 +1,5 @@
 use std::fmt::{Debug, Formatter};
+use std::rc::Rc;
 
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
@@ -18,14 +19,14 @@ pub enum Expr {
     // TODO: Handle int overflow
     Int(OptType, i64),
     EnvRef(OptType, String),
-    Closure(OptType, Option<String>, OptType, Box<Expr>),
+    Closure(OptType, Option<String>, OptType, Rc<Expr>),
     Struct(OptType, Vec<StructField>),
     Discard(OptType),
 
-    Cond(OptType, Box<Expr>, Box<Expr>, Box<Expr>),
-    Match(OptType, Box<Expr>, Vec<(Expr, Expr)>),
-    Apply(OptType, Box<Expr>, Box<Expr>),
-    Let(OptType, String, OptType, Box<Expr>, Box<Expr>)
+    Cond(OptType, Rc<Expr>, Rc<Expr>, Rc<Expr>),
+    Match(OptType, Rc<Expr>, Vec<(Expr, Expr)>),
+    Apply(OptType, Rc<Expr>, Rc<Expr>),
+    Let(OptType, String, OptType, Rc<Expr>, Rc<Expr>)
 }
 
 impl Expr {

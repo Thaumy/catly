@@ -5,7 +5,6 @@ use crate::eval::r#macro::namely_type;
 use crate::eval::r#type::expr::primitive_op::PrimitiveOp;
 use crate::eval::r#type::expr::Expr;
 use crate::infra::option::OptionAnyExt;
-use crate::infra::r#box::BoxAnyExt;
 use crate::infra::rc::RcAnyExt;
 use crate::infra::result::ResultAnyExt;
 
@@ -16,8 +15,8 @@ fn test_part1() {
     let expr_env = ExprEnv::new(vec![]);
 
     let expr = Expr::Apply(
-        (PrimitiveOp::Neg.into(): Expr).boxed(),
-        Expr::Int(namely_type!("Int"), 10).boxed()
+        (PrimitiveOp::Neg.into(): Expr).rc(),
+        Expr::Int(namely_type!("Int"), 10).rc()
     );
     let evaluated = eval_expr(&type_env, expr_env.rc(), &expr);
 
@@ -33,8 +32,8 @@ fn test_part2() {
     let expr_env = ExprEnv::new(vec![]);
 
     let expr = Expr::Apply(
-        (PrimitiveOp::Add(None).into(): Expr).boxed(),
-        Expr::Int(namely_type!("Int"), 10).boxed()
+        (PrimitiveOp::Add(None).into(): Expr).rc(),
+        Expr::Int(namely_type!("Int"), 10).rc()
     );
     let evaluated = eval_expr(&type_env, expr_env.rc(), &expr);
 
@@ -54,8 +53,8 @@ fn test_part3() {
     let expr = Expr::Apply(
         (PrimitiveOp::Add(Expr::Int(namely_type!("Int"), 10).some())
             .into(): Expr)
-            .boxed(),
-        Expr::Int(namely_type!("Int"), 10).boxed()
+            .rc(),
+        Expr::Int(namely_type!("Int"), 10).rc()
     );
     let evaluated = eval_expr(&type_env, expr_env, &expr);
 
@@ -71,8 +70,8 @@ fn test_part4() {
     let expr_env = ExprEnv::new(vec![]).rc();
 
     let expr = Expr::Apply(
-        (PrimitiveOp::Add(None).into(): Expr).boxed(),
-        Expr::Int(namely_type!("Int"), 10).boxed()
+        (PrimitiveOp::Add(None).into(): Expr).rc(),
+        Expr::Int(namely_type!("Int"), 10).rc()
     );
     let evaluated = eval_expr(&type_env, expr_env, &expr);
 
@@ -90,8 +89,8 @@ fn test_part5() {
     let expr_env = ExprEnv::new(vec![]).rc();
 
     let expr = Expr::Apply(
-        (PrimitiveOp::And(None).into(): Expr).boxed(),
-        Expr::Int(namely_type!("False"), 0).boxed()
+        (PrimitiveOp::And(None).into(): Expr).rc(),
+        Expr::Int(namely_type!("False"), 0).rc()
     );
     let evaluated = eval_expr(&type_env, expr_env, &expr);
 
@@ -111,8 +110,8 @@ fn test_part6() {
     let expr = Expr::Apply(
         (PrimitiveOp::And(Expr::Int(namely_type!("True"), 1).some())
             .into(): Expr)
-            .boxed(),
-        Expr::Int(namely_type!("False"), 0).boxed()
+            .rc(),
+        Expr::Int(namely_type!("False"), 0).rc()
     );
     let evaluated = eval_expr(&type_env, expr_env, &expr);
 

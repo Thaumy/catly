@@ -1,6 +1,6 @@
 use crate::infer::env::r#macro::int_type;
 use crate::infra::option::OptionAnyExt;
-use crate::infra::r#box::BoxAnyExt;
+use crate::infra::rc::RcAnyExt;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::expr::test::f;
 
@@ -9,9 +9,9 @@ fn test_part1() {
     // Cond(EnvRef, Int, Unit)
     let r = Expr::Cond(
         None,
-        Expr::EnvRef(None, "abc".to_string()).boxed(),
-        Expr::Int(None, 123).boxed(),
-        Expr::Unit(None).boxed()
+        Expr::EnvRef(None, "abc".to_string()).rc(),
+        Expr::Int(None, 123).rc(),
+        Expr::Unit(None).rc()
     );
     let r = Some(r);
 
@@ -30,20 +30,20 @@ fn test_part2() {
     // while: a = Cond(EnvRef, Apply(Int, Unit), Int)
     let e = Expr::Cond(
         None,
-        Expr::EnvRef(None, "abc".to_string()).boxed(),
+        Expr::EnvRef(None, "abc".to_string()).rc(),
         Expr::Apply(
             None,
-            Expr::Int(None, 123).boxed(),
-            Expr::Unit(None).boxed()
+            Expr::Int(None, 123).rc(),
+            Expr::Unit(None).rc()
         )
-        .boxed(),
-        Expr::Int(None, 456).boxed()
+        .rc(),
+        Expr::Int(None, 456).rc()
     );
     let r = Some(Expr::Cond(
         None,
-        e.clone().boxed(),
-        e.clone().boxed(),
-        e.clone().boxed()
+        e.clone().rc(),
+        e.clone().rc(),
+        e.clone().rc()
     ));
 
     let e = "if abc then 123 () else 456";
@@ -66,24 +66,24 @@ fn test_part3() {
         None,
         Expr::Apply(
             None,
-            Expr::Int(None, 123).boxed(),
-            Expr::Unit(None).boxed()
+            Expr::Int(None, 123).rc(),
+            Expr::Unit(None).rc()
         )
-        .boxed(),
-        Expr::Int(None, 123).boxed(),
-        Expr::EnvRef(None, "abc".to_string()).boxed()
+        .rc(),
+        Expr::Int(None, 123).rc(),
+        Expr::EnvRef(None, "abc".to_string()).rc()
     );
     let b = Expr::Cond(
         None,
-        a.clone().boxed(),
-        a.clone().boxed(),
-        a.clone().boxed()
+        a.clone().rc(),
+        a.clone().rc(),
+        a.clone().rc()
     );
     let r = Expr::Cond(
         None,
-        b.clone().boxed(),
-        b.clone().boxed(),
-        b.clone().boxed()
+        b.clone().rc(),
+        b.clone().rc(),
+        b.clone().rc()
     );
     let r = Some(r);
 
@@ -106,24 +106,24 @@ fn test_part4() {
         None,
         Expr::Apply(
             None,
-            Expr::Int(None, 123).boxed(),
-            Expr::Unit(None).boxed()
+            Expr::Int(None, 123).rc(),
+            Expr::Unit(None).rc()
         )
-        .boxed(),
-        Expr::Int(None, 123).boxed(),
-        Expr::EnvRef(None, "abc".to_string()).boxed()
+        .rc(),
+        Expr::Int(None, 123).rc(),
+        Expr::EnvRef(None, "abc".to_string()).rc()
     );
     let b = Expr::Cond(
         None,
-        a.clone().boxed(),
-        a.clone().boxed(),
-        a.clone().boxed()
+        a.clone().rc(),
+        a.clone().rc(),
+        a.clone().rc()
     );
     let r = Expr::Cond(
         None,
-        b.clone().boxed(),
-        b.clone().boxed(),
-        b.clone().boxed()
+        b.clone().rc(),
+        b.clone().rc(),
+        b.clone().rc()
     );
     let r = Some(r);
 
@@ -142,24 +142,24 @@ fn test_part5() {
         int_type!().some(),
         Expr::Apply(
             int_type!().some(),
-            Expr::Int(None, 123).boxed(),
-            Expr::Unit(None).boxed()
+            Expr::Int(None, 123).rc(),
+            Expr::Unit(None).rc()
         )
-        .boxed(),
-        Expr::Int(int_type!().some(), 123).boxed(),
-        Expr::EnvRef(None, "abc".to_string()).boxed()
+        .rc(),
+        Expr::Int(int_type!().some(), 123).rc(),
+        Expr::EnvRef(None, "abc".to_string()).rc()
     );
     let b = Expr::Cond(
         None,
-        a.clone().boxed(),
-        a.clone().boxed(),
-        a.clone().boxed()
+        a.clone().rc(),
+        a.clone().rc(),
+        a.clone().rc()
     );
     let r = Expr::Cond(
         int_type!().some(),
-        b.clone().boxed(),
-        b.clone().boxed(),
-        b.clone().boxed()
+        b.clone().rc(),
+        b.clone().rc(),
+        b.clone().rc()
     );
     let r = Some(r);
 

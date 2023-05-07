@@ -10,7 +10,7 @@ use crate::infer::infer_type::case::r#let::case_t_rc::case_t_rc;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::OptionAnyExt;
-use crate::infra::r#box::BoxAnyExt;
+use crate::infra::rc::RcAnyExt;
 use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::OptType;
@@ -80,10 +80,8 @@ pub fn case(
                         type_annot.some(),
                         assign_name.to_string(),
                         assign_type.clone().some(),
-                        typed_assign_expr
-                            .clone()
-                            .boxed(),
-                        typed_scope_expr.boxed()
+                        typed_assign_expr.clone().rc(),
+                        typed_scope_expr.rc()
                     )
                 }
             )?

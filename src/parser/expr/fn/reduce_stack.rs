@@ -1,9 +1,10 @@
 use std::collections::BTreeSet;
+use std::ops::Deref;
 
 use crate::infra::option::OptionAnyExt;
-use crate::infra::r#box::BoxAnyExt;
+use crate::infra::rc::RcAnyExt;
 use crate::infra::vec::VecExt;
-use crate::parser::expr::pat::{OptBoxPat, Pat};
+use crate::parser::expr::pat::{OptRcPat, Pat};
 use crate::parser::expr::In;
 use crate::parser::keyword::Keyword;
 use crate::pp::FollowExt;
@@ -35,9 +36,9 @@ pub fn reduce_stack(
             && c.is_expr()
         => stack.reduce(6, Pat::Cond(
             None,
-            a.clone().boxed(),
-            b.clone().boxed(),
-            c.clone().boxed(),
+            a.clone().rc(),
+            b.clone().rc(),
+            c.clone().rc(),
         )),
 
         // `-` `>` -> Arrow
@@ -73,7 +74,7 @@ pub fn reduce_stack(
                 None,
                 n.clone(),
                 t.clone(),
-                p.clone().boxed(),
+                p.clone().rc(),
             );
             stack.reduce(2, top)
         }
@@ -87,7 +88,7 @@ pub fn reduce_stack(
             let top = Pat::Assign(
                 n.clone(),
                 t.clone(),
-                p.clone().boxed(),
+                p.clone().rc(),
             );
             stack.reduce(4, top)
         }
@@ -100,7 +101,7 @@ pub fn reduce_stack(
             let top = Pat::Assign(
                 n.clone(),
                 t.clone(),
-                p.clone().boxed(),
+                p.clone().rc(),
             );
             stack.reduce(3, top)
         }
@@ -110,8 +111,8 @@ pub fn reduce_stack(
         Pat::Assign(b_n, b_t, b_v)], _
         ) => {
             let top = Pat::AssignSeq(vec![
-                (a_n.to_string(), a_t.clone(), *a_v.clone()),
-                (b_n.to_string(), b_t.clone(), *b_v.clone()),
+                (a_n.to_string(), a_t.clone(), a_v.deref().clone()),
+                (b_n.to_string(), b_t.clone(), b_v.deref().clone()),
             ]);
             stack.reduce(2, top)
         }
@@ -121,7 +122,7 @@ pub fn reduce_stack(
         Pat::Assign(n, t, v)], _
         ) => {
             let top = Pat::AssignSeq(vec.push_to_new(
-                (n.clone(), t.clone(), *v.clone())
+                (n.clone(), t.clone(), v.deref().clone())
             ));
             stack.reduce(2, top)
         }
@@ -145,7 +146,7 @@ pub fn reduce_stack(
         ) => {
             let top = Pat::Struct(
                 None,
-                vec![(n.to_string(), t.clone(), *v.clone())],
+                vec![(n.to_string(), t.clone(), v.deref().clone())],
             );
             stack.reduce(3, top)
         }
@@ -156,7 +157,7 @@ pub fn reduce_stack(
         p, Pat::Kw(Keyword::With)], _
         )
         if p.is_expr() => {
-            let top = Pat::MatchHead(p.clone().boxed());
+            let top = Pat::MatchHead(p.clone().rc());
             stack.reduce(3, top)
         }
         // `|` Expr :`-` -> CaseHead
@@ -165,7 +166,7 @@ pub fn reduce_stack(
         p], Some(In::Symbol('-'))
         )
         if p.is_expr() => {
-            let top = Pat::CaseHead(p.clone().boxed());
+            let top = Pat::CaseHead(p.clone().rc());
             stack.reduce(2, top)
         }
         // CaseHead Arrow Expr :ExprEndPat -> Case
@@ -177,7 +178,7 @@ pub fn reduce_stack(
         if follow.is_expr_end_pat() && p.is_expr() => {
             let top = Pat::Case(
                 e.clone(),
-                p.clone().boxed(),
+                p.clone().rc(),
             );
             stack.reduce(3, top)
         }
@@ -187,8 +188,8 @@ pub fn reduce_stack(
         Pat::Case(b_case, b_then) ], _
         ) => {
             let top = Pat::CaseSeq(vec![
-                (*a_case.clone(), *a_then.clone()),
-                (*b_case.clone(), *b_then.clone()),
+                (a_case.deref().clone(), a_then.deref().clone()),
+                (b_case.deref().clone(), b_then.deref().clone()),
             ]);
             stack.reduce(2, top)
         }
@@ -198,7 +199,7 @@ pub fn reduce_stack(
         Pat::Case(case, then) ], _
         ) => {
             let top = Pat::CaseSeq(vec.push_to_new(
-                (*case.clone(), *then.clone())
+                (case.deref().clone(), then.deref().clone())
             ));
             stack.reduce(2, top)
         }
@@ -215,7 +216,7 @@ pub fn reduce_stack(
             let top = Pat::Match(
                 None,
                 h_e.clone(),
-                vec![((*case.clone(), *then.clone()))],
+                vec![((case.deref().clone(), then.deref().clone()))],
             );
             stack.reduce(2, top)
         }
@@ -242,8 +243,8 @@ pub fn reduce_stack(
         if lhs.is_expr() && rhs.is_expr() => {
             let top = Pat::Apply(
                 None,
-                lhs.clone().boxed(),
-                rhs.clone().boxed(),
+                lhs.clone().rc(),
+                rhs.clone().rc(),
             );
             stack.reduce(2, top)
         }
@@ -257,7 +258,7 @@ pub fn reduce_stack(
             let top = Pat::Assign(
                 n.clone(),
                 t.clone(),
-                p.clone().boxed(),
+                p.clone().rc(),
             );
             stack.reduce(3, top)
         }
@@ -266,14 +267,14 @@ pub fn reduce_stack(
         Pat::AssignSeq(seq), Pat::Kw(Keyword::In),
         p], follow)
         if follow.is_expr_end_pat() && p.is_expr() => {
-            type F = fn(Pat, &(String, OptBoxPat, Pat)) -> Pat;
+            type F = fn(Pat, &(String, OptRcPat, Pat)) -> Pat;
             let f: F = |acc, (n, t, e)|
                 Pat::Let(
                     None,
                     n.to_string(),
                     t.clone(),
-                    e.clone().boxed(),
-                    acc.boxed(),
+                    e.clone().rc(),
+                    acc.rc(),
                 );
             let top = seq
                 .iter()
@@ -290,8 +291,8 @@ pub fn reduce_stack(
                 None,
                 n.to_string(),
                 t.clone(),
-                *e.clone().boxed(),
-                p.clone().boxed(),
+                e.clone(),
+                p.clone().rc(),
             );
             stack.reduce(4, top)
         }
@@ -334,12 +335,12 @@ pub fn reduce_stack(
 
         // Expr `:` -> TypedExprHead
         ([.., p, Pat::Mark(':')], _) if p.is_expr() =>
-            stack.reduce(2, Pat::TypedExprHead(p.clone().boxed())),
+            stack.reduce(2, Pat::TypedExprHead(p.clone().rc())),
 
         // TypedExprHead Type :TypeEndPat -> Expr
         ([.., Pat::TypedExprHead(e), p], follow)
         if follow.is_type_end_pat() && p.is_type() =>
-            match e.clone().with_type(p.clone())
+            match e.deref().clone().with_type(p.clone())
             {
                 Some(e) => stack.reduce(2, e),
                 _ => return vec![Pat::Err]
@@ -352,7 +353,7 @@ pub fn reduce_stack(
         // Type Arrow -> ClosureTypeHead
         ([.., p, Pat::Arrow, ], _)
         if p.is_type() => {
-            let top = Pat::ClosureTypeHead(p.clone().boxed());
+            let top = Pat::ClosureTypeHead(p.clone().rc());
             stack.reduce(2, top)
         }
         // ClosureTypeHead Type :TypeEndPat -> ClosureType
@@ -360,7 +361,7 @@ pub fn reduce_stack(
         if follow.is_type_end_pat() && p.is_type() => {
             let top = Pat::ClosureType(
                 t.clone(),
-                p.clone().boxed(),
+                p.clone().rc(),
             );
             stack.reduce(2, top)
         }
@@ -421,8 +422,8 @@ pub fn reduce_stack(
         ], Some(In::Symbol('}' | ','))
         ) => {
             let top = Pat::TypedLetNameSeq(vec![
-                (a_n.clone(), *a_t.clone()),
-                (b_n.clone(), *b_t.clone()),
+                (a_n.clone(), a_t.deref().clone()),
+                (b_n.clone(), b_t.deref().clone()),
             ]);
             stack.reduce(3, top)
         }
@@ -434,7 +435,7 @@ pub fn reduce_stack(
         ], Some(In::Symbol('}' | ','))
         ) => {
             let top = Pat::TypedLetNameSeq(seq.push_to_new(
-                (n.clone(), *t.clone())
+                (n.clone(), t.deref().clone())
             ));
             stack.reduce(3, top)
         }
@@ -464,7 +465,7 @@ pub fn reduce_stack(
         Pat::Mark('}')], _
         ) => {
             let top = Pat::ProdType(vec![
-                (n.clone(), *t.clone())
+                (n.clone(), t.deref().clone())
             ]);
             stack.reduce(3, top)
         }
@@ -476,7 +477,7 @@ pub fn reduce_stack(
         Pat::Mark(','), Pat::Mark('}')], _
         ) => {
             let top = Pat::ProdType(vec![
-                (n.clone(), *t.clone())
+                (n.clone(), t.deref().clone())
             ]);
             stack.reduce(4, top)
         }

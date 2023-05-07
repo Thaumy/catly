@@ -1,6 +1,7 @@
 use std::collections::BTreeSet;
 use std::fmt::{Debug, Formatter};
 use std::ops::Deref;
+use std::rc::Rc;
 
 use crate::infer::env::type_env::TypeEnv;
 use crate::unify::lift;
@@ -12,11 +13,11 @@ pub type ProdField = (String, Type);
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Type {
     NamelyType(String),
-    ClosureType(Box<Type>, Box<Type>),
+    ClosureType(Rc<Type>, Rc<Type>),
     SumType(BTreeSet<Type>),
     ProdType(Vec<ProdField>),
     // Input type only
-    PartialClosureType(Box<Type>)
+    PartialClosureType(Rc<Type>)
 }
 
 impl Type {

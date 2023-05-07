@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use crate::eval::eval_expr::EvalRet;
 use crate::eval::r#type::expr::primitive_op::PrimitiveOp;
 use crate::eval::r#type::expr::Expr;
@@ -9,7 +11,7 @@ mod test;
 
 pub fn case_primitive_op(
     type_annot: &Type,
-    op: &Box<PrimitiveOp>
+    op: &Rc<PrimitiveOp>
 ) -> EvalRet {
     Expr::PrimitiveOp(type_annot.clone(), op.clone(), None).ok()
 }

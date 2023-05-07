@@ -17,7 +17,7 @@ pub fn source_lhs_expr_to_closure<'t>(
     lhs_expr: &Expr
 ) -> Result<
     Either<
-        (Option<String>, Type, Expr, Rc<ExprEnv>),
+        (Option<String>, Type, Rc<Expr>, Rc<ExprEnv>),
         (PrimitiveOp, Rc<ExprEnv>)
     >,
     EvalErr
@@ -32,7 +32,7 @@ pub fn source_lhs_expr_to_closure<'t>(
         ) => (
             input_name.clone(),
             input_type.clone(),
-            *output_expr.clone(),
+            output_expr.clone(),
             // 如果 Closure 是 Apply 的直接左操作数, 那么它一定还没捕获环境
             // 它将在这里使用当前的环境作为求值环境
             // 否则, Closure 将捕获到其他环境, 并将其用作求值环境

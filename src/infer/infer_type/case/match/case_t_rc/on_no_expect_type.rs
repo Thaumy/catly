@@ -6,7 +6,7 @@ use crate::infer::infer_type::r#type::require_info::ReqInfo;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::OptionAnyExt;
 use crate::infra::quad::{Quad, QuadAnyExt};
-use crate::infra::r#box::BoxAnyExt;
+use crate::infra::rc::RcAnyExt;
 use crate::infra::result::ResultAnyExt;
 use crate::parser::expr::r#type::Expr;
 
@@ -139,9 +139,7 @@ where
 
     let match_expr = Expr::Match(
         final_type.some(),
-        typed_target_expr
-            .clone()
-            .boxed(),
+        typed_target_expr.clone().rc(),
         case_vec.clone()
     );
 

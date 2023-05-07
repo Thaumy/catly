@@ -22,7 +22,7 @@ pub fn destruct_match_const_to_expr_env_inject(
     type_env: &TypeEnv,
     expr: &Expr
 ) -> Result<Vec<ExprEnvEntry>, (ExprEnvEntry, ExprEnvEntry)> {
-    fn go<'t>(type_env: &TypeEnv, expr: &Expr) -> Vec<ExprEnvEntry> {
+    fn go(type_env: &TypeEnv, expr: &Expr) -> Vec<ExprEnvEntry> {
         // 由于后续的 case_expr_type 会和 target_expr_type 进行相容性测试, 所以这里不负责类型检查
         // 另外在此处实施类型检查是极其复杂的, 这意味着要实现 infer_type 的大部分功能
         match expr {

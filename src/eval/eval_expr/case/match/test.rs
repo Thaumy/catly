@@ -6,7 +6,6 @@ use crate::eval::eval_expr::eval_expr;
 use crate::eval::r#macro::namely_type;
 use crate::eval::r#type::eval_err::EvalErr;
 use crate::eval::r#type::expr::Expr;
-use crate::infra::r#box::BoxAnyExt;
 use crate::infra::rc::RcAnyExt;
 use crate::infra::result::ResultAnyExt;
 
@@ -20,7 +19,7 @@ fn test_part1() {
     let expr_env = ExprEnv::new(vec![]).rc();
 
     let expr =
-        Expr::Match(Expr::Int(namely_type!("Int"), 5).boxed(), vec![
+        Expr::Match(Expr::Int(namely_type!("Int"), 5).rc(), vec![
             (
                 Expr::Int(namely_type!("Int"), 10),
                 Expr::Int(namely_type!("Int"), 1)
@@ -51,7 +50,7 @@ fn test_part2() {
     let expr_env = ExprEnv::new(vec![]).rc();
 
     let expr =
-        Expr::Match(Expr::Int(namely_type!("Int"), 5).boxed(), vec![
+        Expr::Match(Expr::Int(namely_type!("Int"), 5).rc(), vec![
             (
                 Expr::Int(namely_type!("Int"), 10),
                 Expr::Int(namely_type!("Int"), 1)
@@ -81,9 +80,8 @@ fn test_part3() {
     let type_env = TypeEnv::new(vec![]);
     let expr_env = ExprEnv::new(vec![]).rc();
 
-    let expr = Expr::Match(
-        Expr::Int(namely_type!("Int"), 15).boxed(),
-        vec![
+    let expr =
+        Expr::Match(Expr::Int(namely_type!("Int"), 15).rc(), vec![
             (
                 Expr::Int(namely_type!("Int"), 10),
                 Expr::Int(namely_type!("Int"), 1)
@@ -96,8 +94,7 @@ fn test_part3() {
                 Expr::Discard(namely_type!("Int")),
                 Expr::Int(namely_type!("Int"), 0)
             ),
-        ]
-    );
+        ]);
     let evaluated = eval_expr(&type_env, expr_env, &expr);
 
     let r = Expr::Int(namely_type!("Int"), 15);
@@ -114,7 +111,7 @@ fn test_part4() {
     let expr_env = ExprEnv::new(vec![]).rc();
 
     let expr =
-        Expr::Match(Expr::Int(namely_type!("Int"), 5).boxed(), vec![
+        Expr::Match(Expr::Int(namely_type!("Int"), 5).rc(), vec![
             (
                 Expr::Int(namely_type!("Int"), 10),
                 Expr::Int(namely_type!("Int"), 1)

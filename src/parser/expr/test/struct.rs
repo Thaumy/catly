@@ -6,7 +6,7 @@ use crate::infer::env::r#macro::prod_type;
 use crate::infer::env::r#macro::sum_type;
 use crate::infer::env::r#macro::unit_type;
 use crate::infra::option::OptionAnyExt;
-use crate::infra::r#box::BoxAnyExt;
+use crate::infra::rc::RcAnyExt;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::expr::test::f;
 
@@ -44,9 +44,9 @@ fn test_part2() {
                 None,
                 Expr::Cond(
                     None,
-                    Expr::Int(None, 123).boxed(),
-                    Expr::Unit(None).boxed(),
-                    Expr::Int(None, 0).boxed()
+                    Expr::Int(None, 123).rc(),
+                    Expr::Unit(None).rc(),
+                    Expr::Int(None, 0).rc()
                 )
             )])
         ),
@@ -64,15 +64,15 @@ fn test_part2() {
                 None,
                 Expr::Apply(
                     None,
-                    Expr::EnvRef(None, "add".to_string()).boxed(),
-                    Expr::EnvRef(None, "x".to_string()).boxed()
+                    Expr::EnvRef(None, "add".to_string()).rc(),
+                    Expr::EnvRef(None, "x".to_string()).rc()
                 )
-                .boxed(),
-                Expr::EnvRef(None, "y".to_string()).boxed()
+                .rc(),
+                Expr::EnvRef(None, "y".to_string()).rc()
             )
-            .boxed()
+            .rc()
         )
-        .boxed()
+        .rc()
     );
     let r = Expr::Struct(None, vec![
         ("a".to_string(), None, a),
@@ -81,8 +81,8 @@ fn test_part2() {
             None,
             Expr::Apply(
                 None,
-                Expr::EnvRef(None, "neg".to_string()).boxed(),
-                Expr::Int(None, 1).boxed()
+                Expr::EnvRef(None, "neg".to_string()).rc(),
+                Expr::Int(None, 1).rc()
             )
         ),
         ("fun".to_string(), None, fun),
@@ -120,9 +120,9 @@ fn test_part3() {
                 None,
                 Expr::Cond(
                     None,
-                    Expr::Int(None, 123).boxed(),
-                    Expr::Unit(None).boxed(),
-                    Expr::Int(None, 0).boxed()
+                    Expr::Int(None, 123).rc(),
+                    Expr::Unit(None).rc(),
+                    Expr::Int(None, 0).rc()
                 )
             )])
         ),
@@ -140,15 +140,15 @@ fn test_part3() {
                 None,
                 Expr::Apply(
                     None,
-                    Expr::EnvRef(None, "add".to_string()).boxed(),
-                    Expr::EnvRef(None, "x".to_string()).boxed()
+                    Expr::EnvRef(None, "add".to_string()).rc(),
+                    Expr::EnvRef(None, "x".to_string()).rc()
                 )
-                .boxed(),
-                Expr::EnvRef(None, "y".to_string()).boxed()
+                .rc(),
+                Expr::EnvRef(None, "y".to_string()).rc()
             )
-            .boxed()
+            .rc()
         )
-        .boxed()
+        .rc()
     );
     let r = Expr::Struct(int_type!().some(), vec![
         ("a".to_string(), int_type!().some(), a),
@@ -157,8 +157,8 @@ fn test_part3() {
             closure_type!(int_type!(), int_type!()).some(),
             Expr::Apply(
                 None,
-                Expr::EnvRef(None, "neg".to_string()).boxed(),
-                Expr::Int(None, 1).boxed()
+                Expr::EnvRef(None, "neg".to_string()).rc(),
+                Expr::Int(None, 1).rc()
             )
         ),
         (

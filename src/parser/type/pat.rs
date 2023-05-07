@@ -1,9 +1,11 @@
 use std::collections::BTreeSet;
+use std::ops::Deref;
+use std::rc::Rc;
 
 use crate::btree_set;
 use crate::infra::btree_set::BtreeSetExt;
 use crate::infra::option::OptionAnyExt;
-use crate::infra::r#box::BoxAnyExt;
+use crate::infra::rc::RcAnyExt;
 use crate::infra::vec::VecExt;
 use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
@@ -18,15 +20,15 @@ pub enum Pat {
 
     TypeName(String), // Type::NamelyType
 
-    TypeApply(Box<Pat>, Box<Pat>), // Type::TypeApply
+    TypeApply(Rc<Pat>, Rc<Pat>), // Type::TypeApply
 
     Arrow,
-    ClosureTypeHead(Box<Pat>),
-    ClosureType(Box<Pat>, Box<Pat>), // Type::ClosureType
+    ClosureTypeHead(Rc<Pat>),
+    ClosureType(Rc<Pat>, Rc<Pat>), // Type::ClosureType
 
     SumType(BTreeSet<Pat>), // Type::SumType
 
-    LetName(Option<Box<Pat>>, String),
+    LetName(Option<Rc<Pat>>, String),
     TypedLetNameSeq(Vec<(String, Pat)>),
     ProdType(Vec<(String, Pat)>) // Type::ProdType
 }
@@ -50,8 +52,8 @@ impl From<Pat> for OptType {
             Pat::TypeName(t_n) => Type::NamelyType(t_n),
 
             Pat::ClosureType(i_t, o_t) => Type::ClosureType(
-                Self::from(*i_t)?.boxed(),
-                Self::from(*o_t)?.boxed()
+                Self::from(i_t.deref().clone())?.rc(),
+                Self::from(o_t.deref().clone())?.rc()
             ),
 
             Pat::SumType(s_s) => s_s

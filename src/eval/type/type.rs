@@ -1,10 +1,11 @@
 use std::collections::BTreeSet;
 use std::fmt::{Debug, Formatter};
 use std::ops::Deref;
+use std::rc::Rc;
 
 use crate::infra::btree_set::BtreeSetExt;
 use crate::infra::option::OptionAnyExt;
-use crate::infra::r#box::BoxAnyExt;
+use crate::infra::rc::RcAnyExt;
 use crate::infra::vec::VecExt;
 use crate::parser::r#type::r#type::Type as CtType;
 
@@ -15,7 +16,7 @@ pub type ProdField = (String, Type);
 #[derive(Clone, Eq, PartialEq, PartialOrd, Ord)]
 pub enum Type {
     NamelyType(String),
-    ClosureType(Box<Type>, Box<Type>),
+    ClosureType(Rc<Type>, Rc<Type>),
     SumType(BTreeSet<Type>),
     ProdType(Vec<ProdField>)
 }
@@ -44,8 +45,8 @@ impl From<CtType> for OptType {
             CtType::NamelyType(t_n) => Type::NamelyType(t_n),
 
             CtType::ClosureType(i_t, o_t) => Type::ClosureType(
-                Self::from(*i_t)?.boxed(),
-                Self::from(*o_t)?.boxed()
+                Self::from(i_t.deref().clone())?.rc(),
+                Self::from(o_t.deref().clone())?.rc()
             ),
 
             CtType::SumType(s_s) => s_s

@@ -3,8 +3,8 @@ use crate::eval::r#type::expr::Expr;
 use crate::eval::r#type::r#type::Type;
 use crate::infra::result::ResultAnyExt;
 
-pub fn case_int(type_annot: Type, int_value: i64) -> EvalRet {
-    Expr::Int(type_annot, int_value).ok()
+pub fn case_int(type_annot: &Type, int_value: &i64) -> EvalRet {
+    Expr::Int(type_annot.clone(), int_value.clone()).ok()
 }
 
 #[cfg(test)]

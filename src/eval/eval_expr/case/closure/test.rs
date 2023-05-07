@@ -4,7 +4,6 @@ use crate::eval::eval_expr::eval_expr;
 use crate::eval::r#macro::{closure_type, namely_type};
 use crate::eval::r#type::expr::Expr;
 use crate::infra::option::OptionAnyExt;
-use crate::infra::r#box::BoxAnyExt;
 use crate::infra::rc::RcAnyExt;
 use crate::infra::result::ResultAnyExt;
 
@@ -18,7 +17,7 @@ fn test_part1() {
         closure_type!(namely_type!("Int"), namely_type!("Int")),
         "a".to_string().some(),
         namely_type!("Int"),
-        Expr::Int(namely_type!("Int"), 1).boxed(),
+        Expr::Int(namely_type!("Int"), 1).rc(),
         None
     );
     let evaluated = eval_expr(&type_env, expr_env.rc(), &expr);
@@ -36,7 +35,7 @@ fn test_part2() {
         closure_type!(namely_type!("Int"), namely_type!("Int")),
         None,
         namely_type!("Int"),
-        Expr::Int(namely_type!("Int"), 1).boxed(),
+        Expr::Int(namely_type!("Int"), 1).rc(),
         None
     );
     let evaluated = eval_expr(&type_env, expr_env.rc(), &expr);
@@ -54,7 +53,7 @@ fn test_part3() {
         closure_type!(namely_type!("Int"), namely_type!("Int")),
         "a".to_string().some(),
         namely_type!("Int"),
-        Expr::Int(namely_type!("Int"), 1).boxed(),
+        Expr::Int(namely_type!("Int"), 1).rc(),
         None
     );
     let evaluated = eval_expr(&type_env, expr_env.clone(), &expr);
@@ -63,7 +62,7 @@ fn test_part3() {
         closure_type!(namely_type!("Int"), namely_type!("Int")),
         "a".to_string().some(),
         namely_type!("Int"),
-        Expr::Int(namely_type!("Int"), 1).boxed(),
+        Expr::Int(namely_type!("Int"), 1).rc(),
         expr_env.some()
     );
 
@@ -80,7 +79,7 @@ fn test_part4() {
         closure_type!(namely_type!("Int"), namely_type!("Int")),
         None,
         namely_type!("Int"),
-        Expr::Int(namely_type!("Int"), 1).boxed(),
+        Expr::Int(namely_type!("Int"), 1).rc(),
         None
     );
     let evaluated = eval_expr(&type_env, expr_env.clone(), &expr);
@@ -89,7 +88,7 @@ fn test_part4() {
         closure_type!(namely_type!("Int"), namely_type!("Int")),
         None,
         namely_type!("Int"),
-        Expr::Int(namely_type!("Int"), 1).boxed(),
+        Expr::Int(namely_type!("Int"), 1).rc(),
         expr_env.some()
     );
 

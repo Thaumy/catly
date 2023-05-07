@@ -6,8 +6,8 @@ use crate::infer::infer_type::r#type::require_info::ReqInfo;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::OptionAnyExt;
 use crate::infra::quad::{Quad, QuadAnyExt};
-use crate::infra::r#box::BoxAnyExt;
 use crate::infra::r#fn::id;
+use crate::infra::rc::RcAnyExt;
 use crate::infra::result::ResultAnyExt;
 use crate::infra::vec::VecExt;
 use crate::parser::expr::r#type::Expr;
@@ -123,7 +123,7 @@ pub fn case_ri(
                 target_expr.with_fallback_type(&hint);
             let match_expr = Expr::Match(
                 expect_type.clone(),
-                hinted_target_expr.boxed(),
+                hinted_target_expr.rc(),
                 case_vec.clone(),
             );
             match_expr.infer_type(type_env, expr_env)
@@ -173,7 +173,7 @@ pub fn case_ri(
                         target_expr.with_fallback_type(&hint);
                     let match_expr = Expr::Match(
                         expect_type.clone(),
-                        hinted_target_expr.boxed(),
+                        hinted_target_expr.rc(),
                         case_vec.clone(),
                     );
                     match_expr.infer_type(type_env, expr_env)

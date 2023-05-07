@@ -3,7 +3,7 @@ use crate::eval::r#macro::closure_type;
 use crate::eval::r#macro::int_type;
 use crate::eval::r#type::expr::Expr;
 use crate::infra::option::OptionAnyExt;
-use crate::infra::r#box::BoxAnyExt;
+use crate::infra::rc::RcAnyExt;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum PrimitiveOp {
@@ -57,7 +57,7 @@ impl From<PrimitiveOp> for Expr {
             // neg
             PrimitiveOp::Neg => Expr::PrimitiveOp(
                 closure_type!(int_type!(), int_type!()),
-                value.boxed(),
+                value.rc(),
                 None
             ),
             // add
@@ -66,12 +66,12 @@ impl From<PrimitiveOp> for Expr {
                     int_type!(),
                     closure_type!(int_type!(), int_type!())
                 ),
-                value.boxed(),
+                value.rc(),
                 None
             ),
             PrimitiveOp::Add(Some(_)) => Expr::PrimitiveOp(
                 closure_type!(int_type!(), int_type!()),
-                value.boxed(),
+                value.rc(),
                 None
             ),
             // sub
@@ -80,12 +80,12 @@ impl From<PrimitiveOp> for Expr {
                     int_type!(),
                     closure_type!(int_type!(), int_type!())
                 ),
-                value.boxed(),
+                value.rc(),
                 None
             ),
             PrimitiveOp::Sub(Some(_)) => Expr::PrimitiveOp(
                 closure_type!(int_type!(), int_type!()),
-                value.boxed(),
+                value.rc(),
                 None
             ),
             // mul
@@ -94,12 +94,12 @@ impl From<PrimitiveOp> for Expr {
                     int_type!(),
                     closure_type!(int_type!(), int_type!())
                 ),
-                value.boxed(),
+                value.rc(),
                 None
             ),
             PrimitiveOp::Mul(Some(_)) => Expr::PrimitiveOp(
                 closure_type!(int_type!(), int_type!()),
-                value.boxed(),
+                value.rc(),
                 None
             ),
             // div
@@ -108,12 +108,12 @@ impl From<PrimitiveOp> for Expr {
                     int_type!(),
                     closure_type!(int_type!(), int_type!())
                 ),
-                value.boxed(),
+                value.rc(),
                 None
             ),
             PrimitiveOp::Div(Some(_)) => Expr::PrimitiveOp(
                 closure_type!(int_type!(), int_type!()),
-                value.boxed(),
+                value.rc(),
                 None
             ),
             // mod
@@ -122,12 +122,12 @@ impl From<PrimitiveOp> for Expr {
                     int_type!(),
                     closure_type!(int_type!(), int_type!())
                 ),
-                value.boxed(),
+                value.rc(),
                 None
             ),
             PrimitiveOp::Mod(Some(_)) => Expr::PrimitiveOp(
                 closure_type!(int_type!(), int_type!()),
-                value.boxed(),
+                value.rc(),
                 None
             ),
             // rem
@@ -136,12 +136,12 @@ impl From<PrimitiveOp> for Expr {
                     int_type!(),
                     closure_type!(int_type!(), int_type!())
                 ),
-                value.boxed(),
+                value.rc(),
                 None
             ),
             PrimitiveOp::Rem(Some(_)) => Expr::PrimitiveOp(
                 closure_type!(int_type!(), int_type!()),
-                value.boxed(),
+                value.rc(),
                 None
             ),
 
@@ -151,12 +151,12 @@ impl From<PrimitiveOp> for Expr {
                     int_type!(),
                     closure_type!(int_type!(), bool_type!())
                 ),
-                value.boxed(),
+                value.rc(),
                 None
             ),
             PrimitiveOp::Gt(Some(_)) => Expr::PrimitiveOp(
                 closure_type!(int_type!(), bool_type!()),
-                value.boxed(),
+                value.rc(),
                 None
             ),
             // eq
@@ -165,12 +165,12 @@ impl From<PrimitiveOp> for Expr {
                     int_type!(),
                     closure_type!(int_type!(), bool_type!())
                 ),
-                value.boxed(),
+                value.rc(),
                 None
             ),
             PrimitiveOp::Eq(Some(_)) => Expr::PrimitiveOp(
                 closure_type!(int_type!(), bool_type!()),
-                value.boxed(),
+                value.rc(),
                 None
             ),
             // lt
@@ -179,19 +179,19 @@ impl From<PrimitiveOp> for Expr {
                     int_type!(),
                     closure_type!(int_type!(), bool_type!())
                 ),
-                value.boxed(),
+                value.rc(),
                 None
             ),
             PrimitiveOp::Lt(Some(_)) => Expr::PrimitiveOp(
                 closure_type!(int_type!(), bool_type!()),
-                value.boxed(),
+                value.rc(),
                 None
             ),
 
             // not
             PrimitiveOp::Not => Expr::PrimitiveOp(
                 closure_type!(bool_type!(), bool_type!()),
-                value.boxed(),
+                value.rc(),
                 None
             ),
             // and
@@ -200,12 +200,12 @@ impl From<PrimitiveOp> for Expr {
                     bool_type!(),
                     closure_type!(bool_type!(), bool_type!())
                 ),
-                value.boxed(),
+                value.rc(),
                 None
             ),
             PrimitiveOp::And(Some(_)) => Expr::PrimitiveOp(
                 closure_type!(bool_type!(), bool_type!()),
-                value.boxed(),
+                value.rc(),
                 None
             ),
             // or
@@ -214,12 +214,12 @@ impl From<PrimitiveOp> for Expr {
                     bool_type!(),
                     closure_type!(bool_type!(), bool_type!())
                 ),
-                value.boxed(),
+                value.rc(),
                 None
             ),
             PrimitiveOp::Or(Some(_)) => Expr::PrimitiveOp(
                 closure_type!(bool_type!(), bool_type!()),
-                value.boxed(),
+                value.rc(),
                 None
             )
         }

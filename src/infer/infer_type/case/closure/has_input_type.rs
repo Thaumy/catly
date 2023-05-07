@@ -1,6 +1,6 @@
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infra::r#box::BoxAnyExt;
+use crate::infra::rc::RcAnyExt;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
@@ -16,10 +16,8 @@ where
     F: Fn(Type, Type) -> Expr
 {
     let base = Type::ClosureType(
-        input_type.clone().boxed(),
-        output_expr_type
-            .clone()
-            .boxed()
+        input_type.clone().rc(),
+        output_expr_type.clone().rc()
     );
 
     InferTypeRet::from_auto_lift(

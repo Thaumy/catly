@@ -1,7 +1,7 @@
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infra::r#box::BoxAnyExt;
+use crate::infra::rc::RcAnyExt;
 use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 
@@ -22,11 +22,9 @@ pub fn case_ri(
                 typed_else_expr
                     .get_type_annot()
                     .cloned(),
-                bool_expr.clone().boxed(),
-                then_expr.clone().boxed(),
-                typed_else_expr
-                    .clone()
-                    .boxed()
+                bool_expr.clone().rc(),
+                then_expr.clone().rc(),
+                typed_else_expr.rc()
             );
 
             let new_expr_env = expr_env

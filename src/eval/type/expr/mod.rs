@@ -1,6 +1,7 @@
 pub mod primitive_op;
 
 use std::fmt::{Debug, Formatter};
+use std::ops::Deref;
 use std::rc::Rc;
 
 use crate::eval::env::expr_env::ExprEnv;
@@ -8,7 +9,7 @@ use crate::eval::r#type::expr::primitive_op::PrimitiveOp;
 use crate::eval::r#type::r#type::OptType;
 use crate::eval::r#type::r#type::Type;
 use crate::infra::option::OptionAnyExt;
-use crate::infra::r#box::BoxAnyExt;
+use crate::infra::rc::RcAnyExt;
 use crate::infra::vec::VecExt;
 use crate::parser::expr::r#type::Expr as CtExpr;
 use crate::parser::r#type::r#type::Type as CtType;
@@ -26,18 +27,18 @@ pub enum Expr {
         Type,
         Option<String>,
         Type,
-        Box<Expr>,
+        Rc<Expr>,
         Option<Rc<ExprEnv>>
     ),
     Struct(Type, Vec<StructField>),
     Discard(Type),
 
-    PrimitiveOp(Type, Box<PrimitiveOp>, Option<Rc<ExprEnv>>),
+    PrimitiveOp(Type, Rc<PrimitiveOp>, Option<Rc<ExprEnv>>),
 
-    Cond(Box<Expr>, Box<Expr>, Box<Expr>),
-    Match(Box<Expr>, Vec<(Expr, Expr)>),
-    Apply(Box<Expr>, Box<Expr>),
-    Let(String, Type, Box<Expr>, Box<Expr>)
+    Cond(Rc<Expr>, Rc<Expr>, Rc<Expr>),
+    Match(Rc<Expr>, Vec<(Expr, Expr)>),
+    Apply(Rc<Expr>, Rc<Expr>),
+    Let(String, Type, Rc<Expr>, Rc<Expr>)
 }
 
 impl Expr {
@@ -127,8 +128,7 @@ impl From<CtExpr> for OptExpr {
 
                 match PrimitiveOp::from_env_ref(r_n.clone().as_str())
                 {
-                    Some(op) =>
-                        Expr::PrimitiveOp(t, op.boxed(), None),
+                    Some(op) => Expr::PrimitiveOp(t, op.rc(), None),
                     None => Expr::EnvRef(t, r_n)
                 }
             }
@@ -138,7 +138,7 @@ impl From<CtExpr> for OptExpr {
                     convert_type(t)?,
                     i_n,
                     convert_type(i_t)?,
-                    Self::from(*o_e)?.boxed(),
+                    Self::from(o_e.deref().clone())?.rc(),
                     None
                 ),
 
@@ -156,13 +156,13 @@ impl From<CtExpr> for OptExpr {
             }
 
             CtExpr::Cond(Some(_), b_e, t_e, e_e) => Expr::Cond(
-                Self::from(*b_e)?.boxed(),
-                Self::from(*t_e)?.boxed(),
-                Self::from(*e_e)?.boxed()
+                Self::from(b_e.deref().clone())?.rc(),
+                Self::from(t_e.deref().clone())?.rc(),
+                Self::from(e_e.deref().clone())?.rc()
             ),
 
             CtExpr::Match(Some(_), t_e, c_v) => {
-                let t_e = Self::from(*t_e)?;
+                let t_e = Self::from(t_e.deref().clone())?;
 
                 c_v.into_iter()
                     .try_fold(vec![], |acc, (c_e, t_e)| {
@@ -171,20 +171,20 @@ impl From<CtExpr> for OptExpr {
                         acc.chain_push((c_e, t_e))
                             .some()
                     })
-                    .map(|vec| Expr::Match(t_e.boxed(), vec))?
+                    .map(|vec| Expr::Match(t_e.rc(), vec))?
             }
 
             CtExpr::Apply(Some(_), l_e, r_e) => Expr::Apply(
-                Self::from(*l_e)?.boxed(),
-                Self::from(*r_e)?.boxed()
+                Self::from(l_e.deref().clone())?.rc(),
+                Self::from(r_e.deref().clone())?.rc()
             ),
 
             CtExpr::Let(Some(_), a_n, Some(a_t), a_e, o_e) =>
                 Expr::Let(
                     a_n,
                     convert_type(a_t)?,
-                    Self::from(*a_e)?.boxed(),
-                    Self::from(*o_e)?.boxed()
+                    Self::from(a_e.deref().clone())?.rc(),
+                    Self::from(o_e.deref().clone())?.rc()
                 ),
             _ => return None
         }
