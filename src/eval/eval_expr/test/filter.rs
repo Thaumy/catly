@@ -34,7 +34,7 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv) {
 
         def intList = intCons 1 (intCons 2 (intCons 3 (intCons 4 emptyList)))
 
-        def evalFilter1 = filter1 (gt 2) intList
+        def evalFilter1 = filter1 (x -> gt x 2) intList
         def evalFilter2 = filter2 (lt 3) intList
         ";
     parse_to_env(&seq).unwrap()
@@ -49,23 +49,23 @@ fn test_part1() {
         .unwrap();
     let evaluated = eval_expr(&type_env, eval_env, &ref_expr);
 
-    let r = Expr::Struct(namely_type!("IntList"), vec![
+    let r = Expr::Struct(namely_type!("IntCons"), vec![
         (
-            "h".to_string(),
+            "head".to_string(),
             namely_type!("Int"),
             Expr::Int(namely_type!("Int"), 3)
         ),
         (
-            "t".to_string(),
+            "tail".to_string(),
             namely_type!("IntList"),
-            Expr::Struct(namely_type!("IntList"), vec![
+            Expr::Struct(namely_type!("IntCons"), vec![
                 (
-                    "h".to_string(),
+                    "head".to_string(),
                     namely_type!("Int"),
                     Expr::Int(namely_type!("Int"), 4)
                 ),
                 (
-                    "t".to_string(),
+                    "tail".to_string(),
                     namely_type!("IntList"),
                     Expr::Unit(namely_type!("EmptyList"))
                 ),
@@ -85,27 +85,16 @@ fn test_part2() {
         .unwrap();
     let evaluated = eval_expr(&type_env, eval_env, &ref_expr);
 
-    let r = Expr::Struct(namely_type!("IntList"), vec![
+    let r = Expr::Struct(namely_type!("IntCons"), vec![
         (
-            "h".to_string(),
+            "head".to_string(),
             namely_type!("Int"),
-            Expr::Int(namely_type!("Int"), 1)
+            Expr::Int(namely_type!("Int"), 4)
         ),
         (
-            "t".to_string(),
+            "tail".to_string(),
             namely_type!("IntList"),
-            Expr::Struct(namely_type!("IntList"), vec![
-                (
-                    "h".to_string(),
-                    namely_type!("Int"),
-                    Expr::Int(namely_type!("Int"), 2)
-                ),
-                (
-                    "t".to_string(),
-                    namely_type!("IntList"),
-                    Expr::Unit(namely_type!("EmptyList"))
-                ),
-            ])
+            Expr::Unit(namely_type!("EmptyList"))
         ),
     ]);
 

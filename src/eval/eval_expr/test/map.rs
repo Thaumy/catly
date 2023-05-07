@@ -45,38 +45,38 @@ fn test_part1() {
         .unwrap();
     let evaluated = eval_expr(&type_env, eval_env, &ref_expr);
 
-    let r = Expr::Struct(namely_type!("IntList"), vec![
+    let r = Expr::Struct(namely_type!("IntCons"), vec![
         (
-            "h".to_string(),
+            "head".to_string(),
             namely_type!("Int"),
             Expr::Int(namely_type!("Int"), 2)
         ),
         (
-            "t".to_string(),
+            "tail".to_string(),
             namely_type!("IntList"),
-            Expr::Struct(namely_type!("IntList"), vec![
+            Expr::Struct(namely_type!("IntCons"), vec![
                 (
-                    "h".to_string(),
+                    "head".to_string(),
                     namely_type!("Int"),
                     Expr::Int(namely_type!("Int"), 3)
                 ),
                 (
-                    "t".to_string(),
+                    "tail".to_string(),
                     namely_type!("IntList"),
-                    Expr::Struct(namely_type!("IntList"), vec![
+                    Expr::Struct(namely_type!("IntCons"), vec![
                         (
-                            "h".to_string(),
+                            "head".to_string(),
                             namely_type!("Int"),
                             Expr::Int(namely_type!("Int"), 4)
                         ),
                         (
-                            "t".to_string(),
-                            namely_type!("Int"),
+                            "tail".to_string(),
+                            namely_type!("IntList"),
                             Expr::Struct(
-                                namely_type!("IntList"),
+                                namely_type!("IntCons"),
                                 vec![
                                     (
-                                        "h".to_string(),
+                                        "head".to_string(),
                                         namely_type!("Int"),
                                         Expr::Int(
                                             namely_type!("Int"),
@@ -84,7 +84,7 @@ fn test_part1() {
                                         )
                                     ),
                                     (
-                                        "t".to_string(),
+                                        "tail".to_string(),
                                         namely_type!("IntList"),
                                         Expr::Unit(namely_type!(
                                             "EmptyList"
@@ -111,38 +111,38 @@ fn test_part2() {
         .unwrap();
     let evaluated = eval_expr(&type_env, eval_env, &ref_expr);
 
-    let r = Expr::Struct(namely_type!("IntList"), vec![
+    let r = Expr::Struct(namely_type!("IntCons"), vec![
         (
-            "h".to_string(),
+            "head".to_string(),
             namely_type!("Int"),
             Expr::Int(namely_type!("Int"), 2)
         ),
         (
-            "t".to_string(),
+            "tail".to_string(),
             namely_type!("IntList"),
-            Expr::Struct(namely_type!("IntList"), vec![
+            Expr::Struct(namely_type!("IntCons"), vec![
                 (
-                    "h".to_string(),
+                    "head".to_string(),
                     namely_type!("Int"),
                     Expr::Int(namely_type!("Int"), 3)
                 ),
                 (
-                    "t".to_string(),
+                    "tail".to_string(),
                     namely_type!("IntList"),
-                    Expr::Struct(namely_type!("IntList"), vec![
+                    Expr::Struct(namely_type!("IntCons"), vec![
                         (
-                            "h".to_string(),
+                            "head".to_string(),
                             namely_type!("Int"),
                             Expr::Int(namely_type!("Int"), 4)
                         ),
                         (
-                            "t".to_string(),
-                            namely_type!("Int"),
+                            "tail".to_string(),
+                            namely_type!("IntList"),
                             Expr::Struct(
-                                namely_type!("IntList"),
+                                namely_type!("IntCons"),
                                 vec![
                                     (
-                                        "h".to_string(),
+                                        "head".to_string(),
                                         namely_type!("Int"),
                                         Expr::Int(
                                             namely_type!("Int"),
@@ -150,7 +150,7 @@ fn test_part2() {
                                         )
                                     ),
                                     (
-                                        "t".to_string(),
+                                        "tail".to_string(),
                                         namely_type!("IntList"),
                                         Expr::Unit(namely_type!(
                                             "EmptyList"

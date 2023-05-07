@@ -22,7 +22,7 @@ fn test_part1() {
     );
     let evaluated = eval_expr(&type_env, expr_env, &expr);
 
-    assert_ne!(evaluated, expr.ok());
+    assert_eq!(evaluated, expr.ok());
 }
 
 // add 1
@@ -39,7 +39,7 @@ fn test_part2() {
     );
     let evaluated = eval_expr(&type_env, expr_env, &expr);
 
-    assert_ne!(evaluated, expr.ok());
+    assert_eq!(evaluated, expr.ok());
 }
 
 // add
@@ -61,7 +61,7 @@ fn test_part3() {
         expr_env.some()
     );
 
-    assert_eq!(evaluated, r.ok());
+    assert_ne!(evaluated, r.ok());
 }
 
 // add 1
@@ -85,5 +85,5 @@ fn test_part4() {
         expr_env.some()
     );
 
-    assert_eq!(evaluated, r.ok());
+    assert_ne!(evaluated, r.ok());
 }

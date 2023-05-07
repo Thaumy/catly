@@ -36,8 +36,8 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv) {
 
         def intList = intCons 1 (intCons 2 (intCons 3 (intCons 4 emptyList)))
 
-        def evalFind1 = find1 3
-        def evalFind2 = find2 5
+        def evalFind1 = find1 3 intList
+        def evalFind2 = find2 5 intList
         ";
     parse_to_env(&seq).unwrap()
 }
