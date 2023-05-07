@@ -37,13 +37,26 @@ pub fn eval_expr(
         Expr::Int(t, i) => case_int(t.clone(), i.clone()),
         Expr::Unit(t) => case_unit(t.clone()),
         Expr::EnvRef(_, r_n) => case_env_ref(type_env, expr_env, r_n),
-        Expr::Closure(t, i_n, i_t, o_e, env) =>
-            case_closure(expr_env, t, i_n, i_t, o_e, env),
+        // Closure 在如果被求值, 那么它一定是首次被求值(因为求值是惰性的), 所以一定未捕获环境
+        // 此时它将捕获当前环境作为求值环境, 接着会立即被 Apply 消费
+        Expr::Closure(t, i_n, i_t, o_e, None) =>
+            case_closure(t, i_n, i_t, o_e, expr_env.clone()),
+        // 不可能发生的情况, 不存在捕获环境的滞留 Closure, 因为求值是惰性的
+        Expr::Closure(.., Some(_)) =>
+            panic!("Impossible expr: {expr:?}"),
+
         Expr::Struct(t, s_v) =>
             case_struct(type_env, expr_env, t, s_v),
 
-        Expr::PrimitiveOp(t, op, env) =>
-            case_primitive_op(expr_env, t, op, env),
+        // PrimitiveOp 是一类特殊的 Closure
+        // 它通过 Apply 的形式捕获环境, 所以在此处不进行环境捕获
+        Expr::PrimitiveOp(t, op, None) => case_primitive_op(t, op),
+        // PrimitiveOp 总是通过 Apply 捕获环境
+        // 由于任何需要返回 PrimitiveOp 的表达式都需要对 PrimitiveOp 求值
+        // 而此时 PrimitiveOp 一定不会捕获环境, 因为 Apply 还没有发生
+        // 所以下面的情况不可能发生
+        Expr::PrimitiveOp(.., Some(_)) =>
+            panic!("Impossible expr: {expr:?}"),
 
         Expr::Cond(b_e, t_e, f_e) =>
             case_cond(type_env, expr_env, b_e, t_e, f_e),

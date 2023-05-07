@@ -3,66 +3,36 @@ use std::rc::Rc;
 
 use crate::eval::env::expr_env::ExprEnv;
 use crate::eval::env::type_env::TypeEnv;
-use crate::eval::eval_expr::{eval_expr, EvalRet};
-use crate::eval::r#macro::false_type;
-use crate::eval::r#macro::namely_type;
-use crate::eval::r#macro::true_type;
-use crate::eval::r#type::eval_err::EvalErr;
+use crate::eval::eval_expr::case::apply::r#fn::{
+    bool_expr,
+    eval_to_bool,
+    eval_to_int,
+    int_expr
+};
+use crate::eval::eval_expr::EvalRet;
 use crate::eval::r#type::expr::primitive_op::PrimitiveOp;
 use crate::eval::r#type::expr::Expr;
-use crate::eval::r#type::r#type::Type;
 use crate::infra::option::OptionAnyExt;
 use crate::infra::result::ResultAnyExt;
 
-fn eval_to_int(
-    type_env: &TypeEnv,
-    expr_env: Rc<ExprEnv>,
-    expr: &Expr
-) -> Result<i64, EvalErr> {
-    match eval_expr(type_env, expr_env, expr)? {
-        Expr::Int(Type::NamelyType(n), i) if n == "Int" =>
-            i.clone().ok(),
-        _ => panic!("Impossible non-int expr: {expr:?}")
-    }
-}
-
-fn eval_to_bool(
-    type_env: &TypeEnv,
-    expr_env: Rc<ExprEnv>,
-    expr: &Expr
-) -> Result<bool, EvalErr> {
-    match eval_expr(type_env, expr_env, expr)? {
-        Expr::Int(Type::NamelyType(n), 1) if n == "True" => true.ok(),
-        Expr::Int(Type::NamelyType(n), 0) if n == "False" =>
-            false.ok(),
-        _ => panic!("Impossible non-bool expr: {expr:?}")
-    }
-}
-
-// TODO: refactor to sub mod
 pub fn primitive_apply(
     type_env: &TypeEnv,
-    expr_env: Rc<ExprEnv>,
+    lhs_eval_env: Rc<ExprEnv>,
+    rhs_eval_env: Rc<ExprEnv>,
     primitive_op: &PrimitiveOp,
     rhs_expr: &Expr
 ) -> EvalRet {
-    fn int_expr(i: i64) -> Expr { Expr::Int(namely_type!("Int"), i) }
-    fn bool_expr(b: bool) -> Expr {
-        match b {
-            true => Expr::Int(true_type!(), 1),
-            false => Expr::Int(false_type!(), 0)
-        }
-    }
+    let lhs_int = |lhs_expr| {
+        eval_to_int(type_env, lhs_eval_env.clone(), lhs_expr)
+    };
+    let lhs_bool = |lhs_expr| {
+        eval_to_bool(type_env, lhs_eval_env.clone(), lhs_expr)
+    };
 
-    let lhs_int =
-        |lhs_expr| eval_to_int(type_env, expr_env.clone(), lhs_expr);
     let rhs_int =
-        || eval_to_int(type_env, expr_env.clone(), rhs_expr);
-
-    let lhs_bool =
-        |lhs_expr| eval_to_bool(type_env, expr_env.clone(), lhs_expr);
+        || eval_to_int(type_env, rhs_eval_env.clone(), rhs_expr);
     let rhs_bool =
-        || eval_to_bool(type_env, expr_env.clone(), rhs_expr);
+        || eval_to_bool(type_env, rhs_eval_env.clone(), rhs_expr);
 
     match primitive_op {
         // neg

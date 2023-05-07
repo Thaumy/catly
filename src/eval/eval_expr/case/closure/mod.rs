@@ -11,18 +11,12 @@ use crate::infra::result::ResultAnyExt;
 mod test;
 
 pub fn case_closure(
-    expr_env: Rc<ExprEnv>,
     type_annot: &Type,
     input_name: &Option<String>,
     input_type: &Type,
     output_expr: &Box<Expr>,
-    eval_env: &Option<Rc<ExprEnv>>
+    eval_env: Rc<ExprEnv>
 ) -> EvalRet {
-    let eval_env = match eval_env {
-        Some(env) => env.clone(),
-        None => expr_env
-    };
-
     Expr::Closure(
         type_annot.clone(),
         input_name.clone(),

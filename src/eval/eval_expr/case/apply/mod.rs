@@ -1,20 +1,17 @@
-mod primitive_apply;
-mod source_lhs_to_closure;
-#[cfg(test)]
-mod test;
-
 use std::rc::Rc;
 
 use crate::eval::env::expr_env::ExprEnv;
 use crate::eval::env::type_env::TypeEnv;
-use crate::eval::eval_expr::case::apply::primitive_apply::primitive_apply;
-use crate::eval::eval_expr::case::apply::source_lhs_to_closure::source_lhs_to_closure;
 use crate::eval::eval_expr::{eval_expr, EvalRet};
+use crate::eval::eval_expr::case::apply::r#fn::primitive_apply::primitive_apply;
+use crate::eval::eval_expr::case::apply::r#fn::source_lhs_to_closure::source_lhs_expr_to_closure;
 use crate::eval::r#type::expr::Expr;
 use crate::infra::either::Either;
-use crate::infra::r#box::BoxAnyExt;
 use crate::infra::rc::RcAnyExt;
-use crate::infra::result::ResultAnyExt;
+
+mod r#fn;
+#[cfg(test)]
+mod test;
 
 pub fn case_apply(
     type_env: &TypeEnv,
@@ -22,14 +19,11 @@ pub fn case_apply(
     lhs_expr: &Expr,
     rhs_expr: &Expr
 ) -> EvalRet {
-    let lhs_expr = match lhs_expr {
-        apply_expr @ Expr::Apply(..) =>
-            eval_expr(type_env, expr_env.clone(), apply_expr),
-        other => other.clone().ok()
-    }?;
-
-    match source_lhs_to_closure(type_env, expr_env.clone(), &lhs_expr)
-    {
+    match source_lhs_expr_to_closure(
+        type_env,
+        expr_env.clone(),
+        &lhs_expr
+    )? {
         Either::L((
             input_name,
             input_type,
@@ -50,9 +44,10 @@ pub fn case_apply(
 
             eval_expr(type_env, extended_eval_env, &output_expr)
         }
-        Either::R((primitive_op, op_eval_env)) => primitive_apply(
+        Either::R((primitive_op, lhs_eval_env)) => primitive_apply(
             type_env,
-            op_eval_env,
+            lhs_eval_env,
+            expr_env,
             &primitive_op,
             rhs_expr
         )
