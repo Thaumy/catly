@@ -1,10 +1,12 @@
 use std::rc::Rc;
 
 use crate::eval::env::expr_env::{ExprEnv, ExprEnvEntry};
+use crate::eval::env::type_env::TypeEnv;
 use crate::eval::r#type::expr::{Expr, StructField};
 use crate::infra::option::OptionAnyExt;
 
 fn is_struct_match_pattern_then_env_vec(
+    type_env: &TypeEnv,
     expr_env: Rc<ExprEnv>,
     struct_vec: &Vec<StructField>,
     pattern_vec: &Vec<StructField>
@@ -19,6 +21,7 @@ fn is_struct_match_pattern_then_env_vec(
         .map(|((s_n, s_t, s_e), (p_n, p_t, p_e))| {
             if (s_n, s_t) == (p_n, p_t) {
                 is_expr_match_pattern_then_env_vec(
+                    type_env,
                     expr_env.clone(),
                     s_e,
                     p_e
@@ -33,11 +36,16 @@ fn is_struct_match_pattern_then_env_vec(
 }
 
 fn is_expr_match_pattern_then_env_vec(
+    type_env: &TypeEnv,
     expr_env: Rc<ExprEnv>,
     evaluated_expr: &Expr,
     pattern: &Expr
 ) -> Option<Vec<ExprEnvEntry>> {
-    if evaluated_expr.get_type_annot() != pattern.get_type_annot() {
+    // 进行类型相容性测试
+    if !type_env.can_lift_to(
+        &evaluated_expr.get_type_annot()?,
+        &pattern.get_type_annot()?
+    ) {
         return None;
     }
 
@@ -85,7 +93,7 @@ fn is_expr_match_pattern_then_env_vec(
         Expr::Struct(_, e_s_v) => match pattern {
             Expr::Struct(_, p_s_v) =>
                 is_struct_match_pattern_then_env_vec(
-                    expr_env, e_s_v, p_s_v
+                    type_env, expr_env, e_s_v, p_s_v
                 ),
             Expr::EnvRef(p_t, ref_name) => vec![(
                 ref_name.clone(),
@@ -103,11 +111,13 @@ fn is_expr_match_pattern_then_env_vec(
 
 // 如果 expr 匹配 pattern, 则返回经由(按需)扩展的表达式环境
 pub fn is_expr_match_pattern_then_env(
+    type_env: &TypeEnv,
     expr_env: Rc<ExprEnv>,
     evaluated_expr: &Expr,
     pattern: &Expr
 ) -> Option<ExprEnv> {
     is_expr_match_pattern_then_env_vec(
+        type_env,
         expr_env.clone(),
         evaluated_expr,
         pattern

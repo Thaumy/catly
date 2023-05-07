@@ -29,6 +29,7 @@ pub fn case_match(
         .map(|(case_expr, then_expr)| {
             (
                 is_expr_match_pattern_then_env(
+                    type_env,
                     expr_env.clone(),
                     &evaluated_target_expr,
                     case_expr

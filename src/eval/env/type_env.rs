@@ -1,3 +1,5 @@
+use std::collections::{BTreeSet, HashMap};
+
 use crate::eval::r#type::r#type::Type;
 use crate::infra::option::OptionAnyExt;
 
@@ -84,6 +86,36 @@ impl<'t> TypeEnv<'t> {
             _ => self
                 .find_entry(type_name)
                 .map(|(_, t)| t.clone())
+        }
+    }
+
+    // 寻踪某个类型到和类型, 并返回这个和类型的构成
+    // 目前仅由 can_lift_to 使用, 为后续扩展性设计而保留
+    #[inline]
+    fn source_sum_type(
+        &self,
+        r#type: &Type
+    ) -> Option<BTreeSet<Type>> {
+        match r#type {
+            // 和编译期的类型提升规则一样, 不允许跨层寻踪
+            Type::NamelyType(n) => match self.find_type(n.as_str()) {
+                Some(Type::SumType(s)) => s.some(),
+                _ => None
+            },
+            Type::SumType(s) => s.clone().some(),
+            _ => None
+        }
+    }
+
+    // 仅允许将类型提升到以它为基础的和类型, 这被用作 match 表达式的类型匹配
+    pub fn can_lift_to(&self, from: &Type, to: &Type) -> bool {
+        if from == to {
+            return true;
+        } else {
+            match self.source_sum_type(to) {
+                None => return false,
+                Some(s) => s.iter().any(|t| t == from)
+            }
         }
     }
 }
