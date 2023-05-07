@@ -37,8 +37,8 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv) {
 
         def intList = intCons 1 (intCons 2 (intCons 3 (intCons 4 emptyList)))
 
-        def eval_find1 = find1 3
-        def eval_find2 = find2 5
+        def evalFind1 = find1 3
+        def evalFind2 = find2 5
         ";
     parse_to_env(&seq).unwrap()
 }
@@ -48,7 +48,7 @@ fn test_part1() {
     let (type_env, expr_env) = gen_env();
 
     let (ref_expr, eval_env) = expr_env
-        .get_ref_expr_and_env("eval_find1")
+        .get_ref_expr_and_env("evalFind1")
         .unwrap();
     let evaluated = eval_expr(&type_env, eval_env, &ref_expr);
 
@@ -62,7 +62,7 @@ fn test_part2() {
     let (type_env, expr_env) = gen_env();
 
     let (ref_expr, eval_env) = expr_env
-        .get_ref_expr_and_env("eval_find2")
+        .get_ref_expr_and_env("evalFind2")
         .unwrap();
     let evaluated = eval_expr(&type_env, eval_env, &ref_expr);
 

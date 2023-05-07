@@ -49,10 +49,10 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv) {
                 in
                     iter 1 0 n
 
-        def eval_fib1 = fib1 4
-        def eval_fib2 = fib2 5
-        def eval_fib3 = fib3 6
-        def eval_fib4 = fib4 7
+        def evalFib1 = fib1 4
+        def evalFib2 = fib2 5
+        def evalFib3 = fib3 6
+        def evalFib4 = fib4 7
         ";
     parse_to_env(&seq).unwrap()
 }
@@ -62,7 +62,7 @@ fn test_part1() {
     let (type_env, expr_env) = gen_env();
 
     let (ref_expr, eval_env) = expr_env
-        .get_ref_expr_and_env("eval_fib1")
+        .get_ref_expr_and_env("evalFib1")
         .unwrap();
     let evaluated = eval_expr(&type_env, eval_env, &ref_expr);
 
@@ -76,7 +76,7 @@ fn test_part2() {
     let (type_env, expr_env) = gen_env();
 
     let (ref_expr, eval_env) = expr_env
-        .get_ref_expr_and_env("eval_fib2")
+        .get_ref_expr_and_env("evalFib2")
         .unwrap();
     let evaluated = eval_expr(&type_env, eval_env, &ref_expr);
 
@@ -90,7 +90,7 @@ fn test_part3() {
     let (type_env, expr_env) = gen_env();
 
     let (ref_expr, eval_env) = expr_env
-        .get_ref_expr_and_env("eval_fib3")
+        .get_ref_expr_and_env("evalFib3")
         .unwrap();
     let evaluated = eval_expr(&type_env, eval_env, &ref_expr);
 
@@ -104,7 +104,7 @@ fn test_part4() {
     let (type_env, expr_env) = gen_env();
 
     let (ref_expr, eval_env) = expr_env
-        .get_ref_expr_and_env("eval_fib4")
+        .get_ref_expr_and_env("evalFib4")
         .unwrap();
     let evaluated = eval_expr(&type_env, eval_env, &ref_expr);
 

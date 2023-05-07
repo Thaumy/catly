@@ -44,9 +44,9 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv) {
                 in
                     iter b n 1
 
-        def eval_expt1 = expt1 2 4
-        def eval_expt2 = expt2 3 5
-        def eval_expt3 = expt3 5 7
+        def evalExpt1 = expt1 2 4
+        def evalExpt2 = expt2 3 5
+        def evalExpt3 = expt3 5 7
         ";
     parse_to_env(&seq).unwrap()
 }
@@ -56,7 +56,7 @@ fn test_part1() {
     let (type_env, expr_env) = gen_env();
 
     let (ref_expr, eval_env) = expr_env
-        .get_ref_expr_and_env("eval_expt1")
+        .get_ref_expr_and_env("evalExpt1")
         .unwrap();
     let evaluated = eval_expr(&type_env, eval_env, &ref_expr);
 
@@ -70,7 +70,7 @@ fn test_part2() {
     let (type_env, expr_env) = gen_env();
 
     let (ref_expr, eval_env) = expr_env
-        .get_ref_expr_and_env("eval_expt2")
+        .get_ref_expr_and_env("evalExpt2")
         .unwrap();
     let evaluated = eval_expr(&type_env, eval_env, &ref_expr);
 
@@ -84,7 +84,7 @@ fn test_part3() {
     let (type_env, expr_env) = gen_env();
 
     let (ref_expr, eval_env) = expr_env
-        .get_ref_expr_and_env("eval_expt3")
+        .get_ref_expr_and_env("evalExpt3")
         .unwrap();
     let evaluated = eval_expr(&type_env, eval_env, &ref_expr);
 

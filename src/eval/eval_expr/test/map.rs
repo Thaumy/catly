@@ -31,8 +31,8 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv) {
 
         def intList = intCons 1 (intCons 2 (intCons 3 (intCons 4 emptyList)))
 
-        def eval_map1 = map1 (add 1) intList
-        def eval_map2 = map2 (add 1) intList
+        def evalMap1 = map1 (add 1) intList
+        def evalMap2 = map2 (add 1) intList
         ";
     parse_to_env(&seq).unwrap()
 }
@@ -42,7 +42,7 @@ fn test_part1() {
     let (type_env, expr_env) = gen_env();
 
     let (ref_expr, eval_env) = expr_env
-        .get_ref_expr_and_env("eval_map1")
+        .get_ref_expr_and_env("evalMap1")
         .unwrap();
     let evaluated = eval_expr(&type_env, eval_env, &ref_expr);
 
@@ -108,7 +108,7 @@ fn test_part2() {
     let (type_env, expr_env) = gen_env();
 
     let (ref_expr, eval_env) = expr_env
-        .get_ref_expr_and_env("eval_map2")
+        .get_ref_expr_and_env("evalMap2")
         .unwrap();
     let evaluated = eval_expr(&type_env, eval_env, &ref_expr);
 

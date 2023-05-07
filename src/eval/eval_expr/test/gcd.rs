@@ -32,9 +32,9 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv) {
                 | (_: True) -> a
                 | _ -> gcd3 b (rem a b)
 
-        def eval_gcd1 = gcd1 48 18
-        def eval_gcd2 = gcd2 42 56
-        def eval_gcd3 = gcd3 319 377
+        def evalGcd1 = gcd1 48 18
+        def evalGcd2 = gcd2 42 56
+        def evalGcd3 = gcd3 319 377
         ";
     parse_to_env(&seq).unwrap()
 }
@@ -44,7 +44,7 @@ fn test_part1() {
     let (type_env, expr_env) = gen_env();
 
     let (ref_expr, eval_env) = expr_env
-        .get_ref_expr_and_env("eval_gcd1")
+        .get_ref_expr_and_env("evalGcd1")
         .unwrap();
     let evaluated = eval_expr(&type_env, eval_env, &ref_expr);
 
@@ -58,7 +58,7 @@ fn test_part2() {
     let (type_env, expr_env) = gen_env();
 
     let (ref_expr, eval_env) = expr_env
-        .get_ref_expr_and_env("eval_gcd2")
+        .get_ref_expr_and_env("evalGcd2")
         .unwrap();
     let evaluated = eval_expr(&type_env, eval_env, &ref_expr);
 
@@ -72,7 +72,7 @@ fn test_part3() {
     let (type_env, expr_env) = gen_env();
 
     let (ref_expr, eval_env) = expr_env
-        .get_ref_expr_and_env("eval_gcd3")
+        .get_ref_expr_and_env("evalGcd3")
         .unwrap();
     let evaluated = eval_expr(&type_env, eval_env, &ref_expr);
 
