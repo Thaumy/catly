@@ -4,6 +4,7 @@ use crate::eval::eval_expr::eval_expr;
 use crate::eval::r#macro::namely_type;
 use crate::eval::r#type::expr::Expr;
 use crate::infra::option::OptionAnyExt;
+use crate::infra::r#box::BoxAnyExt;
 use crate::infra::result::ResultAnyExt;
 
 // def a = 10
@@ -15,10 +16,11 @@ fn test_part1() {
         namely_type!("Int"),
         Expr::Int(namely_type!("Int"), 10).some(),
         None
-    )]);
+    )])
+    .boxed();
 
     let expr = Expr::EnvRef(namely_type!("Int"), "a".to_string());
-    let evaluated = eval_expr(&type_env, &expr_env, &expr);
+    let evaluated = eval_expr(&type_env, expr_env, &expr);
 
     let r = Expr::Int(namely_type!("Int"), 10);
 
@@ -40,11 +42,12 @@ fn test_part2() {
         "a".to_string(),
         namely_type!("Int"),
         Expr::Int(namely_type!("Int"), 5).some(),
-        None
-    )]);
+        expr_env.boxed().some()
+    )])
+    .boxed();
 
     let expr = Expr::EnvRef(namely_type!("Int"), "a".to_string());
-    let evaluated = eval_expr(&type_env, &expr_env, &expr);
+    let evaluated = eval_expr(&type_env, expr_env, &expr);
 
     let r = Expr::Int(namely_type!("Int"), 5);
 
@@ -62,22 +65,25 @@ fn test_part3() {
         namely_type!("Int"),
         Expr::Int(namely_type!("Int"), 10).some(),
         None
-    )]);
+    )])
+    .boxed();
     let expr_env = ExprEnv::new(vec![(
         "a".to_string(),
         namely_type!("Int"),
         Expr::EnvRef(namely_type!("Int"), "b".to_string()).some(),
         expr_env.some()
-    )]);
+    )])
+    .boxed();
     let expr_env = ExprEnv::new(vec![(
         "a".to_string(),
         namely_type!("Int"),
         Expr::EnvRef(namely_type!("Int"), "a".to_string()).some(),
         expr_env.some()
-    )]);
+    )])
+    .boxed();
 
     let expr = Expr::EnvRef(namely_type!("Int"), "a".to_string());
-    let evaluated = eval_expr(&type_env, &expr_env, &expr);
+    let evaluated = eval_expr(&type_env, expr_env, &expr);
 
     let r = Expr::Int(namely_type!("Int"), 10);
 

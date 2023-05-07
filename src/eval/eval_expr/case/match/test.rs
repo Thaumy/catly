@@ -16,7 +16,7 @@ use crate::infra::result::ResultAnyExt;
 #[test]
 fn test_part1() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![]);
+    let expr_env = ExprEnv::new(vec![]).boxed();
 
     let expr =
         Expr::Match(Expr::Int(namely_type!("Int"), 5).boxed(), vec![
@@ -33,7 +33,7 @@ fn test_part1() {
                 Expr::Int(namely_type!("Int"), 0)
             ),
         ]);
-    let evaluated = eval_expr(&type_env, &expr_env, &expr);
+    let evaluated = eval_expr(&type_env, expr_env, &expr);
 
     let r = Expr::Int(namely_type!("Int"), 0);
 
@@ -47,7 +47,7 @@ fn test_part1() {
 #[test]
 fn test_part2() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![]);
+    let expr_env = ExprEnv::new(vec![]).boxed();
 
     let expr =
         Expr::Match(Expr::Int(namely_type!("Int"), 5).boxed(), vec![
@@ -64,7 +64,7 @@ fn test_part2() {
                 Expr::Int(namely_type!("Int"), 0)
             ),
         ]);
-    let evaluated = eval_expr(&type_env, &expr_env, &expr);
+    let evaluated = eval_expr(&type_env, expr_env, &expr);
 
     let r = Expr::Int(namely_type!("Int"), 2);
 
@@ -78,7 +78,7 @@ fn test_part2() {
 #[test]
 fn test_part3() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![]);
+    let expr_env = ExprEnv::new(vec![]).boxed();
 
     let expr = Expr::Match(
         Expr::Int(namely_type!("Int"), 15).boxed(),
@@ -97,7 +97,7 @@ fn test_part3() {
             ),
         ]
     );
-    let evaluated = eval_expr(&type_env, &expr_env, &expr);
+    let evaluated = eval_expr(&type_env, expr_env, &expr);
 
     let r = Expr::Int(namely_type!("Int"), 15);
 
@@ -110,7 +110,7 @@ fn test_part3() {
 #[test]
 fn test_part4() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![]);
+    let expr_env = ExprEnv::new(vec![]).boxed();
 
     let expr =
         Expr::Match(Expr::Int(namely_type!("Int"), 5).boxed(), vec![
@@ -123,7 +123,7 @@ fn test_part4() {
                 Expr::Int(namely_type!("Int"), 2)
             ),
         ]);
-    let evaluated = eval_expr(&type_env, &expr_env, &expr);
+    let evaluated = eval_expr(&type_env, expr_env, &expr);
 
     assert_matches!(evaluated, Result::Err(EvalErr { .. }));
 }

@@ -1,26 +1,28 @@
 mod case;
+#[cfg(test)]
 mod test;
 
 use crate::eval::env::expr_env::ExprEnv;
 use crate::eval::env::type_env::TypeEnv;
 use crate::eval::eval_expr::case::apply::case_apply;
+use crate::eval::eval_expr::case::closure::case_closure;
 use crate::eval::eval_expr::case::cond::case_cond;
 use crate::eval::eval_expr::case::discard::case_discard;
 use crate::eval::eval_expr::case::env_ref::case_env_ref;
 use crate::eval::eval_expr::case::int::case_int;
+use crate::eval::eval_expr::case::primitive_op::case_primitive_op;
 use crate::eval::eval_expr::case::r#let::case_let;
 use crate::eval::eval_expr::case::r#match::case_match;
 use crate::eval::eval_expr::case::r#struct::case_struct;
 use crate::eval::eval_expr::case::unit::case_unit;
 use crate::eval::r#type::eval_err::EvalErr;
 use crate::eval::r#type::expr::Expr;
-use crate::infra::result::ResultAnyExt;
 
 pub type EvalRet = Result<Expr, EvalErr>;
 
 pub fn eval_expr(
     type_env: &TypeEnv,
-    expr_env: &ExprEnv,
+    expr_env: Box<ExprEnv>,
     expr: &Expr
 ) -> EvalRet {
     if cfg!(feature = "eval_log") {
@@ -33,11 +35,13 @@ pub fn eval_expr(
         Expr::Int(t, i) => case_int(t.clone(), i.clone()),
         Expr::Unit(t) => case_unit(t.clone()),
         Expr::EnvRef(_, r_n) => case_env_ref(type_env, expr_env, r_n),
-        Expr::Closure(..) => expr.clone().ok(), // 直接返回 closure, 环境将由求取该值的 case 保留
+        Expr::Closure(t, i_n, i_t, o_e, env) =>
+            case_closure(expr_env, t, i_n, i_t, o_e, env),
         Expr::Struct(t, s_v) =>
             case_struct(type_env, expr_env, t, s_v),
 
-        op @ Expr::PrimitiveOp(..) => op.clone().ok(),
+        Expr::PrimitiveOp(t, op, env) =>
+            case_primitive_op(expr_env, t, op, env),
 
         Expr::Cond(b_e, t_e, f_e) =>
             case_cond(type_env, expr_env, b_e, t_e, f_e),

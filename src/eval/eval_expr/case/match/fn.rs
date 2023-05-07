@@ -2,8 +2,8 @@ use crate::eval::env::expr_env::{ExprEnv, ExprEnvEntry};
 use crate::eval::r#type::expr::{Expr, StructField};
 use crate::infra::option::OptionAnyExt;
 
-fn is_struct_match_pattern_then_env_vec<'t>(
-    expr_env: &'t ExprEnv,
+fn is_struct_match_pattern_then_env_vec(
+    expr_env: Box<ExprEnv>,
     struct_vec: &Vec<StructField>,
     pattern_vec: &Vec<StructField>
 ) -> Option<Vec<ExprEnvEntry>> {
@@ -16,7 +16,11 @@ fn is_struct_match_pattern_then_env_vec<'t>(
         .zip(pattern_vec.iter())
         .map(|((s_n, s_t, s_e), (p_n, p_t, p_e))| {
             if (s_n, s_t) == (p_n, p_t) {
-                is_expr_match_pattern_then_env_vec(expr_env, s_e, p_e)
+                is_expr_match_pattern_then_env_vec(
+                    expr_env.clone(),
+                    s_e,
+                    p_e
+                )
             } else {
                 None
             }
@@ -26,8 +30,8 @@ fn is_struct_match_pattern_then_env_vec<'t>(
     (collected?).concat().some()
 }
 
-fn is_expr_match_pattern_then_env_vec<'t>(
-    expr_env: &'t ExprEnv,
+fn is_expr_match_pattern_then_env_vec(
+    expr_env: Box<ExprEnv>,
     evaluated_expr: &Expr,
     pattern: &Expr
 ) -> Option<Vec<ExprEnvEntry>> {
@@ -79,7 +83,7 @@ fn is_expr_match_pattern_then_env_vec<'t>(
         Expr::Struct(_, e_s_v) => match pattern {
             Expr::Struct(_, p_s_v) =>
                 is_struct_match_pattern_then_env_vec(
-                    &expr_env, e_s_v, p_s_v
+                    expr_env, e_s_v, p_s_v
                 ),
             Expr::EnvRef(p_t, ref_name) => vec![(
                 ref_name.clone(),
@@ -96,13 +100,13 @@ fn is_expr_match_pattern_then_env_vec<'t>(
 }
 
 // 如果 expr 匹配 pattern, 则返回经由(按需)扩展的表达式环境
-pub fn is_expr_match_pattern_then_env<'t>(
-    expr_env: &'t ExprEnv,
+pub fn is_expr_match_pattern_then_env(
+    expr_env: Box<ExprEnv>,
     evaluated_expr: &Expr,
     pattern: &Expr
 ) -> Option<ExprEnv> {
     is_expr_match_pattern_then_env_vec(
-        expr_env,
+        expr_env.clone(),
         evaluated_expr,
         pattern
     )

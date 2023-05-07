@@ -3,7 +3,7 @@ use crate::eval::r#type::r#type::Type;
 use crate::infra::option::OptionAnyExt;
 use crate::infra::r#box::BoxAnyExt;
 
-pub type ExprEnvEntry = (String, Type, OptExpr, Option<ExprEnv>);
+pub type ExprEnvEntry = (String, Type, OptExpr, Option<Box<ExprEnv>>);
 
 // 运行时表达式环境
 #[derive(Clone, Debug, PartialEq)]
@@ -67,7 +67,7 @@ impl ExprEnv {
         ref_name: impl Into<String>,
         r#type: Type,
         src_expr: Expr,
-        src_env: ExprEnv
+        src_env: Box<ExprEnv>
     ) -> ExprEnv {
         let expr_env = self.extend_vec_new(vec![(
             ref_name.into(),
@@ -92,7 +92,7 @@ impl ExprEnv {
         ref_name: impl Into<String>,
         r#type: Type,
         src_expr: Expr,
-        src_env: ExprEnv
+        src_env: Box<ExprEnv>
     ) -> ExprEnv {
         let expr_env = ExprEnv {
             prev_env: self.boxed().some(),
@@ -133,22 +133,38 @@ impl ExprEnv {
         }
     }
 
-    pub fn get_expr_and_env<'s>(
+    pub fn get_src_expr_and_env<'s>(
         &self,
         ref_name: impl Into<&'s str>
-    ) -> Option<(&Expr, &ExprEnv)> {
+    ) -> Option<(&Expr, Box<ExprEnv>)> {
         self.find_entry(ref_name)
             .and_then(|(.., src, src_env)| {
                 let src_env = match src_env {
-                    Some(env) => env,
+                    Some(env) => env.clone(),
                     // 如果找不到源环境, 则说明该引用存在于顶层环境, 即当前环境
-                    None => self
+                    None => Box::new(self.clone())
                 };
                 let src_expr = match src {
                     Some(expr) => expr,
                     None => return None
                 };
                 (src_expr, src_env).some()
+            })
+    }
+
+    pub fn get_ref_expr_and_env<'s>(
+        &self,
+        ref_name: impl Into<&'s str>
+    ) -> Option<(Expr, Box<ExprEnv>)> {
+        self.find_entry(ref_name)
+            .and_then(|(ref_name, t, _, src_env)| {
+                let src_env = match src_env {
+                    Some(env) => env.clone(),
+                    // 如果找不到源环境, 则说明该引用存在于顶层环境, 即当前环境
+                    None => Box::new(self.clone())
+                };
+                (Expr::EnvRef(t.clone(), ref_name.clone()), src_env)
+                    .some()
             })
     }
 }

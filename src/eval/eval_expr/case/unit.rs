@@ -14,6 +14,7 @@ mod test {
     use crate::eval::eval_expr::eval_expr;
     use crate::eval::r#macro::namely_type;
     use crate::eval::r#type::expr::Expr;
+    use crate::infra::r#box::BoxAnyExt;
     use crate::infra::result::ResultAnyExt;
 
     // (): Unit
@@ -23,7 +24,7 @@ mod test {
         let expr_env = ExprEnv::new(vec![]);
 
         let expr = Expr::Unit(namely_type!("Unit"));
-        let evaluated = eval_expr(&type_env, &expr_env, &expr);
+        let evaluated = eval_expr(&type_env, expr_env.boxed(), &expr);
 
         assert_eq!(evaluated, expr.ok());
     }
