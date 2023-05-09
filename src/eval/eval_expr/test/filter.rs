@@ -3,9 +3,6 @@ use crate::eval::env::parse_to_env;
 use crate::eval::env::type_env::TypeEnv;
 use crate::eval::eval_expr::eval_expr;
 use crate::eval::eval_expr::test::get_std_code;
-use crate::eval::r#macro::namely_type;
-use crate::eval::r#type::expr::Expr;
-use crate::infra::result::ResultAnyExt;
 
 fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv) {
     let seq = get_std_code() +
@@ -35,7 +32,9 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv) {
         def intList = intCons 1 (intCons 2 (intCons 3 (intCons 4 emptyList)))
 
         def evalFilter1 = filter1 (x -> gt x 2) intList
-        def evalFilter2 = filter2 (lt 3) intList
+        def r1 = intCons 3 (intCons 4 emptyList)
+        def evalFilter2 = filter2 (gt 3) intList
+        def r2 = intCons 1 (intCons 2 emptyList)
         ";
     parse_to_env(&seq).unwrap()
 }
@@ -49,31 +48,12 @@ fn test_part1() {
         .unwrap();
     let evaluated = eval_expr(&type_env, eval_env, &ref_expr);
 
-    let r = Expr::Struct(namely_type!("IntCons"), vec![
-        (
-            "head".to_string(),
-            namely_type!("Int"),
-            Expr::Int(namely_type!("Int"), 3)
-        ),
-        (
-            "tail".to_string(),
-            namely_type!("IntList"),
-            Expr::Struct(namely_type!("IntCons"), vec![
-                (
-                    "head".to_string(),
-                    namely_type!("Int"),
-                    Expr::Int(namely_type!("Int"), 4)
-                ),
-                (
-                    "tail".to_string(),
-                    namely_type!("IntList"),
-                    Expr::Unit(namely_type!("EmptyList"))
-                ),
-            ])
-        ),
-    ]);
+    let (ref_expr, eval_env) = expr_env
+        .get_ref_expr_and_env("r1")
+        .unwrap();
+    let r = eval_expr(&type_env, eval_env, &ref_expr);
 
-    assert_eq!(evaluated, r.ok());
+    assert_eq!(evaluated, r);
 }
 
 #[test]
@@ -85,18 +65,10 @@ fn test_part2() {
         .unwrap();
     let evaluated = eval_expr(&type_env, eval_env, &ref_expr);
 
-    let r = Expr::Struct(namely_type!("IntCons"), vec![
-        (
-            "head".to_string(),
-            namely_type!("Int"),
-            Expr::Int(namely_type!("Int"), 4)
-        ),
-        (
-            "tail".to_string(),
-            namely_type!("IntList"),
-            Expr::Unit(namely_type!("EmptyList"))
-        ),
-    ]);
+    let (ref_expr, eval_env) = expr_env
+        .get_ref_expr_and_env("r2")
+        .unwrap();
+    let r = eval_expr(&type_env, eval_env, &ref_expr);
 
-    assert_eq!(evaluated, r.ok());
+    assert_eq!(evaluated, r);
 }

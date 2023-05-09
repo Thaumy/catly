@@ -3,9 +3,6 @@ use crate::eval::env::parse_to_env;
 use crate::eval::env::type_env::TypeEnv;
 use crate::eval::eval_expr::eval_expr;
 use crate::eval::eval_expr::test::get_std_code;
-use crate::eval::r#macro::namely_type;
-use crate::eval::r#type::expr::Expr;
-use crate::infra::result::ResultAnyExt;
 
 fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv) {
     let seq = get_std_code() +
@@ -37,7 +34,9 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv) {
         def intList = intCons 1 (intCons 2 (intCons 3 (intCons 4 emptyList)))
 
         def evalFind1 = find1 3 intList
+        def r1 = true
         def evalFind2 = find2 5 intList
+        def r2 = false
         ";
     parse_to_env(&seq).unwrap()
 }
@@ -51,9 +50,12 @@ fn test_part1() {
         .unwrap();
     let evaluated = eval_expr(&type_env, eval_env, &ref_expr);
 
-    let r = Expr::Int(namely_type!("True"), 1);
+    let (ref_expr, eval_env) = expr_env
+        .get_ref_expr_and_env("r1")
+        .unwrap();
+    let r = eval_expr(&type_env, eval_env, &ref_expr);
 
-    assert_eq!(evaluated, r.ok());
+    assert_eq!(evaluated, r);
 }
 
 #[test]
@@ -65,7 +67,10 @@ fn test_part2() {
         .unwrap();
     let evaluated = eval_expr(&type_env, eval_env, &ref_expr);
 
-    let r = Expr::Int(namely_type!("False"), 0);
+    let (ref_expr, eval_env) = expr_env
+        .get_ref_expr_and_env("r2")
+        .unwrap();
+    let r = eval_expr(&type_env, eval_env, &ref_expr);
 
-    assert_eq!(evaluated, r.ok());
+    assert_eq!(evaluated, r);
 }

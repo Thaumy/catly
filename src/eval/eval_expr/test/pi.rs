@@ -3,10 +3,6 @@ use crate::eval::env::parse_to_env;
 use crate::eval::env::type_env::TypeEnv;
 use crate::eval::eval_expr::eval_expr;
 use crate::eval::eval_expr::test::get_std_code;
-use crate::eval::r#macro::namely_type;
-use crate::eval::r#type::expr::Expr;
-use crate::infra::rc::RcAnyExt;
-use crate::infra::result::ResultAnyExt;
 
 fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv) {
     let seq = get_std_code() +
@@ -15,31 +11,31 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv) {
             match a with
             | ({ n = an, d = ad }: Fraction) ->
                 match b with
-                | ({ n = bn, d = bd}: Fraction) ->
+                | ({ n = bn, d = bd }: Fraction) ->
                     fraction (mul an bn) (mul ad bd)
 
         def divF = a -> b ->
             match a with
             | ({ n = an, d = ad }: Fraction) ->
                 match b with
-                | ({ n = bn, d = bd}: Fraction) ->
+                | ({ n = bn, d = bd }: Fraction) ->
                     fraction (mul an bd) (mul ad bn)
 
         def addF = a -> b ->
             match a with
             | ({ n = an, d = ad }: Fraction) ->
                 match b with
-                | ({ n = bn, d = bd}: Fraction) ->
+                | ({ n = bn, d = bd }: Fraction) ->
                     fraction (add (add an bd) (add bn ad)) (mul ad bd)
 
         def gtF = a -> b ->
             match a with
             | ({ n = an, d = ad }: Fraction) ->
                 match b with
-                | ({ n = bn, d = bd}: Fraction) ->
+                | ({ n = bn, d = bd }: Fraction) ->
                     gt (mul an bd) (mul bn ad)
 
-        def pi1 =
+        def pi = n ->
             let piSum = a -> b ->
                 if gtF a b then
                     int2F 0
@@ -54,22 +50,14 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv) {
                             b
                         )
             in
-                mulF (int2F 16) (piSum (int2F 1) (int2F 6))
+                mulF (int2F 16) (piSum (int2F 1) (int2F n))
 
-        def piSum2 = a -> b ->
-            if gtF a b then
-                int2F 0
-            else
-                addF
-                    (divF
-                        (int2F 1)
-                        (mulF a (addF a (int2F 2)))
-                    )
-                    (piSum2
-                        (addF a (int2F 4))
-                        b
-                    )
-        def pi2 = mulF (int2F 16) (piSum2 (int2F 1) (int2F 18))
+        def pi1 = pi 10
+        def r1 = fraction 2592 385 # 6.732467532
+        def pi2 = pi 20
+        def r2 = fraction 120547008 37182145 # 3.242067073
+        def pi3 = pi 30
+        def r3 = fraction 54617481250096 16848159453125 # 3.241747646
         ";
     parse_to_env(&seq).unwrap()
 }
@@ -78,24 +66,49 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv) {
 fn test_part1() {
     let (type_env, expr_env) = gen_env();
 
-    let expr =
-        Expr::EnvRef(namely_type!("Fraction"), "pi1".to_string());
-    let evaluated = eval_expr(&type_env, expr_env.rc(), &expr);
+    let (ref_expr, eval_env) = expr_env
+        .get_ref_expr_and_env("pi1")
+        .unwrap();
+    let evaluated = eval_expr(&type_env, eval_env, &ref_expr);
 
-    let r = Expr::Int(namely_type!("Int"), 0);
+    let (ref_expr, eval_env) = expr_env
+        .get_ref_expr_and_env("r1")
+        .unwrap();
+    let r = eval_expr(&type_env, eval_env, &ref_expr);
 
-    assert_eq!(evaluated, r.ok());
+    assert_eq!(evaluated, r);
 }
 
 #[test]
 fn test_part2() {
     let (type_env, expr_env) = gen_env();
 
-    let expr =
-        Expr::EnvRef(namely_type!("Fraction"), "pi2".to_string());
-    let evaluated = eval_expr(&type_env, expr_env.rc(), &expr);
+    let (ref_expr, eval_env) = expr_env
+        .get_ref_expr_and_env("pi2")
+        .unwrap();
+    let evaluated = eval_expr(&type_env, eval_env, &ref_expr);
 
-    let r = Expr::Int(namely_type!("Int"), 0);
+    let (ref_expr, eval_env) = expr_env
+        .get_ref_expr_and_env("r2")
+        .unwrap();
+    let r = eval_expr(&type_env, eval_env, &ref_expr);
 
-    assert_eq!(evaluated, r.ok());
+    assert_eq!(evaluated, r);
+}
+
+#[test]
+fn test_part3() {
+    let (type_env, expr_env) = gen_env();
+
+    let (ref_expr, eval_env) = expr_env
+        .get_ref_expr_and_env("pi3")
+        .unwrap();
+    let evaluated = eval_expr(&type_env, eval_env, &ref_expr);
+
+    let (ref_expr, eval_env) = expr_env
+        .get_ref_expr_and_env("r3")
+        .unwrap();
+    let r = eval_expr(&type_env, eval_env, &ref_expr);
+
+    assert_eq!(evaluated, r);
 }

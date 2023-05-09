@@ -11,28 +11,28 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
             match a with
             | ({ n = an, d = ad }: Fraction) ->
                 match b with
-                | ({ n = bn, d = bd}: Fraction) ->
+                | ({ n = bn, d = bd }: Fraction) ->
                     fraction (mul an bn) (mul ad bd)
 
         def divF = a -> b ->
             match a with
             | ({ n = an, d = ad }: Fraction) ->
                 match b with
-                | ({ n = bn, d = bd}: Fraction) ->
+                | ({ n = bn, d = bd }: Fraction) ->
                     fraction (mul an bd) (mul ad bn)
 
         def addF = a -> b ->
             match a with
             | ({ n = an, d = ad }: Fraction) ->
                 match b with
-                | ({ n = bn, d = bd}: Fraction) ->
+                | ({ n = bn, d = bd }: Fraction) ->
                     fraction (add (add an bd) (add bn ad)) (mul ad bd)
 
         def gtF = a -> b ->
             match a with
             | ({ n = an, d = ad }: Fraction) ->
                 match b with
-                | ({ n = bn, d = bd}: Fraction) ->
+                | ({ n = bn, d = bd }: Fraction) ->
                     gt (mul an bd) (mul bn ad)
 
         def pi =
