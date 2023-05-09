@@ -7,6 +7,13 @@ use crate::eval::eval_expr::test::get_std_code;
 fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv) {
     let seq = get_std_code() +
         "
+        def gcd =
+            a -> b ->
+                if eq b 0 then
+                    a
+                else
+                    gcd b (rem a b)
+
         def approxF = n -> d ->
             if and (gt n 100000) (gt d 100000) then
                 let

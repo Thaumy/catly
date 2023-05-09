@@ -95,6 +95,23 @@ let a = 1, b = 2 in ()
 
 在 Catly 中，值是**不可变**的。
 
+对于递归绑定，需要在名前使用 `rec` 关键字标注。
+
+例如这个自下而上求 Fibonacci 数列的函数：
+
+```
+def fib =
+    n ->
+        let rec iter =
+            a -> b -> count ->
+                if eq count 0 then
+                    b
+                else
+                    iter (add a b) a (sub count 1)
+        in
+            iter 1 0 n
+```
+
 Catly 允许 Let 表达式的最后一个绑定以 `,` 结尾，但 `,` 后必须跟随 `in`
 关键字，例如：
 
@@ -448,23 +465,24 @@ def intCons = h -> t -> { head = h, tail = t }: IntCons
 
 type Fraction = { n: Int, d: Int }
 
-def gcd = a -> b ->
-    if eq b 0 then
-        a
-    else
-        gcd b (rem a b)
-
-def fraction = n -> d ->
-    if or (gt n 1000) (gt d 1000) then
-        let
-            g = gcd n d
+def fraction =
+    n -> d ->
+        let rec gcd =
+            a -> b ->
+                if eq b 0 then
+                    a
+                else
+                    gcd b (rem a b)
         in
-            { n = div n g, d = div d g }: Fraction
-    else
-        { n = n, d = d }: Fraction
+            if or (gt n 1000) (gt d 1000) then
+                let
+                    g = gcd n d
+                in
+                    { n = div n g, d = div d g }: Fraction
+            else
+                { n = n, d = d }: Fraction
 
-def int2F = i ->
-    fraction i 1
+def int2F = i -> fraction i 1
 ```
 
 </details>
