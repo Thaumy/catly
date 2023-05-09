@@ -6,6 +6,8 @@ use std::rc::Rc;
 use crate::eval::env::expr_env::ExprEnv;
 use crate::eval::env::type_env::TypeEnv;
 use crate::eval::eval_expr::{eval_expr, EvalRet};
+use crate::eval::r#type::eval_err::EvalErr;
+use crate::infra::result::ResultAnyExt;
 
 pub fn case_env_ref(
     type_env: &TypeEnv,
@@ -15,11 +17,15 @@ pub fn case_env_ref(
     // TODO:
     // 此处为逐层查找 env_ref
     // 可以设置穿透的访问链, 提高 env_ref 的检索效率
-    let (src_expr, src_env) = expr_env
+    match expr_env
+        .clone()
         .get_src_expr_and_env(ref_name.as_str())
-        .unwrap_or_else(|| {
-            panic!("EnvRef::{ref_name:?} not found in expr env")
-        });
-
-    eval_expr(type_env, src_env, src_expr)
+    {
+        Some((src_expr, src_env)) =>
+            eval_expr(type_env, src_env, src_expr),
+        None => EvalErr::EnvRefNotFound(format!(
+            "EnvRef::{ref_name:?} not found in expr env"
+        ))
+        .err()
+    }
 }

@@ -4,7 +4,8 @@ use crate::eval::r#type::r#type::Type;
 use crate::infra::result::ResultAnyExt;
 
 pub fn case_discard(type_annot: &Type) -> EvalRet {
-    EvalErr::of(format!("Trying to eval _:{type_annot:?}")).err()
+    EvalErr::EvalDiscard(format!("Trying to eval _:{type_annot:?}"))
+        .err()
 }
 
 #[cfg(test)]

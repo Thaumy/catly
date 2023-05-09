@@ -41,7 +41,7 @@ pub fn case_match(
             eval_expr(type_env, env?.rc(), then_expr).some()
         })
         .unwrap_or_else(|| {
-            EvalErr::of(format!(
+            EvalErr::NonExhaustiveMatch(format!(
                 "Non-exhaustive match expr cases: {case_vec:?}"
             ))
             .err()
