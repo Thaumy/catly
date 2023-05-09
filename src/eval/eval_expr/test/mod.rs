@@ -1,3 +1,4 @@
+mod approx_pi;
 mod expt;
 mod fib;
 mod filter;
