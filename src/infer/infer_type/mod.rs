@@ -74,6 +74,7 @@ pub fn infer_type(
 
         Expr::Let(
             expect_type,
+            rec_assign,
             assign_name,
             assign_type,
             assign_expr,
@@ -84,6 +85,7 @@ pub fn infer_type(
                 type_env,
                 expr_env,
                 expect_type,
+                rec_assign,
                 assign_name,
                 assign_type,
                 assign_expr,

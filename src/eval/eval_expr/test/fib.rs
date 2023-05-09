@@ -25,7 +25,7 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv) {
         # 3
         def fib3: Int -> Int =
             n ->
-                let iter =
+                let rec iter =
                     a -> b -> count ->
                         if eq count 0 then
                             b
@@ -36,7 +36,7 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv) {
         # 4
         def fib4 =
             n ->
-                let iter =
+                let rec iter =
                     a -> b -> count ->
                         if eq count 0 then
                             b

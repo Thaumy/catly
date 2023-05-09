@@ -22,6 +22,8 @@ impl From<In> for Out {
                 c if c == "def" => Self::Kw(Keyword::Def),
                 // "let" -> Let
                 c if c == "let" => Self::Kw(Keyword::Let),
+                // "rec" -> Rec
+                c if c == "rec" => Self::Kw(Keyword::Rec),
                 // "in" -> In
                 c if c == "in" => Self::Kw(Keyword::In),
                 // "if" -> If
@@ -73,6 +75,7 @@ fn test_part1() {
         In::LowerStartChunk("boob".to_string()),
         In::LowerStartChunk("def".to_string()),
         In::LowerStartChunk("let".to_string()),
+        In::LowerStartChunk("rec".to_string()),
         In::LowerStartChunk("in".to_string()),
         In::LowerStartChunk("if".to_string()),
         In::DigitChunk("123".to_string()),
@@ -89,6 +92,7 @@ fn test_part1() {
         Out::LowerStartChunk("boob".to_string()),
         Out::Kw(Keyword::Def),
         Out::Kw(Keyword::Let),
+        Out::Kw(Keyword::Rec),
         Out::Kw(Keyword::In),
         Out::Kw(Keyword::If),
         Out::DigitChunk("123".to_string()),

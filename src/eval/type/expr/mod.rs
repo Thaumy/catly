@@ -38,7 +38,7 @@ pub enum Expr {
     Cond(Rc<Expr>, Rc<Expr>, Rc<Expr>),
     Match(Rc<Expr>, Vec<(Expr, Expr)>),
     Apply(Rc<Expr>, Rc<Expr>),
-    Let(String, Type, Rc<Expr>, Rc<Expr>)
+    Let(String, bool, Type, Rc<Expr>, Rc<Expr>)
 }
 
 impl Expr {
@@ -103,10 +103,13 @@ impl Debug for Expr {
                 f.write_str(&*format!("match {t_e:?} with {vec:?}",)),
             Expr::Apply(l, r) =>
                 f.write_str(&*format!("({l:?} {r:?})")),
-            Expr::Let(a_n, a_t, a_e, s_e) => f.write_str(&*format!(
-                "let {a_n}{} = {a_e:?} in {s_e:?}",
-                type_annot(a_t),
-            ))
+            Expr::Let(a_n, r_a, a_t, a_e, s_e) => {
+                let r_a = if *r_a { "rec " } else { "" };
+                f.write_str(&*format!(
+                    "let {r_a}{a_n}{} = {a_e:?} in {s_e:?}",
+                    type_annot(a_t),
+                ))
+            }
         }
     }
 }
@@ -179,9 +182,10 @@ impl From<CtExpr> for OptExpr {
                 Self::from(r_e.deref().clone())?.rc()
             ),
 
-            CtExpr::Let(Some(_), a_n, Some(a_t), a_e, o_e) =>
+            CtExpr::Let(Some(_), r_a, a_n, Some(a_t), a_e, o_e) =>
                 Expr::Let(
                     a_n,
+                    r_a,
                     convert_type(a_t)?,
                     Self::from(a_e.deref().clone())?.rc(),
                     Self::from(o_e.deref().clone())?.rc()

@@ -14,6 +14,7 @@ fn test_part1() {
 
     let expr = Expr::Let(
         "a".to_string(),
+        false,
         namely_type!("Int"),
         Expr::Int(namely_type!("Int"), 10).rc(),
         Expr::EnvRef(namely_type!("Int"), "a".to_string()).rc()
@@ -33,10 +34,12 @@ fn test_part2() {
 
     let expr = Expr::Let(
         "a".to_string(),
+        false,
         namely_type!("Int"),
         Expr::Int(namely_type!("Int"), 20).rc(),
         Expr::Let(
             "b".to_string(),
+            false,
             namely_type!("Int"),
             Expr::Int(namely_type!("Int"), 10).rc(),
             Expr::EnvRef(namely_type!("Int"), "a".to_string()).rc()
@@ -58,14 +61,17 @@ fn test_part3() {
 
     let expr = Expr::Let(
         "a".to_string(),
+        false,
         namely_type!("Int"),
         Expr::Int(namely_type!("Int"), 20).rc(),
         Expr::Let(
             "b".to_string(),
+            false,
             namely_type!("Int"),
             Expr::Int(namely_type!("Int"), 10).rc(),
             Expr::Let(
                 "a".to_string(),
+                false,
                 namely_type!("Int"),
                 Expr::Int(namely_type!("Int"), 5).rc(),
                 Expr::EnvRef(namely_type!("Int"), "a".to_string())

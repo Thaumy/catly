@@ -15,6 +15,7 @@ pub fn case_ri(
     expr_env: &ExprEnv,
     req_info_ref_name: &str,
     expect_type: &OptType,
+    rec_assign: &bool,
     assign_name: &str,
     assign_expr: &Expr,
     scope_expr: &Expr
@@ -57,6 +58,7 @@ pub fn case_ri(
                     } else {
                         req_info_ref_name
                     },
+                    // 这里的约束由外部处理
                     EnvRefConstraint::empty()
                 )
                 .into()
@@ -64,20 +66,35 @@ pub fn case_ri(
         }
         // 获取 scope_expr_type 时产生了约束
         Triple::M(rc) => {
-            // 累积到外部约束
-            let constraint_acc = rc.constraint;
+            // 将 assign_name 约束到约束目标仍是必须的
+            // 因为 assign_expr 可能不包含 assign_name
+            let assign_type_constraint = rc
+                .constraint
+                .find(assign_name)
+                .cloned();
+
+            // scope_expr 产生的 assign_name 约束一定是作用于 Let 中的 assign_name 的
+            let inject_constraint = if *rec_assign {
+                // 如果 Let 是递归的, 那么 assign_expr 中使用的 assign_name 来自于 Let 本身, 所以无需处理
+                rc.constraint.clone()
+            } else {
+                // 如果 Let 是非递归的, 那么有必要过滤掉针对 assign_name 的约束
+                // 因为在 assign_expr 中使用的 assign_name 来自外层, 而约束目标是 Let
+                rc.constraint
+                    .clone()
+                    .exclude_new(assign_name)
+            };
 
             // 注入表达式环境
             // 新的环境可能包含对 assign_name 的约束和外层约束
             // 这些约束将有助于取得 assign_expr 的类型
             let new_expr_env = expr_env
-                .extend_constraint_new(constraint_acc.clone());
+                .extend_constraint_new(inject_constraint.clone());
 
-            // 将 assign_name 约束到约束目标仍是必须的
-            // 因为 assign_expr 可能不包含 assign_name
-            let assign_type_constraint = constraint_acc
-                .find(assign_name)
-                .cloned();
+            // 由 scope_expr 产生的 assign_name 约束始终作用于 Let, 不应被传播到外层
+            let constraint_acc = rc
+                .constraint
+                .exclude_new(assign_name);
 
             let (typed_assign_expr, constraint_acc) =
                 match assign_expr
@@ -104,10 +121,10 @@ pub fn case_ri(
                         return if ri.ref_name == "_" {
                             // 拦截无类型弃元到 assign_name
                             ri.new_ref_name(assign_name)
-                                .with_constraint_acc(constraint_acc)
                         } else {
-                            ri.with_constraint_acc(constraint_acc)
-                        },
+                            ri
+                        }
+                        .with_constraint_acc(constraint_acc),
                 };
 
             InferTypeRet::from_auto_lift(
@@ -119,6 +136,7 @@ pub fn case_ri(
                 |t| {
                     Expr::Let(
                         t.some(),
+                        *rec_assign,
                         assign_name.to_string(),
                         // TODO: 运行时是否关注 EnvRef 的类型对此处十分重要(case pattern 除外)
                         // 如果关注类型, 那么此处应使用更大范围的类型, 例如类型约束
@@ -133,6 +151,9 @@ pub fn case_ri(
             )
         }
 
-        Triple::R(ri) => ri.into()
+        ri @ Triple::R(_) =>
+        // 由 scope_expr 产生的 assign_name 约束始终作用于 Let, 不应被传播到外层
+            ri.exclude_constraint(assign_name)
+                .into(),
     }
 }

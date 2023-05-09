@@ -10,7 +10,7 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv) {
         # 1
         def expt1: Int -> Int -> Int =
             b -> n ->
-                let iter =
+                let rec iter =
                     b -> count -> product ->
                         if eq count 0 then
                             product
@@ -21,7 +21,7 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv) {
         # 2
         def expt2 =
             b -> n ->
-                let iter =
+                let rec iter =
                     b -> count -> product ->
                         if eq count 0 then
                             product
@@ -32,7 +32,7 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv) {
         # 3
         def expt3 =
             b -> n ->
-                let iter =
+                let rec iter =
                     b -> count -> product ->
                         match eq count 0 with
                         | (_: True) -> product

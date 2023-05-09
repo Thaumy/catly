@@ -38,8 +38,8 @@ pub enum Pat {
     ClosureInput(Option<String>, OptRcPat),
     Closure(OptRcPat, Option<String>, OptRcPat, Rc<Pat>), // Expr::Closure
 
-    Assign(String, OptRcPat, Rc<Pat>),
-    AssignSeq(Vec<(String, OptRcPat, Pat)>),
+    Assign(bool, String, OptRcPat, Rc<Pat>),
+    AssignSeq(Vec<(bool, String, OptRcPat, Pat)>),
     Struct(OptRcPat, Vec<(String, OptRcPat, Pat)>), // Expr::Struct
 
     // match with
@@ -51,7 +51,7 @@ pub enum Pat {
     Match(OptRcPat, Rc<Pat>, Vec<(Pat, Pat)>), // Expr::Match
 
     // let in
-    Let(OptRcPat, String, OptRcPat, Rc<Pat>, Rc<Pat>),
+    Let(OptRcPat, bool, String, OptRcPat, Rc<Pat>, Rc<Pat>),
 
     /* type annotation patterns */
     TypedExprHead(Rc<Pat>),
@@ -101,8 +101,8 @@ impl Pat {
                 Pat::Struct(r#type.rc().some(), vec),
             Pat::Match(_, e, vec) =>
                 Pat::Match(r#type.rc().some(), e, vec),
-            Pat::Let(_, a_n, a_t, a_e, e) =>
-                Pat::Let(r#type.rc().some(), a_n, a_t, a_e, e),
+            Pat::Let(_, r_a, a_n, a_t, a_e, e) =>
+                Pat::Let(r#type.rc().some(), r_a, a_n, a_t, a_e, e),
             _ => return None
         }
         .some()
@@ -208,13 +208,14 @@ impl From<Pat> for OptExpr {
                     _ => return None
                 }
             }
-            Pat::Let(t, a_n, a_t, a_e, e) => {
+            Pat::Let(t, r_a, a_n, a_t, a_e, e) => {
                 match (
                     Self::from(a_e.deref().clone()),
                     Self::from(e.deref().clone())
                 ) {
                     (Some(a_e), Some(e)) => Expr::Let(
                         t.map_into(),
+                        r_a,
                         a_n,
                         a_t.map_into(),
                         a_e.rc(),

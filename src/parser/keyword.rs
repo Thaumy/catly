@@ -3,6 +3,7 @@ pub enum Keyword {
     Type,
     Def,
     Let,
+    Rec,
     In,
     If,
     Then,

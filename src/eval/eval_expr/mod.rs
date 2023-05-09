@@ -64,8 +64,8 @@ pub fn eval_expr(
             case_match(type_env, expr_env, t_e, c_v),
         Expr::Apply(l_e, r_e) =>
             case_apply(type_env, expr_env, l_e, r_e),
-        Expr::Let(a_n, a_t, a_e, s_e) =>
-            case_let(type_env, expr_env, true, a_n, a_t, a_e, s_e),
+        Expr::Let(a_n, r_a, a_t, a_e, s_e) =>
+            case_let(type_env, expr_env, r_a, a_n, a_t, a_e, s_e),
     };
 
     if cfg!(feature = "eval_log_min") {

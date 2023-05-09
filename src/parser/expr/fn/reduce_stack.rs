@@ -79,6 +79,21 @@ pub fn reduce_stack(
             stack.reduce(2, top)
         }
 
+        // KwRec LetName `=` Expr `,` -> Assign
+        ([..,
+        Pat::Kw(Keyword::Rec),
+        Pat::LetName(t, n), Pat::Mark('='),
+        p, Pat::Mark(',')], _
+        )
+        if p.is_expr() => {
+            let top = Pat::Assign(
+                true,
+                n.clone(),
+                t.clone(),
+                p.clone().rc(),
+            );
+            stack.reduce(5, top)
+        }
         // LetName `=` Expr `,` -> Assign
         ([..,
         Pat::LetName(t, n), Pat::Mark('='),
@@ -86,6 +101,7 @@ pub fn reduce_stack(
         )
         if p.is_expr() => {
             let top = Pat::Assign(
+                false,
                 n.clone(),
                 t.clone(),
                 p.clone().rc(),
@@ -99,6 +115,7 @@ pub fn reduce_stack(
         )
         if p.is_expr() => {
             let top = Pat::Assign(
+                false,
                 n.clone(),
                 t.clone(),
                 p.clone().rc(),
@@ -107,41 +124,47 @@ pub fn reduce_stack(
         }
         // Assign Assign -> AssignSeq
         ([..,
-        Pat::Assign(a_n, a_t, a_v),
-        Pat::Assign(b_n, b_t, b_v)], _
+        Pat::Assign(a_r_a, a_n, a_t, a_v),
+        Pat::Assign(b_r_a, b_n, b_t, b_v)], _
         ) => {
             let top = Pat::AssignSeq(vec![
-                (a_n.to_string(), a_t.clone(), a_v.deref().clone()),
-                (b_n.to_string(), b_t.clone(), b_v.deref().clone()),
+                (a_r_a.clone(), a_n.to_string(), a_t.clone(), a_v.deref().clone()),
+                (b_r_a.clone(), b_n.to_string(), b_t.clone(), b_v.deref().clone()),
             ]);
             stack.reduce(2, top)
         }
         // AssignSeq Assign -> AssignSeq
         ([..,
         Pat::AssignSeq(vec),
-        Pat::Assign(n, t, v)], _
+        Pat::Assign(r_a, n, t, v)], _
         ) => {
             let top = Pat::AssignSeq(vec.push_to_new(
-                (n.clone(), t.clone(), v.deref().clone())
+                (r_a.clone(), n.clone(), t.clone(), v.deref().clone())
             ));
             stack.reduce(2, top)
         }
         // `{` AssignSeq `}` -> Struct
         ([..,
         Pat::Mark('{'),
-        Pat::AssignSeq(seq),
+        Pat::AssignSeq(seq), // no rec
         Pat::Mark('}')], _
-        ) => {
+        ) if seq.iter().all(|(r_a, ..)| !*r_a) => {
+            let seq = seq
+                .clone()
+                .into_iter()
+                .map(|(_, x, y, z)| (x, y, z))
+                .collect();
+
             let top = Pat::Struct(
                 None,
-                seq.clone(),
+                seq,
             );
             stack.reduce(3, top)
         }
         // `{` Assign `}` -> Struct
         ([..,
         Pat::Mark('{'),
-        Pat::Assign(n, t, v),
+        Pat::Assign(false, n, t, v), // no rec
         Pat::Mark('}')], _
         ) => {
             let top = Pat::Struct(
@@ -249,6 +272,21 @@ pub fn reduce_stack(
             stack.reduce(2, top)
         }
 
+        // KwRec LetName `=` Expr :KwIn -> Assign
+        ([..,
+        Pat::Kw(Keyword::Rec),
+        Pat::LetName(t, n), Pat::Mark('='),
+        p], Some(In::Kw(Keyword::In))
+        )
+        if p.is_expr() => {
+            let top = Pat::Assign(
+                true,
+                n.clone(),
+                t.clone(),
+                p.clone().rc(),
+            );
+            stack.reduce(4, top)
+        }
         // LetName `=` Expr :KwIn -> Assign
         ([..,
         Pat::LetName(t, n), Pat::Mark('='),
@@ -256,6 +294,7 @@ pub fn reduce_stack(
         )
         if p.is_expr() => {
             let top = Pat::Assign(
+                false,
                 n.clone(),
                 t.clone(),
                 p.clone().rc(),
@@ -267,28 +306,31 @@ pub fn reduce_stack(
         Pat::AssignSeq(seq), Pat::Kw(Keyword::In),
         p], follow)
         if follow.is_expr_end_pat() && p.is_expr() => {
-            type F = fn(Pat, &(String, OptRcPat, Pat)) -> Pat;
-            let f: F = |acc, (n, t, e)|
+            type F = fn(Pat, (bool, String, OptRcPat, Pat)) -> Pat;
+            let f: F = |acc, (r_a, n, t, e)|
                 Pat::Let(
                     None,
+                    r_a,// TODO
                     n.to_string(),
                     t.clone(),
                     e.clone().rc(),
                     acc.rc(),
                 );
             let top = seq
-                .iter()
+                .clone()
+                .into_iter()
                 .rev()
                 .fold(p.clone(), f);
             stack.reduce(4, top)
         }
         // KwLet Assign KwIn Expr :ExprEndPat -> Let
         ([.., Pat::Kw(Keyword::Let),
-        Pat::Assign(n, t, e), Pat::Kw(Keyword::In),
+        Pat::Assign(r_a, n, t, e), Pat::Kw(Keyword::In),
         p], follow)
         if follow.is_expr_end_pat() && p.is_expr() => {
             let top = Pat::Let(
                 None,
+                r_a.clone(),
                 n.to_string(),
                 t.clone(),
                 e.clone(),

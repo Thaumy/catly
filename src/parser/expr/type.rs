@@ -26,7 +26,7 @@ pub enum Expr {
     Cond(OptType, Rc<Expr>, Rc<Expr>, Rc<Expr>),
     Match(OptType, Rc<Expr>, Vec<(Expr, Expr)>),
     Apply(OptType, Rc<Expr>, Rc<Expr>),
-    Let(OptType, String, OptType, Rc<Expr>, Rc<Expr>)
+    Let(OptType, bool, String, OptType, Rc<Expr>, Rc<Expr>)
 }
 
 impl Expr {
@@ -71,8 +71,9 @@ impl Expr {
                 t_e.clone(),
                 c_v.clone()
             ),
-            Expr::Let(None, a_n, a_t, a_e, s_e) => Expr::Let(
+            Expr::Let(None, r_a, a_n, a_t, a_e, s_e) => Expr::Let(
                 r#type.clone().some(),
+                r_a.clone(),
                 a_n.to_string(),
                 a_t.clone(),
                 a_e.clone(),
@@ -133,7 +134,7 @@ impl Expr {
                     c_v.iter().all(|(c_e, t_e)| {
                         c_e.is_fully_typed() && t_e.is_fully_typed()
                     }),
-            Expr::Let(Some(_), _, Some(_), a_e, s_e) =>
+            Expr::Let(Some(_), _, _, Some(_), a_e, s_e) =>
                 a_e.is_fully_typed() && s_e.is_fully_typed(),
 
             _ => false
@@ -221,12 +222,14 @@ impl Debug for Expr {
                 type_annot(t)
             )),
 
-            Expr::Let(t, a_n, a_t, a_e, s_e) =>
+            Expr::Let(t, r_a, a_n, a_t, a_e, s_e) => {
+                let r_a = if *r_a { "rec " } else { "" };
                 f.write_str(&*format!(
-                    "(let {a_n}{} = {a_e:?} in {s_e:?}){}",
+                    "(let {r_a}{a_n}{} = {a_e:?} in {s_e:?}){}",
                     type_annot(a_t),
                     type_annot(t)
-                )),
+                ))
+            }
         }
     }
 }

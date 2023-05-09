@@ -1,5 +1,6 @@
 mod case_ri;
 mod case_t_rc;
+
 #[cfg(test)]
 mod test;
 
@@ -19,27 +20,43 @@ pub fn case(
     type_env: &TypeEnv,
     expr_env: &ExprEnv,
     expect_type: &OptType,
+    rec_assign: &bool,
     assign_name: &String,
     assign_type: &OptType,
     assign_expr: &Expr,
     scope_expr: &Expr
 ) -> InferTypeRet {
+    let expr_env = if *rec_assign {
+        // 如果 Let 是递归绑定的, 那么需要把名和类型注入环境
+        expr_env.extend_new(
+            assign_name,
+            // 在这里可能注入无类型约束, 但这是合理的, 因为如果 Let 是递归绑定的
+            // 那么外层环境中出现的某个与 assign_name 同名的绑定将与 assign_expr 无关
+            assign_type.clone().into(),
+            None
+        )
+    } else {
+        expr_env.clone()
+    };
+
     // Hint assign_expr with assign_type and get assign_expr_type
     match assign_expr
         .with_opt_fallback_type(assign_type)
-        .infer_type(type_env, expr_env)?
+        .infer_type(type_env, &expr_env)?
     {
-        // 在获取 assign_expr_type 时产生了约束, 这些约束一定作用于外层环境, 传播之
-        // 这种传播可能是一种约束传播, 在 assign_expr 无类型而 assign_type 存在的情况下
-        // assign_type 会对 assign_expr 产生类型限定(通过 hint), 这使得约束从内层传播到了外层
+        // 在获取 assign_expr 类型时产生了约束
         // L 与 ML 的唯一区别是 ML 额外携带了一些对外层环境的约束, 需要传播这些约束
         result @ (Triple::L(_) | Triple::M(_)) => {
             let (typed_assign_expr, constraint) =
                 result.unwrap_expr_constraint();
 
-            // 过滤掉对 assign_name 的约束(对于 ML
-            let constraint_acc =
-                constraint.exclude_new(assign_name.as_str());
+            let constraint_acc = if *rec_assign {
+                // 如果 Let 是递归的, 则应去除约束中针对 assign_name 的约束, 因为它与外层环境无关
+                constraint.exclude_new(assign_name.as_str())
+            } else {
+                // 如果 Let 是非递归的, 那么约束全部作用于外层环境
+                constraint
+            };
 
             let assign_expr_type =
                 typed_assign_expr.unwrap_type_annot();
@@ -78,6 +95,7 @@ pub fn case(
                 |type_annot, typed_scope_expr| {
                     Expr::Let(
                         type_annot.some(),
+                        *rec_assign,
                         assign_name.to_string(),
                         assign_type.clone().some(),
                         typed_assign_expr.clone().rc(),
@@ -100,19 +118,26 @@ pub fn case(
             let new_expr_env =
                 expr_env.extend_constraint_new(ri.constraint.clone());
 
-            case_ri(
+            let result = case_ri(
                 type_env,
                 &new_expr_env,
                 &ri.ref_name,
                 expect_type,
+                rec_assign,
                 assign_name,
                 assign_expr,
                 scope_expr
             )?
-            .with_constraint_acc(ri.constraint)?
-            // 将对 assign_name 的约束过滤掉
-            // 因为 assign_expr 和 scope_expr 都有可能产生对 assign_name 的约束
-            .exclude_constraint(assign_name.as_str())
+            .with_constraint_acc(ri.constraint)?;
+
+            if *rec_assign {
+                // 如果 Let 是递归的, 那么应过滤掉所有对于 assign_name 的约束
+                result.exclude_constraint(assign_name.as_str())
+            } else {
+                // 如果 Let 是非递归的, 那么应保留对于 assign_name 的约束, 因为它作用于外层
+                // 由于 scope_expr 产生的 assign_name 约束已被过滤, 此处的 assign_name 约束完全由 assign_expr 产生
+                result.into()
+            }
         }
 
         ri => ri.into()

@@ -81,15 +81,18 @@ fn test_part2() {
         closure_type!(unit_type!(), unit_type!()).some(),
         Expr::Let(
             None,
+            false,
             "a".to_string(),
             None,
             Expr::Int(None, 123).rc(),
             Expr::Let(
                 None,
+                false,
                 "b".to_string(),
                 None,
                 Expr::Let(
                     None,
+                    false,
                     "x".to_string(),
                     None,
                     Expr::Closure(
@@ -107,11 +110,13 @@ fn test_part2() {
                     .rc(),
                     Expr::Let(
                         None,
+                        false,
                         "y".to_string(),
                         None,
                         Expr::EnvRef(None, "a".to_string()).rc(),
                         Expr::Let(
                             None,
+                            false,
                             "z".to_string(),
                             None,
                             Expr::Unit(None).rc(),
@@ -124,6 +129,7 @@ fn test_part2() {
                 .rc(),
                 Expr::Let(
                     None,
+                    false,
                     "d".to_string(),
                     None,
                     Expr::Apply(
@@ -134,21 +140,25 @@ fn test_part2() {
                     .rc(),
                     Expr::Let(
                         None,
+                        false,
                         "e".to_string(),
                         None,
                         Expr::Int(None, 6).rc(),
                         Expr::Let(
                             None,
+                            false,
                             "k".to_string(),
                             None,
                             Expr::Unit(None).rc(),
                             Expr::Let(
                                 None,
+                                false,
                                 "m".to_string(),
                                 None,
                                 Expr::Unit(None).rc(),
                                 Expr::Let(
                                     None,
+                                    false,
                                     "n".to_string(),
                                     None,
                                     Expr::Int(None, 4).rc(),

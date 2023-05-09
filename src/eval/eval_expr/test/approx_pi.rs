@@ -54,7 +54,7 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv) {
                     gt (approxMul an bd) (approxMul bn ad)
 
         def pi = n ->
-            let piSum = a -> b ->
+            let rec piSum = a -> b ->
                 if gtF a b then
                     int2F 0
                 else

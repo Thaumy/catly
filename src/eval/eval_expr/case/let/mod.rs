@@ -14,13 +14,13 @@ use crate::infra::rc::RcAnyExt;
 pub fn case_let(
     type_env: &TypeEnv,
     expr_env: Rc<ExprEnv>,
-    is_rec_assign: bool,
+    rec_assign: &bool,
     assign_name: &String,
     assign_type: &Type,
     assign_expr: &Expr,
     scope_expr: &Expr
 ) -> EvalRet {
-    let new_expr_env = if is_rec_assign {
+    let new_expr_env = if *rec_assign {
         expr_env.extend_rec_new(
             assign_name,
             assign_type.clone(),
