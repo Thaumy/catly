@@ -11,12 +11,12 @@ use crate::infra::result::ResultAnyExt;
 #[test]
 fn test_part1() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![(
+    let expr_env = ExprEnv::new(
         "a".to_string(),
         namely_type!("Int"),
         Expr::Int(namely_type!("Int"), 10).some(),
         None
-    )])
+    )
     .rc();
 
     let expr = Expr::EnvRef(namely_type!("Int"), "a".to_string());
@@ -32,18 +32,18 @@ fn test_part1() {
 #[test]
 fn test_part2() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![(
+    let expr_env = ExprEnv::new(
         "a".to_string(),
         namely_type!("Int"),
         Expr::Int(namely_type!("Int"), 10).some(),
         None
-    )]);
-    let expr_env = ExprEnv::new(vec![(
+    );
+    let expr_env = ExprEnv::new(
         "a".to_string(),
         namely_type!("Int"),
         Expr::Int(namely_type!("Int"), 5).some(),
         expr_env.rc().some()
-    )])
+    )
     .rc();
 
     let expr = Expr::EnvRef(namely_type!("Int"), "a".to_string());
@@ -60,26 +60,26 @@ fn test_part2() {
 #[test]
 fn test_part3() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![(
+    let expr_env = ExprEnv::new(
         "b".to_string(),
         namely_type!("Int"),
         Expr::Int(namely_type!("Int"), 10).some(),
         None
-    )])
+    )
     .rc();
-    let expr_env = ExprEnv::new(vec![(
+    let expr_env = ExprEnv::new(
         "a".to_string(),
         namely_type!("Int"),
         Expr::EnvRef(namely_type!("Int"), "b".to_string()).some(),
         expr_env.some()
-    )])
+    )
     .rc();
-    let expr_env = ExprEnv::new(vec![(
+    let expr_env = ExprEnv::new(
         "a".to_string(),
         namely_type!("Int"),
         Expr::EnvRef(namely_type!("Int"), "a".to_string()).some(),
         expr_env.some()
-    )])
+    )
     .rc();
 
     let expr = Expr::EnvRef(namely_type!("Int"), "a".to_string());

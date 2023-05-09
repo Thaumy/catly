@@ -10,7 +10,7 @@ use crate::infra::result::ResultAnyExt;
 #[test]
 fn test_part1() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![]).rc();
+    let expr_env = ExprEnv::empty().rc();
 
     let expr = Expr::Let(
         "a".to_string(),
@@ -30,7 +30,7 @@ fn test_part1() {
 #[test]
 fn test_part2() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![]).rc();
+    let expr_env = ExprEnv::empty().rc();
 
     let expr = Expr::Let(
         "a".to_string(),
@@ -57,7 +57,7 @@ fn test_part2() {
 #[test]
 fn test_part3() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![]).rc();
+    let expr_env = ExprEnv::empty().rc();
 
     let expr = Expr::Let(
         "a".to_string(),

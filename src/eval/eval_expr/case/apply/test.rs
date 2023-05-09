@@ -12,7 +12,7 @@ use crate::infra::result::ResultAnyExt;
 #[test]
 fn test_part1() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![]);
+    let expr_env = ExprEnv::empty();
 
     let expr = Expr::Apply(
         (PrimitiveOp::Neg.into(): Expr).rc(),
@@ -29,7 +29,7 @@ fn test_part1() {
 #[test]
 fn test_part2() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![]);
+    let expr_env = ExprEnv::empty();
 
     let expr = Expr::Apply(
         (PrimitiveOp::Add(None).into(): Expr).rc(),
@@ -48,7 +48,7 @@ fn test_part2() {
 #[test]
 fn test_part3() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![]).rc();
+    let expr_env = ExprEnv::empty().rc();
 
     let expr = Expr::Apply(
         (PrimitiveOp::Add(Expr::Int(namely_type!("Int"), 10).some())
@@ -67,7 +67,7 @@ fn test_part3() {
 #[test]
 fn test_part4() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![]).rc();
+    let expr_env = ExprEnv::empty().rc();
 
     let expr = Expr::Apply(
         (PrimitiveOp::Add(None).into(): Expr).rc(),
@@ -86,7 +86,7 @@ fn test_part4() {
 #[test]
 fn test_part5() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![]).rc();
+    let expr_env = ExprEnv::empty().rc();
 
     let expr = Expr::Apply(
         (PrimitiveOp::And(None).into(): Expr).rc(),
@@ -105,7 +105,7 @@ fn test_part5() {
 #[test]
 fn test_part6() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![]).rc();
+    let expr_env = ExprEnv::empty().rc();
 
     let expr = Expr::Apply(
         (PrimitiveOp::And(Expr::Int(namely_type!("True"), 1).some())

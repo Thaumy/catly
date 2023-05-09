@@ -3,6 +3,7 @@ use std::rc::Rc;
 use crate::eval::r#type::expr::{Expr, OptExpr};
 use crate::eval::r#type::r#type::Type;
 use crate::infra::option::OptionAnyExt;
+use crate::infra::rc::RcAnyExt;
 
 // 某些表达式可能是递归定义的(常见于顶层环境和 Let)
 // 对于这样的表达式, 其求值环境将具具备自引用结构
@@ -14,22 +15,35 @@ pub type ExprEnvEntry = (String, Type, OptExpr, Option<Rc<ExprEnv>>);
 #[derive(Clone, Debug, PartialEq)]
 pub struct ExprEnv {
     prev_env: Option<Rc<ExprEnv>>,
-    env: Vec<ExprEnvEntry>
+    // 单一环境条目会使得顶层环境中平行函数的互递归定义成为不可能, 但仍有实现价值
+    entry: Option<ExprEnvEntry>
 }
 
 impl ExprEnv {
-    pub fn empty() -> ExprEnv { Self::new(vec![]) }
+    pub fn empty() -> ExprEnv {
+        ExprEnv {
+            prev_env: None,
+            entry: None
+        }
+    }
 
-    pub fn new(env_vec: Vec<ExprEnvEntry>) -> ExprEnv {
+    pub fn new(
+        ref_name: impl Into<String>,
+        r#type: Type,
+        src: OptExpr,
+        src_env: Option<Rc<ExprEnv>>
+    ) -> ExprEnv {
+        let entry = (ref_name.into(), r#type, src, src_env);
+
         let expr_env = ExprEnv {
             prev_env: None,
-            env: env_vec
+            entry: entry.some()
         };
 
         if cfg!(feature = "rt_env_log") {
             let log = format!(
                 "{:8}{:>10} │ {:?}",
-                "[rt env]", "ExprEnv", expr_env.env
+                "[rt env]", "ExprEnv", expr_env.entry
             );
             println!("{log}");
         }
@@ -37,29 +51,35 @@ impl ExprEnv {
         expr_env
     }
 
-    fn latest_none_empty_expr_env(&self) -> Rc<ExprEnv> {
-        match (self.env.is_empty(), &self.prev_env) {
-            (true, Some(prev_env)) =>
-                prev_env.latest_none_empty_expr_env(),
-            _ => Rc::new(self.clone())
+    fn latest_none_empty_expr_env(self: Rc<Self>) -> Rc<ExprEnv> {
+        match (self.entry.is_none(), &self.prev_env) {
+            (true, Some(prev_env)) => prev_env
+                .clone()
+                .latest_none_empty_expr_env(),
+            _ => self.clone()
         }
     }
 
-    pub fn extend_vec_new(
-        &self,
-        env_vec: Vec<ExprEnvEntry>
+    pub fn extend_new(
+        self: Rc<Self>,
+        ref_name: impl Into<String>,
+        r#type: Type,
+        src: OptExpr,
+        src_env: Option<Rc<ExprEnv>>
     ) -> ExprEnv {
+        let entry = (ref_name.into(), r#type, src, src_env);
+
         let expr_env = ExprEnv {
             prev_env: self
                 .latest_none_empty_expr_env()
                 .some(),
-            env: env_vec
+            entry: entry.some()
         };
 
         if cfg!(feature = "rt_env_log") {
             let log = format!(
                 "{:8}{:>10} │ {:?}",
-                "[rt env]", "ExprEnv", expr_env.env
+                "[rt env]", "ExprEnv", expr_env.entry
             );
             println!("{log}");
         }
@@ -67,53 +87,17 @@ impl ExprEnv {
         expr_env
     }
 
-    pub fn extend_new(
-        &self,
-        ref_name: impl Into<String>,
-        r#type: Type,
-        src_expr: Expr,
-        src_env: Rc<ExprEnv>
-    ) -> ExprEnv {
-        let expr_env = self.extend_vec_new(vec![(
-            ref_name.into(),
-            r#type,
-            src_expr.into(),
-            src_env.some()
-        )]);
-
-        if cfg!(feature = "rt_env_log") {
-            let log = format!(
-                "{:8}{:>10} │ {:?}",
-                "[rt env]", "ExprEnv", expr_env.env
-            );
-            println!("{log}");
-        }
-
-        expr_env
-    }
-
-    pub fn extend_rec_new(
-        &self,
-        ref_name: impl Into<String>,
-        r#type: Type,
-        src_expr: Expr
-    ) -> ExprEnv {
-        let expr_env = self.extend_vec_new(vec![(
-            ref_name.into(),
-            r#type,
-            src_expr.into(),
-            None
-        )]);
-
-        if cfg!(feature = "rt_env_log") {
-            let log = format!(
-                "{:8}{:>10} │ {:?}",
-                "[rt env]", "ExprEnv", expr_env.env
-            );
-            println!("{log}");
-        }
-
-        expr_env
+    pub fn extend_vec_new(
+        self: Rc<Self>,
+        expr_env_vec: Vec<ExprEnvEntry>
+    ) -> Rc<ExprEnv> {
+        expr_env_vec.into_iter().fold(
+            self,
+            |acc, (r_n, t, src, src_env)| {
+                acc.extend_new(r_n.as_str(), t, src, src_env)
+                    .rc()
+            }
+        )
     }
 
     fn find_entry<'s>(
@@ -121,11 +105,12 @@ impl ExprEnv {
         ref_name: impl Into<&'s str>
     ) -> Option<&ExprEnvEntry> {
         let ref_name = ref_name.into();
-        let entry = self
-            .env
-            .iter()
-            .rev()
-            .find(|(n, ..)| n == ref_name);
+        let entry =
+            self.entry
+                .as_ref()
+                .and_then(|entry @ (n, ..)| {
+                    (n == ref_name).then(|| entry)
+                });
 
         match (entry, &self.prev_env) {
             (Some(entry), _) => entry.some(),
@@ -165,8 +150,6 @@ impl ExprEnv {
                     // 由于当前环境是从捕获环境中扩展而来的, 所以对于非递归的引用, 仍能从上一环境中得到
                     // TODO: 单一条目的环境块对于此实现至关重要
                     // 因为它让所有非递归引用都从上一环境中得到, 从而阻止了在当前环境中不正确的引用发现
-                    // TODO: 顶层环境不具备单一环境块, 应对其重构
-                    // 这种重构会使得顶层环境中平行函数的互递归定义成为不可能, 但仍有实现价值
                     None => Rc::new(self.clone())
                 };
                 (Expr::EnvRef(t.clone(), ref_name.clone()), src_env)

@@ -23,7 +23,7 @@ mod test {
     #[test]
     fn test_part1() {
         let type_env = TypeEnv::new(vec![]);
-        let expr_env = ExprEnv::new(vec![]).rc();
+        let expr_env = ExprEnv::empty().rc();
 
         let expr = Expr::Discard(namely_type!("Int"));
         let evaluated = eval_expr(&type_env, expr_env, &expr);

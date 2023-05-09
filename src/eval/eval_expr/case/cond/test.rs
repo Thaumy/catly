@@ -10,7 +10,7 @@ use crate::infra::result::ResultAnyExt;
 #[test]
 fn test_part1() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![]).rc();
+    let expr_env = ExprEnv::empty().rc();
 
     let expr = Expr::Cond(
         Expr::Int(namely_type!("False"), 0).rc(),
@@ -28,7 +28,7 @@ fn test_part1() {
 #[test]
 fn test_part2() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![]).rc();
+    let expr_env = ExprEnv::empty().rc();
 
     let expr = Expr::Cond(
         Expr::Int(namely_type!("True"), 1).rc(),

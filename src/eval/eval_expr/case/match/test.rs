@@ -16,7 +16,7 @@ use crate::infra::result::ResultAnyExt;
 #[test]
 fn test_part1() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![]).rc();
+    let expr_env = ExprEnv::empty().rc();
 
     let expr =
         Expr::Match(Expr::Int(namely_type!("Int"), 5).rc(), vec![
@@ -47,7 +47,7 @@ fn test_part1() {
 #[test]
 fn test_part2() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![]).rc();
+    let expr_env = ExprEnv::empty().rc();
 
     let expr =
         Expr::Match(Expr::Int(namely_type!("Int"), 5).rc(), vec![
@@ -78,7 +78,7 @@ fn test_part2() {
 #[test]
 fn test_part3() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![]).rc();
+    let expr_env = ExprEnv::empty().rc();
 
     let expr =
         Expr::Match(Expr::Int(namely_type!("Int"), 15).rc(), vec![
@@ -108,7 +108,7 @@ fn test_part3() {
 #[test]
 fn test_part4() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::new(vec![]).rc();
+    let expr_env = ExprEnv::empty().rc();
 
     let expr =
         Expr::Match(Expr::Int(namely_type!("Int"), 5).rc(), vec![

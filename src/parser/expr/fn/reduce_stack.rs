@@ -310,7 +310,7 @@ pub fn reduce_stack(
             let f: F = |acc, (r_a, n, t, e)|
                 Pat::Let(
                     None,
-                    r_a,// TODO
+                    r_a,
                     n.to_string(),
                     t.clone(),
                     e.clone().rc(),

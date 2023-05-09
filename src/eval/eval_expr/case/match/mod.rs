@@ -11,7 +11,6 @@ use crate::eval::eval_expr::{eval_expr, EvalRet};
 use crate::eval::r#type::eval_err::EvalErr;
 use crate::eval::r#type::expr::Expr;
 use crate::infra::option::OptionAnyExt;
-use crate::infra::rc::RcAnyExt;
 use crate::infra::result::ResultAnyExt;
 
 pub fn case_match(
@@ -38,7 +37,7 @@ pub fn case_match(
         })
         .find(|x| matches!(x, (Some(_), _)))
         .and_then(|(env, then_expr)| {
-            eval_expr(type_env, env?.rc(), then_expr).some()
+            eval_expr(type_env, env?, then_expr).some()
         })
         .unwrap_or_else(|| {
             EvalErr::NonExhaustiveMatch(format!(

@@ -10,6 +10,7 @@ use crate::parser::r#type::r#type::OptType;
 
 pub type ExprEnvEntry = (String, TypeConstraint, EnvRefSrc);
 
+// TODO: 重构到单一环境条目
 // 编译时表达式环境
 #[derive(Clone, Debug)]
 pub struct ExprEnv<'t> {

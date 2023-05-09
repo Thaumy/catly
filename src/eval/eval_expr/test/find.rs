@@ -1,10 +1,12 @@
+use std::rc::Rc;
+
 use crate::eval::env::expr_env::ExprEnv;
 use crate::eval::env::parse_to_env;
 use crate::eval::env::type_env::TypeEnv;
 use crate::eval::eval_expr::eval_expr;
 use crate::eval::eval_expr::test::get_std_code;
 
-fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv) {
+fn gen_env<'t>() -> (TypeEnv<'t>, Rc<ExprEnv>) {
     let seq = get_std_code() +
         "
         # 1

@@ -8,9 +8,9 @@ use crate::eval::env::type_env::TypeEnv;
 use crate::eval::eval_expr::{eval_expr, EvalRet};
 use crate::eval::r#type::expr::Expr;
 use crate::eval::r#type::r#type::Type;
+use crate::infra::option::OptionAnyExt;
 use crate::infra::rc::RcAnyExt;
 
-// TODO: 验证 assign_expr 的求值策略(猜测为惰性)
 pub fn case_let(
     type_env: &TypeEnv,
     expr_env: Rc<ExprEnv>,
@@ -21,17 +21,18 @@ pub fn case_let(
     scope_expr: &Expr
 ) -> EvalRet {
     let new_expr_env = if *rec_assign {
-        expr_env.extend_rec_new(
+        expr_env.extend_new(
             assign_name,
             assign_type.clone(),
-            assign_expr.clone()
+            assign_expr.clone().some(),
+            None
         )
     } else {
         expr_env.clone().extend_new(
             assign_name,
             assign_type.clone(),
-            assign_expr.clone(),
-            expr_env
+            assign_expr.clone().some(),
+            expr_env.some()
         )
     }
     .rc();

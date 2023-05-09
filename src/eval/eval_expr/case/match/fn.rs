@@ -4,6 +4,7 @@ use crate::eval::env::expr_env::{ExprEnv, ExprEnvEntry};
 use crate::eval::env::type_env::TypeEnv;
 use crate::eval::r#type::expr::{Expr, StructField};
 use crate::infra::option::OptionAnyExt;
+use crate::infra::rc::RcAnyExt;
 
 fn is_struct_match_pattern_then_env_vec(
     type_env: &TypeEnv,
@@ -115,12 +116,15 @@ pub fn is_expr_match_pattern_then_env(
     expr_env: Rc<ExprEnv>,
     evaluated_expr: &Expr,
     pattern: &Expr
-) -> Option<ExprEnv> {
-    is_expr_match_pattern_then_env_vec(
+) -> Option<Rc<ExprEnv>> {
+    let expr_env_vec = is_expr_match_pattern_then_env_vec(
         type_env,
         expr_env.clone(),
         evaluated_expr,
         pattern
-    )
-    .map(|env_vec| expr_env.extend_vec_new(env_vec))
+    )?;
+
+    expr_env
+        .extend_vec_new(expr_env_vec)
+        .some()
 }

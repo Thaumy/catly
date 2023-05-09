@@ -21,7 +21,7 @@ mod test {
     #[test]
     fn test_part1() {
         let type_env = TypeEnv::new(vec![]);
-        let expr_env = ExprEnv::new(vec![]);
+        let expr_env = ExprEnv::empty();
 
         let expr = Expr::Unit(namely_type!("Unit"));
         let evaluated = eval_expr(&type_env, expr_env.rc(), &expr);
