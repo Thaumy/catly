@@ -38,7 +38,6 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
         def let10: Unit = let a = _ in a10: Int
 
         def let11 = let a: Unit = 1 in 1
-
         def let12 = let a = let b = _ in _ in a: Int
 
         def a13 = _
@@ -48,10 +47,16 @@ fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
         def let14 = let a = let b = a14: Unit in _ in { x = a14: Int, y: Int = a }
 
         def let15 = let a = _ in a: Int
-
         def let16: Int = let a = 1 in (): Unit
-
         def let17 = let a: Unit = 1: Int in 1
+        def let18 = let a = 1 in let a = a in a
+
+        def add19: Int -> Int -> Int = _
+        def a19 = _
+        def let19 = let a19 = add19 a19 1 in 1
+
+        def add20: Int -> Int -> Int = _
+        def let20 = let rec a20 = add20 a20 1 in 1
     ";
     parse_to_env(&seq).unwrap()
 }
@@ -274,4 +279,45 @@ fn test_part17() {
         .infer_type(&type_env, &expr_env);
 
     assert_matches!(infer_result, Quad::R(..))
+}
+
+#[test]
+fn test_part18() {
+    let (type_env, expr_env) = gen_env();
+
+    let infer_result = expr_env
+        .get_ref("let18")
+        .unwrap()
+        .infer_type(&type_env, &expr_env);
+
+    let t = int_type!();
+    check_has_type!(infer_result, t)
+}
+
+#[test]
+fn test_part19() {
+    let (type_env, expr_env) = gen_env();
+
+    let infer_result = expr_env
+        .get_ref("let19")
+        .unwrap()
+        .infer_type(&type_env, &expr_env);
+
+    let t = int_type!();
+    let erc =
+        EnvRefConstraint::single("a19".to_string(), int_type!());
+    check_req_constraint!(infer_result, t, erc)
+}
+
+#[test]
+fn test_part20() {
+    let (type_env, expr_env) = gen_env();
+
+    let infer_result = expr_env
+        .get_ref("let20")
+        .unwrap()
+        .infer_type(&type_env, &expr_env);
+
+    let t = int_type!();
+    check_has_type!(infer_result, t)
 }
