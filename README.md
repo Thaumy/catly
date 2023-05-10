@@ -127,9 +127,7 @@ If 表达式
 
 关键字 `if` `then` `else` 用于构造 If 表达式。
 
-`eq` 是 Catly
-中的内置函数，用于判断两个值的相等性。当两个值在类型和值上均相等时，`eq`
-返回真。否则，`eq` 返回假。
+`eq` 是 Catly 中的内置函数，用于判断两个整数的相等性。当两个整数值相等时，`eq` 返回真。否则，`eq` 返回假。
 
 ```Catly
 # The value of this expression is 4
@@ -405,7 +403,7 @@ match (): AB with
 内置函数
 
 Catly
-的内置函数用于提供不可分割的基本算术操作。当集齐所有操作数时，内置函数将立即求值。
+的内置函数用于提供不可分割的基本算术操作。
 
 | 名称 |  功能  |         类型         |
 | :--: | :----: | :------------------: |
@@ -486,3 +484,34 @@ def int2F = i -> fraction i 1
 ```
 
 </details>
+
+## 集成 Catly 解释器
+
+通过依赖此 crate，能够轻松地将 Catly 解释器嵌入到已有程序。
+
+下面是一个简单的例子：
+
+```rust
+use std::rc::Rc;
+use catly::eval::env::parse_to_env;
+use catly::eval::eval_expr::eval_expr;
+use catly::eval::std::std_code;
+
+fn main() {
+    let catly = std_code().to_owned() + "def a = add 1 1";
+
+    let (type_env, expr_env) = parse_to_env(&catly).unwrap();
+
+    let (ref_expr, eval_env) = expr_env
+        .get_ref_expr_and_env("a")
+        .unwrap();
+
+    let evaluated = eval_expr(&type_env, &eval_env, &Rc::new(ref_expr));
+
+    println!("{evaluated:?}"); // Ok(2:'Int')
+}
+```
+
+# Roadmap
+
+- [ ] Code generation to LLVM IR
