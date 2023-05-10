@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use crate::infer::env::expr_env::{ExprEnv, ExprEnvEntry};
 use crate::infer::env::r#type::env_ref_src::EnvRefSrc;
 use crate::infer::env::r#type::type_constraint::TypeConstraint;
@@ -5,6 +7,7 @@ use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::quad::Quad;
+use crate::infra::rc::RcAnyExt;
 use crate::infra::result::ResultAnyExt;
 use crate::infra::vec::VecExt;
 
@@ -27,7 +30,7 @@ impl InferErr {
 
 pub fn infer_type_of_defs(
     type_env: TypeEnv,
-    expr_env: ExprEnv,
+    expr_env: &Rc<ExprEnv>,
     expr_env_vec: Vec<ExprEnvEntry>
 ) -> Result<Vec<ExprEnvEntry>, InferErr> {
     let expr_env = expr_env.extend_vec_new(expr_env_vec.clone());
@@ -205,12 +208,14 @@ pub fn infer_type_of_defs(
             .map(|(n, tc, _)| (n, tc, EnvRefSrc::NoSrc))
             .collect();
 
-        let new_expr_env = ExprEnv::new(new_expr_env_vec);
+        let new_expr_env = ExprEnv::empty()
+            .rc()
+            .extend_vec_new(new_expr_env_vec);
 
         // 收集下一轮推导的结果, 与当前轮次的推导结果合并后返回
         let inferred_from_next_round = infer_type_of_defs(
             type_env,
-            new_expr_env,
+            &new_expr_env,
             need_to_infer
         )?;
 

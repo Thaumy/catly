@@ -1,8 +1,10 @@
 use std::collections::HashMap;
+use std::rc::Rc;
 
 use crate::infer::env::expr_env::{ExprEnv, ExprEnvEntry};
 use crate::infer::env::type_env::{TypeEnv, TypeEnvEntry};
 use crate::infra::option::OptionAnyExt;
+use crate::infra::rc::RcAnyExt;
 use crate::parser::ast::parse_ast;
 use crate::parser::define::Define;
 use crate::parser::expr::r#type::Expr;
@@ -53,7 +55,7 @@ pub fn def_map_to_env_vec(
 
 pub fn parse_to_env<'t>(
     seq: &str
-) -> Option<(TypeEnv<'t>, ExprEnv<'t>)> {
+) -> Option<(TypeEnv<'t>, Rc<ExprEnv>)> {
     let seq = preprocess(&seq)?;
     let def_vec = parse_ast(seq)?;
 
@@ -61,5 +63,10 @@ pub fn parse_to_env<'t>(
     let (type_env_vec, expr_env_vec) =
         def_map_to_env_vec(type_def_map, expr_def_map);
 
-    (TypeEnv::new(type_env_vec), ExprEnv::new(expr_env_vec)).some()
+    let type_env = TypeEnv::new(type_env_vec);
+    let expr_env = ExprEnv::empty()
+        .rc()
+        .extend_vec_new(expr_env_vec);
+
+    (type_env, expr_env).some()
 }

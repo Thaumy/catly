@@ -15,12 +15,12 @@ use crate::infra::result::ResultAnyExt;
 
 pub fn case_match(
     type_env: &TypeEnv,
-    expr_env: Rc<ExprEnv>,
+    expr_env: &Rc<ExprEnv>,
     target_expr: &Expr,
     case_vec: &Vec<(Expr, Expr)>
 ) -> EvalRet {
     let evaluated_target_expr =
-        eval_expr(type_env, expr_env.clone(), target_expr)?;
+        eval_expr(type_env, expr_env, target_expr)?;
 
     case_vec
         .iter()
@@ -28,7 +28,7 @@ pub fn case_match(
             (
                 is_expr_match_pattern_then_env(
                     type_env,
-                    expr_env.clone(),
+                    expr_env,
                     &evaluated_target_expr,
                     case_expr
                 ),
@@ -37,7 +37,7 @@ pub fn case_match(
         })
         .find(|x| matches!(x, (Some(_), _)))
         .and_then(|(env, then_expr)| {
-            eval_expr(type_env, env?, then_expr).some()
+            eval_expr(type_env, &env?, then_expr).some()
         })
         .unwrap_or_else(|| {
             EvalErr::NonExhaustiveMatch(format!(

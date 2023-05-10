@@ -11,12 +11,12 @@ use crate::eval::r#type::r#type::Type;
 
 pub fn case_cond(
     type_env: &TypeEnv,
-    expr_env: Rc<ExprEnv>,
+    expr_env: &Rc<ExprEnv>,
     bool_expr: &Expr,
     then_expr: &Expr,
     else_expr: &Expr
 ) -> EvalRet {
-    match eval_expr(type_env, expr_env.clone(), bool_expr) {
+    match eval_expr(type_env, expr_env, bool_expr) {
         Ok(value) => match value {
             Expr::Int(Type::NamelyType(n), 1) if n == "True" =>
                 eval_expr(type_env, expr_env, then_expr),

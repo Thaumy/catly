@@ -14,7 +14,7 @@ use crate::infra::vec::VecExt;
 
 pub fn case_struct(
     type_env: &TypeEnv,
-    expr_env: Rc<ExprEnv>,
+    expr_env: &Rc<ExprEnv>,
     type_annot: &Type,
     struct_vec: &Vec<StructField>
 ) -> EvalRet {
@@ -24,7 +24,7 @@ pub fn case_struct(
             (
                 sf_n.clone(),
                 sf_t.clone(),
-                eval_expr(type_env, expr_env.clone(), sf_e)?
+                eval_expr(type_env, expr_env, sf_e)?
             )
                 .ok()
         })

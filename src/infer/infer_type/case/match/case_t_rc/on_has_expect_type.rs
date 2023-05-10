@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use crate::infer::env::expr_env::{ExprEnv, ExprEnvEntry};
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
@@ -14,7 +16,7 @@ use crate::parser::r#type::r#type::Type;
 
 pub fn on_has_expect_type<T>(
     type_env: &TypeEnv,
-    expr_env: &ExprEnv,
+    expr_env: &Rc<ExprEnv>,
     case_env_inject_and_then_expr: T,
     expect_type: Type,
     typed_case_expr: &Vec<Expr>,

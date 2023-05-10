@@ -12,13 +12,13 @@ use crate::infra::result::ResultAnyExt;
 #[test]
 fn test_part1() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::empty();
+    let expr_env = ExprEnv::empty().rc();
 
     let expr = Expr::Apply(
         (PrimitiveOp::Neg.into(): Expr).rc(),
         Expr::Int(namely_type!("Int"), 10).rc()
     );
-    let evaluated = eval_expr(&type_env, expr_env.rc(), &expr);
+    let evaluated = eval_expr(&type_env, &expr_env, &expr);
 
     let r = Expr::Int(namely_type!("Int"), -10);
 
@@ -29,13 +29,13 @@ fn test_part1() {
 #[test]
 fn test_part2() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::empty();
+    let expr_env = ExprEnv::empty().rc();
 
     let expr = Expr::Apply(
         (PrimitiveOp::Add(None).into(): Expr).rc(),
         Expr::Int(namely_type!("Int"), 10).rc()
     );
-    let evaluated = eval_expr(&type_env, expr_env.rc(), &expr);
+    let evaluated = eval_expr(&type_env, &expr_env, &expr);
 
     let r =
         PrimitiveOp::Add(Expr::Int(namely_type!("Int"), 10).some())
@@ -56,7 +56,7 @@ fn test_part3() {
             .rc(),
         Expr::Int(namely_type!("Int"), 10).rc()
     );
-    let evaluated = eval_expr(&type_env, expr_env, &expr);
+    let evaluated = eval_expr(&type_env, &expr_env, &expr);
 
     let r = Expr::Int(namely_type!("Int"), 20);
 
@@ -73,7 +73,7 @@ fn test_part4() {
         (PrimitiveOp::Add(None).into(): Expr).rc(),
         Expr::Int(namely_type!("Int"), 10).rc()
     );
-    let evaluated = eval_expr(&type_env, expr_env, &expr);
+    let evaluated = eval_expr(&type_env, &expr_env, &expr);
 
     let r =
         PrimitiveOp::Add(Expr::Int(namely_type!("Int"), 10).some())
@@ -92,7 +92,7 @@ fn test_part5() {
         (PrimitiveOp::And(None).into(): Expr).rc(),
         Expr::Int(namely_type!("False"), 0).rc()
     );
-    let evaluated = eval_expr(&type_env, expr_env, &expr);
+    let evaluated = eval_expr(&type_env, &expr_env, &expr);
 
     let r =
         PrimitiveOp::And(Expr::Int(namely_type!("False"), 0).some())
@@ -113,7 +113,7 @@ fn test_part6() {
             .rc(),
         Expr::Int(namely_type!("False"), 0).rc()
     );
-    let evaluated = eval_expr(&type_env, expr_env, &expr);
+    let evaluated = eval_expr(&type_env, &expr_env, &expr);
 
     let r = Expr::Int(namely_type!("False"), 0);
 

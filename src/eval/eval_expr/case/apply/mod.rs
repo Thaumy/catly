@@ -16,15 +16,11 @@ mod test;
 
 pub fn case_apply(
     type_env: &TypeEnv,
-    expr_env: Rc<ExprEnv>,
+    expr_env: &Rc<ExprEnv>,
     lhs_expr: &Expr,
     rhs_expr: &Expr
 ) -> EvalRet {
-    match source_lhs_expr_to_closure(
-        type_env,
-        expr_env.clone(),
-        &lhs_expr
-    )? {
+    match source_lhs_expr_to_closure(type_env, expr_env, &lhs_expr)? {
         Either::L((
             input_name,
             input_type,
@@ -43,14 +39,15 @@ pub fn case_apply(
                 None => output_eval_env.clone()
             };
 
-            eval_expr(type_env, extended_eval_env, &output_expr)
+            eval_expr(type_env, &extended_eval_env, &output_expr)
         }
-        Either::R((primitive_op, lhs_eval_env)) => primitive_apply(
-            type_env,
-            lhs_eval_env,
-            expr_env,
-            &primitive_op,
-            rhs_expr
-        )
+        Either::R((ref primitive_op, ref lhs_eval_env)) =>
+            primitive_apply(
+                type_env,
+                lhs_eval_env,
+                expr_env,
+                primitive_op,
+                rhs_expr
+            ),
     }
 }

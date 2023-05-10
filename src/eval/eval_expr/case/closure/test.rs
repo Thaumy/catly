@@ -11,7 +11,7 @@ use crate::infra::result::ResultAnyExt;
 #[test]
 fn test_part1() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::empty();
+    let expr_env = ExprEnv::empty().rc();
 
     let expr = Expr::Closure(
         closure_type!(namely_type!("Int"), namely_type!("Int")),
@@ -20,7 +20,7 @@ fn test_part1() {
         Expr::Int(namely_type!("Int"), 1).rc(),
         None
     );
-    let evaluated = eval_expr(&type_env, expr_env.rc(), &expr);
+    let evaluated = eval_expr(&type_env, &expr_env, &expr);
 
     assert_ne!(evaluated, expr.ok());
 }
@@ -29,7 +29,7 @@ fn test_part1() {
 #[test]
 fn test_part2() {
     let type_env = TypeEnv::new(vec![]);
-    let expr_env = ExprEnv::empty();
+    let expr_env = ExprEnv::empty().rc();
 
     let expr = Expr::Closure(
         closure_type!(namely_type!("Int"), namely_type!("Int")),
@@ -38,7 +38,7 @@ fn test_part2() {
         Expr::Int(namely_type!("Int"), 1).rc(),
         None
     );
-    let evaluated = eval_expr(&type_env, expr_env.rc(), &expr);
+    let evaluated = eval_expr(&type_env, &expr_env, &expr);
 
     assert_ne!(evaluated, expr.ok());
 }
@@ -56,7 +56,7 @@ fn test_part3() {
         Expr::Int(namely_type!("Int"), 1).rc(),
         None
     );
-    let evaluated = eval_expr(&type_env, expr_env.clone(), &expr);
+    let evaluated = eval_expr(&type_env, &expr_env, &expr);
 
     let r = Expr::Closure(
         closure_type!(namely_type!("Int"), namely_type!("Int")),
@@ -82,7 +82,7 @@ fn test_part4() {
         Expr::Int(namely_type!("Int"), 1).rc(),
         None
     );
-    let evaluated = eval_expr(&type_env, expr_env.clone(), &expr);
+    let evaluated = eval_expr(&type_env, &expr_env, &expr);
 
     let r = Expr::Closure(
         closure_type!(namely_type!("Int"), namely_type!("Int")),

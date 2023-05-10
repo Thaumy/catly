@@ -1,36 +1,49 @@
 mod infer_type;
 mod infer_type_with_hint;
 
+use std::rc::Rc;
+
 use crate::infer::env::r#type::env_ref_src::EnvRefSrc;
 use crate::infer::env::r#type::type_constraint::TypeConstraint;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infra::option::OptionAnyExt;
+use crate::infra::rc::RcAnyExt;
 use crate::parser::expr::r#type::{Expr, OptExpr};
 use crate::parser::r#type::r#type::OptType;
 
 pub type ExprEnvEntry = (String, TypeConstraint, EnvRefSrc);
 
-// TODO: 重构到单一环境条目
 // 编译时表达式环境
 #[derive(Clone, Debug)]
-pub struct ExprEnv<'t> {
-    prev_env: Option<&'t ExprEnv<'t>>,
-    env: Vec<ExprEnvEntry>
+pub struct ExprEnv {
+    prev_env: Option<Rc<ExprEnv>>,
+    entry: Option<(String, TypeConstraint, EnvRefSrc)>
 }
 
-impl<'t> ExprEnv<'t> {
-    pub fn empty() -> ExprEnv<'t> { Self::new(vec![]) }
+impl ExprEnv {
+    pub fn empty() -> ExprEnv {
+        ExprEnv {
+            prev_env: None,
+            entry: None
+        }
+    }
 
-    pub fn new(env_vec: Vec<ExprEnvEntry>) -> ExprEnv<'t> {
+    pub fn new<'s>(
+        ref_name: impl Into<String>,
+        tc: TypeConstraint,
+        src: EnvRefSrc
+    ) -> ExprEnv {
+        let entry = (ref_name.into(), tc, src);
+
         let expr_env = ExprEnv {
             prev_env: None,
-            env: env_vec
+            entry: entry.some()
         };
 
         if cfg!(feature = "ct_env_log") {
             let log = format!(
                 "{:8}{:>10} │ {:?}",
-                "[ct env]", "ExprEnv", expr_env.env
+                "[ct env]", "ExprEnv", expr_env.entry
             );
             println!("{log}");
         }
@@ -40,29 +53,35 @@ impl<'t> ExprEnv<'t> {
 
     // 通过将最近的非空环境作为上级环境, 能够提高查找效率
     // 因为环境不可变, 所以没有风险
-    fn latest_none_empty_expr_env(&self) -> &ExprEnv {
-        match (self.env.is_empty(), self.prev_env) {
+    fn latest_none_empty_expr_env(self: &Rc<Self>) -> Rc<ExprEnv> {
+        match (self.entry.is_none(), &self.prev_env) {
             (true, Some(prev_env)) =>
                 prev_env.latest_none_empty_expr_env(),
-            _ => self
+            _ => self.clone()
         }
     }
 
     pub fn extend_vec_new(
-        &self,
+        self: &Rc<Self>,
         env_vec: Vec<ExprEnvEntry>
-    ) -> ExprEnv {
-        let expr_env = ExprEnv {
-            prev_env: self
-                .latest_none_empty_expr_env()
-                .some(),
-            env: env_vec
-        };
+    ) -> Rc<ExprEnv> {
+        let expr_env = env_vec.into_iter().fold(
+            self.clone(),
+            |acc, (r_n, tc, src)| {
+                ExprEnv {
+                    prev_env: acc
+                        .latest_none_empty_expr_env()
+                        .some(),
+                    entry: (r_n, tc, src).some()
+                }
+                .rc()
+            }
+        );
 
         if cfg!(feature = "ct_env_log") {
             let log = format!(
                 "{:8}{:>10} │ {:?}",
-                "[ct env]", "ExprEnv", expr_env.env
+                "[ct env]", "ExprEnv", expr_env.entry
             );
             println!("{log}");
         }
@@ -71,11 +90,11 @@ impl<'t> ExprEnv<'t> {
     }
 
     pub fn extend_new(
-        &self,
+        self: &Rc<Self>,
         ref_name: impl Into<String>,
         r#type: OptType,
         src: OptExpr
-    ) -> ExprEnv {
+    ) -> Rc<ExprEnv> {
         let tc = r#type
             .map(|t| t.into())
             .unwrap_or(TypeConstraint::Free);
@@ -89,7 +108,7 @@ impl<'t> ExprEnv<'t> {
         if cfg!(feature = "ct_env_log") {
             let log = format!(
                 "{:8}{:>10} │ {:?}",
-                "[ct env]", "ExprEnv", expr_env.env
+                "[ct env]", "ExprEnv", expr_env.entry
             );
             println!("{log}");
         }
@@ -98,9 +117,9 @@ impl<'t> ExprEnv<'t> {
     }
 
     pub fn extend_constraint_new(
-        &self,
+        self: &Rc<Self>,
         constraint: EnvRefConstraint
-    ) -> ExprEnv {
+    ) -> Rc<ExprEnv> {
         let vec = constraint
             .into_iter()
             .map(|(n, t)| (n, t.into(), EnvRefSrc::NoSrc))
@@ -111,7 +130,7 @@ impl<'t> ExprEnv<'t> {
         if cfg!(feature = "ct_env_log") {
             let log = format!(
                 "{:8}{:>10} │ {:?}",
-                "[ct env]", "ExprEnv", expr_env.env
+                "[ct env]", "ExprEnv", expr_env.entry
             );
             println!("{log}");
         }
@@ -124,13 +143,14 @@ impl<'t> ExprEnv<'t> {
         ref_name: impl Into<&'s str>
     ) -> Option<&ExprEnvEntry> {
         let ref_name = ref_name.into();
-        let entry = self
-            .env
-            .iter()
-            .rev()
-            .find(|(n, ..)| n == ref_name);
+        let entry =
+            self.entry
+                .as_ref()
+                .and_then(|entry @ (n, ..)| {
+                    (n == ref_name).then(|| entry)
+                });
 
-        match (entry, self.prev_env) {
+        match (entry, &self.prev_env) {
             (Some(entry), _) => entry.some(),
             (None, Some(prev_env)) => prev_env.find_entry(ref_name),
             _ => None

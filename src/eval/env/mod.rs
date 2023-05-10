@@ -39,7 +39,7 @@ fn ct_expr_env_vec_to_rt_expr_env_vec(
 ) -> Result<Vec<ExprEnvEntry>, InferErr> {
     let inferred_defs = infer_type_of_defs(
         ct_type_env,
-        CtExprEnv::new(vec![]),
+        &CtExprEnv::empty().rc(),
         ct_expr_env_vec
     )?;
 
@@ -104,5 +104,6 @@ pub fn parse_to_env<'t>(
     let expr_env = ExprEnv::empty()
         .rc()
         .extend_vec_new(expr_env_vec);
+
     (type_env, expr_env).some()
 }

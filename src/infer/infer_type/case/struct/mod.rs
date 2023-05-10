@@ -2,6 +2,8 @@ mod r#fn;
 #[cfg(test)]
 mod test;
 
+use std::rc::Rc;
+
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::case::r#struct::r#fn::is_struct_vec_of_type_then_get_prod_vec;
@@ -18,7 +20,7 @@ use crate::parser::r#type::r#type::Type;
 
 pub fn case(
     type_env: &TypeEnv,
-    expr_env: &ExprEnv,
+    expr_env: &Rc<ExprEnv>,
     expect_type: &OptType,
     struct_vec: &Vec<StructField>
 ) -> InferTypeRet {

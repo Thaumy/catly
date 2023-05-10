@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::r#type::env_ref_src::EnvRefSrc;
 use crate::infer::env::r#type::type_constraint::TypeConstraint;
@@ -11,12 +13,12 @@ use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::OptType;
 
-impl<'t> ExprEnv<'t> {
+impl ExprEnv {
     // 由于表达式对环境中的 ref_name 的使用是一种间接使用, 可能存在多处引用对于 ref_name 的类型要求不一致的情况
     // 所以如果 hint 发挥了作用, 那么一定要对 ref_name 产生到 hint 的约束
     // 暂不考虑泛型(类型参数)设计, 类型参数允许多个不同的约束作用于同一表达式, 这与现有的约束设计冲突
     pub fn infer_type_with_hint<'s>(
-        &self,
+        self: &Rc<Self>,
         type_env: &TypeEnv,
         ref_name: impl Into<&'s str> + Clone,
         hint: &OptType

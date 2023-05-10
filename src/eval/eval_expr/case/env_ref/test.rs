@@ -20,7 +20,7 @@ fn test_part1() {
     .rc();
 
     let expr = Expr::EnvRef(namely_type!("Int"), "a".to_string());
-    let evaluated = eval_expr(&type_env, expr_env, &expr);
+    let evaluated = eval_expr(&type_env, &expr_env, &expr);
 
     let r = Expr::Int(namely_type!("Int"), 10);
 
@@ -47,7 +47,7 @@ fn test_part2() {
     .rc();
 
     let expr = Expr::EnvRef(namely_type!("Int"), "a".to_string());
-    let evaluated = eval_expr(&type_env, expr_env, &expr);
+    let evaluated = eval_expr(&type_env, &expr_env, &expr);
 
     let r = Expr::Int(namely_type!("Int"), 5);
 
@@ -83,7 +83,7 @@ fn test_part3() {
     .rc();
 
     let expr = Expr::EnvRef(namely_type!("Int"), "a".to_string());
-    let evaluated = eval_expr(&type_env, expr_env, &expr);
+    let evaluated = eval_expr(&type_env, &expr_env, &expr);
 
     let r = Expr::Int(namely_type!("Int"), 10);
 

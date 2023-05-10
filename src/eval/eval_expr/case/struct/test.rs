@@ -36,7 +36,7 @@ fn test_part1() {
             ),
         ]
     );
-    let evaluated = eval_expr(&type_env, expr_env, &expr);
+    let evaluated = eval_expr(&type_env, &expr_env, &expr);
 
     assert_eq!(evaluated, expr.ok());
 }

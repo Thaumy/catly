@@ -4,6 +4,7 @@ mod case_t_rc;
 mod test;
 
 use std::ops::Deref;
+use std::rc::Rc;
 
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
@@ -20,7 +21,7 @@ use crate::parser::r#type::r#type::Type;
 
 pub fn case(
     type_env: &TypeEnv,
-    expr_env: &ExprEnv,
+    expr_env: &Rc<ExprEnv>,
     expect_type: &OptType,
     lhs_expr: &Expr,
     rhs_expr: &Expr

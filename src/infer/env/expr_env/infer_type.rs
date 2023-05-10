@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::r#type::env_ref_src::EnvRefSrc;
 use crate::infer::env::r#type::type_constraint::TypeConstraint;
@@ -10,9 +12,9 @@ use crate::infra::option::OptionAnyExt;
 use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 
-impl<'t> ExprEnv<'t> {
+impl ExprEnv {
     pub fn infer_type<'s>(
-        &self,
+        self: &Rc<Self>,
         type_env: &TypeEnv,
         ref_name: impl Into<&'s str> + Clone
     ) -> InferTypeRet {

@@ -13,7 +13,7 @@ use crate::infra::result::ResultAnyExt;
 
 pub fn source_lhs_expr_to_closure<'t>(
     type_env: &'t TypeEnv,
-    expr_env: Rc<ExprEnv>,
+    expr_env: &Rc<ExprEnv>,
     lhs_expr: &Expr
 ) -> Result<
     Either<
@@ -58,7 +58,7 @@ pub fn source_lhs_expr_to_closure<'t>(
         // 所以可以对 lhs_expr 进行自由求值
         other_lhs_expr => source_lhs_expr_to_closure(
             type_env,
-            expr_env.clone(),
+            expr_env,
             &eval_expr(type_env, expr_env, other_lhs_expr)?
         )
     }

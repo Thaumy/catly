@@ -1,4 +1,5 @@
 use std::assert_matches::assert_matches;
+use std::rc::Rc;
 
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::parse_to_env;
@@ -15,7 +16,7 @@ use crate::infer::infer_type::test::{
 };
 use crate::infra::quad::Quad;
 
-fn gen_env<'t>() -> (TypeEnv<'t>, ExprEnv<'t>) {
+fn gen_env<'t>() -> (TypeEnv<'t>, Rc<ExprEnv>) {
     let seq = "
         def f1 = a -> a
         def f2: Int -> Int = a -> a

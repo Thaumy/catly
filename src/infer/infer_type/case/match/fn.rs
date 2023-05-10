@@ -10,6 +10,7 @@ use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::OptionAnyExt;
 use crate::infra::quad::Quad;
 use crate::infra::r#fn::id;
+use crate::infra::rc::RcAnyExt;
 use crate::infra::result::ResultAnyExt;
 use crate::infra::triple::Triple;
 use crate::infra::vec::VecExt;
@@ -109,7 +110,9 @@ pub fn is_case_expr_valid<'t>(
         .into_iter()
         .map(|(case_expr, env_inject)| {
             // 使用空表达式环境提取 case_expr_type, 这样能让所有对外界的约束得以暴露
-            match case_expr.infer_type(type_env, &ExprEnv::empty())? {
+            match case_expr
+                .infer_type(type_env, &ExprEnv::empty().rc())?
+            {
                 Triple::L(typed_case_expr) => {
                     let case_expr_type =
                         typed_case_expr.unwrap_type_annot();

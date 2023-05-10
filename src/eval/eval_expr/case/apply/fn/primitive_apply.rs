@@ -17,22 +17,18 @@ use crate::infra::result::ResultAnyExt;
 
 pub fn primitive_apply(
     type_env: &TypeEnv,
-    lhs_eval_env: Rc<ExprEnv>,
-    rhs_eval_env: Rc<ExprEnv>,
+    lhs_eval_env: &Rc<ExprEnv>,
+    rhs_eval_env: &Rc<ExprEnv>,
     primitive_op: &PrimitiveOp,
     rhs_expr: &Expr
 ) -> EvalRet {
-    let lhs_int = |lhs_expr| {
-        eval_to_int(type_env, lhs_eval_env.clone(), lhs_expr)
-    };
-    let lhs_bool = |lhs_expr| {
-        eval_to_bool(type_env, lhs_eval_env.clone(), lhs_expr)
-    };
+    let lhs_int =
+        |lhs_expr| eval_to_int(type_env, lhs_eval_env, lhs_expr);
+    let lhs_bool =
+        |lhs_expr| eval_to_bool(type_env, lhs_eval_env, lhs_expr);
 
-    let rhs_int =
-        || eval_to_int(type_env, rhs_eval_env.clone(), rhs_expr);
-    let rhs_bool =
-        || eval_to_bool(type_env, rhs_eval_env.clone(), rhs_expr);
+    let rhs_int = || eval_to_int(type_env, rhs_eval_env, rhs_expr);
+    let rhs_bool = || eval_to_bool(type_env, rhs_eval_env, rhs_expr);
 
     match primitive_op {
         // neg

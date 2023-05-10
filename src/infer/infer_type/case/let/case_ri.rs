@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
@@ -12,7 +14,7 @@ use crate::parser::r#type::r#type::OptType;
 
 pub fn case_ri(
     type_env: &TypeEnv,
-    expr_env: &ExprEnv,
+    expr_env: &Rc<ExprEnv>,
     req_info_ref_name: &str,
     expect_type: &OptType,
     rec_assign: &bool,

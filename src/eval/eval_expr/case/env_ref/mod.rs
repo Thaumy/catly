@@ -11,7 +11,7 @@ use crate::infra::result::ResultAnyExt;
 
 pub fn case_env_ref(
     type_env: &TypeEnv,
-    expr_env: Rc<ExprEnv>,
+    expr_env: &Rc<ExprEnv>,
     ref_name: &String
 ) -> EvalRet {
     // TODO:
@@ -21,7 +21,7 @@ pub fn case_env_ref(
         .clone()
         .get_src_expr_and_env(ref_name.as_str())
     {
-        Some((src_expr, src_env)) =>
+        Some((src_expr, ref src_env)) =>
             eval_expr(type_env, src_env, src_expr),
         None => EvalErr::EnvRefNotFound(format!(
             "EnvRef::{ref_name:?} not found in expr env"

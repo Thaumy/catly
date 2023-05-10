@@ -14,7 +14,7 @@ pub mod source_lhs_to_closure;
 
 pub fn eval_to_bool(
     type_env: &TypeEnv,
-    expr_env: Rc<ExprEnv>,
+    expr_env: &Rc<ExprEnv>,
     expr: &Expr
 ) -> Result<bool, EvalErr> {
     match eval_expr(type_env, expr_env, expr)? {
@@ -27,7 +27,7 @@ pub fn eval_to_bool(
 
 pub fn eval_to_int(
     type_env: &TypeEnv,
-    expr_env: Rc<ExprEnv>,
+    expr_env: &Rc<ExprEnv>,
     expr: &Expr
 ) -> Result<i64, EvalErr> {
     match eval_expr(type_env, expr_env, expr)? {

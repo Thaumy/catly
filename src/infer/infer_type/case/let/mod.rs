@@ -4,6 +4,8 @@ mod case_t_rc;
 #[cfg(test)]
 mod test;
 
+use std::rc::Rc;
+
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::case::r#let::case_ri::case_ri;
@@ -18,7 +20,7 @@ use crate::parser::r#type::r#type::OptType;
 
 pub fn case(
     type_env: &TypeEnv,
-    expr_env: &ExprEnv,
+    expr_env: &Rc<ExprEnv>,
     expect_type: &OptType,
     rec_assign: &bool,
     assign_name: &String,

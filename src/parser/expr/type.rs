@@ -33,7 +33,7 @@ impl Expr {
     pub fn infer_type(
         &self,
         type_env: &TypeEnv,
-        expr_env: &ExprEnv
+        expr_env: &Rc<ExprEnv>
     ) -> InferTypeRet {
         infer_type(type_env, expr_env, self)
     }

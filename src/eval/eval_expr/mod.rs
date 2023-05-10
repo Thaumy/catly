@@ -24,7 +24,7 @@ pub type EvalRet = Result<Expr, EvalErr>;
 
 pub fn eval_expr(
     type_env: &TypeEnv,
-    expr_env: Rc<ExprEnv>,
+    expr_env: &Rc<ExprEnv>,
     expr: &Expr
 ) -> EvalRet {
     if cfg!(feature = "eval_log") {

@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
@@ -7,7 +9,7 @@ use crate::parser::expr::r#type::Expr;
 
 pub fn case_ri(
     type_env: &TypeEnv,
-    expr_env: &ExprEnv,
+    expr_env: &Rc<ExprEnv>,
     bool_expr: &Expr,
     else_expr: &Expr,
     then_expr: &Expr

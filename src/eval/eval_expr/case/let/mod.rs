@@ -13,7 +13,7 @@ use crate::infra::rc::RcAnyExt;
 
 pub fn case_let(
     type_env: &TypeEnv,
-    expr_env: Rc<ExprEnv>,
+    expr_env: &Rc<ExprEnv>,
     rec_assign: &bool,
     assign_name: &String,
     assign_type: &Type,
@@ -32,10 +32,10 @@ pub fn case_let(
             assign_name,
             assign_type.clone(),
             assign_expr.clone().some(),
-            expr_env.some()
+            expr_env.clone().some()
         )
     }
     .rc();
 
-    eval_expr(type_env, new_expr_env, scope_expr)
+    eval_expr(type_env, &new_expr_env, scope_expr)
 }

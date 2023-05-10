@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
@@ -10,7 +12,7 @@ use crate::parser::r#type::r#type::Type;
 
 pub fn case_t_rc<F>(
     type_env: &TypeEnv,
-    expr_env: &ExprEnv,
+    expr_env: &Rc<ExprEnv>,
     lhs_input_type: Type,
     lhs_output_type: Type,
     expect_type: &OptType,

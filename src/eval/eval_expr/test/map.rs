@@ -45,12 +45,12 @@ fn test_part1() {
     let (ref_expr, eval_env) = expr_env
         .get_ref_expr_and_env("evalMap1")
         .unwrap();
-    let evaluated = eval_expr(&type_env, eval_env, &ref_expr);
+    let evaluated = eval_expr(&type_env, &eval_env, &ref_expr);
 
     let (ref_expr, eval_env) = expr_env
         .get_ref_expr_and_env("r1")
         .unwrap();
-    let r = eval_expr(&type_env, eval_env, &ref_expr);
+    let r = eval_expr(&type_env, &eval_env, &ref_expr);
 
     assert_eq!(evaluated, r);
 }
@@ -62,12 +62,12 @@ fn test_part2() {
     let (ref_expr, eval_env) = expr_env
         .get_ref_expr_and_env("evalMap2")
         .unwrap();
-    let evaluated = eval_expr(&type_env, eval_env, &ref_expr);
+    let evaluated = eval_expr(&type_env, &eval_env, &ref_expr);
 
     let (ref_expr, eval_env) = expr_env
         .get_ref_expr_and_env("r2")
         .unwrap();
-    let r = eval_expr(&type_env, eval_env, &ref_expr);
+    let r = eval_expr(&type_env, &eval_env, &ref_expr);
 
     assert_eq!(evaluated, r);
 }

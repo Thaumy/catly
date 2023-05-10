@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::case::r#match::r#fn::destruct_match_const_to_expr_env_inject;
@@ -15,7 +17,7 @@ use crate::parser::r#type::r#type::{OptType, Type};
 
 pub fn case_ri(
     type_env: &TypeEnv,
-    expr_env: &ExprEnv,
+    expr_env: &Rc<ExprEnv>,
     require_info: ReqInfo,
     expect_type: &OptType,
     target_expr: &Expr,

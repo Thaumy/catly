@@ -1,6 +1,7 @@
 mod on_has_expect_type;
 mod on_no_expect_type;
 
+use std::rc::Rc;
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::case::r#match::case_t_rc::on_has_expect_type::on_has_expect_type;
@@ -16,7 +17,7 @@ use crate::parser::expr::r#type::Expr;
 
 pub fn case_t_rc(
     type_env: &TypeEnv,
-    expr_env: &ExprEnv,
+    expr_env: &Rc<ExprEnv>,
     typed_target_expr: Expr,
     expect_type: &OptType,
     case_vec: &Vec<(Expr, Expr)>

@@ -26,7 +26,7 @@ mod test {
         let expr_env = ExprEnv::empty().rc();
 
         let expr = Expr::Discard(namely_type!("Int"));
-        let evaluated = eval_expr(&type_env, expr_env, &expr);
+        let evaluated = eval_expr(&type_env, &expr_env, &expr);
 
         assert_matches!(evaluated, Result::Err(..))
     }

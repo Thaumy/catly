@@ -15,14 +15,14 @@ pub fn case_closure(
     input_name: &Option<String>,
     input_type: &Type,
     output_expr: &Rc<Expr>,
-    eval_env: Rc<ExprEnv>
+    eval_env: &Rc<ExprEnv>
 ) -> EvalRet {
     Expr::Closure(
         type_annot.clone(),
         input_name.clone(),
         input_type.clone(),
         output_expr.clone(),
-        eval_env.some()
+        eval_env.clone().some()
     )
     .ok()
 }

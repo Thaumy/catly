@@ -51,7 +51,7 @@ impl ExprEnv {
         expr_env
     }
 
-    fn latest_none_empty_expr_env(self: Rc<Self>) -> Rc<ExprEnv> {
+    fn latest_none_empty_expr_env(self: &Rc<Self>) -> Rc<ExprEnv> {
         match (self.entry.is_none(), &self.prev_env) {
             (true, Some(prev_env)) => prev_env
                 .clone()
@@ -61,7 +61,7 @@ impl ExprEnv {
     }
 
     pub fn extend_new(
-        self: Rc<Self>,
+        self: &Rc<Self>,
         ref_name: impl Into<String>,
         r#type: Type,
         src: OptExpr,
@@ -88,11 +88,11 @@ impl ExprEnv {
     }
 
     pub fn extend_vec_new(
-        self: Rc<Self>,
+        self: &Rc<Self>,
         expr_env_vec: Vec<ExprEnvEntry>
     ) -> Rc<ExprEnv> {
         expr_env_vec.into_iter().fold(
-            self,
+            self.clone(),
             |acc, (r_n, t, src, src_env)| {
                 acc.extend_new(r_n.as_str(), t, src, src_env)
                     .rc()

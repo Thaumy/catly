@@ -2,6 +2,8 @@ mod infer_branch_type;
 #[cfg(test)]
 mod test;
 
+use std::rc::Rc;
+
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::r#macro::bool_type;
 use crate::infer::env::type_env::TypeEnv;
@@ -17,7 +19,7 @@ use crate::parser::r#type::r#type::OptType;
 
 pub fn case(
     type_env: &TypeEnv,
-    expr_env: &ExprEnv,
+    expr_env: &Rc<ExprEnv>,
     expect_type: &OptType,
     bool_expr: &Expr,
     then_expr: &Expr,
