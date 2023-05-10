@@ -4,11 +4,11 @@ use crate::eval::env::expr_env::ExprEnv;
 use crate::eval::env::parse_to_env;
 use crate::eval::env::type_env::TypeEnv;
 use crate::eval::eval_expr::eval_expr;
-use crate::eval::eval_expr::test::get_std_code;
+use crate::eval::std::std_code;
 use crate::infra::rc::RcAnyExt;
 
 fn gen_env<'t>() -> (TypeEnv<'t>, Rc<ExprEnv>) {
-    let seq = get_std_code() +
+    let seq = std_code().to_owned() +
         "
         # 1
         def find1: Int -> IntList -> Bool =

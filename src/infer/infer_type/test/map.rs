@@ -1,14 +1,15 @@
 use std::rc::Rc;
 
+use crate::eval::std::std_code;
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::parse_to_env;
 use crate::infer::env::r#macro::closure_type;
 use crate::infer::env::r#macro::int_type;
 use crate::infer::env::type_env::TypeEnv;
-use crate::infer::infer_type::test::{check_has_type, get_std_code};
+use crate::infer::infer_type::test::check_has_type;
 
 fn gen_env<'t>() -> (TypeEnv<'t>, Rc<ExprEnv>) {
-    let seq = get_std_code() +
+    let seq = std_code().to_owned() +
         "
         # 1
         def map1: (Int -> Int) -> IntList -> IntList =
