@@ -20,7 +20,8 @@ fn test_part1() {
         Expr::Int(namely_type!("Int"), 1).rc(),
         None
     );
-    let evaluated = eval_expr(&type_env, &expr_env, &expr);
+    let evaluated =
+        eval_expr(&type_env, &expr_env, &expr.clone().rc());
 
     assert_ne!(evaluated, expr.ok());
 }
@@ -38,7 +39,8 @@ fn test_part2() {
         Expr::Int(namely_type!("Int"), 1).rc(),
         None
     );
-    let evaluated = eval_expr(&type_env, &expr_env, &expr);
+    let evaluated =
+        eval_expr(&type_env, &expr_env, &expr.clone().rc());
 
     assert_ne!(evaluated, expr.ok());
 }
@@ -56,7 +58,7 @@ fn test_part3() {
         Expr::Int(namely_type!("Int"), 1).rc(),
         None
     );
-    let evaluated = eval_expr(&type_env, &expr_env, &expr);
+    let evaluated = eval_expr(&type_env, &expr_env, &expr.rc());
 
     let r = Expr::Closure(
         closure_type!(namely_type!("Int"), namely_type!("Int")),
@@ -82,7 +84,7 @@ fn test_part4() {
         Expr::Int(namely_type!("Int"), 1).rc(),
         None
     );
-    let evaluated = eval_expr(&type_env, &expr_env, &expr);
+    let evaluated = eval_expr(&type_env, &expr_env, &expr.rc());
 
     let r = Expr::Closure(
         closure_type!(namely_type!("Int"), namely_type!("Int")),

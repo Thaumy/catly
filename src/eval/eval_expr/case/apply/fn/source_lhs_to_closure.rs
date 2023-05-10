@@ -9,12 +9,13 @@ use crate::eval::r#type::expr::primitive_op::PrimitiveOp;
 use crate::eval::r#type::expr::Expr;
 use crate::eval::r#type::r#type::Type;
 use crate::infra::either::{Either, EitherAnyExt};
+use crate::infra::rc::RcAnyExt;
 use crate::infra::result::ResultAnyExt;
 
 pub fn source_lhs_expr_to_closure<'t>(
     type_env: &'t TypeEnv,
     expr_env: &Rc<ExprEnv>,
-    lhs_expr: &Expr
+    lhs_expr: &Rc<Expr>
 ) -> Result<
     Either<
         (Option<String>, Type, Rc<Expr>, Rc<ExprEnv>),
@@ -22,7 +23,7 @@ pub fn source_lhs_expr_to_closure<'t>(
     >,
     EvalErr
 > {
-    match lhs_expr {
+    match lhs_expr.as_ref() {
         Expr::Closure(
             _,
             input_name,
@@ -56,10 +57,10 @@ pub fn source_lhs_expr_to_closure<'t>(
 
         // 由于现在 Closure 和 PrimitiveOp 会捕获环境
         // 所以可以对 lhs_expr 进行自由求值
-        other_lhs_expr => source_lhs_expr_to_closure(
+        _ => source_lhs_expr_to_closure(
             type_env,
             expr_env,
-            &eval_expr(type_env, expr_env, other_lhs_expr)?
+            &eval_expr(type_env, expr_env, lhs_expr)?.rc()
         )
     }
 }

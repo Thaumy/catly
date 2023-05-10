@@ -11,16 +11,17 @@ use crate::eval::eval_expr::{eval_expr, EvalRet};
 use crate::eval::r#type::eval_err::EvalErr;
 use crate::eval::r#type::expr::Expr;
 use crate::infra::option::OptionAnyExt;
+use crate::infra::rc::RcAnyExt;
 use crate::infra::result::ResultAnyExt;
 
 pub fn case_match(
     type_env: &TypeEnv,
     expr_env: &Rc<ExprEnv>,
-    target_expr: &Expr,
-    case_vec: &Vec<(Expr, Expr)>
+    target_expr: &Rc<Expr>,
+    case_vec: &Vec<(Rc<Expr>, Rc<Expr>)>
 ) -> EvalRet {
     let evaluated_target_expr =
-        eval_expr(type_env, expr_env, target_expr)?;
+        eval_expr(type_env, expr_env, target_expr)?.rc();
 
     case_vec
         .iter()

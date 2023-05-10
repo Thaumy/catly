@@ -10,9 +10,9 @@ pub mod r#type;
 
 type In = crate::pp::Out;
 
-pub fn parse_type<'t, S>(seq: S) -> OptType
+pub fn parse_type<S>(seq: S) -> OptType
 where
-    S: Iterator<Item = &'t In> + Clone
+    S: Iterator<Item = In> + Clone
 {
     let r = go(vec![Pat::Start], seq).into();
 

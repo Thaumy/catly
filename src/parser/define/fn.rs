@@ -86,7 +86,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
         }
         // AnyInSeq :`=` -> Type
         ([.., Pat::AnyInSeq(seq)], Some(In::Symbol('='))) =>
-            match parse_type(seq.iter()) {
+            match parse_type(seq.clone().into_iter()) {
                 Some(t) => stack.reduce(1, Pat::Type(t)),
                 None => return vec![Pat::Err]
             },
@@ -135,20 +135,20 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
     reduce_stack(reduced_stack, follow)
 }
 
-pub fn go<'t, S>(mut stack: Vec<Pat>, seq: S) -> Pat
+pub fn go<S>(mut stack: Vec<Pat>, seq: S) -> Pat
 where
-    S: Iterator<Item = &'t In> + Clone
+    S: Iterator<Item = In> + Clone
 {
     let (head, tail, follow) = seq.get_head_tail_follow();
 
-    stack.push(move_in(&stack, head.cloned()));
+    stack.push(move_in(&stack, head));
 
     if cfg!(feature = "parser_lr1_log") {
         let log = format!("Move in: {stack:?} follow: {follow:?}");
         println!("{log}");
     }
 
-    let reduced_stack = reduce_stack(stack, follow.cloned());
+    let reduced_stack = reduce_stack(stack, follow.clone());
 
     match (&reduced_stack[..], follow) {
         ([p], _) => {

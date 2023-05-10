@@ -15,7 +15,7 @@ pub mod source_lhs_to_closure;
 pub fn eval_to_bool(
     type_env: &TypeEnv,
     expr_env: &Rc<ExprEnv>,
-    expr: &Expr
+    expr: &Rc<Expr>
 ) -> Result<bool, EvalErr> {
     match eval_expr(type_env, expr_env, expr)? {
         Expr::Int(Type::NamelyType(n), 1) if n == "True" => true.ok(),
@@ -28,7 +28,7 @@ pub fn eval_to_bool(
 pub fn eval_to_int(
     type_env: &TypeEnv,
     expr_env: &Rc<ExprEnv>,
-    expr: &Expr
+    expr: &Rc<Expr>
 ) -> Result<i64, EvalErr> {
     match eval_expr(type_env, expr_env, expr)? {
         Expr::Int(Type::NamelyType(n), i) if n == "Int" =>

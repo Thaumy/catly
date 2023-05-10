@@ -24,7 +24,8 @@ mod test {
         let expr_env = ExprEnv::empty().rc();
 
         let expr = Expr::Int(namely_type!("Int"), 10);
-        let evaluated = eval_expr(&type_env, &expr_env, &expr);
+        let evaluated =
+            eval_expr(&type_env, &expr_env, &expr.clone().rc());
 
         assert_eq!(evaluated, expr.ok());
     }

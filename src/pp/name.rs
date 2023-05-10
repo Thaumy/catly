@@ -39,12 +39,12 @@ impl From<In> for Option<Out> {
 
 type In = crate::pp::r#const::Out;
 
-pub fn pp_name<'t, S>(mut seq: S) -> Option<Vec<Out>>
+pub fn pp_name<S>(mut seq: S) -> Option<Vec<Out>>
 where
-    S: Iterator<Item = &'t In>
+    S: Iterator<Item = In>
 {
     let r = seq.try_fold(vec![], |acc, p| {
-        let it: Option<Out> = p.clone().into();
+        let it: Option<Out> = p.into();
         acc.chain_push(it?).some()
     });
 
@@ -97,5 +97,5 @@ fn test_part1() {
     ]
     .some();
 
-    assert_eq!(pp_name(seq.iter()), r);
+    assert_eq!(pp_name(seq.into_iter()), r);
 }

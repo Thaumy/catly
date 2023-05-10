@@ -16,7 +16,7 @@ use crate::parser::r#type::r#type::Type as CtType;
 
 pub type OptExpr = Option<Expr>;
 
-pub type StructField = (String, Type, Expr);
+pub type StructField = (String, Type, Rc<Expr>);
 
 #[derive(Clone, PartialEq)]
 pub enum Expr {
@@ -36,7 +36,7 @@ pub enum Expr {
     PrimitiveOp(Type, Rc<PrimitiveOp>, Option<Rc<ExprEnv>>),
 
     Cond(Rc<Expr>, Rc<Expr>, Rc<Expr>),
-    Match(Rc<Expr>, Vec<(Expr, Expr)>),
+    Match(Rc<Expr>, Vec<(Rc<Expr>, Rc<Expr>)>),
     Apply(Rc<Expr>, Rc<Expr>),
     Let(String, bool, Type, Rc<Expr>, Rc<Expr>)
 }
@@ -152,7 +152,7 @@ impl From<CtExpr> for OptExpr {
                     .try_fold(vec![], |acc, (sf_n, sf_t, sf_e)| {
                         let sf_t = convert_type(sf_t?)?;
                         let sf_e = Self::from(sf_e)?;
-                        acc.chain_push((sf_n, sf_t, sf_e))
+                        acc.chain_push((sf_n, sf_t, sf_e.rc()))
                             .some()
                     })
                     .map(|vec| Expr::Struct(t, vec))?
@@ -171,7 +171,7 @@ impl From<CtExpr> for OptExpr {
                     .try_fold(vec![], |acc, (c_e, t_e)| {
                         let c_e = (c_e.into(): OptExpr)?;
                         let t_e = (t_e.into(): OptExpr)?;
-                        acc.chain_push((c_e, t_e))
+                        acc.chain_push((c_e.rc(), t_e.rc()))
                             .some()
                     })
                     .map(|vec| Expr::Match(t_e.rc(), vec))?

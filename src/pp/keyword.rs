@@ -47,12 +47,11 @@ impl From<In> for Out {
 
 type In = crate::pp::chunk::Out;
 
-pub fn pp_keyword<'t, S>(seq: S) -> Vec<Out>
+pub fn pp_keyword<S>(seq: S) -> Vec<Out>
 where
-    S: Iterator<Item = &'t In>
+    S: Iterator<Item = In>
 {
-    let r = seq
-        .fold(vec![], |acc, x| acc.chain_push(Out::from(x.clone())));
+    let r = seq.fold(vec![], |acc, x| acc.chain_push(Out::from(x)));
 
     if cfg!(feature = "pp_log") {
         let log = format!("{:8}{:>10} │ {r:?}", "[pp]", "Keyword");
@@ -104,5 +103,5 @@ fn test_part1() {
         Out::Symbol(' '),
     ];
 
-    assert_eq!(pp_keyword(seq.iter()), r);
+    assert_eq!(pp_keyword(seq.into_iter()), r);
 }

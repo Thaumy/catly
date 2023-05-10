@@ -4,6 +4,7 @@ use crate::eval::env::expr_env::{ExprEnv, ExprEnvEntry};
 use crate::eval::env::type_env::TypeEnv;
 use crate::eval::r#type::expr::{Expr, StructField};
 use crate::infra::option::OptionAnyExt;
+use crate::infra::rc::RcAnyExt;
 
 fn is_struct_match_pattern_then_env_vec(
     type_env: &TypeEnv,
@@ -21,7 +22,10 @@ fn is_struct_match_pattern_then_env_vec(
         .map(|((s_n, s_t, s_e), (p_n, p_t, p_e))| {
             if (s_n, s_t) == (p_n, p_t) {
                 is_expr_match_pattern_then_env_vec(
-                    type_env, expr_env, s_e, p_e
+                    type_env,
+                    expr_env,
+                    &s_e.clone().rc(),
+                    p_e
                 )
             } else {
                 None
@@ -35,7 +39,7 @@ fn is_struct_match_pattern_then_env_vec(
 fn is_expr_match_pattern_then_env_vec(
     type_env: &TypeEnv,
     expr_env: &Rc<ExprEnv>,
-    evaluated_expr: &Expr,
+    evaluated_expr: &Rc<Expr>,
     pattern: &Expr
 ) -> Option<Vec<ExprEnvEntry>> {
     // 进行类型相容性测试
@@ -46,7 +50,7 @@ fn is_expr_match_pattern_then_env_vec(
         return None;
     }
 
-    match evaluated_expr {
+    match evaluated_expr.as_ref() {
         Expr::Unit(_) => match pattern {
             Expr::Unit(_) => vec![].some(),
             Expr::EnvRef(p_t, ref_name) => vec![(
@@ -110,8 +114,8 @@ fn is_expr_match_pattern_then_env_vec(
 pub fn is_expr_match_pattern_then_env(
     type_env: &TypeEnv,
     expr_env: &Rc<ExprEnv>,
-    evaluated_expr: &Expr,
-    pattern: &Expr
+    evaluated_expr: &Rc<Expr>,
+    pattern: &Rc<Expr>
 ) -> Option<Rc<ExprEnv>> {
     let expr_env_vec = is_expr_match_pattern_then_env_vec(
         type_env,

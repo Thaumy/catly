@@ -14,15 +14,13 @@ pub fn case_env_ref(
     expr_env: &Rc<ExprEnv>,
     ref_name: &String
 ) -> EvalRet {
-    // TODO:
-    // 此处为逐层查找 env_ref
-    // 可以设置穿透的访问链, 提高 env_ref 的检索效率
+    // 对于 env_ref 的穿透索引将由 ExprEnv 实现
     match expr_env
         .clone()
         .get_src_expr_and_env(ref_name.as_str())
     {
         Some((src_expr, ref src_env)) =>
-            eval_expr(type_env, src_env, src_expr),
+            eval_expr(type_env, src_env, &src_expr),
         None => EvalErr::EnvRefNotFound(format!(
             "EnvRef::{ref_name:?} not found in expr env"
         ))

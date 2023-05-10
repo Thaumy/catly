@@ -17,10 +17,10 @@ mod test;
 pub fn case_apply(
     type_env: &TypeEnv,
     expr_env: &Rc<ExprEnv>,
-    lhs_expr: &Expr,
-    rhs_expr: &Expr
+    lhs_expr: &Rc<Expr>,
+    rhs_expr: &Rc<Expr>
 ) -> EvalRet {
-    match source_lhs_expr_to_closure(type_env, expr_env, &lhs_expr)? {
+    match source_lhs_expr_to_closure(type_env, expr_env, lhs_expr)? {
         Either::L((
             input_name,
             input_type,

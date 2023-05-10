@@ -14,13 +14,15 @@ fn test_part1() {
     let expr_env = ExprEnv::new(
         "a".to_string(),
         namely_type!("Int"),
-        Expr::Int(namely_type!("Int"), 10).some(),
+        Expr::Int(namely_type!("Int"), 10)
+            .rc()
+            .some(),
         None
     )
     .rc();
 
     let expr = Expr::EnvRef(namely_type!("Int"), "a".to_string());
-    let evaluated = eval_expr(&type_env, &expr_env, &expr);
+    let evaluated = eval_expr(&type_env, &expr_env, &expr.rc());
 
     let r = Expr::Int(namely_type!("Int"), 10);
 
@@ -35,19 +37,23 @@ fn test_part2() {
     let expr_env = ExprEnv::new(
         "a".to_string(),
         namely_type!("Int"),
-        Expr::Int(namely_type!("Int"), 10).some(),
+        Expr::Int(namely_type!("Int"), 10)
+            .rc()
+            .some(),
         None
     );
     let expr_env = ExprEnv::new(
         "a".to_string(),
         namely_type!("Int"),
-        Expr::Int(namely_type!("Int"), 5).some(),
+        Expr::Int(namely_type!("Int"), 5)
+            .rc()
+            .some(),
         expr_env.rc().some()
     )
     .rc();
 
     let expr = Expr::EnvRef(namely_type!("Int"), "a".to_string());
-    let evaluated = eval_expr(&type_env, &expr_env, &expr);
+    let evaluated = eval_expr(&type_env, &expr_env, &expr.rc());
 
     let r = Expr::Int(namely_type!("Int"), 5);
 
@@ -63,27 +69,33 @@ fn test_part3() {
     let expr_env = ExprEnv::new(
         "b".to_string(),
         namely_type!("Int"),
-        Expr::Int(namely_type!("Int"), 10).some(),
+        Expr::Int(namely_type!("Int"), 10)
+            .rc()
+            .some(),
         None
     )
     .rc();
     let expr_env = ExprEnv::new(
         "a".to_string(),
         namely_type!("Int"),
-        Expr::EnvRef(namely_type!("Int"), "b".to_string()).some(),
+        Expr::EnvRef(namely_type!("Int"), "b".to_string())
+            .rc()
+            .some(),
         expr_env.some()
     )
     .rc();
     let expr_env = ExprEnv::new(
         "a".to_string(),
         namely_type!("Int"),
-        Expr::EnvRef(namely_type!("Int"), "a".to_string()).some(),
+        Expr::EnvRef(namely_type!("Int"), "a".to_string())
+            .rc()
+            .some(),
         expr_env.some()
     )
     .rc();
 
     let expr = Expr::EnvRef(namely_type!("Int"), "a".to_string());
-    let evaluated = eval_expr(&type_env, &expr_env, &expr);
+    let evaluated = eval_expr(&type_env, &expr_env, &expr.rc());
 
     let r = Expr::Int(namely_type!("Int"), 10);
 

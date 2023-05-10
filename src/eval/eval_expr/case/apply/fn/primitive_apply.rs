@@ -20,7 +20,7 @@ pub fn primitive_apply(
     lhs_eval_env: &Rc<ExprEnv>,
     rhs_eval_env: &Rc<ExprEnv>,
     primitive_op: &PrimitiveOp,
-    rhs_expr: &Expr
+    rhs_expr: &Rc<Expr>
 ) -> EvalRet {
     let lhs_int =
         |lhs_expr| eval_to_int(type_env, lhs_eval_env, lhs_expr);

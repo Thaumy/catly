@@ -1,3 +1,5 @@
+use std::rc::Rc;
+
 use crate::eval::r#macro::bool_type;
 use crate::eval::r#macro::closure_type;
 use crate::eval::r#macro::int_type;
@@ -8,20 +10,20 @@ use crate::infra::rc::RcAnyExt;
 #[derive(Debug, Clone, PartialEq)]
 pub enum PrimitiveOp {
     Neg,
-    Add(Option<Expr>),
-    Sub(Option<Expr>),
-    Mul(Option<Expr>),
-    Div(Option<Expr>),
-    Mod(Option<Expr>),
-    Rem(Option<Expr>),
+    Add(Option<Rc<Expr>>),
+    Sub(Option<Rc<Expr>>),
+    Mul(Option<Rc<Expr>>),
+    Div(Option<Rc<Expr>>),
+    Mod(Option<Rc<Expr>>),
+    Rem(Option<Rc<Expr>>),
 
-    Gt(Option<Expr>),
-    Eq(Option<Expr>),
-    Lt(Option<Expr>),
+    Gt(Option<Rc<Expr>>),
+    Eq(Option<Rc<Expr>>),
+    Lt(Option<Rc<Expr>>),
 
     Not,
-    And(Option<Expr>),
-    Or(Option<Expr>)
+    And(Option<Rc<Expr>>),
+    Or(Option<Rc<Expr>>)
 }
 
 impl PrimitiveOp {

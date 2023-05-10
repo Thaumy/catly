@@ -19,7 +19,8 @@ fn test_part1() {
         PrimitiveOp::Add(None).rc(),
         None
     );
-    let evaluated = eval_expr(&type_env, &expr_env, &expr);
+    let evaluated =
+        eval_expr(&type_env, &expr_env, &expr.clone().rc());
 
     assert_eq!(evaluated, expr.ok());
 }
@@ -32,11 +33,16 @@ fn test_part2() {
 
     let expr = Expr::PrimitiveOp(
         closure_type!(namely_type!("Int"), namely_type!("Int")),
-        PrimitiveOp::Add(Expr::Int(namely_type!("True"), 1).some())
-            .rc(),
+        PrimitiveOp::Add(
+            Expr::Int(namely_type!("True"), 1)
+                .rc()
+                .some()
+        )
+        .rc(),
         None
     );
-    let evaluated = eval_expr(&type_env, &expr_env, &expr);
+    let evaluated =
+        eval_expr(&type_env, &expr_env, &expr.clone().rc());
 
     assert_eq!(evaluated, expr.ok());
 }
@@ -52,7 +58,7 @@ fn test_part3() {
         PrimitiveOp::Add(None).rc(),
         None
     );
-    let evaluated = eval_expr(&type_env, &expr_env, &expr);
+    let evaluated = eval_expr(&type_env, &expr_env, &expr.rc());
 
     let r = Expr::PrimitiveOp(
         closure_type!(namely_type!("Int"), namely_type!("Int")),
@@ -71,16 +77,24 @@ fn test_part4() {
 
     let expr = Expr::PrimitiveOp(
         closure_type!(namely_type!("Int"), namely_type!("Int")),
-        PrimitiveOp::Add(Expr::Int(namely_type!("True"), 1).some())
-            .rc(),
+        PrimitiveOp::Add(
+            Expr::Int(namely_type!("True"), 1)
+                .rc()
+                .some()
+        )
+        .rc(),
         None
     );
-    let evaluated = eval_expr(&type_env, &expr_env, &expr);
+    let evaluated = eval_expr(&type_env, &expr_env, &expr.rc());
 
     let r = Expr::PrimitiveOp(
         closure_type!(namely_type!("Int"), namely_type!("Int")),
-        PrimitiveOp::Add(Expr::Int(namely_type!("True"), 1).some())
-            .rc(),
+        PrimitiveOp::Add(
+            Expr::Int(namely_type!("True"), 1)
+                .rc()
+                .some()
+        )
+        .rc(),
         expr_env.some()
     );
 

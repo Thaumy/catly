@@ -4,7 +4,7 @@ use crate::pp::preprocess;
 
 fn f(seq: &str) -> OptType {
     let seq = preprocess(&seq)?;
-    parse_type(seq.iter())
+    parse_type(seq.into_iter())
 }
 
 mod closure;

@@ -12,9 +12,9 @@ pub mod r#type;
 
 type In = crate::pp::Out;
 
-pub fn parse_expr<'t, S>(seq: S) -> OptExpr
+pub fn parse_expr<S>(seq: S) -> OptExpr
 where
-    S: Iterator<Item = &'t In> + Clone
+    S: Iterator<Item = In> + Clone
 {
     let r = go(vec![Pat::Start], seq).into();
 

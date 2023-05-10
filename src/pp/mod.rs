@@ -48,10 +48,10 @@ pub fn preprocess(seq: &str) -> Option<Vec<Out>> {
     let r = pp_comment(seq);
     let r = pp_merge_blank(&r);
     let r = pp_chunk(&r)?;
-    let r = pp_keyword(r.iter());
-    let r = pp_const(r.iter())?;
-    let r = pp_name(r.iter())?;
-    let r = pp_remove_blank(r.iter());
+    let r = pp_keyword(r.into_iter());
+    let r = pp_const(r.into_iter())?;
+    let r = pp_name(r.into_iter())?;
+    let r = pp_remove_blank(r.into_iter());
 
     r.into_iter()
         .map(|x| x.into())

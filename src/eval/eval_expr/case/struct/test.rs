@@ -22,21 +22,22 @@ fn test_part1() {
             (
                 "a".to_string(),
                 namely_type!("Int"),
-                Expr::Int(namely_type!("Int"), 10)
+                Expr::Int(namely_type!("Int"), 10).rc()
             ),
             (
                 "b".to_string(),
                 namely_type!("Int"),
-                Expr::Int(namely_type!("True"), 1)
+                Expr::Int(namely_type!("True"), 1).rc()
             ),
             (
                 "c".to_string(),
                 namely_type!("Int"),
-                Expr::Unit(namely_type!("Unit"))
+                Expr::Unit(namely_type!("Unit")).rc()
             ),
         ]
     );
-    let evaluated = eval_expr(&type_env, &expr_env, &expr);
+    let evaluated =
+        eval_expr(&type_env, &expr_env, &expr.clone().rc());
 
     assert_eq!(evaluated, expr.ok());
 }

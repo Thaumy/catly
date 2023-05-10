@@ -163,7 +163,7 @@ fn go(mut stack: Vec<Pat>, tail: &str) -> Vec<Pat> {
 
     match reduced_stack[..] {
         [Pat::Start, .., Pat::End] => {
-            let mut stack = reduced_stack.clone();
+            let mut stack = reduced_stack;
             stack.remove(0); // remove Start
             stack.pop(); // remove End
             return stack;
@@ -175,12 +175,10 @@ fn go(mut stack: Vec<Pat>, tail: &str) -> Vec<Pat> {
 impl From<Pat> for Option<Out> {
     fn from(value: Pat) -> Self {
         match value {
-            Pat::DigitChunk(c) => Out::DigitChunk(c.to_string()),
-            Pat::LowerStartChunk(c) =>
-                Out::LowerStartChunk(c.to_string()),
-            Pat::UpperStartChunk(c) =>
-                Out::UpperStartChunk(c.to_string()),
-            Pat::Symbol(s) => Out::Symbol(s.clone()),
+            Pat::DigitChunk(c) => Out::DigitChunk(c),
+            Pat::LowerStartChunk(c) => Out::LowerStartChunk(c),
+            Pat::UpperStartChunk(c) => Out::UpperStartChunk(c),
+            Pat::Symbol(s) => Out::Symbol(s),
             _ => return None
         }
         .some()

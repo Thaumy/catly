@@ -17,8 +17,8 @@ pub fn case_let(
     rec_assign: &bool,
     assign_name: &String,
     assign_type: &Type,
-    assign_expr: &Expr,
-    scope_expr: &Expr
+    assign_expr: &Rc<Expr>,
+    scope_expr: &Rc<Expr>
 ) -> EvalRet {
     let new_expr_env = if *rec_assign {
         expr_env.extend_new(

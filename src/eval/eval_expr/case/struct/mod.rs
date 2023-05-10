@@ -9,6 +9,7 @@ use crate::eval::eval_expr::{eval_expr, EvalRet};
 use crate::eval::r#type::eval_err::EvalErr;
 use crate::eval::r#type::expr::{Expr, StructField};
 use crate::eval::r#type::r#type::Type;
+use crate::infra::rc::RcAnyExt;
 use crate::infra::result::ResultAnyExt;
 use crate::infra::vec::VecExt;
 
@@ -24,7 +25,7 @@ pub fn case_struct(
             (
                 sf_n.clone(),
                 sf_t.clone(),
-                eval_expr(type_env, expr_env, sf_e)?
+                eval_expr(type_env, expr_env, sf_e)?.rc()
             )
                 .ok()
         })

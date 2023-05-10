@@ -55,6 +55,7 @@ fn ct_expr_env_vec_to_rt_expr_env_vec(
                         "Impossible env ref src: {src:?}"
                     ))
                     .into();
+                let src = src.map(|x| x.rc());
 
                 (n, t, src, None)
             }

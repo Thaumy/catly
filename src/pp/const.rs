@@ -75,14 +75,12 @@ impl From<In> for Pat {
 impl From<Pat> for Option<Out> {
     fn from(value: Pat) -> Self {
         match value {
-            Pat::Symbol(c) => Out::Symbol(c.clone()),
-            Pat::LowerStartChunk(c) =>
-                Out::LowerStartChunk(c.clone()),
-            Pat::UpperStartChunk(c) =>
-                Out::UpperStartChunk(c.clone()),
-            Pat::Kw(kw) => Out::Kw(kw.clone()),
+            Pat::Symbol(c) => Out::Symbol(c),
+            Pat::LowerStartChunk(c) => Out::LowerStartChunk(c),
+            Pat::UpperStartChunk(c) => Out::UpperStartChunk(c),
+            Pat::Kw(kw) => Out::Kw(kw),
 
-            Pat::IntValue(i) => Out::IntValue(i.clone()),
+            Pat::IntValue(i) => Out::IntValue(i),
             Pat::UnitValue => Out::UnitValue,
             Pat::DiscardValue => Out::DiscardValue,
 
@@ -92,13 +90,13 @@ impl From<Pat> for Option<Out> {
     }
 }
 
-fn go<'t, S>(mut stack: Vec<Pat>, tail: S) -> Vec<Pat>
+fn go<S>(mut stack: Vec<Pat>, tail: S) -> Vec<Pat>
 where
-    S: Iterator<Item = &'t In>
+    S: Iterator<Item = In>
 {
     let (head, tail) = tail.get_head_tail();
     let move_in = match head {
-        Some(x) => x.clone().into(),
+        Some(x) => x.into(),
         _ => return stack
     };
 
@@ -109,9 +107,9 @@ where
 
 type In = crate::pp::keyword::Out;
 
-pub fn pp_const<'t, S>(seq: S) -> Option<Vec<Out>>
+pub fn pp_const<S>(seq: S) -> Option<Vec<Out>>
 where
-    S: Iterator<Item = &'t In>
+    S: Iterator<Item = In>
 {
     let r = go(vec![], seq)
         .into_iter()
@@ -170,5 +168,5 @@ fn test_part1() {
     ]
     .some();
 
-    assert_eq!(pp_const(seq.iter()), r);
+    assert_eq!(pp_const(seq.into_iter()), r);
 }

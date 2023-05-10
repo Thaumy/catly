@@ -21,19 +21,19 @@ fn test_part1() {
     let expr =
         Expr::Match(Expr::Int(namely_type!("Int"), 5).rc(), vec![
             (
-                Expr::Int(namely_type!("Int"), 10),
-                Expr::Int(namely_type!("Int"), 1)
+                Expr::Int(namely_type!("Int"), 10).rc(),
+                Expr::Int(namely_type!("Int"), 1).rc()
             ),
             (
-                Expr::Int(namely_type!("Int"), 20),
-                Expr::Int(namely_type!("Int"), 2)
+                Expr::Int(namely_type!("Int"), 20).rc(),
+                Expr::Int(namely_type!("Int"), 2).rc()
             ),
             (
-                Expr::Discard(namely_type!("Int")),
-                Expr::Int(namely_type!("Int"), 0)
+                Expr::Discard(namely_type!("Int")).rc(),
+                Expr::Int(namely_type!("Int"), 0).rc()
             ),
         ]);
-    let evaluated = eval_expr(&type_env, &expr_env, &expr);
+    let evaluated = eval_expr(&type_env, &expr_env, &expr.rc());
 
     let r = Expr::Int(namely_type!("Int"), 0);
 
@@ -52,19 +52,19 @@ fn test_part2() {
     let expr =
         Expr::Match(Expr::Int(namely_type!("Int"), 5).rc(), vec![
             (
-                Expr::Int(namely_type!("Int"), 10),
-                Expr::Int(namely_type!("Int"), 1)
+                Expr::Int(namely_type!("Int"), 10).rc(),
+                Expr::Int(namely_type!("Int"), 1).rc()
             ),
             (
-                Expr::Int(namely_type!("Int"), 5),
-                Expr::Int(namely_type!("Int"), 2)
+                Expr::Int(namely_type!("Int"), 5).rc(),
+                Expr::Int(namely_type!("Int"), 2).rc()
             ),
             (
-                Expr::Discard(namely_type!("Int")),
-                Expr::Int(namely_type!("Int"), 0)
+                Expr::Discard(namely_type!("Int")).rc(),
+                Expr::Int(namely_type!("Int"), 0).rc()
             ),
         ]);
-    let evaluated = eval_expr(&type_env, &expr_env, &expr);
+    let evaluated = eval_expr(&type_env, &expr_env, &expr.rc());
 
     let r = Expr::Int(namely_type!("Int"), 2);
 
@@ -83,19 +83,21 @@ fn test_part3() {
     let expr =
         Expr::Match(Expr::Int(namely_type!("Int"), 15).rc(), vec![
             (
-                Expr::Int(namely_type!("Int"), 10),
-                Expr::Int(namely_type!("Int"), 1)
+                Expr::Int(namely_type!("Int"), 10).rc(),
+                Expr::Int(namely_type!("Int"), 1).rc()
             ),
             (
-                Expr::EnvRef(namely_type!("Int"), "a".to_string()),
                 Expr::EnvRef(namely_type!("Int"), "a".to_string())
+                    .rc(),
+                Expr::EnvRef(namely_type!("Int"), "a".to_string())
+                    .rc()
             ),
             (
-                Expr::Discard(namely_type!("Int")),
-                Expr::Int(namely_type!("Int"), 0)
+                Expr::Discard(namely_type!("Int")).rc(),
+                Expr::Int(namely_type!("Int"), 0).rc()
             ),
         ]);
-    let evaluated = eval_expr(&type_env, &expr_env, &expr);
+    let evaluated = eval_expr(&type_env, &expr_env, &expr.rc());
 
     let r = Expr::Int(namely_type!("Int"), 15);
 
@@ -113,15 +115,15 @@ fn test_part4() {
     let expr =
         Expr::Match(Expr::Int(namely_type!("Int"), 5).rc(), vec![
             (
-                Expr::Int(namely_type!("Int"), 10),
-                Expr::Int(namely_type!("Int"), 1)
+                Expr::Int(namely_type!("Int"), 10).rc(),
+                Expr::Int(namely_type!("Int"), 1).rc()
             ),
             (
-                Expr::Int(namely_type!("Int"), 20),
-                Expr::Int(namely_type!("Int"), 2)
+                Expr::Int(namely_type!("Int"), 20).rc(),
+                Expr::Int(namely_type!("Int"), 2).rc()
             ),
         ]);
-    let evaluated = eval_expr(&type_env, &expr_env, &expr);
+    let evaluated = eval_expr(&type_env, &expr_env, &expr.rc());
 
     assert_matches!(
         evaluated,

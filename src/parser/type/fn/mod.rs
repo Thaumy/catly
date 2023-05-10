@@ -7,20 +7,20 @@ use crate::parser::r#type::r#fn::move_in::move_in;
 use crate::parser::r#type::r#fn::reduce_stack::reduce_stack;
 use crate::parser::r#type::In;
 
-pub fn go<'t, S>(mut stack: Vec<Pat>, seq: S) -> Pat
+pub fn go<S>(mut stack: Vec<Pat>, seq: S) -> Pat
 where
-    S: Iterator<Item = &'t In> + Clone
+    S: Iterator<Item = In> + Clone
 {
     let (head, tail, follow) = seq.get_head_tail_follow();
 
-    stack.push(move_in(&stack, head.cloned()));
+    stack.push(move_in(&stack, head));
 
     if cfg!(feature = "parser_lr1_log") {
         let log = format!("Move in: {stack:?} follow: {follow:?}");
         println!("{log}");
     }
 
-    let reduced_stack = reduce_stack(stack, follow.cloned());
+    let reduced_stack = reduce_stack(stack, follow.clone());
 
     match (&reduced_stack[..], follow) {
         ([p], None) => {

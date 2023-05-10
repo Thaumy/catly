@@ -5,6 +5,7 @@ use crate::eval::env::parse_to_env;
 use crate::eval::env::type_env::TypeEnv;
 use crate::eval::eval_expr::eval_expr;
 use crate::eval::eval_expr::test::get_std_code;
+use crate::infra::rc::RcAnyExt;
 
 fn gen_env<'t>() -> (TypeEnv<'t>, Rc<ExprEnv>) {
     let seq = get_std_code() +
@@ -92,12 +93,12 @@ fn test_part1() {
     let (ref_expr, eval_env) = expr_env
         .get_ref_expr_and_env("pi1")
         .unwrap();
-    let evaluated = eval_expr(&type_env, &eval_env, &ref_expr);
+    let evaluated = eval_expr(&type_env, &eval_env, &ref_expr.rc());
 
     let (ref_expr, eval_env) = expr_env
         .get_ref_expr_and_env("r1")
         .unwrap();
-    let r = eval_expr(&type_env, &eval_env, &ref_expr);
+    let r = eval_expr(&type_env, &eval_env, &ref_expr.rc());
 
     assert_eq!(evaluated, r);
 }

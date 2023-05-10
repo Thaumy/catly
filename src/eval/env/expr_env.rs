@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use crate::eval::r#type::expr::{Expr, OptExpr};
+use crate::eval::r#type::expr::Expr;
 use crate::eval::r#type::r#type::Type;
 use crate::infra::option::OptionAnyExt;
 use crate::infra::rc::RcAnyExt;
@@ -9,7 +9,8 @@ use crate::infra::rc::RcAnyExt;
 // 对于这样的表达式, 其求值环境将具具备自引用结构
 // 为了方便实现, 将具备自引用结构的环境引用设置为 None
 // 通过在 None 时返回当前环境, 就能实现递归定义
-pub type ExprEnvEntry = (String, Type, OptExpr, Option<Rc<ExprEnv>>);
+pub type ExprEnvEntry =
+    (String, Type, Option<Rc<Expr>>, Option<Rc<ExprEnv>>);
 
 // 运行时表达式环境
 #[derive(Clone, Debug, PartialEq)]
@@ -17,6 +18,22 @@ pub struct ExprEnv {
     prev_env: Option<Rc<ExprEnv>>,
     // 单一环境条目会使得顶层环境中平行函数的互递归定义成为不可能, 但仍有实现价值
     entry: Option<ExprEnvEntry>
+}
+
+fn source_env_ref(
+    expr: Rc<Expr>,
+    expr_env: Rc<ExprEnv>
+) -> (Rc<Expr>, Rc<ExprEnv>) {
+    match expr.as_ref() {
+        Expr::EnvRef(_, ref_name) => {
+            match expr_env.get_src_expr_and_env(ref_name.as_str()) {
+                Some((expr, expr_env)) =>
+                    source_env_ref(expr, expr_env),
+                _ => (expr, expr_env)
+            }
+        }
+        _ => (expr, expr_env)
+    }
 }
 
 impl ExprEnv {
@@ -27,12 +44,25 @@ impl ExprEnv {
         }
     }
 
+    // TODO:
+    // 此处为逐层查找 env_ref
+    // 可以设置穿透的访问链, 提高 env_ref 的检索效率
     pub fn new(
         ref_name: impl Into<String>,
         r#type: Type,
-        src: OptExpr,
+        src: Option<Rc<Expr>>,
         src_env: Option<Rc<ExprEnv>>
     ) -> ExprEnv {
+        let (src, src_env) = match (src, src_env) {
+            (Some(expr), Some(src_env))
+                if matches!(expr.as_ref(), Expr::EnvRef(..)) =>
+            {
+                let (src, src_env) = source_env_ref(expr, src_env);
+                (src.some(), src_env.some())
+            }
+            x => x
+        };
+
         let entry = (ref_name.into(), r#type, src, src_env);
 
         let expr_env = ExprEnv {
@@ -60,13 +90,24 @@ impl ExprEnv {
         }
     }
 
+    // TODO
     pub fn extend_new(
         self: &Rc<Self>,
         ref_name: impl Into<String>,
         r#type: Type,
-        src: OptExpr,
+        src: Option<Rc<Expr>>,
         src_env: Option<Rc<ExprEnv>>
     ) -> ExprEnv {
+        let (src, src_env) = match (src, src_env) {
+            (Some(expr), Some(src_env))
+                if matches!(expr.as_ref(), Expr::EnvRef(..)) =>
+            {
+                let (src, src_env) = source_env_ref(expr, src_env);
+                (src.some(), src_env.some())
+            }
+            x => x
+        };
+
         let entry = (ref_name.into(), r#type, src, src_env);
 
         let expr_env = ExprEnv {
@@ -119,19 +160,20 @@ impl ExprEnv {
         }
     }
 
+    // TODO: Rc<Expr>
     pub fn get_src_expr_and_env<'s>(
-        &self,
+        self: &Rc<Self>,
         ref_name: impl Into<&'s str>
-    ) -> Option<(&Expr, Rc<ExprEnv>)> {
+    ) -> Option<(Rc<Expr>, Rc<ExprEnv>)> {
         self.find_entry(ref_name)
             .and_then(|(.., src, src_env)| {
                 let src_env = match src_env {
                     Some(env) => env.clone(),
                     // 如果找不到源环境, 则说明该引用存在于顶层环境, 即当前环境
-                    None => Rc::new(self.clone())
+                    None => self.clone()
                 };
                 let src_expr = match src {
-                    Some(expr) => expr,
+                    Some(expr) => expr.clone(),
                     None => return None
                 };
                 (src_expr, src_env).some()

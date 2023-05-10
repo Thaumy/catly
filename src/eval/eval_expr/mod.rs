@@ -25,14 +25,14 @@ pub type EvalRet = Result<Expr, EvalErr>;
 pub fn eval_expr(
     type_env: &TypeEnv,
     expr_env: &Rc<ExprEnv>,
-    expr: &Expr
+    expr: &Rc<Expr>
 ) -> EvalRet {
     if cfg!(feature = "eval_log") {
         let log = format!("{:8}{:>10} │ {expr:?}", "[eval]", "ValOf");
         println!("{log}");
     }
 
-    let result = match expr {
+    let result = match expr.as_ref() {
         Expr::Discard(t) => case_discard(t),
         Expr::Int(t, i) => case_int(t, i),
         Expr::Unit(t) => case_unit(t),
