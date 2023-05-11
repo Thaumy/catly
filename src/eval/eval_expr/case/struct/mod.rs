@@ -17,10 +17,10 @@ pub fn case_struct(
     type_env: &TypeEnv,
     expr_env: &Rc<ExprEnv>,
     type_annot: &Type,
-    struct_vec: &Vec<StructField>
+    struct_vec: &[StructField]
 ) -> EvalRet {
     let struct_vec = struct_vec
-        .into_iter()
+        .iter()
         .map(|(sf_n, sf_t, sf_e)| {
             (
                 sf_n.clone(),

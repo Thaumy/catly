@@ -11,15 +11,9 @@ pub enum Name {
 
 pub fn parse_name(str: &str) -> Option<Name> {
     if str.starts_with(|c: char| c.is_uppercase()) {
-        match parse_type_name(str) {
-            Some(n) => Some(Name::TypeName(n.to_string())),
-            _ => None
-        }
+        parse_type_name(str).map(Name::TypeName)
     } else {
-        match parse_let_name(str) {
-            // _ -> LetName
-            Some(n) => Some(Name::LetName(n.to_string())),
-            _ => None
-        }
+        // _ -> LetName
+        parse_let_name(str).map(Name::LetName)
     }
 }

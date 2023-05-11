@@ -128,8 +128,8 @@ pub fn reduce_stack(
         Pat::Assign(b_r_a, b_n, b_t, b_v)], _
         ) => {
             let top = Pat::AssignSeq(vec![
-                (a_r_a.clone(), a_n.to_string(), a_t.clone(), a_v.deref().clone()),
-                (b_r_a.clone(), b_n.to_string(), b_t.clone(), b_v.deref().clone()),
+                (*a_r_a, a_n.to_string(), a_t.clone(), a_v.deref().clone()),
+                (*b_r_a, b_n.to_string(), b_t.clone(), b_v.deref().clone()),
             ]);
             stack.reduce(2, top)
         }
@@ -139,7 +139,7 @@ pub fn reduce_stack(
         Pat::Assign(r_a, n, t, v)], _
         ) => {
             let top = Pat::AssignSeq(vec.push_to_new(
-                (r_a.clone(), n.clone(), t.clone(), v.deref().clone())
+                (*r_a, n.clone(), t.clone(), v.deref().clone())
             ));
             stack.reduce(2, top)
         }
@@ -239,7 +239,7 @@ pub fn reduce_stack(
             let top = Pat::Match(
                 None,
                 h_e.clone(),
-                vec![((case.deref().clone(), then.deref().clone()))],
+                vec![(case.deref().clone(), then.deref().clone())],
             );
             stack.reduce(2, top)
         }
@@ -311,9 +311,9 @@ pub fn reduce_stack(
                 Pat::Let(
                     None,
                     r_a,
-                    n.to_string(),
-                    t.clone(),
-                    e.clone().rc(),
+                    n,
+                    t,
+                    e.rc(),
                     acc.rc(),
                 );
             let top = seq
@@ -330,7 +330,7 @@ pub fn reduce_stack(
         if follow.is_expr_end_pat() && p.is_expr() => {
             let top = Pat::Let(
                 None,
-                r_a.clone(),
+                *r_a,
                 n.to_string(),
                 t.clone(),
                 e.clone(),

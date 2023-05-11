@@ -1,9 +1,9 @@
 use crate::parser::expr::pat::Pat;
 use crate::parser::expr::In;
 
-pub fn move_in(stack: &Vec<Pat>, head: Option<In>) -> Pat {
+pub fn move_in(stack: &[Pat], head: Option<In>) -> Pat {
     match head {
-        Some(o) => match (&stack[..], o) {
+        Some(o) => match (stack, o) {
             // .. -> LetName
             (_, In::LetName(n)) => Pat::LetName(None, n),
             // .. -> TypeName

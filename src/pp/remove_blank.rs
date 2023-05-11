@@ -6,10 +6,7 @@ where
     S: Iterator<Item = In>
 {
     let r = seq
-        .filter(|p| match p {
-            In::Symbol(' ') => false,
-            _ => true
-        })
+        .filter(|p| !matches!(p, In::Symbol(' ')))
         .collect();
 
     if cfg!(feature = "pp_log") {

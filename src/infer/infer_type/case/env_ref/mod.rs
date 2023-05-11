@@ -43,7 +43,7 @@ pub fn case(
             // def f = _
             // def a = _
             // 无法推导出 a 的类型, 因为 a 的类型是自由的
-            return ref_type.into();
+            ref_type.into()
         }
     }
 }

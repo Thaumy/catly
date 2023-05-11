@@ -53,6 +53,6 @@ where
             )
         }
         // 约束不包含输入, 缺乏推导出输入类型的信息
-        None => return ReqInfo::of(input_name, constraint_acc).into()
+        None => ReqInfo::of(input_name, constraint_acc).into()
     }
 }

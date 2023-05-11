@@ -46,7 +46,7 @@ fn go(stack: Vec<Pat>, seq: &str) -> Option<i64> {
         }
 
         // Success
-        ([Pat::Int(a)], Pat::End) => return a.clone().some(),
+        ([Pat::Int(a)], Pat::End) => return (*a).some(),
 
         // Can not parse
         (_, Pat::Err) => return None,

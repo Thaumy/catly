@@ -20,7 +20,7 @@ pub fn case_t_rc(
     expr_env: &Rc<ExprEnv>,
     typed_target_expr: Expr,
     expect_type: &OptType,
-    case_vec: &Vec<(Expr, Expr)>
+    case_vec: &[(Expr, Expr)]
 ) -> InferTypeRet {
     let target_expr_type = typed_target_expr.unwrap_type_annot();
 
@@ -31,7 +31,7 @@ pub fn case_t_rc(
             .map(|(case_expr, then_expr)| {
                 // Hint every case_expr with target_expr_type
                 let case_expr =
-                    case_expr.with_fallback_type(&target_expr_type);
+                    case_expr.with_fallback_type(target_expr_type);
                 // Hint every then_expr with expect_type
                 let then_expr =
                     then_expr.with_opt_fallback_type(expect_type);
@@ -43,11 +43,9 @@ pub fn case_t_rc(
                     Ok(env_inject) =>
                         (case_expr, env_inject, then_expr).ok(),
                     Err((new, old)) =>
-                        return TypeMissMatch::of_dup_capture(
-                            old, new
-                        )
-                        .quad_r()
-                        .err(),
+                        TypeMissMatch::of_dup_capture(old, new)
+                            .quad_r()
+                            .err(),
                 }
             })
             .try_fold(vec![], |acc, x| acc.chain_push(x?).ok());
@@ -60,7 +58,7 @@ pub fn case_t_rc(
 
     let typed_case_expr = match is_case_expr_valid(
         type_env,
-        &target_expr_type,
+        target_expr_type,
         hinted_cases
             .iter()
             .map(|(x, y, _)| (x, y))

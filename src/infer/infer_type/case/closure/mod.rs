@@ -57,9 +57,9 @@ pub fn case(
                         None
                     ),
 
-                    _ => return TypeMissMatch::of(&format!("{expect_type:?} <> ClosureType/PartialClosureType")).into()
+                    _ => return TypeMissMatch::of(format!("{expect_type:?} <> ClosureType/PartialClosureType")).into()
                 },
-                None => return TypeMissMatch::of(&format!("{expect_type:?} not found in type env")).into()
+                None => return TypeMissMatch::of(format!("{expect_type:?} not found in type env")).into()
             },
         None => (None, None)
     };
@@ -99,7 +99,7 @@ pub fn case(
                     Expr::Closure(
                         type_annot.some(),
                         input_name.clone(),
-                        input_type.clone().some(),
+                        input_type.some(),
                         typed_output_expr
                             .clone()
                             .rc()

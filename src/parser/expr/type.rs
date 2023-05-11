@@ -42,7 +42,7 @@ impl Expr {
         match &self {
             Expr::Unit(None) => Expr::Unit(r#type.clone().some()),
             Expr::Int(None, i) =>
-                Expr::Int(r#type.clone().some(), i.clone()),
+                Expr::Int(r#type.clone().some(), *i),
             Expr::EnvRef(None, r_n) =>
                 Expr::EnvRef(r#type.clone().some(), r_n.to_string()),
             Expr::Apply(None, l_e, r_e) => Expr::Apply(
@@ -73,7 +73,7 @@ impl Expr {
             ),
             Expr::Let(None, r_a, a_n, a_t, a_e, s_e) => Expr::Let(
                 r#type.clone().some(),
-                r_a.clone(),
+                *r_a,
                 a_n.to_string(),
                 a_t.clone(),
                 a_e.clone(),
@@ -94,19 +94,19 @@ impl Expr {
     }
 
     pub fn is_no_type_annot(&self) -> bool {
-        match self {
+        matches!(
+            self,
             Expr::Unit(None) |
-            Expr::Int(None, ..) |
-            Expr::EnvRef(None, ..) |
-            Expr::Apply(None, ..) |
-            Expr::Cond(None, ..) |
-            Expr::Closure(None, ..) |
-            Expr::Struct(None, ..) |
-            Expr::Discard(None) |
-            Expr::Match(None, ..) |
-            Expr::Let(None, ..) => true,
-            _ => false
-        }
+                Expr::Int(None, ..) |
+                Expr::EnvRef(None, ..) |
+                Expr::Apply(None, ..) |
+                Expr::Cond(None, ..) |
+                Expr::Closure(None, ..) |
+                Expr::Struct(None, ..) |
+                Expr::Discard(None) |
+                Expr::Match(None, ..) |
+                Expr::Let(None, ..)
+        )
     }
 
     pub fn is_fully_typed(&self) -> bool {
@@ -168,63 +168,61 @@ impl Debug for Expr {
         fn type_annot(t: &OptType) -> String {
             match t {
                 Some(t) => format!(":{t:?}"),
-                None => format!("")
+                None => String::new()
             }
         }
 
         fn closure_input_name(s: &Option<String>) -> String {
             match s {
                 Some(s) => format!("{s}"),
-                None => format!("_")
+                None => "_".to_string()
             }
         }
 
         match self {
             Expr::Unit(t) =>
-                f.write_str(&*format!("(){}", type_annot(t))),
+                f.write_str(&format!("(){}", type_annot(t))),
 
             Expr::Int(t, i) =>
-                f.write_str(&*format!("{i}{}", type_annot(t))),
+                f.write_str(&format!("{i}{}", type_annot(t))),
 
             Expr::EnvRef(t, r_n) =>
-                f.write_str(&*format!("{r_n}{}", type_annot(t))),
+                f.write_str(&format!("{r_n}{}", type_annot(t))),
 
             Expr::Apply(t, l_e, r_e) => match t {
-                Some(t) => f.write_str(&*format!(
-                    "(({l_e:?} {r_e:?}):{t:?})"
-                )),
-                None => f.write_str(&*format!("({l_e:?} {r_e:?})"))
+                Some(t) =>
+                    f.write_str(&format!("(({l_e:?} {r_e:?}):{t:?})")),
+                None => f.write_str(&format!("({l_e:?} {r_e:?})"))
             },
 
-            Expr::Cond(t, b, t_e, e_e) => f.write_str(&*format!(
+            Expr::Cond(t, b, t_e, e_e) => f.write_str(&format!(
                 "(if {b:?} then {t_e:?} else {e_e:?}){}",
                 type_annot(t)
             )),
 
-            Expr::Closure(t, i_n, i_t, o_e) =>
-                f.write_str(&*format!(
-                    "({}{} -> {o_e:?}){}",
-                    closure_input_name(i_n),
-                    type_annot(i_t),
-                    type_annot(t)
-                )),
+            Expr::Closure(t, i_n, i_t, o_e) => f.write_str(&format!(
+                "({}{} -> {o_e:?}){}",
+                closure_input_name(i_n),
+                type_annot(i_t),
+                type_annot(t)
+            )),
 
-            Expr::Struct(t, s_v) => f.write_str(&*format!(
+            Expr::Struct(t, s_v) => f.write_str(&format!(
                 "{{ {s_v:?}{} }}",
                 type_annot(t)
             )),
 
             Expr::Discard(t) =>
-                f.write_str(&*format!("_{}", type_annot(t))),
+                f.write_str(&format!("_{}", type_annot(t))),
 
-            Expr::Match(t, t_e, c_v) => f.write_str(&*format!(
+            Expr::Match(t, t_e, c_v) => f.write_str(&format!(
                 "(match {t_e:?} with {c_v:?}){}",
                 type_annot(t)
             )),
 
             Expr::Let(t, r_a, a_n, a_t, a_e, s_e) => {
                 let r_a = if *r_a { "rec " } else { "" };
-                f.write_str(&*format!(
+                f.write_str(&format!(
                     "(let {r_a}{a_n}{} = {a_e:?} in {s_e:?}){}",
                     type_annot(a_t),
                     type_annot(t)

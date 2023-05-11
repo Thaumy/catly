@@ -66,46 +66,45 @@ impl Debug for Expr {
         fn closure_input_name(s: &Option<String>) -> String {
             match s {
                 Some(s) => format!("{s}"),
-                None => format!("_")
+                None => "_".to_string()
             }
         }
         match self {
             Expr::Unit(t) =>
-                f.write_str(&*format!("(){}", type_annot(t))),
+                f.write_str(&format!("(){}", type_annot(t))),
             Expr::Int(t, i) =>
-                f.write_str(&*format!("{i}{}", type_annot(t))),
+                f.write_str(&format!("{i}{}", type_annot(t))),
             Expr::EnvRef(t, n) =>
-                f.write_str(&*format!("{n}{}", type_annot(t))),
+                f.write_str(&format!("{n}{}", type_annot(t))),
             Expr::Closure(t, i_n, i_t, o_e, env) =>
-                f.write_str(&*format!(
+                f.write_str(&format!(
                     "({}{} ->[env:{env:p}] {o_e:?}){}",
                     closure_input_name(i_n),
                     type_annot(i_t),
                     type_annot(t)
                 )),
-            Expr::Struct(t, vec) => f.write_str(&*format!(
+            Expr::Struct(t, vec) => f.write_str(&format!(
                 "{{ {vec:?}{} }}",
                 type_annot(t)
             )),
             Expr::Discard(t) =>
-                f.write_str(&*format!("_{}", type_annot(t))),
+                f.write_str(&format!("_{}", type_annot(t))),
 
-            Expr::PrimitiveOp(t, op, l_env) =>
-                f.write_str(&*format!(
-                    "([l_env:{l_env:p}]{op:?}){}",
-                    type_annot(t)
-                )),
+            Expr::PrimitiveOp(t, op, l_env) => f.write_str(&format!(
+                "([l_env:{l_env:p}]{op:?}){}",
+                type_annot(t)
+            )),
 
-            Expr::Cond(b, te, fe) => f.write_str(&*format!(
+            Expr::Cond(b, te, fe) => f.write_str(&format!(
                 "if {b:?} then {te:?} else {fe:?}",
             )),
             Expr::Match(t_e, vec) =>
-                f.write_str(&*format!("match {t_e:?} with {vec:?}",)),
+                f.write_str(&format!("match {t_e:?} with {vec:?}",)),
             Expr::Apply(l, r) =>
-                f.write_str(&*format!("({l:?} {r:?})")),
+                f.write_str(&format!("({l:?} {r:?})")),
             Expr::Let(a_n, r_a, a_t, a_e, s_e) => {
                 let r_a = if *r_a { "rec " } else { "" };
-                f.write_str(&*format!(
+                f.write_str(&format!(
                     "let {r_a}{a_n}{} = {a_e:?} in {s_e:?}",
                     type_annot(a_t),
                 ))

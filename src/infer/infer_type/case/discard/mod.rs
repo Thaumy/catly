@@ -21,7 +21,7 @@ pub fn case(
                     expect_type.clone().some()
                 ))
             } else {
-                TypeMissMatch::of(&format!(
+                TypeMissMatch::of(format!(
                     "{expect_type:?} not found in type env"
                 ))
                 .into()

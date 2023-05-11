@@ -44,11 +44,8 @@ where
                     |t| typed_expr_cons(t, typed_rhs_expr.clone())
                 )
             } else {
-                TypeMissMatch::of_type(
-                    &rhs_expr_type,
-                    &lhs_input_type
-                )
-                .into()
+                TypeMissMatch::of_type(rhs_expr_type, &lhs_input_type)
+                    .into()
             }
         }
 

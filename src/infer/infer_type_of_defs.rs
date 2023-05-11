@@ -36,7 +36,6 @@ pub fn infer_type_of_defs(
     let expr_env = expr_env.extend_vec_new(expr_env_vec.clone());
 
     let (need_to_infer, inferred, constraint_acc) = expr_env_vec
-        .clone()
         .into_iter()
         .map(|(n, tc, src)| match &src {
             EnvRefSrc::Src(src_expr) => match src_expr

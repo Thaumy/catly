@@ -1,16 +1,16 @@
 use crate::parser::r#type::pat::Pat;
 use crate::parser::r#type::In;
 
-pub fn move_in(stack: &Vec<Pat>, head: Option<In>) -> Pat {
+pub fn move_in(head: Option<In>) -> Pat {
     match head {
-        Some(o) => match (&stack[..], o) {
+        Some(o) => match o {
             // .. -> LetName
-            (_, In::LetName(n)) => Pat::LetName(None, n),
+            In::LetName(n) => Pat::LetName(None, n),
             // .. -> TypeName
-            (_, In::TypeName(n)) => Pat::TypeName(n),
+            In::TypeName(n) => Pat::TypeName(n),
 
             // .. -> Mark
-            (_, In::Symbol(s)) => match s {
+            In::Symbol(s) => match s {
                 // '(' -> `(`
                 '(' => Pat::Mark('('),
                 // ')' -> `)`
@@ -45,7 +45,7 @@ pub fn move_in(stack: &Vec<Pat>, head: Option<In>) -> Pat {
             },
 
             // _ -> Err
-            (_, p) => {
+            p => {
                 if cfg!(feature = "parser_lr1_log") {
                     let log = format!("Invalid head Pat: {p:?}");
                     println!("{log}");

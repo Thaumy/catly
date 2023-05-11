@@ -71,19 +71,19 @@ pub enum Pat {
 
 impl Pat {
     pub fn is_expr(&self) -> bool {
-        match self {
+        matches!(
+            self,
             Pat::Unit(..) |
-            Pat::Int(..) |
-            Pat::LetName(..) |
-            Pat::Apply(..) |
-            Pat::Cond(..) |
-            Pat::Closure(..) |
-            Pat::Struct(..) |
-            Pat::Discard(..) |
-            Pat::Match(..) |
-            Pat::Let(..) => true,
-            _ => false
-        }
+                Pat::Int(..) |
+                Pat::LetName(..) |
+                Pat::Apply(..) |
+                Pat::Cond(..) |
+                Pat::Closure(..) |
+                Pat::Struct(..) |
+                Pat::Discard(..) |
+                Pat::Match(..) |
+                Pat::Let(..)
+        )
     }
     pub fn with_type(self, r#type: Pat) -> Option<Self> {
         match self {
@@ -108,14 +108,14 @@ impl Pat {
         .some()
     }
     pub fn is_type(&self) -> bool {
-        match self {
+        matches!(
+            self,
             Pat::TypeName(..) |
-            Pat::TypeApply(..) |
-            Pat::ClosureType(..) |
-            Pat::SumType(..) |
-            Pat::ProdType(..) => true,
-            _ => false
-        }
+                Pat::TypeApply(..) |
+                Pat::ClosureType(..) |
+                Pat::SumType(..) |
+                Pat::ProdType(..)
+        )
     }
 }
 
@@ -129,8 +129,9 @@ pub trait OptRcPatExt {
 
 impl OptRcPatExt for Option<Rc<Pat>> {
     fn map_into(self) -> Option<Type> {
-        self.map(|x| <Pat as Into<OptType>>::into(x.deref().clone()))
-            .flatten()
+        self.and_then(|x| {
+            <Pat as Into<OptType>>::into(x.deref().clone())
+        })
     }
 }
 
@@ -180,7 +181,7 @@ impl From<Pat> for OptExpr {
                 let vec = vec.into_iter().try_fold(
                     vec![],
                     |acc, (n, t, p)| {
-                        let it = (p.clone().into(): OptExpr)
+                        let it = (p.into(): OptExpr)
                             .map(|e| (n, t.map_into(), e))?;
                         acc.chain_push(it).some()
                     }
@@ -247,7 +248,7 @@ impl From<Pat> for OptType {
                     let t: OptType = t.into();
                     acc.chain_insert(t?).some()
                 })
-                .map(|set| Type::SumType(set))?,
+                .map(Type::SumType)?,
 
             Pat::ProdType(p_v) => p_v
                 .into_iter()
@@ -255,7 +256,7 @@ impl From<Pat> for OptType {
                     let t: OptType = p.into();
                     acc.chain_push((n, t?)).some()
                 })
-                .map(|vec| Type::ProdType(vec))?,
+                .map(Type::ProdType)?,
             _ => return None
         }
         .some()

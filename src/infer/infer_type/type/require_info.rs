@@ -15,7 +15,7 @@ pub struct ReqInfo {
 }
 
 impl ReqInfo {
-    pub fn of<'s>(
+    pub fn of(
         ref_name: impl Into<String>,
         constraint: EnvRefConstraint
     ) -> ReqInfo {
@@ -55,9 +55,9 @@ impl From<ReqInfo> for InferTypeRet {
 impl Debug for ReqInfo {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         if self.constraint.is_empty() {
-            f.write_str(&*format!("ReqInfo::{:?}", self.ref_name))
+            f.write_str(&format!("ReqInfo::{:?}", self.ref_name))
         } else {
-            f.write_str(&*format!(
+            f.write_str(&format!(
                 "ReqInfo::{:?} & {:?}",
                 self.ref_name, self.constraint
             ))

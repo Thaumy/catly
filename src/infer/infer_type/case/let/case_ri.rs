@@ -46,7 +46,7 @@ pub fn case_ri(
 
                 // scope_expr_type 在提升时出现了类型不相容, 优先返回该错误
                 None => TypeMissMatch::of_type(
-                    &scope_expr_type,
+                    scope_expr_type,
                     &expect_type.clone().unwrap()
                 )
                 .into(),
@@ -83,15 +83,14 @@ pub fn case_ri(
                 // 如果 Let 是非递归的, 那么有必要过滤掉针对 assign_name 的约束
                 // 因为在 assign_expr 中使用的 assign_name 来自外层, 而约束目标是 Let
                 rc.constraint
-                    .clone()
                     .exclude_new(assign_name)
             };
 
             // 注入表达式环境
             // 新的环境可能包含对 assign_name 的约束和外层约束
             // 这些约束将有助于取得 assign_expr 的类型
-            let new_expr_env = expr_env
-                .extend_constraint_new(inject_constraint.clone());
+            let new_expr_env =
+                expr_env.extend_constraint_new(inject_constraint);
 
             // 由 scope_expr 产生的 assign_name 约束始终作用于 Let, 不应被传播到外层
             let constraint_acc = rc
@@ -155,7 +154,6 @@ pub fn case_ri(
 
         ri @ Triple::R(_) =>
         // 由 scope_expr 产生的 assign_name 约束始终作用于 Let, 不应被传播到外层
-            ri.exclude_constraint(assign_name)
-                .into(),
+            ri.exclude_constraint(assign_name),
     }
 }

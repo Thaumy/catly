@@ -32,9 +32,9 @@ pub fn split_to_top_levels(seq: Vec<In>) -> Vec<Vec<In>> {
 
 pub fn parse_to_defines(seq: Vec<Vec<In>>) -> Option<Vec<Define>> {
     seq.into_iter()
-        .map(|vec| parse_define(vec))
+        .map(parse_define)
         .try_fold(vec![], |acc, it| {
-            let it = it.clone()?;
+            let it = it?;
             acc.chain_push(it).some()
         })
 }

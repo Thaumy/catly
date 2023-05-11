@@ -36,7 +36,7 @@ pub fn case_apply(
                         expr_env.clone().some()
                     )
                     .rc(),
-                None => output_eval_env.clone()
+                None => output_eval_env
             };
 
             eval_expr(type_env, &extended_eval_env, &output_expr)

@@ -56,7 +56,7 @@ pub fn def_map_to_env_vec(
 pub fn parse_to_env<'t>(
     seq: &str
 ) -> Option<(TypeEnv<'t>, Rc<ExprEnv>)> {
-    let seq = preprocess(&seq)?;
+    let seq = preprocess(seq)?;
     let def_vec = parse_ast(seq)?;
 
     let (type_def_map, expr_def_map) = def_vec_to_def_map(def_vec)?;

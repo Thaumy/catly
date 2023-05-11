@@ -18,6 +18,6 @@ pub fn case(
         &int_type!(),
         expect_type,
         None,
-        |t| Expr::Int(t.some(), i.clone())
+        |t| Expr::Int(t.some(), *i)
     )
 }

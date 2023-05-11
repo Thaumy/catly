@@ -12,8 +12,8 @@ use crate::infra::either::{Either, EitherAnyExt};
 use crate::infra::rc::RcAnyExt;
 use crate::infra::result::ResultAnyExt;
 
-pub fn source_lhs_expr_to_closure<'t>(
-    type_env: &'t TypeEnv,
+pub fn source_lhs_expr_to_closure(
+    type_env: &'_ TypeEnv,
     expr_env: &Rc<ExprEnv>,
     lhs_expr: &Rc<Expr>
 ) -> Result<

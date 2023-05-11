@@ -28,7 +28,7 @@ impl ExprEnv {
         }
     }
 
-    pub fn new<'s>(
+    pub fn new(
         ref_name: impl Into<String>,
         tc: TypeConstraint,
         src: EnvRefSrc
@@ -147,7 +147,7 @@ impl ExprEnv {
             self.entry
                 .as_ref()
                 .and_then(|entry @ (n, ..)| {
-                    (n == ref_name).then(|| entry)
+                    (n == ref_name).then_some(entry)
                 });
 
         match (entry, &self.prev_env) {

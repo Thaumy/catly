@@ -50,7 +50,7 @@ pub fn require_extended_constraint(
     r: EnvRefConstraint
 ) -> InferTypeRet {
     match l.extend_new(r.clone()) {
-        Some(c) => require_constraint(typed_expr, c.clone()),
+        Some(c) => require_constraint(typed_expr, c),
         None => TypeMissMatch::of_constraint(&l, &r).into()
     }
 }
@@ -62,13 +62,13 @@ impl From<ReqConstraint> for InferTypeRet {
 impl Debug for ReqConstraint {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         if self.constraint.is_empty() {
-            f.write_str(&*format!(
+            f.write_str(&format!(
                 "ReqC::{:?}",
                 self.typed_expr
                     .get_type_annot()
             ))
         } else {
-            f.write_str(&*format!(
+            f.write_str(&format!(
                 "ReqC::{:?} & {:?}",
                 self.typed_expr
                     .get_type_annot(),

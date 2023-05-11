@@ -34,7 +34,7 @@ pub fn case(
             assign_name,
             // 在这里可能注入无类型约束, 但这是合理的, 因为如果 Let 是递归绑定的
             // 那么外层环境中出现的某个与 assign_name 同名的绑定将与 assign_expr 无关
-            assign_type.clone().into(),
+            assign_type.clone(),
             None
         )
     } else {
@@ -69,7 +69,7 @@ pub fn case(
             {
                 None =>
                     return TypeMissMatch::of_type(
-                        &assign_expr_type,
+                        assign_expr_type,
                         &assign_type.clone().unwrap()
                     )
                     .into(),

@@ -44,7 +44,7 @@ pub fn case(
                 } else {
                     // lhs_expr_type must be ClosureType
                     // PartialClosureType is used for hint only
-                    return TypeMissMatch::of(&format!(
+                    return TypeMissMatch::of(format!(
                         "{lhs_expr_type:?} <> ClosureType"
                     ))
                     .into();
@@ -82,7 +82,7 @@ pub fn case(
                 type_env,
                 new_expr_env,
                 expect_type,
-                &lhs_expr,
+                lhs_expr,
                 rhs_expr
             )?
             .with_constraint_acc(ri.constraint)

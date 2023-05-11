@@ -22,7 +22,7 @@ where
     // Hint scope_expr with expect_type and get scope_expr_type
     match scope_expr
         .with_opt_fallback_type(expect_type)
-        .infer_type(type_env, &expr_env)?
+        .infer_type(type_env, expr_env)?
     {
         result @ (Triple::L(_) | Triple::M(_)) => {
             let (typed_scope_expr, constraint) =

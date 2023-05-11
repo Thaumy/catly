@@ -31,8 +31,7 @@ pub fn eval_to_int(
     expr: &Rc<Expr>
 ) -> Result<i64, EvalErr> {
     match eval_expr(type_env, expr_env, expr)? {
-        Expr::Int(Type::NamelyType(n), i) if n == "Int" =>
-            i.clone().ok(),
+        Expr::Int(Type::NamelyType(n), i) if n == "Int" => i.ok(),
         _ => panic!("Impossible non-int expr: {expr:?}")
     }
 }

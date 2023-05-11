@@ -35,14 +35,14 @@ pub enum Pat {
 
 impl Pat {
     pub(crate) fn is_type(&self) -> bool {
-        match self {
+        matches!(
+            self,
             Pat::TypeName(..) |
-            Pat::TypeApply(..) |
-            Pat::ClosureType(..) |
-            Pat::SumType(..) |
-            Pat::ProdType(..) => true,
-            _ => false
-        }
+                Pat::TypeApply(..) |
+                Pat::ClosureType(..) |
+                Pat::SumType(..) |
+                Pat::ProdType(..)
+        )
     }
 }
 
@@ -62,7 +62,7 @@ impl From<Pat> for OptType {
                     let t: Self = t.into();
                     acc.chain_insert(t?).some()
                 })
-                .map(|set| Type::SumType(set))?,
+                .map(Type::SumType)?,
 
             Pat::ProdType(p_v) => p_v
                 .into_iter()
@@ -70,7 +70,7 @@ impl From<Pat> for OptType {
                     let t: Self = p.into();
                     acc.chain_push((n, t?)).some()
                 })
-                .map(|vec| Type::ProdType(vec))?,
+                .map(Type::ProdType)?,
             _ => return None
         }
         .some()

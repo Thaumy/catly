@@ -24,16 +24,16 @@ where
     // 当 expect_type 无类型时, 使用 then_expr_type hint
     let expect_type = match expect_type {
         Some(expect_type) =>
-            if then_expr_type.can_lift_to(type_env, &expect_type) {
+            if then_expr_type.can_lift_to(type_env, expect_type) {
                 expect_type.clone()
             } else {
                 return TypeMissMatch::of_type(
                     &then_expr_type,
-                    &expect_type
+                    expect_type
                 )
                 .into();
             },
-        None => then_expr_type.clone()
+        None => then_expr_type
     };
 
     match else_expr
@@ -46,7 +46,7 @@ where
 
             InferTypeRet::from_auto_lift(
                 type_env,
-                &typed_else_expr.unwrap_type_annot(),
+                typed_else_expr.unwrap_type_annot(),
                 &expect_type.some(),
                 constraint_acc.some(),
                 |t| typed_expr_cons(t, typed_else_expr.clone())

@@ -21,7 +21,7 @@ pub fn case_ri(
     require_info: ReqInfo,
     expect_type: &OptType,
     target_expr: &Expr,
-    case_vec: &Vec<(Expr, Expr)>
+    case_vec: &[(Expr, Expr)]
 ) -> InferTypeRet {
     // 由于以下推导可能产生错误, 而这些错误没有很好的语义对应已有的错误类型, 所以需要返回原错误
     let original_err = require_info.quad_mr();
@@ -35,16 +35,14 @@ pub fn case_ri(
             .iter()
             .map(|(case_expr, then_expr)| {
                 match destruct_match_const_to_expr_env_inject(
-                    type_env, &case_expr
+                    type_env, case_expr
                 ) {
                     Ok(env_inject) =>
                         (case_expr, env_inject, then_expr).ok(),
                     Err((new, old)) =>
-                        return TypeMissMatch::of_dup_capture(
-                            old, new
-                        )
-                        .quad_r()
-                        .err(),
+                        TypeMissMatch::of_dup_capture(old, new)
+                            .quad_r()
+                            .err(),
                 }
             })
             .try_fold(vec![], |acc, x| acc.chain_push(x?).ok());
@@ -126,7 +124,7 @@ pub fn case_ri(
             let match_expr = Expr::Match(
                 expect_type.clone(),
                 hinted_target_expr.rc(),
-                case_vec.clone(),
+                case_vec.to_vec(),
             );
             match_expr.infer_type(type_env, expr_env)
         }
@@ -156,8 +154,7 @@ pub fn case_ri(
                         ) {
                         Quad::ML(rc) => rc
                             .constraint
-                            .find(ref_name.as_str())
-                            .map(|t| t.clone()),
+                            .find(ref_name.as_str()).cloned(),
                         // 将 L 和错误情况一并视作 None, 相关讨论见下文
                         _ => None
                     })
@@ -165,7 +162,7 @@ pub fn case_ri(
                     // 该策略认为无法取得 then_expr 的类型可能是由 target_expr 无法取得类型引起的
                     // 所以应该过滤出所有能够得到的类型进行合一并 hint target_expr
                     .filter(|x| x.is_some())
-                    .map(|x| x.unwrap())
+                    .flatten()
                     .try_reduce(|acc, t| acc.unify(type_env, &t))
                     .flatten();
 
@@ -176,7 +173,7 @@ pub fn case_ri(
                     let match_expr = Expr::Match(
                         expect_type.clone(),
                         hinted_target_expr.rc(),
-                        case_vec.clone(),
+                        case_vec.to_vec(),
                     );
                     match_expr.infer_type(type_env, expr_env)
                 }

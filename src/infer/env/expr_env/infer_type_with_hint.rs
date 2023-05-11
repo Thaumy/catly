@@ -54,7 +54,7 @@ impl ExprEnv {
                             // 与 infer_type 同理
                             |t| {
                                 Expr::EnvRef(
-                                    t.clone().some(),
+                                    t.some(),
                                     ref_name.clone()
                                 )
                             }

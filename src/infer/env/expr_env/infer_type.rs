@@ -57,13 +57,13 @@ impl ExprEnv {
                         Triple::L(typed_src_expr) =>
                             InferTypeRet::from_auto_lift(
                                 type_env,
-                                &typed_src_expr.unwrap_type_annot(),
+                                typed_src_expr.unwrap_type_annot(),
                                 &t.clone().some(),
                                 None,
                                 // 由于这里构建的是具备类型的 EnvRef, 所以不应该使用引用源返回
                                 |t| {
                                     Expr::EnvRef(
-                                        t.clone().some(),
+                                        t.some(),
                                         ref_name.clone()
                                     )
                                 }
@@ -71,14 +71,14 @@ impl ExprEnv {
                         Triple::M(rc) =>
                             InferTypeRet::from_auto_lift(
                                 type_env,
-                                &rc.typed_expr
+                                rc.typed_expr
                                     .unwrap_type_annot(),
                                 &t.clone().some(),
                                 rc.constraint.some(),
                                 // 与上同理
                                 |t| {
                                     Expr::EnvRef(
-                                        t.clone().some(),
+                                        t.some(),
                                         ref_name.clone()
                                     )
                                 }

@@ -110,10 +110,10 @@ impl<'t> TypeEnv<'t> {
     // 仅允许将类型提升到以它为基础的和类型, 这被用作 match 表达式的类型匹配
     pub fn can_lift_to(&self, from: &Type, to: &Type) -> bool {
         if from == to {
-            return true;
+            true
         } else {
             match self.source_sum_type(to) {
-                None => return false,
+                None => false,
                 Some(s) => s.iter().any(|t| t == from)
             }
         }

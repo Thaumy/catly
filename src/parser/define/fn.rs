@@ -8,9 +8,9 @@ use crate::parser::r#type::parse_type;
 
 type In = crate::pp::Out;
 
-fn move_in(stack: &Vec<Pat>, head: Option<In>) -> Pat {
+fn move_in(stack: &[Pat], head: Option<In>) -> Pat {
     match head {
-        Some(o) => match (&stack[..], o) {
+        Some(o) => match (stack, o) {
             // (KwDef LetName `:`): _ -> AnyInSeq
             // where LetName is untyped
             (

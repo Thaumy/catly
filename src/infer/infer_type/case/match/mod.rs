@@ -20,7 +20,7 @@ pub fn case(
     expr_env: &Rc<ExprEnv>,
     expect_type: &OptType,
     target_expr: &Expr,
-    case_vec: &Vec<(Expr, Expr)>
+    case_vec: &[(Expr, Expr)]
 ) -> InferTypeRet {
     match target_expr.infer_type(type_env, expr_env)? {
         // L 与 ML 同样只有是否需要传播对外界环境的约束的区别

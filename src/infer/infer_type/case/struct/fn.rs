@@ -45,7 +45,7 @@ pub fn is_struct_vec_of_type_then_get_prod_vec(
                                 .unwrap_or(true)
                     })
                     .all(id))
-                .then(|| prod_vec)
+                .then_some(prod_vec)
                 .ok(),
 
             Some(Type::SumType(sum_vec)) => sum_vec
@@ -60,18 +60,18 @@ pub fn is_struct_vec_of_type_then_get_prod_vec(
                 .find(|x| matches!(x, Ok(Some(..))))
                 .unwrap_or(
                     TypeMissMatch::of(
-                        &format!(
+                        format!(
                             "{expect_type:?} <> type of Struct{struct_vec:?}"
                         )).quad_r()
                         .err()
                 ),
 
-            Some(t) => TypeMissMatch::of(&format!(
+            Some(t) => TypeMissMatch::of(format!(
                 "{t:?} <> type of Struct{struct_vec:?}"
             )).quad_r()
                 .err(),
 
-            None => TypeMissMatch::of(&format!(
+            None => TypeMissMatch::of(format!(
                 "{expect_type:?} not found in type env"
             )).quad_r()
                 .err()

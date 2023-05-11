@@ -24,17 +24,16 @@ pub enum Type {
 impl Debug for Type {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
-            Type::NamelyType(n) => f.write_str(&*format!("'{n}'")),
+            Type::NamelyType(n) => f.write_str(&format!("'{n}'")),
             Type::ClosureType(i_t, o_t) =>
                 if let Type::ClosureType(..) = i_t.clone().deref() {
-                    f.write_str(&*format!("({i_t:?}) -> {o_t:?}"))
+                    f.write_str(&format!("({i_t:?}) -> {o_t:?}"))
                 } else {
-                    f.write_str(&*format!("{i_t:?} -> {o_t:?}"))
+                    f.write_str(&format!("{i_t:?} -> {o_t:?}"))
                 },
-            Type::SumType(s) =>
-                f.write_str(&*format!("SumType{s:?}")),
+            Type::SumType(s) => f.write_str(&format!("SumType{s:?}")),
             Type::ProdType(v) =>
-                f.write_str(&*format!("ProdType{v:?}")),
+                f.write_str(&format!("ProdType{v:?}")),
         }
     }
 }
@@ -55,7 +54,7 @@ impl From<CtType> for OptType {
                     let t: Self = t.into();
                     acc.chain_insert(t?).some()
                 })
-                .map(|set| Type::SumType(set))?,
+                .map(Type::SumType)?,
 
             CtType::ProdType(p_v) => p_v
                 .into_iter()
@@ -63,7 +62,7 @@ impl From<CtType> for OptType {
                     let t: Self = t.into();
                     acc.chain_push((n, t?)).some()
                 })
-                .map(|vec| Type::ProdType(vec))?,
+                .map(Type::ProdType)?,
 
             CtType::PartialClosureType(_) => return None
         }

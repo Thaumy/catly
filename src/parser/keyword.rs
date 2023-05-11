@@ -14,10 +14,7 @@ pub enum Keyword {
 
 impl Keyword {
     pub fn is_top_level(&self) -> bool {
-        match self {
-            Keyword::Type | Keyword::Def => true,
-            _ => false
-        }
+        matches!(self, Keyword::Type | Keyword::Def)
     }
 }
 

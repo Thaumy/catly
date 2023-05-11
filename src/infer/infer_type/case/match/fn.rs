@@ -39,7 +39,7 @@ pub fn destruct_match_const_to_expr_env_inject(
                 // 由于这里不负责类型检查, 所以可以转为无序的哈希表以提升检索效率
                 let prod_fields =
                     t.as_ref().and_then(
-                        |t| match destruct_namely_type(type_env, &t) {
+                        |t| match destruct_namely_type(type_env, t) {
                             Some(Type::ProdType(vec)) =>
                                 HashMap::<String, Type>::from_iter(
                                     vec.into_iter()
@@ -50,7 +50,7 @@ pub fn destruct_match_const_to_expr_env_inject(
                     );
 
                 vec.iter()
-                    .map(|(n, mt, e)| {
+                    .flat_map(|(n, mt, e)| {
                         // 简单地从 ProdType 中查找类型作为提示, 因为这里不负责类型检查
                         let prod_hint = prod_fields
                             .as_ref()
@@ -64,7 +64,6 @@ pub fn destruct_match_const_to_expr_env_inject(
 
                         go(type_env, &e)
                     })
-                    .flatten()
                     .collect(): Vec<_>
             }
             _ => vec![]
@@ -158,7 +157,7 @@ pub fn is_case_expr_valid<'t>(
                             |_| rc.typed_expr.clone()
                         )
                     } else {
-                        TypeMissMatch::of(&format!(
+                        TypeMissMatch::of(format!(
                             "Case expr not const"
                         ))
                         .into()

@@ -16,15 +16,12 @@ pub fn on_no_expect_type<T>(
     type_env: &TypeEnv,
     expr_env: &Rc<ExprEnv>,
     case_env_inject_and_then_expr: T,
-    case_vec: &Vec<(Expr, Expr)>,
+    case_vec: &[(Expr, Expr)],
     typed_target_expr: &Expr
 ) -> InferTypeRet
 where
     T: Iterator<Item = (Vec<ExprEnvEntry>, Expr)> + Clone
 {
-    let case_env_inject_and_then_expr =
-        case_env_inject_and_then_expr.into_iter();
-
     // 逐一获取 then_expr_type, 并将它们逐个合一, 合一的结果便是 match 表达式的最终类型
     // 同时收集在获取 then_expr_type 的过程中产生的约束
     let then_expr_type_and_outer_constraints =
@@ -39,9 +36,8 @@ where
                         // 此处不负责对类型完备的 then_expr 进行收集
                         // 因为即便收集, on_has_expect_type 也要进行重复的收集工作
                         // 但更多是出于实现的复杂性考虑
-                        let (typed_then_expr, constraint) = result
-                            .unwrap_expr_constraint()
-                            .clone();
+                        let (typed_then_expr, constraint) =
+                            result.unwrap_expr_constraint();
                         let then_expr_type = typed_then_expr
                             .unwrap_type_annot()
                             .clone();
@@ -80,13 +76,13 @@ where
         );
 
     // 一旦发现类型不匹配(of then_expr), 立即返回
-    match then_expr_type_and_outer_constraints
-        .clone()
-        // 任选一个错误即可(渐进式错误提示)
-        .find(|x| matches!(x, Err(Quad::R(_))))
+    if let Some(Err(type_miss_match)) =
+        then_expr_type_and_outer_constraints
+            .clone()
+            // 任选一个错误即可(渐进式错误提示)
+            .find(|x| matches!(x, Err(Quad::R(_))))
     {
-        Some(Err(type_miss_match)) => return type_miss_match,
-        _ => {}
+        return type_miss_match;
     } // 排除了 infer_type 的结果 R
 
     let outer_constraint = then_expr_type_and_outer_constraints
@@ -142,7 +138,7 @@ where
     let match_expr = Expr::Match(
         final_type.some(),
         typed_target_expr.clone().rc(),
-        case_vec.clone()
+        case_vec.to_vec()
     );
 
     let new_expr_env =

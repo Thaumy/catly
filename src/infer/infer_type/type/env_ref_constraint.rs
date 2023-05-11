@@ -13,7 +13,7 @@ pub struct EnvRefConstraint {
 
 impl Debug for EnvRefConstraint {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&*format!("ERC::{:?}", self.constraint))
+        f.write_str(&format!("ERC::{:?}", self.constraint))
     }
 }
 
@@ -123,8 +123,13 @@ impl EnvRefConstraint {
     pub fn iter(&self) -> Iter<'_, String, Type> {
         self.constraint.iter()
     }
+}
 
-    pub fn into_iter(self) -> IntoIter<String, Type> {
+impl IntoIterator for EnvRefConstraint {
+    type Item = (String, Type);
+    type IntoIter = IntoIter<String, Type>;
+
+    fn into_iter(self) -> Self::IntoIter {
         self.constraint.into_iter()
     }
 }

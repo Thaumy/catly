@@ -51,7 +51,7 @@ pub fn case(
                         // 提示后推导
                         sf_e.with_opt_fallback_type(sf_t)
                             .with_fallback_type(pf_t)
-                            .infer_type(type_env, &expr_env)
+                            .infer_type(type_env, expr_env)
                     )
                 })
                 .collect(): Vec<_>,
@@ -64,7 +64,7 @@ pub fn case(
                         sf_n.clone(),
                         // 提示后推导
                         sf_e.with_opt_fallback_type(sf_t)
-                            .infer_type(type_env, &expr_env)
+                            .infer_type(type_env, expr_env)
                     )
                 })
                 .collect(): Vec<_>,
@@ -72,18 +72,16 @@ pub fn case(
     .into_iter();
 
     // 一旦发现类型不匹配(of struct field expr), 立即返回
-    match sf_n_and_sf_t
+    if let Some((_, type_miss_match)) = sf_n_and_sf_t
         .clone()
         // 任选一个错误即可(渐进式错误提示)
         .find(|(_, x)| matches!(x, Quad::R(_)))
     {
-        Some((_, type_miss_match)) => return type_miss_match,
-        _ => {}
+        return type_miss_match;
     } // 排除了 infer_type 的结果 R
 
-    let sf_n_and_sf_t_with_constraint_and_expr = sf_n_and_sf_t
-        .clone()
-        .map(|(sf_n, sf_t)| match sf_t {
+    let sf_n_and_sf_t_with_constraint_and_expr =
+        sf_n_and_sf_t.map(|(sf_n, sf_t)| match sf_t {
             Quad::L(_) | Quad::ML(_) => {
                 let (typed_sf_e, constraint) =
                     sf_t.unwrap_expr_constraint();
@@ -120,13 +118,12 @@ pub fn case(
     };
 
     // 如果出现缺乏类型信息(of struct field expr), 则将收集到的外部约束传播出去
-    match sf_n_and_sf_t_with_constraint_and_expr
-        .clone()
-        .find(|x| matches!(x, Err(Quad::MR(_))))
+    if let Some(Err(Quad::MR(ri))) =
+        sf_n_and_sf_t_with_constraint_and_expr
+            .clone()
+            .find(|x| matches!(x, Err(Quad::MR(_))))
     {
-        Some(Err(Quad::MR(ri))) =>
-            return ReqInfo::of(ri.ref_name, outer_constraint).into(),
-        _ => {}
+        return ReqInfo::of(ri.ref_name, outer_constraint).into();
     } // 排除了 infer_type 的结果 MR
 
     let prod_type = Type::ProdType(

@@ -13,7 +13,7 @@ where
 {
     let (head, tail, follow) = seq.get_head_tail_follow();
 
-    stack.push(move_in(&stack, head));
+    stack.push(move_in(head));
 
     if cfg!(feature = "parser_lr1_log") {
         let log = format!("Move in: {stack:?} follow: {follow:?}");

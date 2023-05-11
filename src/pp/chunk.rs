@@ -36,9 +36,9 @@ enum Pat {
     UpperStartChunk(String) // Out::UpperStartChunk
 }
 
-fn move_in(stack: &Vec<Pat>, head: Option<char>) -> Pat {
+fn move_in(stack: &[Pat], head: Option<char>) -> Pat {
     match head {
-        Some(c) => match (&stack[..], c) {
+        Some(c) => match (stack, c) {
             // Char|Start: [0-9] -> DigitStart
             ([.., Pat::Symbol(_) | Pat::Start], c)
                 if parse_digit(&c).is_some() =>
@@ -166,7 +166,7 @@ fn go(mut stack: Vec<Pat>, tail: &str) -> Vec<Pat> {
             let mut stack = reduced_stack;
             stack.remove(0); // remove Start
             stack.pop(); // remove End
-            return stack;
+            stack
         }
         _ => go(reduced_stack, tail.as_str())
     }

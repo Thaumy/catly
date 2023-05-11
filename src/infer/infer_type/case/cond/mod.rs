@@ -51,11 +51,8 @@ pub fn case(
                 .with_constraint_acc(constraint)
             } else {
                 // bool_expr must be boolean types
-                return TypeMissMatch::of_type(
-                    &bool_expr_type,
-                    &bool_type!()
-                )
-                .into();
+                TypeMissMatch::of_type(bool_expr_type, &bool_type!())
+                    .into()
             }
         }
         // 求取分支类型, 因为分支约束可能有助于求得 bool_expr 类型
@@ -66,7 +63,7 @@ pub fn case(
             let new_expr_env = &expr_env
                 .extend_constraint_new(constraint_acc.clone());
 
-            return match infer_branch_type(
+            match infer_branch_type(
                 type_env,
                 new_expr_env,
                 expect_type,
@@ -78,14 +75,13 @@ pub fn case(
             )? {
                 // 产生约束, 改写错误以便下一轮对 bool_expr 进行类型获取
                 Triple::M(ReqConstraint { constraint, .. }) =>
-                    ReqInfo::of(ri.ref_name.clone(), constraint)
-                        .into(),
+                    ReqInfo::of(ri.ref_name, constraint).into(),
                 // 未产生约束, 返回原错误
-                Triple::L(_) => ri.clone().quad_mr(),
+                Triple::L(_) => ri.quad_mr(),
                 // 分支表达式也无非获取类型, 由于约束已经累积, 传播之
                 r => r.into()
             }?
-            .with_constraint_acc(constraint_acc);
+            .with_constraint_acc(constraint_acc)
         }
     }
 }

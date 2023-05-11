@@ -19,15 +19,12 @@ pub fn on_has_expect_type<T>(
     expr_env: &Rc<ExprEnv>,
     case_env_inject_and_then_expr: T,
     expect_type: Type,
-    typed_case_expr: &Vec<Expr>,
+    typed_case_expr: &[Expr],
     typed_target_expr: &Expr
 ) -> InferTypeRet
 where
     T: Iterator<Item = (Vec<ExprEnvEntry>, Expr)> + Clone
 {
-    let case_env_inject_and_then_expr =
-        case_env_inject_and_then_expr.into_iter();
-
     // 在以 expect_type 为 hint 的基础上获取 then_expr_type 并判断其与 expect_type 的相容性
     // 同时收集在获取 then_expr_type 的过程中产生的约束
     let typed_then_expr_and_outer_constraints =
@@ -71,7 +68,7 @@ where
                             (typed_then_expr, outer_constraint).ok()
                         } else {
                             TypeMissMatch::of_type(
-                                &then_expr_type,
+                                then_expr_type,
                                 &expect_type
                             )
                             .quad_r()
@@ -100,13 +97,13 @@ where
         );
 
     // 一旦发现类型不匹配(of then_expr), 立即返回
-    match typed_then_expr_and_outer_constraints
-        .clone()
-        // 任选一个错误即可(渐进式错误提示)
-        .find(|x| matches!(x, Err(Quad::R(_))))
+    if let Some(Err(type_miss_match)) =
+        typed_then_expr_and_outer_constraints
+            .clone()
+            // 任选一个错误即可(渐进式错误提示)
+            .find(|x| matches!(x, Err(Quad::R(_))))
     {
-        Some(Err(type_miss_match)) => return type_miss_match,
-        _ => {}
+        return type_miss_match;
     } // 排除了 infer_type 的结果 R
 
     let outer_constraint = typed_then_expr_and_outer_constraints
@@ -135,13 +132,12 @@ where
     };
 
     // 如果出现缺乏类型信息(of then_expr), 则将收集到的外部约束传播出去
-    match typed_then_expr_and_outer_constraints
-        .clone()
-        .find(|x| matches!(x, Err(Quad::MR(_))))
+    if let Some(Err(Quad::MR(ri))) =
+        typed_then_expr_and_outer_constraints
+            .clone()
+            .find(|x| matches!(x, Err(Quad::MR(_))))
     {
-        Some(Err(Quad::MR(ri))) =>
-            return ReqInfo::of(ri.ref_name, outer_constraint).into(),
-        _ => {}
+        return ReqInfo::of(ri.ref_name, outer_constraint).into();
     } // 排除了 infer_type 的结果 MR
 
     let typed_then_expr = typed_then_expr_and_outer_constraints
@@ -149,10 +145,10 @@ where
         .map(|(e, _)| e);
 
     let typed_cases = typed_case_expr
-        .clone()
-        .into_iter()
+        .iter()
         // 在此处类型检查已经完成, 不会出现无法配对的情况
         .zip(typed_then_expr)
+        .map(|(x, y)| (x.clone(), y))
         .collect(): Vec<_>;
 
     require_constraint(
