@@ -61,7 +61,7 @@ fn is_expr_match_pattern_then_env_vec(
             )]
             .some(),
             Expr::Discard(_) => vec![].some(),
-            _ => panic!("Impossible case pattern: {pattern:?}")
+            _ => unreachable!()
         },
         Expr::Int(_, e_i) => match pattern {
             Expr::Int(_, p_i) =>
@@ -78,7 +78,7 @@ fn is_expr_match_pattern_then_env_vec(
             )]
             .some(),
             Expr::Discard(_) => vec![].some(),
-            _ => panic!("Impossible case pattern: {pattern:?}")
+            _ => unreachable!()
         },
         Expr::Closure(..) => match pattern {
             Expr::EnvRef(p_t, ref_name) => vec![(
@@ -89,7 +89,7 @@ fn is_expr_match_pattern_then_env_vec(
             )]
             .some(),
             Expr::Discard(_) => vec![].some(),
-            _ => panic!("Impossible case pattern: {pattern:?}")
+            _ => unreachable!()
         },
         Expr::Struct(_, e_s_v) => match pattern {
             Expr::Struct(_, p_s_v) =>
@@ -104,9 +104,9 @@ fn is_expr_match_pattern_then_env_vec(
             )]
             .some(),
             Expr::Discard(_) => vec![].some(),
-            _ => panic!("Impossible case pattern: {pattern:?}")
+            _ => unreachable!()
         },
-        _ => panic!("Impossible match target: {evaluated_expr:?}")
+        _ => unreachable!()
     }
 }
 

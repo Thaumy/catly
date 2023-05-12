@@ -21,7 +21,7 @@ pub fn eval_to_bool(
         Expr::Int(Type::NamelyType(n), 1) if n == "True" => true.ok(),
         Expr::Int(Type::NamelyType(n), 0) if n == "False" =>
             false.ok(),
-        _ => panic!("Impossible non-bool expr: {expr:?}")
+        _ => unreachable!()
     }
 }
 
@@ -32,7 +32,7 @@ pub fn eval_to_int(
 ) -> Result<i64, EvalErr> {
     match eval_expr(type_env, expr_env, expr)? {
         Expr::Int(Type::NamelyType(n), i) if n == "Int" => i.ok(),
-        _ => panic!("Impossible non-int expr: {expr:?}")
+        _ => unreachable!()
     }
 }
 

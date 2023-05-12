@@ -22,7 +22,7 @@ pub fn case_cond(
                 eval_expr(type_env, expr_env, then_expr),
             Expr::Int(Type::NamelyType(n), 0) if n == "False" =>
                 eval_expr(type_env, expr_env, else_expr),
-            _ => panic!("Impossible bool value: {value:?}")
+            _ => unreachable!()
         },
         e => e
     }

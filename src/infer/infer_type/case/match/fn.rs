@@ -169,7 +169,7 @@ pub fn is_case_expr_valid<'t>(
                 // 不可能出现缺乏类型信息的情况
                 // 由此也可推断, case_expr_env 中不存在自由类型
                 // 所以在下一步取得 then_expr_type 时, 其产生的约束一定作用于外层
-                Triple::R(ri) => panic!("Impossible branch: {ri:?}")
+                Triple::R(_) => unreachable!()
             }
         })
         .try_fold(vec![], |acc, x| match x {
@@ -177,7 +177,7 @@ pub fn is_case_expr_valid<'t>(
             Quad::ML(rc) => acc
                 .chain_push(rc.typed_expr)
                 .ok(),
-            Quad::MR(_) => panic!("Impossible branch: {x:?}"),
+            Quad::MR(_) => unreachable!(),
             Quad::R(err) => err.err()
         })
 }

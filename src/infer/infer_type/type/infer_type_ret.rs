@@ -23,7 +23,7 @@ impl InferTypeRet {
             Quad::L(typed_expr) =>
                 (typed_expr, EnvRefConstraint::empty()),
             Quad::ML(rc) => (rc.typed_expr, rc.constraint),
-            _ => panic!("Impossible value: {self:?}")
+            _ => unreachable!()
         }
     }
 
@@ -68,7 +68,7 @@ impl Triple<Expr, ReqConstraint, ReqInfo> {
             Triple::L(typed_expr) =>
                 (typed_expr, EnvRefConstraint::empty()),
             Triple::M(rc) => (rc.typed_expr, rc.constraint),
-            _ => panic!("Impossible value: {self:?}")
+            _ => unreachable!()
         }
     }
 

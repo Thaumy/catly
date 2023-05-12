@@ -59,7 +59,7 @@ fn ct_expr_env_vec_to_rt_expr_env_vec(
 
                 (n, t, src, None)
             }
-            _ => panic!("Impossible type constraint: {tc:?}")
+            _ => unreachable!()
         })
         .collect::<Vec<ExprEnvEntry>>()
         .ok()

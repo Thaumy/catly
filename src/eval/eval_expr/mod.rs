@@ -42,8 +42,7 @@ pub fn eval_expr(
         Expr::Closure(t, i_n, i_t, o_e, None) =>
             case_closure(t, i_n, i_t, o_e, expr_env),
         // 不可能发生的情况, 不存在捕获环境的滞留 Closure, 因为求值是惰性的
-        Expr::Closure(.., Some(_)) =>
-            panic!("Impossible expr: {expr:?}"),
+        Expr::Closure(.., Some(_)) => unreachable!(),
 
         Expr::Struct(t, s_v) =>
             case_struct(type_env, expr_env, t, s_v),
@@ -55,8 +54,7 @@ pub fn eval_expr(
         // 由于任何需要返回 PrimitiveOp 的表达式都需要对 PrimitiveOp 求值
         // 而此时 PrimitiveOp 一定不会捕获环境, 因为 Apply 还没有发生
         // 所以下面的情况不可能发生
-        Expr::PrimitiveOp(.., Some(_)) =>
-            panic!("Impossible expr: {expr:?}"),
+        Expr::PrimitiveOp(.., Some(_)) => unreachable!(),
 
         Expr::Cond(b_e, t_e, f_e) =>
             case_cond(type_env, expr_env, b_e, t_e, f_e),
