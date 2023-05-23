@@ -4,13 +4,12 @@ use std::ops::Deref;
 use crate::infra::option::OptionAnyExt;
 use crate::infra::rc::RcAnyExt;
 use crate::infra::vec::VecExt;
+use crate::lexer::{FollowExt, Token};
 use crate::parser::r#type::pat::Pat;
-use crate::parser::r#type::In;
-use crate::pp::FollowExt;
 
 pub fn reduce_stack(
     mut stack: Vec<Pat>,
-    follow: Option<In>
+    follow: Option<Token>
 ) -> Vec<Pat> {
     match (&stack[..], &follow) {
         // Success
@@ -97,7 +96,7 @@ pub fn reduce_stack(
         // where LetName is typed
         (
             [.., Pat::LetName(Some(a_t), a_n), Pat::Mark(','), Pat::LetName(Some(b_t), b_n)],
-            Some(In::Symbol('}' | ','))
+            Some(Token::Symbol('}' | ','))
         ) => {
             let top = Pat::TypedLetNameSeq(vec![
                 (a_n.clone(), a_t.deref().clone()),
@@ -109,7 +108,7 @@ pub fn reduce_stack(
         // where LetName is typed
         (
             [.., Pat::TypedLetNameSeq(seq), Pat::Mark(','), Pat::LetName(Some(t), n)],
-            Some(In::Symbol('}' | ','))
+            Some(Token::Symbol('}' | ','))
         ) => {
             let top = Pat::TypedLetNameSeq(
                 seq.push_to_new((n.clone(), t.deref().clone()))

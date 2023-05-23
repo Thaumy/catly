@@ -185,7 +185,7 @@ impl From<Pat> for Option<Out> {
     }
 }
 
-pub fn pp_chunk(seq: &str) -> Option<Vec<Out>> {
+pub fn lexer_chunk(seq: &str) -> Option<Vec<Out>> {
     let r = go(vec![Pat::Start], seq)
         .into_iter()
         .try_fold(vec![], |acc, p| {
@@ -203,7 +203,7 @@ pub fn pp_chunk(seq: &str) -> Option<Vec<Out>> {
 
 #[test]
 fn test_part1() {
-    use crate::pp::chunk::{pp_chunk, Out};
+    use crate::lexer::chunk::{lexer_chunk, Out};
 
     let seq = "123 abc,Ab1c}233|foo";
     let r = vec![
@@ -219,5 +219,5 @@ fn test_part1() {
     ]
     .some();
 
-    assert_eq!(pp_chunk(seq), r);
+    assert_eq!(lexer_chunk(seq), r);
 }

@@ -4,14 +4,13 @@ use std::ops::Deref;
 use crate::infra::option::OptionAnyExt;
 use crate::infra::rc::RcAnyExt;
 use crate::infra::vec::VecExt;
+use crate::lexer::{FollowExt, Token};
 use crate::parser::expr::pat::{OptRcPat, Pat};
-use crate::parser::expr::In;
 use crate::parser::keyword::Keyword;
-use crate::pp::FollowExt;
 
 pub fn reduce_stack(
     mut stack: Vec<Pat>,
-    follow: Option<In>
+    follow: Option<Token>
 ) -> Vec<Pat> {
     match (&stack[..], &follow) {
         // Success
@@ -111,7 +110,7 @@ pub fn reduce_stack(
         // LetName `=` Expr :`}`-> Assign
         ([..,
         Pat::LetName(t, n), Pat::Mark('='),
-        p], Some(In::Symbol('}'))
+        p], Some(Token::Symbol('}'))
         )
         if p.is_expr() => {
             let top = Pat::Assign(
@@ -186,7 +185,7 @@ pub fn reduce_stack(
         // `|` Expr :`-` -> CaseHead
         ([..,
         Pat::Mark('|'),
-        p], Some(In::Symbol('-'))
+        p], Some(Token::Symbol('-'))
         )
         if p.is_expr() => {
             let top = Pat::CaseHead(p.clone().rc());
@@ -233,7 +232,7 @@ pub fn reduce_stack(
         )
         if match follow {
             // 存在后继 Case 时拒绝归约
-            Some(In::Symbol('|')) => false,
+            Some(Token::Symbol('|')) => false,
             _ => true,
         } => {
             let top = Pat::Match(
@@ -250,7 +249,7 @@ pub fn reduce_stack(
         )
         if match follow {
             // 存在后继 Case 时拒绝归约
-            Some(In::Symbol('|')) => false,
+            Some(Token::Symbol('|')) => false,
             _ => true,
         } => {
             let top = Pat::Match(
@@ -276,7 +275,7 @@ pub fn reduce_stack(
         ([..,
         Pat::Kw(Keyword::Rec),
         Pat::LetName(t, n), Pat::Mark('='),
-        p], Some(In::Kw(Keyword::In))
+        p], Some(Token::Kw(Keyword::In))
         )
         if p.is_expr() => {
             let top = Pat::Assign(
@@ -290,7 +289,7 @@ pub fn reduce_stack(
         // LetName `=` Expr :KwIn -> Assign
         ([..,
         Pat::LetName(t, n), Pat::Mark('='),
-        p], Some(In::Kw(Keyword::In))
+        p], Some(Token::Kw(Keyword::In))
         )
         if p.is_expr() => {
             let top = Pat::Assign(
@@ -461,7 +460,7 @@ pub fn reduce_stack(
         ([..,
         Pat::LetName(Some(a_t), a_n), Pat::Mark(','),
         Pat::LetName(Some(b_t), b_n),
-        ], Some(In::Symbol('}' | ','))
+        ], Some(Token::Symbol('}' | ','))
         ) => {
             let top = Pat::TypedLetNameSeq(vec![
                 (a_n.clone(), a_t.deref().clone()),
@@ -474,7 +473,7 @@ pub fn reduce_stack(
         ([..,
         Pat::TypedLetNameSeq(seq), Pat::Mark(','),
         Pat::LetName(Some(t), n),
-        ], Some(In::Symbol('}' | ','))
+        ], Some(Token::Symbol('}' | ','))
         ) => {
             let top = Pat::TypedLetNameSeq(seq.push_to_new(
                 (n.clone(), t.deref().clone())

@@ -1,9 +1,11 @@
+use crate::lexer::lexical_analyze;
 use crate::parser::define::{parse_define, Define};
 use crate::pp::preprocess;
 
 fn f(seq: &str) -> Option<Define> {
-    let seq = preprocess(&seq)?;
-    parse_define(seq)
+    let preprocessed = preprocess(&seq);
+    let tokens = lexical_analyze(preprocessed.as_str())?;
+    parse_define(tokens)
 }
 
 mod expr_def;

@@ -1,24 +1,24 @@
+use crate::lexer::Token;
 use crate::parser::expr::pat::Pat;
-use crate::parser::expr::In;
 
-pub fn move_in(stack: &[Pat], head: Option<In>) -> Pat {
+pub fn move_in(stack: &[Pat], head: Option<Token>) -> Pat {
     match head {
         Some(o) => match (stack, o) {
             // .. -> LetName
-            (_, In::LetName(n)) => Pat::LetName(None, n),
+            (_, Token::LetName(n)) => Pat::LetName(None, n),
             // .. -> TypeName
-            (_, In::TypeName(n)) => Pat::TypeName(n),
+            (_, Token::TypeName(n)) => Pat::TypeName(n),
             // .. -> Kw
-            (_, In::Kw(kw)) => Pat::Kw(kw),
+            (_, Token::Kw(kw)) => Pat::Kw(kw),
             // .. -> Int
-            (_, In::IntValue(i)) => Pat::Int(None, i),
+            (_, Token::IntValue(i)) => Pat::Int(None, i),
             // .. -> Unit
-            (_, In::UnitValue) => Pat::Unit(None),
+            (_, Token::UnitValue) => Pat::Unit(None),
             // .. -> Discard
-            (_, In::DiscardValue) => Pat::Discard(None),
+            (_, Token::DiscardValue) => Pat::Discard(None),
 
             // .. -> Mark
-            (_, In::Symbol(s)) => match s {
+            (_, Token::Symbol(s)) => match s {
                 // '(' -> `(`
                 '(' => Pat::Mark('('),
                 // ')' -> `)`

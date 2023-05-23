@@ -19,6 +19,7 @@ use crate::infra::option::OptionAnyExt;
 use crate::infra::rc::RcAnyExt;
 use crate::infra::result::ResultAnyExt;
 use crate::infra::vec::VecExt;
+use crate::lexer::lexical_analyze;
 use crate::parser::ast::parse_ast;
 use crate::parser::expr::r#type::{
     Expr as CtExpr,
@@ -94,8 +95,9 @@ fn def_map_to_env_vec(
 pub fn parse_to_env<'t>(
     seq: &str
 ) -> Option<(TypeEnv<'t>, Rc<ExprEnv>)> {
-    let seq = preprocess(seq)?;
-    let def_vec = parse_ast(seq)?;
+    let preprocessed = preprocess(seq);
+    let tokens = lexical_analyze(preprocessed.as_str())?;
+    let def_vec = parse_ast(tokens)?;
 
     let (type_def_map, expr_def_map) = def_vec_to_def_map(def_vec)?;
     let (type_env_vec, expr_env_vec) =

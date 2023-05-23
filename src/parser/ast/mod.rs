@@ -1,3 +1,4 @@
+use crate::lexer::Token;
 use crate::parser::ast::r#fn::{
     parse_to_defines,
     split_to_top_levels
@@ -8,9 +9,7 @@ mod r#fn;
 #[cfg(test)]
 mod test;
 
-type In = crate::pp::Out;
-
-pub fn parse_ast(seq: Vec<In>) -> Option<Vec<Define>> {
+pub fn parse_ast(seq: Vec<Token>) -> Option<Vec<Define>> {
     let seq = split_to_top_levels(seq);
     let r = parse_to_defines(seq);
 

@@ -1,10 +1,12 @@
+use crate::lexer::lexical_analyze;
 use crate::parser::r#type::parse_type;
 use crate::parser::r#type::r#type::OptType;
 use crate::pp::preprocess;
 
 fn f(seq: &str) -> OptType {
-    let seq = preprocess(&seq)?;
-    parse_type(seq.into_iter())
+    let preprocessed = preprocess(&seq);
+    let tokens = lexical_analyze(preprocessed.as_str())?;
+    parse_type(tokens.into_iter())
 }
 
 mod closure;

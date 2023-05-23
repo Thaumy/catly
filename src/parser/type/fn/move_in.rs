@@ -1,16 +1,16 @@
+use crate::lexer::Token;
 use crate::parser::r#type::pat::Pat;
-use crate::parser::r#type::In;
 
-pub fn move_in(head: Option<In>) -> Pat {
+pub fn move_in(head: Option<Token>) -> Pat {
     match head {
         Some(o) => match o {
             // .. -> LetName
-            In::LetName(n) => Pat::LetName(None, n),
+            Token::LetName(n) => Pat::LetName(None, n),
             // .. -> TypeName
-            In::TypeName(n) => Pat::TypeName(n),
+            Token::TypeName(n) => Pat::TypeName(n),
 
             // .. -> Mark
-            In::Symbol(s) => match s {
+            Token::Symbol(s) => match s {
                 // '(' -> `(`
                 '(' => Pat::Mark('('),
                 // ')' -> `)`

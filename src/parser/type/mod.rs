@@ -1,3 +1,4 @@
+use crate::lexer::Token;
 use crate::parser::r#type::pat::Pat;
 use crate::parser::r#type::r#fn::go;
 use crate::parser::r#type::r#type::OptType;
@@ -8,11 +9,9 @@ mod pat;
 mod test;
 pub mod r#type;
 
-type In = crate::pp::Out;
-
 pub fn parse_type<S>(seq: S) -> OptType
 where
-    S: Iterator<Item = In> + Clone
+    S: Iterator<Item = Token> + Clone
 {
     let r = go(vec![Pat::Start], seq).into();
 

@@ -1,5 +1,6 @@
 use crate::infra::option::OptionAnyExt;
-use crate::parser::define::{Define, In};
+use crate::lexer::Token;
+use crate::parser::define::Define;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::keyword::Keyword;
 use crate::parser::r#type::r#type::OptType;
@@ -14,8 +15,8 @@ pub enum Pat {
     Mark(char),
     Kw(Keyword),
 
-    AnyIn(In),
-    AnyInSeq(Vec<In>),
+    AnyToken(Token),
+    AnyTokenSeq(Vec<Token>),
     Type(Type),
     LetName(OptType, String),
 

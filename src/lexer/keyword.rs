@@ -45,9 +45,9 @@ impl From<In> for Out {
     }
 }
 
-type In = crate::pp::chunk::Out;
+type In = crate::lexer::chunk::Out;
 
-pub fn pp_keyword<S>(seq: S) -> Vec<Out>
+pub fn lexer_keyword<S>(seq: S) -> Vec<Out>
 where
     S: Iterator<Item = In>
 {
@@ -63,10 +63,10 @@ where
 
 #[test]
 fn test_part1() {
+    use crate::lexer::keyword::{lexer_keyword, Out};
     use crate::parser::keyword::Keyword;
-    use crate::pp::keyword::{pp_keyword, Out};
 
-    type In = crate::pp::chunk::Out;
+    type In = crate::lexer::chunk::Out;
 
     let seq = vec![
         In::Symbol('{'),
@@ -103,5 +103,5 @@ fn test_part1() {
         Out::Symbol(' '),
     ];
 
-    assert_eq!(pp_keyword(seq.into_iter()), r);
+    assert_eq!(lexer_keyword(seq.into_iter()), r);
 }

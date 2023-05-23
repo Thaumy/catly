@@ -37,9 +37,9 @@ impl From<In> for Option<Out> {
     }
 }
 
-type In = crate::pp::r#const::Out;
+type In = crate::lexer::literal::Out;
 
-pub fn pp_name<S>(mut seq: S) -> Option<Vec<Out>>
+pub fn lexer_name<S>(mut seq: S) -> Option<Vec<Out>>
 where
     S: Iterator<Item = In>
 {
@@ -58,10 +58,10 @@ where
 
 #[test]
 fn test_part1() {
+    use crate::lexer::name::{lexer_name, Out};
     use crate::parser::keyword::Keyword;
-    use crate::pp::name::{pp_name, Out};
 
-    type In = crate::pp::r#const::Out;
+    type In = crate::lexer::literal::Out;
 
     let seq = vec![
         In::Symbol('{'),
@@ -97,5 +97,5 @@ fn test_part1() {
     ]
     .some();
 
-    assert_eq!(pp_name(seq.into_iter()), r);
+    assert_eq!(lexer_name(seq.into_iter()), r);
 }

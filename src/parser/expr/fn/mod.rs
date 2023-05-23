@@ -2,14 +2,14 @@ mod move_in;
 mod reduce_stack;
 
 use crate::infra::iter::IteratorExt;
+use crate::lexer::Token;
 use crate::parser::expr::pat::Pat;
 use crate::parser::expr::r#fn::move_in::move_in;
 use crate::parser::expr::r#fn::reduce_stack::reduce_stack;
-use crate::parser::expr::In;
 
 pub fn go<S>(mut stack: Vec<Pat>, seq: S) -> Pat
 where
-    S: Iterator<Item = In> + Clone
+    S: Iterator<Item = Token> + Clone
 {
     let (head, tail, follow) = seq.get_head_tail_follow();
 

@@ -1,34 +1,33 @@
 use crate::infra::iter::IteratorExt;
 use crate::infra::option::OptionAnyExt;
 use crate::infra::vec::VecExt;
+use crate::lexer::Token;
 use crate::parser::define::pat::Pat;
 use crate::parser::expr::parse_expr;
 use crate::parser::keyword::Keyword;
 use crate::parser::r#type::parse_type;
 
-type In = crate::pp::Out;
-
-fn move_in(stack: &[Pat], head: Option<In>) -> Pat {
+fn move_in(stack: &[Pat], head: Option<Token>) -> Pat {
     match head {
         Some(o) => match (stack, o) {
-            // (KwDef LetName `:`): _ -> AnyInSeq
+            // (KwDef LetName `:`): _ -> AnyTokenSeq
             // where LetName is untyped
             (
                 [.., Pat::Kw(Keyword::Def), Pat::LetName(None, _), Pat::Mark(':')],
                 x
-            ) => Pat::AnyInSeq(vec![x]),
-            // AnyInSeq: _ -> AnyIn
-            ([.., Pat::AnyInSeq(_)], x) => Pat::AnyIn(x),
+            ) => Pat::AnyTokenSeq(vec![x]),
+            // AnyTokenSeq: _ -> AnyToken
+            ([.., Pat::AnyTokenSeq(_)], x) => Pat::AnyToken(x),
 
             // .. -> LetName
-            (_, In::LetName(n)) => Pat::LetName(None, n),
+            (_, Token::LetName(n)) => Pat::LetName(None, n),
             // .. -> TypeName
-            (_, In::TypeName(n)) => Pat::TypeName(n),
+            (_, Token::TypeName(n)) => Pat::TypeName(n),
             // .. -> Kw
-            (_, In::Kw(kw)) => Pat::Kw(kw),
+            (_, Token::Kw(kw)) => Pat::Kw(kw),
 
             // .. -> Mark
-            (_, In::Symbol(s)) => match s {
+            (_, Token::Symbol(s)) => match s {
                 // '=' -> `=`
                 '=' => Pat::Mark('='),
                 // ':' -> `:`
@@ -61,7 +60,10 @@ fn move_in(stack: &[Pat], head: Option<In>) -> Pat {
     }
 }
 
-fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
+fn reduce_stack(
+    mut stack: Vec<Pat>,
+    follow: Option<Token>
+) -> Vec<Pat> {
     match (&stack[..], &follow) {
         // Success
         ([Pat::Start, p, Pat::End], _) => {
@@ -78,14 +80,14 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
             stack.push(Pat::End)
         }
 
-        // AnyInSeq AnyIn -> AnyInSeq
-        ([.., Pat::AnyInSeq(seq), Pat::AnyIn(x)], _) => {
+        // AnyTokenSeq AnyToken -> AnyTokenSeq
+        ([.., Pat::AnyTokenSeq(seq), Pat::AnyToken(x)], _) => {
             let seq = seq.push_to_new(x.clone());
-            let top = Pat::AnyInSeq(seq);
+            let top = Pat::AnyTokenSeq(seq);
             stack.reduce(2, top);
         }
-        // AnyInSeq :`=` -> Type
-        ([.., Pat::AnyInSeq(seq)], Some(In::Symbol('='))) =>
+        // AnyTokenSeq :`=` -> Type
+        ([.., Pat::AnyTokenSeq(seq)], Some(Token::Symbol('='))) =>
             match parse_type(seq.clone().into_iter()) {
                 Some(t) => stack.reduce(1, Pat::Type(t)),
                 None => return vec![Pat::Err]
@@ -137,7 +139,7 @@ fn reduce_stack(mut stack: Vec<Pat>, follow: Option<In>) -> Vec<Pat> {
 
 pub fn go<S>(mut stack: Vec<Pat>, seq: S) -> Pat
 where
-    S: Iterator<Item = In> + Clone
+    S: Iterator<Item = Token> + Clone
 {
     let (head, tail, follow) = seq.get_head_tail_follow();
 

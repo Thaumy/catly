@@ -1,10 +1,12 @@
+use crate::lexer::lexical_analyze;
 use crate::parser::expr::parse_expr;
 use crate::parser::expr::r#type::OptExpr;
 use crate::pp::preprocess;
 
 pub fn f(seq: &str) -> OptExpr {
-    let seq = preprocess(&seq)?;
-    parse_expr(seq.into_iter())
+    let preprocessed = preprocess(&seq);
+    let tokens = lexical_analyze(preprocessed.as_str())?;
+    parse_expr(tokens.into_iter())
 }
 
 mod apply;

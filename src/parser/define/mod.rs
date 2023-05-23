@@ -1,3 +1,4 @@
+use crate::lexer::Token;
 use crate::parser::define::pat::Pat;
 use crate::parser::define::r#fn::go;
 use crate::parser::expr::r#type::Expr;
@@ -15,9 +16,7 @@ pub enum Define {
     ExprDef(String, OptType, Expr)
 }
 
-type In = crate::pp::Out;
-
-pub fn parse_define(seq: Vec<In>) -> Option<Define> {
+pub fn parse_define(seq: Vec<Token>) -> Option<Define> {
     let r = go(vec![Pat::Start], seq.into_iter()).into();
 
     if cfg!(feature = "parser_log") {

@@ -105,9 +105,9 @@ where
     go(reduced_stack, tail)
 }
 
-type In = crate::pp::keyword::Out;
+type In = crate::lexer::keyword::Out;
 
-pub fn pp_const<S>(seq: S) -> Option<Vec<Out>>
+pub fn lexer_literal<S>(seq: S) -> Option<Vec<Out>>
 where
     S: Iterator<Item = In>
 {
@@ -128,10 +128,10 @@ where
 
 #[test]
 fn test_part1() {
+    use crate::lexer::literal::{lexer_literal, Out};
     use crate::parser::keyword::Keyword;
-    use crate::pp::r#const::{pp_const, Out};
 
-    type In = crate::pp::keyword::Out;
+    type In = crate::lexer::keyword::Out;
 
     let seq = vec![
         In::Symbol('{'),
@@ -168,5 +168,5 @@ fn test_part1() {
     ]
     .some();
 
-    assert_eq!(pp_const(seq.into_iter()), r);
+    assert_eq!(lexer_literal(seq.into_iter()), r);
 }

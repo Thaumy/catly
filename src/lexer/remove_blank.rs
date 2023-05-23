@@ -1,7 +1,7 @@
-type In = crate::pp::name::Out;
+type In = crate::lexer::name::Out;
 type Out = In;
 
-pub fn pp_remove_blank<S>(seq: S) -> Vec<Out>
+pub fn lexer_remove_blank<S>(seq: S) -> Vec<Out>
 where
     S: Iterator<Item = In>
 {

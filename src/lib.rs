@@ -11,6 +11,7 @@ extern crate core;
 pub mod eval;
 pub mod infer;
 pub mod infra;
+pub mod lexer;
 pub mod parser;
 pub mod pp;
 pub mod unify;
