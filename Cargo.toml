@@ -8,6 +8,8 @@ edition = "2021"
 
 pp_log = []
 
+lexer_log = []
+
 parser_lr1_log = []
 parser_log = ["parser_lr1_log"]
 

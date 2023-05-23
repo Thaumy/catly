@@ -63,7 +63,8 @@ pub fn pp_comment(seq: &str) -> String {
         .into_iter()
         .collect();
 
-    if cfg!(feature = "pp_log") {
+    #[cfg(feature = "pp_log")]
+    {
         let log = format!("{:8}{:>10} │ {r:?}", "[pp]", "Comment");
         println!("{log}");
     }

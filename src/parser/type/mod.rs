@@ -15,7 +15,8 @@ where
 {
     let r = go(vec![Pat::Start], seq).into();
 
-    if cfg!(feature = "parser_log") {
+    #[cfg(feature = "parser_log")]
+    {
         let log = format!("{:8}{:>10} │ {r:?}", "[parsed]", "Type");
         println!("{log}");
     }

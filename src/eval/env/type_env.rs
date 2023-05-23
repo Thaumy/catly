@@ -19,7 +19,8 @@ impl<'t> TypeEnv<'t> {
             env: type_vec
         };
 
-        if cfg!(feature = "rt_env_log") {
+        #[cfg(feature = "rt_env_log")]
+        {
             let log = format!(
                 "{:8}{:>10} │ {:?}",
                 "[rt env]", "TypeEnv", type_env.env
@@ -46,7 +47,8 @@ impl<'t> TypeEnv<'t> {
             env: type_vec
         };
 
-        if cfg!(feature = "rt_env_log") {
+        #[cfg(feature = "rt_env_log")]
+        {
             let log = format!(
                 "{:8}{:>10} │ {:?}",
                 "[rt env]", "TypeEnv", type_env.env

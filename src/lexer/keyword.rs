@@ -53,8 +53,9 @@ where
 {
     let r = seq.fold(vec![], |acc, x| acc.chain_push(Out::from(x)));
 
-    if cfg!(feature = "pp_log") {
-        let log = format!("{:8}{:>10} │ {r:?}", "[pp]", "Keyword");
+    #[cfg(feature = "lexer_log")]
+    {
+        let log = format!("{:8}{:>10} │ {r:?}", "[lexer]", "Keyword");
         println!("{log}");
     }
 

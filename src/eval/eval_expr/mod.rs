@@ -27,7 +27,8 @@ pub fn eval_expr(
     expr_env: &Rc<ExprEnv>,
     expr: &Rc<Expr>
 ) -> EvalRet {
-    if cfg!(feature = "eval_log") {
+    #[cfg(feature = "eval_log")]
+    {
         let log = format!("{:8}{:>10} │ {expr:?}", "[eval]", "ValOf");
         println!("{log}");
     }
@@ -66,7 +67,8 @@ pub fn eval_expr(
             case_let(type_env, expr_env, r_a, a_n, a_t, a_e, s_e),
     };
 
-    if cfg!(feature = "eval_log_min") {
+    #[cfg(feature = "eval_log_min")]
+    {
         let dbg_type = match result.clone() {
             Ok(expr) => format!(
                 "{:8}{:>10} │ {expr:?}",

@@ -48,8 +48,9 @@ where
         acc.chain_push(it?).some()
     });
 
-    if cfg!(feature = "pp_log") {
-        let log = format!("{:8}{:>10} │ {r:?}", "[pp]", "Name");
+    #[cfg(feature = "lexer_log")]
+    {
+        let log = format!("{:8}{:>10} │ {r:?}", "[lexer]", "Name");
         println!("{log}");
     }
 

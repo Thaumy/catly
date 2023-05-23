@@ -9,8 +9,9 @@ where
         .filter(|p| !matches!(p, In::Symbol(' ')))
         .collect();
 
-    if cfg!(feature = "pp_log") {
-        let log = format!("{:8}{:>10} │ {r:?}", "[pp]", "RmBlank");
+    #[cfg(feature = "lexer_log")]
+    {
+        let log = format!("{:8}{:>10} │ {r:?}", "[lexer]", "RmBlank");
         println!("{log}");
     }
 

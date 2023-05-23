@@ -193,8 +193,9 @@ pub fn lexer_chunk(seq: &str) -> Option<Vec<Out>> {
             acc.chain_push(it?).some()
         });
 
-    if cfg!(feature = "pp_log") {
-        let log = format!("{:8}{:>10} │ {r:?}", "[pp]", "Chunk");
+    #[cfg(feature = "lexer_log")]
+    {
+        let log = format!("{:8}{:>10} │ {r:?}", "[lexer]", "Chunk");
         println!("{log}");
     }
 

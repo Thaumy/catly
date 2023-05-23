@@ -20,7 +20,8 @@ pub fn lift(
     from: &Type,
     to: &Type
 ) -> Option<Type> {
-    if cfg!(feature = "unify_log") {
+    #[cfg(feature = "unify_log")]
+    {
         let log = format!(
             "{:8}{:>10} │ {from:?} to {to:?}",
             "[unify]", "Lift"

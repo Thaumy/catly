@@ -35,7 +35,8 @@ pub fn pp_merge_blank(seq: &str) -> String {
         .map(|c| c.unwrap_or(' '))
         .collect();
 
-    if cfg!(feature = "pp_log") {
+    #[cfg(feature = "pp_log")]
+    {
         let log = format!("{:8}{:>10} │ {r:?}", "[pp]", "MergeBlank");
         println!("{log}");
     }

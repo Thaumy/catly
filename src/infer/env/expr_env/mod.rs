@@ -40,7 +40,8 @@ impl ExprEnv {
             entry: entry.some()
         };
 
-        if cfg!(feature = "ct_env_log") {
+        #[cfg(feature = "ct_env_log")]
+        {
             let log = format!(
                 "{:8}{:>10} │ {:?}",
                 "[ct env]", "ExprEnv", expr_env.entry
@@ -78,7 +79,8 @@ impl ExprEnv {
             }
         );
 
-        if cfg!(feature = "ct_env_log") {
+        #[cfg(feature = "ct_env_log")]
+        {
             let log = format!(
                 "{:8}{:>10} │ {:?}",
                 "[ct env]", "ExprEnv", expr_env.entry
@@ -105,7 +107,8 @@ impl ExprEnv {
             src.into()
         )]);
 
-        if cfg!(feature = "ct_env_log") {
+        #[cfg(feature = "ct_env_log")]
+        {
             let log = format!(
                 "{:8}{:>10} │ {:?}",
                 "[ct env]", "ExprEnv", expr_env.entry
@@ -127,7 +130,8 @@ impl ExprEnv {
 
         let expr_env = self.extend_vec_new(vec);
 
-        if cfg!(feature = "ct_env_log") {
+        #[cfg(feature = "ct_env_log")]
+        {
             let log = format!(
                 "{:8}{:>10} │ {:?}",
                 "[ct env]", "ExprEnv", expr_env.entry

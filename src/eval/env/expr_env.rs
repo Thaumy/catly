@@ -70,7 +70,8 @@ impl ExprEnv {
             entry: entry.some()
         };
 
-        if cfg!(feature = "rt_env_log") {
+        #[cfg(feature = "rt_env_log")]
+        {
             let log = format!(
                 "{:8}{:>10} │ {:?}",
                 "[rt env]", "ExprEnv", expr_env.entry
@@ -117,7 +118,8 @@ impl ExprEnv {
             entry: entry.some()
         };
 
-        if cfg!(feature = "rt_env_log") {
+        #[cfg(feature = "rt_env_log")]
+        {
             let log = format!(
                 "{:8}{:>10} │ {:?}",
                 "[rt env]", "ExprEnv", expr_env.entry

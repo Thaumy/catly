@@ -20,7 +20,8 @@ pub fn infer_type(
     expr_env: &Rc<ExprEnv>,
     expr: &Expr
 ) -> InferTypeRet {
-    if cfg!(feature = "infer_log") {
+    #[cfg(feature = "infer_log")]
+    {
         let log =
             format!("{:8}{:>10} │ {expr:?}", "[infer]", "TypeOf");
         println!("{log}");
@@ -111,7 +112,8 @@ pub fn infer_type(
         }
     };
 
-    if cfg!(feature = "infer_log_min") {
+    #[cfg(feature = "infer_log_min")]
+    {
         let dbg_type = match result.clone() {
             Quad::L(x) =>
                 format!("{:8}{:>10} │ {x:?}", "[infer]", "Inferred"),
