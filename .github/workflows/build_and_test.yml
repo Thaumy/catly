@@ -31,5 +31,5 @@ jobs:
     - name: Test
       run: cargo test --verbose
 
-    - name: TestRelease
+    - name: Test release
       run: cargo test --verbose --release
