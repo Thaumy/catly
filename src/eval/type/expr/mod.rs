@@ -168,8 +168,8 @@ impl From<CtExpr> for OptExpr {
 
                 c_v.into_iter()
                     .try_fold(vec![], |acc, (c_e, t_e)| {
-                        let c_e = (c_e.into(): OptExpr)?;
-                        let t_e = (t_e.into(): OptExpr)?;
+                        let c_e = OptExpr::from(c_e)?;
+                        let t_e = OptExpr::from(t_e)?;
                         acc.chain_push((c_e.rc(), t_e.rc()))
                             .some()
                     })

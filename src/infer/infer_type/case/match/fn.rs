@@ -64,7 +64,7 @@ pub fn destruct_match_const_to_expr_env_inject(
 
                         go(type_env, &e)
                     })
-                    .collect(): Vec<_>
+                    .collect()
             }
             _ => vec![]
         }

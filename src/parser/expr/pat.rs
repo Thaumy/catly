@@ -181,7 +181,7 @@ impl From<Pat> for OptExpr {
                 let vec = vec.into_iter().try_fold(
                     vec![],
                     |acc, (n, t, p)| {
-                        let it = (p.into(): OptExpr)
+                        let it = OptExpr::from(p)
                             .map(|e| (n, t.map_into(), e))?;
                         acc.chain_push(it).some()
                     }
@@ -196,8 +196,8 @@ impl From<Pat> for OptExpr {
                 let vec = vec.into_iter().try_fold(
                     vec![],
                     |acc, (case_p, then_p)| {
-                        let case_e = (case_p.into(): OptExpr)?;
-                        let then_e = (then_p.into(): OptExpr)?;
+                        let case_e = OptExpr::from(case_p)?;
+                        let then_e = OptExpr::from(then_p)?;
                         acc.chain_push((case_e, then_e))
                             .some()
                     }

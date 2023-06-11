@@ -37,39 +37,37 @@ pub fn case(
     };
 
     // 不进行层次约束共享的原因和 match case 相同
-    let sf_n_and_sf_t = match prod_vec {
+    let sf_n_and_sf_t: Vec<_> = match prod_vec {
         // expect_type 存在且可被解构, 对于其每一个字段类型, 都用作对应表达式的次要类型提示
-        Some(prod_vec) =>
-            prod_vec
-                .iter()
-                .zip(struct_vec.iter())
-                // pf: Prod field
-                // sf: Struct field
-                .map(|((_, pf_t), (sf_n, sf_t, sf_e))| {
-                    (
-                        sf_n.clone(),
-                        // 提示后推导
-                        sf_e.with_opt_fallback_type(sf_t)
-                            .with_fallback_type(pf_t)
-                            .infer_type(type_env, expr_env)
-                    )
-                })
-                .collect(): Vec<_>,
+        Some(prod_vec) => prod_vec
+            .iter()
+            .zip(struct_vec.iter())
+            // pf: Prod field
+            // sf: Struct field
+            .map(|((_, pf_t), (sf_n, sf_t, sf_e))| {
+                (
+                    sf_n.clone(),
+                    // 提示后推导
+                    sf_e.with_opt_fallback_type(sf_t)
+                        .with_fallback_type(pf_t)
+                        .infer_type(type_env, expr_env)
+                )
+            })
+            .collect(),
         // expect_type 不存在, 仅使用 vec 自身的类型对表达式进行提示
-        None =>
-            struct_vec
-                .iter()
-                .map(|(sf_n, sf_t, sf_e)| {
-                    (
-                        sf_n.clone(),
-                        // 提示后推导
-                        sf_e.with_opt_fallback_type(sf_t)
-                            .infer_type(type_env, expr_env)
-                    )
-                })
-                .collect(): Vec<_>,
-    }
-    .into_iter();
+        None => struct_vec
+            .iter()
+            .map(|(sf_n, sf_t, sf_e)| {
+                (
+                    sf_n.clone(),
+                    // 提示后推导
+                    sf_e.with_opt_fallback_type(sf_t)
+                        .infer_type(type_env, expr_env)
+                )
+            })
+            .collect()
+    };
+    let sf_n_and_sf_t = sf_n_and_sf_t.into_iter();
 
     // 一旦发现类型不匹配(of struct field expr), 立即返回
     if let Some((_, type_miss_match)) = sf_n_and_sf_t
@@ -147,7 +145,7 @@ pub fn case(
                     .map(|(sf_n, sf_t, _, typed_sf_e)| {
                         (sf_n, sf_t.some(), typed_sf_e)
                     })
-                    .collect(): Vec<_>;
+                    .collect();
 
             Expr::Struct(t.some(), typed_struct_vec)
         }

@@ -15,7 +15,7 @@ fn test_part1() {
     let expr_env = ExprEnv::empty().rc();
 
     let expr = Expr::Apply(
-        (PrimitiveOp::Neg.into(): Expr).rc(),
+        Expr::from(PrimitiveOp::Neg).rc(),
         Expr::Int(namely_type!("Int"), 10).rc()
     );
     let evaluated = eval_expr(&type_env, &expr_env, &expr.rc());
@@ -32,17 +32,16 @@ fn test_part2() {
     let expr_env = ExprEnv::empty().rc();
 
     let expr = Expr::Apply(
-        (PrimitiveOp::Add(None).into(): Expr).rc(),
+        Expr::from(PrimitiveOp::Add(None)).rc(),
         Expr::Int(namely_type!("Int"), 10).rc()
     );
     let evaluated = eval_expr(&type_env, &expr_env, &expr.rc());
 
-    let r = PrimitiveOp::Add(
+    let r = Expr::from(PrimitiveOp::Add(
         Expr::Int(namely_type!("Int"), 10)
             .rc()
             .some()
-    )
-    .into(): Expr;
+    ));
 
     assert_eq!(evaluated, r.ok());
 }
@@ -54,13 +53,12 @@ fn test_part3() {
     let expr_env = ExprEnv::empty().rc();
 
     let expr = Expr::Apply(
-        (PrimitiveOp::Add(
+        Expr::from(PrimitiveOp::Add(
             Expr::Int(namely_type!("Int"), 10)
                 .rc()
                 .some()
-        )
-        .into(): Expr)
-            .rc(),
+        ))
+        .rc(),
         Expr::Int(namely_type!("Int"), 10).rc()
     );
     let evaluated = eval_expr(&type_env, &expr_env, &expr.rc());
@@ -77,17 +75,16 @@ fn test_part4() {
     let expr_env = ExprEnv::empty().rc();
 
     let expr = Expr::Apply(
-        (PrimitiveOp::Add(None).into(): Expr).rc(),
+        Expr::from(PrimitiveOp::Add(None)).rc(),
         Expr::Int(namely_type!("Int"), 10).rc()
     );
     let evaluated = eval_expr(&type_env, &expr_env, &expr.rc());
 
-    let r = PrimitiveOp::Add(
+    let r = Expr::from(PrimitiveOp::Add(
         Expr::Int(namely_type!("Int"), 10)
             .rc()
             .some()
-    )
-    .into(): Expr;
+    ));
 
     assert_eq!(evaluated, r.ok());
 }
@@ -99,17 +96,16 @@ fn test_part5() {
     let expr_env = ExprEnv::empty().rc();
 
     let expr = Expr::Apply(
-        (PrimitiveOp::And(None).into(): Expr).rc(),
+        Expr::from(PrimitiveOp::And(None)).rc(),
         Expr::Int(namely_type!("False"), 0).rc()
     );
     let evaluated = eval_expr(&type_env, &expr_env, &expr.rc());
 
-    let r = PrimitiveOp::And(
+    let r = Expr::from(PrimitiveOp::And(
         Expr::Int(namely_type!("False"), 0)
             .rc()
             .some()
-    )
-    .into(): Expr;
+    ));
 
     assert_eq!(evaluated, r.ok());
 }
@@ -121,13 +117,12 @@ fn test_part6() {
     let expr_env = ExprEnv::empty().rc();
 
     let expr = Expr::Apply(
-        (PrimitiveOp::And(
+        Expr::from(PrimitiveOp::And(
             Expr::Int(namely_type!("True"), 1)
                 .rc()
                 .some()
-        )
-        .into(): Expr)
-            .rc(),
+        ))
+        .rc(),
         Expr::Int(namely_type!("False"), 0).rc()
     );
     let evaluated = eval_expr(&type_env, &expr_env, &expr.rc());

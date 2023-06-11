@@ -149,7 +149,7 @@ where
         // 在此处类型检查已经完成, 不会出现无法配对的情况
         .zip(typed_then_expr)
         .map(|(x, y)| (x.clone(), y))
-        .collect(): Vec<_>;
+        .collect();
 
     require_constraint(
         Expr::Match(
