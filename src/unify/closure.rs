@@ -1,5 +1,5 @@
 use crate::infer::env::type_env::TypeEnv;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 use crate::parser::r#type::r#type::Type;
 
@@ -21,7 +21,7 @@ pub fn lift_closure(
             o_t.lift_to(type_env, d_o_t)?
                 .rc()
         )
-        .some(),
+        .wrap_some(),
 
         // PartialClosureType
         // HACK:
@@ -32,7 +32,7 @@ pub fn lift_closure(
                 .rc(),
             o_t.clone().rc()
         )
-        .some(),
+        .wrap_some(),
 
         // T
         // where Base can be lifted to T

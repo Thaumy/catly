@@ -7,7 +7,7 @@ use crate::eval::eval_expr::case::apply::r#fn::primitive_apply::primitive_apply;
 use crate::eval::eval_expr::case::apply::r#fn::source_lhs_to_closure::source_lhs_expr_to_closure;
 use crate::eval::r#type::expr::Expr;
 use crate::infra::either::Either;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 
 mod r#fn;
@@ -32,8 +32,8 @@ pub fn case_apply(
                     .extend_new(
                         input_name,
                         input_type,
-                        rhs_expr.clone().some(),
-                        expr_env.clone().some()
+                        rhs_expr.clone().wrap_some(),
+                        expr_env.clone().wrap_some()
                     )
                     .rc(),
                 None => output_eval_env

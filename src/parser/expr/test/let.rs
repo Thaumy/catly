@@ -1,6 +1,6 @@
 use crate::infer::env::r#macro::int_type;
 use crate::infer::env::r#macro::unit_type;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::expr::test::f;
@@ -103,11 +103,11 @@ fn test_part3() {
                 None,
                 Expr::Closure(
                     None,
-                    "i".to_string().some(),
+                    "i".to_string().wrap_some(),
                     None,
                     Expr::Closure(
                         None,
-                        "j".to_string().some(),
+                        "j".to_string().wrap_some(),
                         None,
                         Expr::EnvRef(None, "k".to_string()).rc()
                     )
@@ -238,28 +238,28 @@ fn test_part3() {
 #[test]
 fn test_part4() {
     let r = Expr::Let(
-        int_type!().some(),
+        int_type!().wrap_some(),
         false,
         "a".to_string(),
-        int_type!().some(),
+        int_type!().wrap_some(),
         Expr::Int(None, 123).rc(),
         Expr::Let(
             None,
             false,
             "b".to_string(),
-            int_type!().some(),
+            int_type!().wrap_some(),
             Expr::Let(
-                int_type!().some(),
+                int_type!().wrap_some(),
                 false,
                 "x".to_string(),
                 None,
                 Expr::Closure(
                     None,
-                    "i".to_string().some(),
+                    "i".to_string().wrap_some(),
                     None,
                     Expr::Closure(
                         None,
-                        "j".to_string().some(),
+                        "j".to_string().wrap_some(),
                         None,
                         Expr::EnvRef(None, "k".to_string()).rc()
                     )
@@ -289,7 +289,7 @@ fn test_part4() {
                 None,
                 false,
                 "d".to_string(),
-                int_type!().some(),
+                int_type!().wrap_some(),
                 Expr::Apply(
                     None,
                     Expr::EnvRef(None, "neg".to_string()).rc(),
@@ -297,7 +297,7 @@ fn test_part4() {
                 )
                 .rc(),
                 Expr::Let(
-                    int_type!().some(),
+                    int_type!().wrap_some(),
                     false,
                     "e".to_string(),
                     None,
@@ -307,13 +307,13 @@ fn test_part4() {
                         false,
                         "k".to_string(),
                         None,
-                        Expr::Unit(unit_type!().some()).rc(),
+                        Expr::Unit(unit_type!().wrap_some()).rc(),
                         Expr::Let(
                             None,
                             false,
                             "m".to_string(),
-                            unit_type!().some(),
-                            Expr::Unit(unit_type!().some()).rc(),
+                            unit_type!().wrap_some(),
+                            Expr::Unit(unit_type!().wrap_some()).rc(),
                             Expr::Let(
                                 None,
                                 false,

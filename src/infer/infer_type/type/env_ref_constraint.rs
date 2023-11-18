@@ -2,7 +2,7 @@ use std::collections::hash_map::{IntoIter, Iter};
 use std::collections::HashMap;
 use std::fmt::{Debug, Formatter};
 
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::r#fn::id;
 use crate::parser::r#type::r#type::Type;
 
@@ -38,7 +38,7 @@ impl EnvRefConstraint {
             EnvRefConstraint {
                 constraint: hash_map
             }
-            .some()
+            .wrap_some()
         } else {
             None
         }
@@ -62,7 +62,7 @@ impl EnvRefConstraint {
             EnvRefConstraint {
                 constraint: hash_map
             }
-            .some()
+            .wrap_some()
         } else {
             None
         }

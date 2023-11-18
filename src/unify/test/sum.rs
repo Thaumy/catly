@@ -2,7 +2,7 @@ use crate::btree_set;
 use crate::infer::env::r#macro::namely_type;
 use crate::infer::env::r#macro::sum_type;
 use crate::infer::env::type_env::TypeEnv;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::parser::r#type::r#type::Type;
 use crate::unify::sum::lift_sum;
 
@@ -43,7 +43,7 @@ fn test_part1() {
     assert!(base
         .lift_to(env, derive)
         .is_some());
-    assert_eq!(base.unify(env, derive), derive.clone().some());
+    assert_eq!(base.unify(env, derive), derive.clone().wrap_some());
 }
 
 #[test]
@@ -57,7 +57,7 @@ fn test_part2() {
     assert!(base
         .lift_to(env, derive)
         .is_some());
-    assert_eq!(base.unify(env, derive), derive.clone().some());
+    assert_eq!(base.unify(env, derive), derive.clone().wrap_some());
 }
 
 #[test]

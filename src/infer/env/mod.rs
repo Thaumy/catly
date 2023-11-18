@@ -3,7 +3,7 @@ use std::rc::Rc;
 
 use crate::infer::env::expr_env::{ExprEnv, ExprEnvEntry};
 use crate::infer::env::type_env::{TypeEnv, TypeEnvEntry};
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 use crate::lexer::lexical_analyze;
 use crate::parser::ast::parse_ast;
@@ -26,12 +26,12 @@ pub fn def_vec_to_def_map(
         |(mut type_env_map, mut expr_env_map), define| match define {
             Define::TypeDef(n, t) =>
                 match type_env_map.insert(n, t) {
-                    None => (type_env_map, expr_env_map).some(),
+                    None => (type_env_map, expr_env_map).wrap_some(),
                     Some(_) => None
                 },
             Define::ExprDef(n, t, e) => {
                 match expr_env_map.insert(n, (t, e)) {
-                    None => (type_env_map, expr_env_map).some(),
+                    None => (type_env_map, expr_env_map).wrap_some(),
                     Some(_) => None
                 }
             }
@@ -70,5 +70,5 @@ pub fn parse_to_env<'t>(
         .rc()
         .extend_vec_new(expr_env_vec);
 
-    (type_env, expr_env).some()
+    (type_env, expr_env).wrap_some()
 }

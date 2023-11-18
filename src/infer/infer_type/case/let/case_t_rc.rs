@@ -3,7 +3,7 @@ use std::rc::Rc;
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::OptType;
@@ -31,7 +31,7 @@ where
                 type_env,
                 typed_scope_expr.unwrap_type_annot(),
                 expect_type,
-                constraint.some(),
+                constraint.wrap_some(),
                 |t| typed_expr_cons(t, typed_scope_expr.clone())
             )
         }

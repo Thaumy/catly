@@ -7,7 +7,7 @@ use crate::infer::env::r#macro::int_type;
 use crate::infer::env::r#macro::namely_type;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
 
@@ -32,7 +32,7 @@ fn test_part1() {
         .infer_type(&type_env, &expr_env);
 
     let r = InferTypeRet::has_type(Expr::Int(
-        namely_type!("A").some(),
+        namely_type!("A").wrap_some(),
         10
     ));
 
@@ -60,7 +60,10 @@ fn test_part3() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    let r = InferTypeRet::has_type(Expr::Int(int_type!().some(), 20));
+    let r = InferTypeRet::has_type(Expr::Int(
+        int_type!().wrap_some(),
+        20
+    ));
 
     assert_eq!(infer_result, r)
 }

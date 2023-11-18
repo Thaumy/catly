@@ -11,7 +11,7 @@ use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_info::ReqInfo;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::quad::Quad;
 use crate::infra::result::ResultAnyExt;
 use crate::parser::expr::r#type::{Expr, StructField};
@@ -136,18 +136,18 @@ pub fn case(
         type_env,
         &prod_type,
         expect_type,
-        outer_constraint.some(),
+        outer_constraint.wrap_some(),
         |t| {
             let typed_struct_vec =
                 sf_n_and_sf_t_with_constraint_and_expr
                     .clone()
                     .filter_map(|x| x.ok())
                     .map(|(sf_n, sf_t, _, typed_sf_e)| {
-                        (sf_n, sf_t.some(), typed_sf_e)
+                        (sf_n, sf_t.wrap_some(), typed_sf_e)
                     })
                     .collect();
 
-            Expr::Struct(t.some(), typed_struct_vec)
+            Expr::Struct(t.wrap_some(), typed_struct_vec)
         }
     )
 }

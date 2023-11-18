@@ -3,7 +3,7 @@ use crate::infer::env::r#macro::int_type;
 use crate::infer::env::r#macro::namely_type;
 use crate::infer::env::r#macro::sum_type;
 use crate::infer::env::r#macro::unit_type;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::expr::test::f;
 
@@ -19,7 +19,7 @@ fn test_part1() {
 
 #[test]
 fn test_part2() {
-    let r = Expr::EnvRef(int_type!().some(), "abc".to_string());
+    let r = Expr::EnvRef(int_type!().wrap_some(), "abc".to_string());
     let r = Some(r);
 
     assert_eq!(f("abc: Int"), r);
@@ -34,7 +34,7 @@ fn test_part2() {
 fn test_part3() {
     let r = Expr::EnvRef(
         sum_type![namely_type!("A"), unit_type!(), int_type!()]
-            .some(),
+            .wrap_some(),
         "a".to_string()
     );
     let r = Some(r);
@@ -56,7 +56,7 @@ fn test_part4() {
             namely_type!("C"),
             namely_type!("D"),
         ]
-        .some(),
+        .wrap_some(),
         "a".to_string()
     );
     let r = Some(r);

@@ -5,7 +5,7 @@ use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::infer_type;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
 
@@ -40,39 +40,42 @@ impl Expr {
 
     pub fn with_fallback_type(&self, r#type: &Type) -> Expr {
         match &self {
-            Expr::Unit(None) => Expr::Unit(r#type.clone().some()),
+            Expr::Unit(None) =>
+                Expr::Unit(r#type.clone().wrap_some()),
             Expr::Int(None, i) =>
-                Expr::Int(r#type.clone().some(), *i),
-            Expr::EnvRef(None, r_n) =>
-                Expr::EnvRef(r#type.clone().some(), r_n.to_string()),
+                Expr::Int(r#type.clone().wrap_some(), *i),
+            Expr::EnvRef(None, r_n) => Expr::EnvRef(
+                r#type.clone().wrap_some(),
+                r_n.to_string()
+            ),
             Expr::Apply(None, l_e, r_e) => Expr::Apply(
-                r#type.clone().some(),
+                r#type.clone().wrap_some(),
                 l_e.clone(),
                 r_e.clone()
             ),
             Expr::Cond(None, b_e, t_e, e_e) => Expr::Cond(
-                r#type.clone().some(),
+                r#type.clone().wrap_some(),
                 b_e.clone(),
                 t_e.clone(),
                 e_e.clone()
             ),
             Expr::Closure(None, i_n, i_t, o_e) => Expr::Closure(
-                r#type.clone().some(),
+                r#type.clone().wrap_some(),
                 i_n.clone(),
                 i_t.clone(),
                 o_e.clone()
             ),
             Expr::Struct(None, s_v) =>
-                Expr::Struct(r#type.clone().some(), s_v.clone()),
+                Expr::Struct(r#type.clone().wrap_some(), s_v.clone()),
             Expr::Discard(None) =>
-                Expr::Discard(r#type.clone().some()),
+                Expr::Discard(r#type.clone().wrap_some()),
             Expr::Match(None, t_e, c_v) => Expr::Match(
-                r#type.clone().some(),
+                r#type.clone().wrap_some(),
                 t_e.clone(),
                 c_v.clone()
             ),
             Expr::Let(None, r_a, a_n, a_t, a_e, s_e) => Expr::Let(
-                r#type.clone().some(),
+                r#type.clone().wrap_some(),
                 *r_a,
                 a_n.to_string(),
                 a_t.clone(),
@@ -155,7 +158,7 @@ impl Expr {
             Expr::Let(Some(t), ..) => t,
             _ => return None
         }
-        .some()
+        .wrap_some()
     }
 
     pub fn unwrap_type_annot(&self) -> &Type {

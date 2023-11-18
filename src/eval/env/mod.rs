@@ -15,7 +15,7 @@ use crate::infer::infer_type_of_defs::{
     infer_type_of_defs,
     InferErr
 };
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 use crate::infra::result::ResultAnyExt;
 use crate::infra::vec::VecExt;
@@ -108,5 +108,5 @@ pub fn parse_to_env<'t>(
         .rc()
         .extend_vec_new(expr_env_vec);
 
-    (type_env, expr_env).some()
+    (type_env, expr_env).wrap_some()
 }

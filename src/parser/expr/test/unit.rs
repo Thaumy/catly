@@ -1,5 +1,5 @@
 use crate::infer::env::r#macro::unit_type;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::expr::test::f;
 
@@ -15,7 +15,7 @@ fn test_part1() {
 
 #[test]
 fn test_part2() {
-    let r = Expr::Unit(unit_type!().some());
+    let r = Expr::Unit(unit_type!().wrap_some());
     let r = Some(r);
 
     assert_eq!(f("(): Unit"), r);

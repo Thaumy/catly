@@ -2,7 +2,7 @@ use std::rc::Rc;
 
 use crate::eval::r#type::expr::Expr;
 use crate::eval::r#type::r#type::Type;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 
 // 某些表达式可能是递归定义的(常见于顶层环境和 Let)
@@ -58,7 +58,7 @@ impl ExprEnv {
                 if matches!(expr.as_ref(), Expr::EnvRef(..)) =>
             {
                 let (src, src_env) = source_env_ref(expr, src_env);
-                (src.some(), src_env.some())
+                (src.wrap_some(), src_env.wrap_some())
             }
             x => x
         };
@@ -67,7 +67,7 @@ impl ExprEnv {
 
         let expr_env = ExprEnv {
             prev_env: None,
-            entry: entry.some()
+            entry: entry.wrap_some()
         };
 
         #[cfg(feature = "rt_env_log")]
@@ -104,7 +104,7 @@ impl ExprEnv {
                 if matches!(expr.as_ref(), Expr::EnvRef(..)) =>
             {
                 let (src, src_env) = source_env_ref(expr, src_env);
-                (src.some(), src_env.some())
+                (src.wrap_some(), src_env.wrap_some())
             }
             x => x
         };
@@ -114,8 +114,8 @@ impl ExprEnv {
         let expr_env = ExprEnv {
             prev_env: self
                 .latest_none_empty_expr_env()
-                .some(),
-            entry: entry.some()
+                .wrap_some(),
+            entry: entry.wrap_some()
         };
 
         #[cfg(feature = "rt_env_log")]
@@ -156,7 +156,7 @@ impl ExprEnv {
                 });
 
         match (entry, &self.prev_env) {
-            (Some(entry), _) => entry.some(),
+            (Some(entry), _) => entry.wrap_some(),
             (None, Some(prev_env)) => prev_env.find_entry(ref_name),
             _ => None
         }
@@ -178,7 +178,7 @@ impl ExprEnv {
                     Some(expr) => expr.clone(),
                     None => return None
                 };
-                (src_expr, src_env).some()
+                (src_expr, src_env).wrap_some()
             })
     }
 
@@ -197,7 +197,7 @@ impl ExprEnv {
                     None => Rc::new(self.clone())
                 };
                 (Expr::EnvRef(t.clone(), ref_name.clone()), src_env)
-                    .some()
+                    .wrap_some()
             })
     }
 }

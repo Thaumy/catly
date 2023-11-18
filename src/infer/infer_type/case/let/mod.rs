@@ -12,7 +12,7 @@ use crate::infer::infer_type::case::r#let::case_ri::case_ri;
 use crate::infer::infer_type::case::r#let::case_t_rc::case_t_rc;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
@@ -83,10 +83,12 @@ pub fn case(
             // Inject assign to env
             let new_expr_env = new_expr_env.extend_new(
                 assign_name.to_string(),
-                assign_type.clone().some(),
+                assign_type
+                    .clone()
+                    .wrap_some(),
                 typed_assign_expr
                     .clone()
-                    .some()
+                    .wrap_some()
             );
 
             case_t_rc(
@@ -96,10 +98,12 @@ pub fn case(
                 scope_expr,
                 |type_annot, typed_scope_expr| {
                     Expr::Let(
-                        type_annot.some(),
+                        type_annot.wrap_some(),
                         *rec_assign,
                         assign_name.to_string(),
-                        assign_type.clone().some(),
+                        assign_type
+                            .clone()
+                            .wrap_some(),
                         typed_assign_expr.clone().rc(),
                         typed_scope_expr.rc()
                     )

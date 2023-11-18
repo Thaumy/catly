@@ -12,7 +12,7 @@ use crate::infer::infer_type::case::apply::case_ri::case_ri;
 use crate::infer::infer_type::case::apply::case_t_rc::case_t_rc;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
@@ -63,7 +63,7 @@ pub fn case(
                 rhs_expr,
                 |type_annot, typed_rhs_expr| {
                     Expr::Apply(
-                        type_annot.some(),
+                        type_annot.wrap_some(),
                         typed_lhs_expr.clone().rc(),
                         typed_rhs_expr.rc()
                     )

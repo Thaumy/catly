@@ -3,7 +3,7 @@ use std::rc::Rc;
 use crate::eval::env::expr_env::{ExprEnv, ExprEnvEntry};
 use crate::eval::env::type_env::TypeEnv;
 use crate::eval::r#type::expr::{Expr, StructField};
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 
 fn is_struct_match_pattern_then_env_vec(
@@ -33,7 +33,9 @@ fn is_struct_match_pattern_then_env_vec(
         })
         .try_collect();
 
-    (collected?).concat().some()
+    (collected?)
+        .concat()
+        .wrap_some()
 }
 
 fn is_expr_match_pattern_then_env_vec(
@@ -52,43 +54,49 @@ fn is_expr_match_pattern_then_env_vec(
 
     match evaluated_expr.as_ref() {
         Expr::Unit(_) => match pattern {
-            Expr::Unit(_) => vec![].some(),
+            Expr::Unit(_) => vec![].wrap_some(),
             Expr::EnvRef(p_t, ref_name) => vec![(
                 ref_name.clone(),
                 p_t.clone(),
-                evaluated_expr.clone().some(),
-                expr_env.clone().some()
+                evaluated_expr
+                    .clone()
+                    .wrap_some(),
+                expr_env.clone().wrap_some()
             )]
-            .some(),
-            Expr::Discard(_) => vec![].some(),
+            .wrap_some(),
+            Expr::Discard(_) => vec![].wrap_some(),
             _ => unreachable!()
         },
         Expr::Int(_, e_i) => match pattern {
             Expr::Int(_, p_i) =>
                 if e_i == p_i {
-                    vec![].some()
+                    vec![].wrap_some()
                 } else {
                     None
                 },
             Expr::EnvRef(p_t, ref_name) => vec![(
                 ref_name.clone(),
                 p_t.clone(),
-                evaluated_expr.clone().some(),
-                expr_env.clone().some()
+                evaluated_expr
+                    .clone()
+                    .wrap_some(),
+                expr_env.clone().wrap_some()
             )]
-            .some(),
-            Expr::Discard(_) => vec![].some(),
+            .wrap_some(),
+            Expr::Discard(_) => vec![].wrap_some(),
             _ => unreachable!()
         },
         Expr::Closure(..) => match pattern {
             Expr::EnvRef(p_t, ref_name) => vec![(
                 ref_name.clone(),
                 p_t.clone(),
-                evaluated_expr.clone().some(),
-                expr_env.clone().some()
+                evaluated_expr
+                    .clone()
+                    .wrap_some(),
+                expr_env.clone().wrap_some()
             )]
-            .some(),
-            Expr::Discard(_) => vec![].some(),
+            .wrap_some(),
+            Expr::Discard(_) => vec![].wrap_some(),
             _ => unreachable!()
         },
         Expr::Struct(_, e_s_v) => match pattern {
@@ -99,11 +107,13 @@ fn is_expr_match_pattern_then_env_vec(
             Expr::EnvRef(p_t, ref_name) => vec![(
                 ref_name.clone(),
                 p_t.clone(),
-                evaluated_expr.clone().some(),
-                expr_env.clone().some()
+                evaluated_expr
+                    .clone()
+                    .wrap_some(),
+                expr_env.clone().wrap_some()
             )]
-            .some(),
-            Expr::Discard(_) => vec![].some(),
+            .wrap_some(),
+            Expr::Discard(_) => vec![].wrap_some(),
             _ => unreachable!()
         },
         _ => unreachable!()
@@ -126,5 +136,5 @@ pub fn is_expr_match_pattern_then_env(
 
     expr_env
         .extend_vec_new(expr_env_vec)
-        .some()
+        .wrap_some()
 }

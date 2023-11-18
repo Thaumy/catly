@@ -1,4 +1,4 @@
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::vec::VecExt;
 use crate::lexer::Token;
 use crate::parser::define::{parse_define, Define};
@@ -34,6 +34,6 @@ pub fn parse_to_defines(seq: Vec<Vec<Token>>) -> Option<Vec<Define>> {
         .map(parse_define)
         .try_fold(vec![], |acc, it| {
             let it = it?;
-            acc.chain_push(it).some()
+            acc.chain_push(it).wrap_some()
         })
 }

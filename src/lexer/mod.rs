@@ -1,4 +1,4 @@
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::lexer::chunk::lexer_chunk;
 use crate::lexer::keyword::lexer_keyword;
 use crate::lexer::literal::lexer_literal;
@@ -50,7 +50,7 @@ pub fn lexical_analyze(preprocessed: &str) -> Option<Vec<Token>> {
     r.into_iter()
         .map(|x| x.into())
         .collect::<Vec<Token>>()
-        .some()
+        .wrap_some()
 }
 
 pub trait FollowExt<T> {

@@ -1,6 +1,6 @@
 use crate::infer::env::r#macro::int_type;
 use crate::infer::env::r#macro::unit_type;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::parser::r#type::r#type::Type;
 
 pub type TypeEnvEntry = (String, Type);
@@ -43,7 +43,7 @@ impl<'t> TypeEnv<'t> {
         let type_env = TypeEnv {
             prev_env: self
                 .latest_none_empty_type_env()
-                .some(),
+                .wrap_some(),
             env: type_vec
         };
 
@@ -71,7 +71,7 @@ impl<'t> TypeEnv<'t> {
             .find(|(n, ..)| n == type_name);
 
         match (entry, &self.prev_env) {
-            (Some(entry), _) => entry.some(),
+            (Some(entry), _) => entry.wrap_some(),
             (None, Some(prev_env)) => prev_env.find_entry(type_name),
             _ => None
         }
@@ -83,8 +83,8 @@ impl<'t> TypeEnv<'t> {
     ) -> Option<Type> {
         let type_name = type_name.into();
         match type_name {
-            "Int" => int_type!().some(),
-            "Unit" => unit_type!().some(),
+            "Int" => int_type!().wrap_some(),
+            "Unit" => unit_type!().wrap_some(),
             _ => self
                 .find_entry(type_name)
                 .map(|(_, t)| t.clone())

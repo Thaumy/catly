@@ -4,7 +4,7 @@ use crate::eval::eval_expr::eval_expr;
 use crate::eval::r#macro::{closure_type, namely_type};
 use crate::eval::r#type::expr::primitive_op::PrimitiveOp;
 use crate::eval::r#type::expr::Expr;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 use crate::infra::result::ResultAnyExt;
 
@@ -36,7 +36,7 @@ fn test_part2() {
         PrimitiveOp::Add(
             Expr::Int(namely_type!("True"), 1)
                 .rc()
-                .some()
+                .wrap_some()
         )
         .rc(),
         None
@@ -63,7 +63,7 @@ fn test_part3() {
     let r = Expr::PrimitiveOp(
         closure_type!(namely_type!("Int"), namely_type!("Int")),
         PrimitiveOp::Add(None).rc(),
-        expr_env.some()
+        expr_env.wrap_some()
     );
 
     assert_ne!(evaluated, r.ok());
@@ -80,7 +80,7 @@ fn test_part4() {
         PrimitiveOp::Add(
             Expr::Int(namely_type!("True"), 1)
                 .rc()
-                .some()
+                .wrap_some()
         )
         .rc(),
         None
@@ -92,10 +92,10 @@ fn test_part4() {
         PrimitiveOp::Add(
             Expr::Int(namely_type!("True"), 1)
                 .rc()
-                .some()
+                .wrap_some()
         )
         .rc(),
-        expr_env.some()
+        expr_env.wrap_some()
     );
 
     assert_ne!(evaluated, r.ok());

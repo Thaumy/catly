@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 
 use crate::eval::r#type::r#type::Type;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 
 pub type TypeEnvEntry = (String, Type);
 
@@ -43,7 +43,7 @@ impl<'t> TypeEnv<'t> {
         let type_env = TypeEnv {
             prev_env: self
                 .latest_none_empty_type_env()
-                .some(),
+                .wrap_some(),
             env: type_vec
         };
 
@@ -71,7 +71,7 @@ impl<'t> TypeEnv<'t> {
             .find(|(n, ..)| n == type_name);
 
         match (entry, &self.prev_env) {
-            (Some(entry), _) => entry.some(),
+            (Some(entry), _) => entry.wrap_some(),
             (None, Some(prev_env)) => prev_env.find_entry(type_name),
             _ => None
         }
@@ -83,8 +83,9 @@ impl<'t> TypeEnv<'t> {
     ) -> Option<Type> {
         let type_name = type_name.into();
         match type_name {
-            "Int" => Type::NamelyType("Int".to_string()).some(),
-            "Unit" => Type::NamelyType("Unit".to_string()).some(),
+            "Int" => Type::NamelyType("Int".to_string()).wrap_some(),
+            "Unit" =>
+                Type::NamelyType("Unit".to_string()).wrap_some(),
             _ => self
                 .find_entry(type_name)
                 .map(|(_, t)| t.clone())
@@ -101,10 +102,10 @@ impl<'t> TypeEnv<'t> {
         match r#type {
             // 和编译期的类型提升规则一样, 不允许跨层寻踪
             Type::NamelyType(n) => match self.find_type(n.as_str()) {
-                Some(Type::SumType(s)) => s.some(),
+                Some(Type::SumType(s)) => s.wrap_some(),
                 _ => None
             },
-            Type::SumType(s) => s.clone().some(),
+            Type::SumType(s) => s.clone().wrap_some(),
             _ => None
         }
     }

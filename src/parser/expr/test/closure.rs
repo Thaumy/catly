@@ -1,7 +1,7 @@
 use crate::infer::env::r#macro::closure_type;
 use crate::infer::env::r#macro::int_type;
 use crate::infer::env::r#macro::namely_type;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::expr::test::f;
@@ -10,7 +10,7 @@ use crate::parser::expr::test::f;
 fn test_part1() {
     let r = Expr::Closure(
         None,
-        "a".to_string().some(),
+        "a".to_string().wrap_some(),
         None,
         Expr::Apply(
             None,
@@ -38,11 +38,11 @@ fn test_part1() {
 fn test_part2() {
     let r = Expr::Closure(
         None,
-        "a".to_string().some(),
+        "a".to_string().wrap_some(),
         None,
         Expr::Closure(
             None,
-            "b".to_string().some(),
+            "b".to_string().wrap_some(),
             None,
             Expr::Closure(
                 None,
@@ -91,7 +91,7 @@ fn test_part2() {
 fn test_part3() {
     let r = Expr::Closure(
         None,
-        "aaa".to_string().some(),
+        "aaa".to_string().wrap_some(),
         None,
         Expr::Closure(
             None,
@@ -99,7 +99,7 @@ fn test_part3() {
             None,
             Expr::Closure(
                 None,
-                "ccc".to_string().some(),
+                "ccc".to_string().wrap_some(),
                 None,
                 Expr::Apply(
                     None,
@@ -144,21 +144,21 @@ fn test_part4() {
     let r = Expr::Closure(
         None,
         None,
-        namely_type!("A").some(),
+        namely_type!("A").wrap_some(),
         Expr::Closure(
             None,
-            "b".to_string().some(),
-            namely_type!("B").some(),
+            "b".to_string().wrap_some(),
+            namely_type!("B").wrap_some(),
             Expr::Closure(
                 None,
-                "c".to_string().some(),
-                namely_type!("C").some(),
+                "c".to_string().wrap_some(),
+                namely_type!("C").wrap_some(),
                 Expr::Apply(
-                    int_type!().some(),
+                    int_type!().wrap_some(),
                     Expr::Apply(
                         None,
                         Expr::EnvRef(None, "add".to_string()).rc(),
-                        Expr::Int(int_type!().some(), 123).rc()
+                        Expr::Int(int_type!().wrap_some(), 123).rc()
                     )
                     .rc(),
                     Expr::EnvRef(None, "ccc".to_string()).rc()
@@ -181,12 +181,13 @@ fn test_part4() {
 #[test]
 fn test_part5() {
     let r = Expr::Closure(
-        closure_type!(namely_type!("A"), namely_type!("B")).some(),
-        "a".to_string().some(),
+        closure_type!(namely_type!("A"), namely_type!("B"))
+            .wrap_some(),
+        "a".to_string().wrap_some(),
         None,
         Expr::Closure(
             None,
-            "b".to_string().some(),
+            "b".to_string().wrap_some(),
             None,
             Expr::Apply(
                 None,

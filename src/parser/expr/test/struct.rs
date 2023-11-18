@@ -5,7 +5,7 @@ use crate::infer::env::r#macro::namely_type;
 use crate::infer::env::r#macro::prod_type;
 use crate::infer::env::r#macro::sum_type;
 use crate::infer::env::r#macro::unit_type;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::expr::test::f;
@@ -54,11 +54,11 @@ fn test_part2() {
     ]);
     let fun = Expr::Closure(
         None,
-        "x".to_string().some(),
+        "x".to_string().wrap_some(),
         None,
         Expr::Closure(
             None,
-            "y".to_string().some(),
+            "y".to_string().wrap_some(),
             None,
             Expr::Apply(
                 None,
@@ -114,7 +114,7 @@ fn test_part3() {
     let a = Expr::Struct(None, vec![
         (
             "abc".to_string(),
-            int_type!().some(),
+            int_type!().wrap_some(),
             Expr::Struct(None, vec![(
                 "efg".to_string(),
                 None,
@@ -130,11 +130,11 @@ fn test_part3() {
     ]);
     let fun = Expr::Closure(
         None,
-        "x".to_string().some(),
+        "x".to_string().wrap_some(),
         None,
         Expr::Closure(
             None,
-            "y".to_string().some(),
+            "y".to_string().wrap_some(),
             None,
             Expr::Apply(
                 None,
@@ -150,11 +150,11 @@ fn test_part3() {
         )
         .rc()
     );
-    let r = Expr::Struct(int_type!().some(), vec![
-        ("a".to_string(), int_type!().some(), a),
+    let r = Expr::Struct(int_type!().wrap_some(), vec![
+        ("a".to_string(), int_type!().wrap_some(), a),
         (
             "ab".to_string(),
-            closure_type!(int_type!(), int_type!()).some(),
+            closure_type!(int_type!(), int_type!()).wrap_some(),
             Expr::Apply(
                 None,
                 Expr::EnvRef(None, "neg".to_string()).rc(),
@@ -167,7 +167,7 @@ fn test_part3() {
                 ("a".to_string(), int_type!()),
                 ("b".to_string(), unit_type!()),
             ]
-            .some(),
+            .wrap_some(),
             fun
         ),
         (
@@ -176,7 +176,7 @@ fn test_part3() {
                 ("a".to_string(), int_type!()),
                 ("b".to_string(), unit_type!()),
             ]),]
-            .some(),
+            .wrap_some(),
             Expr::Int(None, 0)
         ),
     ]);
@@ -193,51 +193,51 @@ fn test_part3() {
 
 #[test]
 fn test_part4() {
-    let ab = prod_type![("a".to_string(), int_type!())].some();
+    let ab = prod_type![("a".to_string(), int_type!())].wrap_some();
 
     let cd = prod_type![
         ("a".to_string(), int_type!()),
         ("b".to_string(), int_type!()),
     ]
-    .some();
+    .wrap_some();
 
     let ef = prod_type![
         ("a".to_string(), int_type!()),
         ("b".to_string(), int_type!()),
         ("c".to_string(), int_type!()),
     ]
-    .some();
+    .wrap_some();
 
     let r = Expr::Struct(None, vec![
         (
             "a".to_string(),
             ab.clone(),
-            Expr::Unit(unit_type!().some())
+            Expr::Unit(unit_type!().wrap_some())
         ),
         (
             "b".to_string(),
             ab.clone(),
-            Expr::Unit(unit_type!().some())
+            Expr::Unit(unit_type!().wrap_some())
         ),
         (
             "c".to_string(),
             cd.clone(),
-            Expr::Unit(unit_type!().some())
+            Expr::Unit(unit_type!().wrap_some())
         ),
         (
             "d".to_string(),
             cd.clone(),
-            Expr::Unit(unit_type!().some())
+            Expr::Unit(unit_type!().wrap_some())
         ),
         (
             "e".to_string(),
             ef.clone(),
-            Expr::Unit(unit_type!().some())
+            Expr::Unit(unit_type!().wrap_some())
         ),
         (
             "f".to_string(),
             ef.clone(),
-            Expr::Unit(unit_type!().some())
+            Expr::Unit(unit_type!().wrap_some())
         ),
         (
             "g".to_string(),
@@ -253,8 +253,8 @@ fn test_part4() {
                     namely_type!("C"),
                 ]),
             ]
-            .some(),
-            Expr::Unit(unit_type!().some())
+            .wrap_some(),
+            Expr::Unit(unit_type!().wrap_some())
         ),
     ]);
     let r = Some(r);

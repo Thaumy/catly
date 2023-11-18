@@ -1,5 +1,5 @@
 use crate::infer::env::r#macro::int_type;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::expr::test::f;
@@ -173,24 +173,24 @@ fn test_part7() {
 #[test]
 fn test_part8() {
     let r = Expr::Apply(
-        int_type!().some(),
+        int_type!().wrap_some(),
         Expr::Apply(
-            int_type!().some(),
+            int_type!().wrap_some(),
             Expr::EnvRef(None, "abc".to_string()).rc(),
             Expr::Apply(
-                int_type!().some(),
+                int_type!().wrap_some(),
                 Expr::Apply(
-                    int_type!().some(),
+                    int_type!().wrap_some(),
                     Expr::EnvRef(None, "add".to_string()).rc(),
-                    Expr::Int(int_type!().some(), 123).rc()
+                    Expr::Int(int_type!().wrap_some(), 123).rc()
                 )
                 .rc(),
-                Expr::Int(int_type!().some(), 456).rc()
+                Expr::Int(int_type!().wrap_some(), 456).rc()
             )
             .rc()
         )
         .rc(),
-        Expr::Int(int_type!().some(), 123).rc()
+        Expr::Int(int_type!().wrap_some(), 123).rc()
     );
     let r = Some(r);
 
@@ -206,7 +206,7 @@ fn test_part8() {
 #[test]
 fn test_part9() {
     let r = Expr::Apply(
-        int_type!().some(),
+        int_type!().wrap_some(),
         Expr::Apply(
             None,
             Expr::EnvRef(None, "abc".to_string()).rc(),
@@ -215,15 +215,15 @@ fn test_part9() {
                 Expr::Apply(
                     None,
                     Expr::EnvRef(None, "add".to_string()).rc(),
-                    Expr::Int(int_type!().some(), 123).rc()
+                    Expr::Int(int_type!().wrap_some(), 123).rc()
                 )
                 .rc(),
-                Expr::Int(int_type!().some(), 456).rc()
+                Expr::Int(int_type!().wrap_some(), 456).rc()
             )
             .rc()
         )
         .rc(),
-        Expr::Int(int_type!().some(), 123).rc()
+        Expr::Int(int_type!().wrap_some(), 123).rc()
     );
     let r = Some(r);
 

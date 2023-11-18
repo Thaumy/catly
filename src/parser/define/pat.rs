@@ -1,4 +1,4 @@
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::lexer::Token;
 use crate::parser::define::Define;
 use crate::parser::expr::r#type::Expr;
@@ -36,6 +36,6 @@ impl From<Pat> for Option<Define> {
             Pat::ExprDef(n, t, e) => Define::ExprDef(n, t, e),
             _ => return None
         }
-        .some()
+        .wrap_some()
     }
 }

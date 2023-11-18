@@ -2,7 +2,7 @@ use int::lift_int;
 use unit::lift_unit;
 
 use crate::infer::env::type_env::TypeEnv;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::parser::r#type::r#type::Type;
 
 mod int;
@@ -26,7 +26,7 @@ pub fn lift_namely<'s>(
 
             // Base
             Type::NamelyType(n) if n == base_type_name =>
-                derive.clone().some(),
+                derive.clone().wrap_some(),
 
             // HACK:
             // 该实现允许将 Base 合一到基于 SumType 的 NamelyType, 例如：

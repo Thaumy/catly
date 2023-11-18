@@ -8,7 +8,7 @@ use crate::eval::env::type_env::TypeEnv;
 use crate::eval::eval_expr::{eval_expr, EvalRet};
 use crate::eval::r#type::expr::Expr;
 use crate::eval::r#type::r#type::Type;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 
 pub fn case_let(
@@ -24,15 +24,19 @@ pub fn case_let(
         expr_env.extend_new(
             assign_name,
             assign_type.clone(),
-            assign_expr.clone().some(),
+            assign_expr
+                .clone()
+                .wrap_some(),
             None
         )
     } else {
         expr_env.clone().extend_new(
             assign_name,
             assign_type.clone(),
-            assign_expr.clone().some(),
-            expr_env.clone().some()
+            assign_expr
+                .clone()
+                .wrap_some(),
+            expr_env.clone().wrap_some()
         )
     }
     .rc();

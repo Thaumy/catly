@@ -6,7 +6,7 @@ use std::rc::Rc;
 use crate::infer::env::r#type::env_ref_src::EnvRefSrc;
 use crate::infer::env::r#type::type_constraint::TypeConstraint;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 use crate::parser::expr::r#type::{Expr, OptExpr};
 use crate::parser::r#type::r#type::OptType;
@@ -37,7 +37,7 @@ impl ExprEnv {
 
         let expr_env = ExprEnv {
             prev_env: None,
-            entry: entry.some()
+            entry: entry.wrap_some()
         };
 
         #[cfg(feature = "ct_env_log")]
@@ -72,8 +72,8 @@ impl ExprEnv {
                 ExprEnv {
                     prev_env: acc
                         .latest_none_empty_expr_env()
-                        .some(),
-                    entry: (r_n, tc, src).some()
+                        .wrap_some(),
+                    entry: (r_n, tc, src).wrap_some()
                 }
                 .rc()
             }
@@ -155,7 +155,7 @@ impl ExprEnv {
                 });
 
         match (entry, &self.prev_env) {
-            (Some(entry), _) => entry.some(),
+            (Some(entry), _) => entry.wrap_some(),
             (None, Some(prev_env)) => prev_env.find_entry(ref_name),
             _ => None
         }
@@ -167,7 +167,7 @@ impl ExprEnv {
     ) -> Option<&Expr> {
         self.find_entry(ref_name)
             .and_then(|(.., src)| match src {
-                EnvRefSrc::Src(expr) => expr.some(),
+                EnvRefSrc::Src(expr) => expr.wrap_some(),
                 EnvRefSrc::NoSrc => None
             })
     }

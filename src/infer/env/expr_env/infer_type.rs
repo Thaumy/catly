@@ -8,7 +8,7 @@ use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_constraint::require_constraint;
 use crate::infer::infer_type::r#type::require_info::ReqInfo;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 
@@ -30,7 +30,7 @@ impl ExprEnv {
                 // 引用名所对应的类型是类型约束的直接类型
                 TypeConstraint::Constraint(t) =>
                     InferTypeRet::has_type(Expr::EnvRef(
-                        t.clone().some(),
+                        t.clone().wrap_some(),
                         ref_name
                     )),
                 // 不存在类型约束
@@ -58,12 +58,12 @@ impl ExprEnv {
                             InferTypeRet::from_auto_lift(
                                 type_env,
                                 typed_src_expr.unwrap_type_annot(),
-                                &t.clone().some(),
+                                &t.clone().wrap_some(),
                                 None,
                                 // 由于这里构建的是具备类型的 EnvRef, 所以不应该使用引用源返回
                                 |t| {
                                     Expr::EnvRef(
-                                        t.some(),
+                                        t.wrap_some(),
                                         ref_name.clone()
                                     )
                                 }
@@ -73,12 +73,12 @@ impl ExprEnv {
                                 type_env,
                                 rc.typed_expr
                                     .unwrap_type_annot(),
-                                &t.clone().some(),
-                                rc.constraint.some(),
+                                &t.clone().wrap_some(),
+                                rc.constraint.wrap_some(),
                                 // 与上同理
                                 |t| {
                                     Expr::EnvRef(
-                                        t.some(),
+                                        t.wrap_some(),
                                         ref_name.clone()
                                     )
                                 }
@@ -101,7 +101,7 @@ impl ExprEnv {
                                 typed_src_expr
                                     .unwrap_type_annot()
                                     .clone()
-                                    .some(),
+                                    .wrap_some(),
                                 ref_name
                             )),
                         // 由于 ref_name 是 Free 的, 所以此时约束可能作用于 ref_name 本身

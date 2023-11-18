@@ -3,7 +3,7 @@ use crate::eval::env::type_env::TypeEnv;
 use crate::eval::eval_expr::eval_expr;
 use crate::eval::r#macro::{closure_type, namely_type};
 use crate::eval::r#type::expr::Expr;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 use crate::infra::result::ResultAnyExt;
 
@@ -15,7 +15,7 @@ fn test_part1() {
 
     let expr = Expr::Closure(
         closure_type!(namely_type!("Int"), namely_type!("Int")),
-        "a".to_string().some(),
+        "a".to_string().wrap_some(),
         namely_type!("Int"),
         Expr::Int(namely_type!("Int"), 1).rc(),
         None
@@ -53,7 +53,7 @@ fn test_part3() {
 
     let expr = Expr::Closure(
         closure_type!(namely_type!("Int"), namely_type!("Int")),
-        "a".to_string().some(),
+        "a".to_string().wrap_some(),
         namely_type!("Int"),
         Expr::Int(namely_type!("Int"), 1).rc(),
         None
@@ -62,10 +62,10 @@ fn test_part3() {
 
     let r = Expr::Closure(
         closure_type!(namely_type!("Int"), namely_type!("Int")),
-        "a".to_string().some(),
+        "a".to_string().wrap_some(),
         namely_type!("Int"),
         Expr::Int(namely_type!("Int"), 1).rc(),
-        expr_env.some()
+        expr_env.wrap_some()
     );
 
     assert_eq!(evaluated, r.ok());
@@ -91,7 +91,7 @@ fn test_part4() {
         None,
         namely_type!("Int"),
         Expr::Int(namely_type!("Int"), 1).rc(),
-        expr_env.some()
+        expr_env.wrap_some()
     );
 
     assert_eq!(evaluated, r.ok());

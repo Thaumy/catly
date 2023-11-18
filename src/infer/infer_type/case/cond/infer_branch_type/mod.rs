@@ -7,7 +7,7 @@ use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::case::cond::infer_branch_type::case_ri::case_ri;
 use crate::infer::infer_type::case::cond::infer_branch_type::case_t_rc::case_t_rc;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
@@ -42,7 +42,7 @@ pub fn infer_branch_type(
                 else_expr,
                 |type_annot, typed_else_expr| {
                     Expr::Cond(
-                        type_annot.some(),
+                        type_annot.wrap_some(),
                         typed_bool_expr.clone().rc(),
                         typed_then_expr.clone().rc(),
                         typed_else_expr.rc()

@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 
 use crate::infer::env::type_env::TypeEnv;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::parser::r#type::r#type::Type;
 
 pub fn lift_sum(
@@ -16,7 +16,7 @@ pub fn lift_sum(
     match derive {
         // Superset of Base
         Type::SumType(s) if s.is_superset(sum_set) =>
-            derive.clone().some(),
+            derive.clone().wrap_some(),
 
         // T
         // where Base can be lifted to T

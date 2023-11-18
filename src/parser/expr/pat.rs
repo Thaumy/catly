@@ -3,7 +3,7 @@ use std::ops::Deref;
 use std::rc::Rc;
 
 use crate::infra::btree_set::BtreeSetExt;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 use crate::infra::vec::VecExt;
 use crate::parser::expr::r#type::{Expr, OptExpr};
@@ -87,25 +87,32 @@ impl Pat {
     }
     pub fn with_type(self, r#type: Pat) -> Option<Self> {
         match self {
-            Pat::Discard(_) => Pat::Discard(r#type.rc().some()),
-            Pat::Unit(_) => Pat::Unit(r#type.rc().some()),
-            Pat::Int(_, i) => Pat::Int(r#type.rc().some(), i),
-            Pat::LetName(_, n) => Pat::LetName(r#type.rc().some(), n),
+            Pat::Discard(_) => Pat::Discard(r#type.rc().wrap_some()),
+            Pat::Unit(_) => Pat::Unit(r#type.rc().wrap_some()),
+            Pat::Int(_, i) => Pat::Int(r#type.rc().wrap_some(), i),
+            Pat::LetName(_, n) =>
+                Pat::LetName(r#type.rc().wrap_some(), n),
             Pat::Apply(_, lhs, rhs) =>
-                Pat::Apply(r#type.rc().some(), lhs, rhs),
+                Pat::Apply(r#type.rc().wrap_some(), lhs, rhs),
             Pat::Cond(_, e, t, f) =>
-                Pat::Cond(r#type.rc().some(), e, t, f),
+                Pat::Cond(r#type.rc().wrap_some(), e, t, f),
             Pat::Closure(_, i_n, i_t, o) =>
-                Pat::Closure(r#type.rc().some(), i_n, i_t, o),
+                Pat::Closure(r#type.rc().wrap_some(), i_n, i_t, o),
             Pat::Struct(_, vec) =>
-                Pat::Struct(r#type.rc().some(), vec),
+                Pat::Struct(r#type.rc().wrap_some(), vec),
             Pat::Match(_, e, vec) =>
-                Pat::Match(r#type.rc().some(), e, vec),
-            Pat::Let(_, r_a, a_n, a_t, a_e, e) =>
-                Pat::Let(r#type.rc().some(), r_a, a_n, a_t, a_e, e),
+                Pat::Match(r#type.rc().wrap_some(), e, vec),
+            Pat::Let(_, r_a, a_n, a_t, a_e, e) => Pat::Let(
+                r#type.rc().wrap_some(),
+                r_a,
+                a_n,
+                a_t,
+                a_e,
+                e
+            ),
             _ => return None
         }
-        .some()
+        .wrap_some()
     }
     pub fn is_type(&self) -> bool {
         matches!(
@@ -183,7 +190,7 @@ impl From<Pat> for OptExpr {
                     |acc, (n, t, p)| {
                         let it = OptExpr::from(p)
                             .map(|e| (n, t.map_into(), e))?;
-                        acc.chain_push(it).some()
+                        acc.chain_push(it).wrap_some()
                     }
                 );
 
@@ -199,7 +206,7 @@ impl From<Pat> for OptExpr {
                         let case_e = OptExpr::from(case_p)?;
                         let then_e = OptExpr::from(then_p)?;
                         acc.chain_push((case_e, then_e))
-                            .some()
+                            .wrap_some()
                     }
                 );
 
@@ -228,7 +235,7 @@ impl From<Pat> for OptExpr {
 
             _ => return None
         }
-        .some()
+        .wrap_some()
     }
 }
 
@@ -246,7 +253,8 @@ impl From<Pat> for OptType {
                 .into_iter()
                 .try_fold(BTreeSet::new(), |acc, t| {
                     let t: OptType = t.into();
-                    acc.chain_insert(t?).some()
+                    acc.chain_insert(t?)
+                        .wrap_some()
                 })
                 .map(Type::SumType)?,
 
@@ -254,11 +262,12 @@ impl From<Pat> for OptType {
                 .into_iter()
                 .try_fold(vec![], |acc, (n, p)| {
                     let t: OptType = p.into();
-                    acc.chain_push((n, t?)).some()
+                    acc.chain_push((n, t?))
+                        .wrap_some()
                 })
                 .map(Type::ProdType)?,
             _ => return None
         }
-        .some()
+        .wrap_some()
     }
 }

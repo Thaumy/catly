@@ -8,7 +8,7 @@ use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_info::ReqInfo;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
 
@@ -23,11 +23,11 @@ fn gen_env<'t>() -> (TypeEnv<'t>, Rc<ExprEnv>) {
 fn test_part1() {
     let (type_env, expr_env) = gen_env();
 
-    let infer_result = Expr::Discard(namely_type!("A").some())
+    let infer_result = Expr::Discard(namely_type!("A").wrap_some())
         .infer_type(&type_env, &expr_env);
 
     let r = InferTypeRet::has_type(Expr::Discard(
-        namely_type!("A").some()
+        namely_type!("A").wrap_some()
     ));
 
     assert_eq!(infer_result, r)
@@ -50,7 +50,7 @@ fn test_part2() {
 fn test_part3() {
     let (type_env, expr_env) = gen_env();
 
-    let infer_result = Expr::Discard(namely_type!("B").some())
+    let infer_result = Expr::Discard(namely_type!("B").wrap_some())
         .infer_type(&type_env, &expr_env);
 
     assert_matches!(infer_result, Quad::R(..))

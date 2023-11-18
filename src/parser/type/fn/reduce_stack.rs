@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 use std::ops::Deref;
 
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 use crate::infra::vec::VecExt;
 use crate::lexer::{FollowExt, Token};
@@ -20,8 +20,10 @@ pub fn reduce_stack(
         ([.., Pat::LetName(None, n), Pat::Mark(':'), p], follow)
             if follow.is_type_end_pat() && p.is_type() =>
         {
-            let top =
-                Pat::LetName(p.clone().rc().some(), n.to_string());
+            let top = Pat::LetName(
+                p.clone().rc().wrap_some(),
+                n.to_string()
+            );
             stack.reduce(3, top)
         }
 

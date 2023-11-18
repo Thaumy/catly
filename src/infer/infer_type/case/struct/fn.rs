@@ -2,7 +2,7 @@ use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#fn::destruct_namely_type;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::quad::QuadAnyExt;
 use crate::infra::r#fn::id;
 use crate::infra::result::ResultAnyExt;
@@ -53,7 +53,7 @@ pub fn is_struct_vec_of_type_then_get_prod_vec(
                 .map(|t| {
                     is_struct_vec_of_type_then_get_prod_vec(
                         type_env,
-                        &t.some(),
+                        &t.wrap_some(),
                         struct_vec
                     )
                 })

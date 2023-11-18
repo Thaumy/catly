@@ -1,13 +1,13 @@
 use crate::infer::env::r#macro::unit_type;
 use crate::infer::env::type_env::TypeEnv;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::parser::r#type::r#type::Type;
 
 pub fn lift_unit(type_env: &TypeEnv, derive: &Type) -> Option<Type> {
     match derive {
         // Base
         Type::NamelyType(type_name) if type_name == "Unit" =>
-            derive.clone().some(),
+            derive.clone().wrap_some(),
 
         // Int
         Type::NamelyType(type_name) if type_name == "Int" => None,

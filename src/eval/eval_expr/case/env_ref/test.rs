@@ -3,7 +3,7 @@ use crate::eval::env::type_env::TypeEnv;
 use crate::eval::eval_expr::eval_expr;
 use crate::eval::r#macro::namely_type;
 use crate::eval::r#type::expr::Expr;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 use crate::infra::result::ResultAnyExt;
 
@@ -16,7 +16,7 @@ fn test_part1() {
         namely_type!("Int"),
         Expr::Int(namely_type!("Int"), 10)
             .rc()
-            .some(),
+            .wrap_some(),
         None
     )
     .rc();
@@ -39,7 +39,7 @@ fn test_part2() {
         namely_type!("Int"),
         Expr::Int(namely_type!("Int"), 10)
             .rc()
-            .some(),
+            .wrap_some(),
         None
     );
     let expr_env = ExprEnv::new(
@@ -47,8 +47,8 @@ fn test_part2() {
         namely_type!("Int"),
         Expr::Int(namely_type!("Int"), 5)
             .rc()
-            .some(),
-        expr_env.rc().some()
+            .wrap_some(),
+        expr_env.rc().wrap_some()
     )
     .rc();
 
@@ -71,7 +71,7 @@ fn test_part3() {
         namely_type!("Int"),
         Expr::Int(namely_type!("Int"), 10)
             .rc()
-            .some(),
+            .wrap_some(),
         None
     )
     .rc();
@@ -80,8 +80,8 @@ fn test_part3() {
         namely_type!("Int"),
         Expr::EnvRef(namely_type!("Int"), "b".to_string())
             .rc()
-            .some(),
-        expr_env.some()
+            .wrap_some(),
+        expr_env.wrap_some()
     )
     .rc();
     let expr_env = ExprEnv::new(
@@ -89,8 +89,8 @@ fn test_part3() {
         namely_type!("Int"),
         Expr::EnvRef(namely_type!("Int"), "a".to_string())
             .rc()
-            .some(),
-        expr_env.some()
+            .wrap_some(),
+        expr_env.wrap_some()
     )
     .rc();
 

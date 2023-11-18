@@ -1,4 +1,4 @@
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::vec::VecExt;
 use crate::parser::keyword::Keyword;
 use crate::parser::name::let_name::parse_let_name;
@@ -33,7 +33,7 @@ impl From<In> for Option<Out> {
             In::UnitValue => Out::UnitValue,
             In::DiscardValue => Out::DiscardValue
         }
-        .some()
+        .wrap_some()
     }
 }
 
@@ -45,7 +45,8 @@ where
 {
     let r = seq.try_fold(vec![], |acc, p| {
         let it: Option<Out> = p.into();
-        acc.chain_push(it?).some()
+        acc.chain_push(it?)
+            .wrap_some()
     });
 
     #[cfg(feature = "lexer_log")]
@@ -96,7 +97,7 @@ fn test_part1() {
         Out::Kw(Keyword::With),
         Out::Symbol(' '),
     ]
-    .some();
+    .wrap_some();
 
     assert_eq!(lexer_name(seq.into_iter()), r);
 }

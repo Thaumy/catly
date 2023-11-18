@@ -1,9 +1,9 @@
-pub trait OptionAnyExt
+pub trait WrapOption
 where
     Self: Sized
 {
     #[inline]
-    fn some(self) -> Option<Self> { Some(self) }
+    fn wrap_some(self) -> Option<Self> { Some(self) }
 }
 
-impl<T> OptionAnyExt for T {}
+impl<T> WrapOption for T {}

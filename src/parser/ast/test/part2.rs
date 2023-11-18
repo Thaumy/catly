@@ -5,7 +5,7 @@ use crate::infer::env::r#macro::namely_type;
 use crate::infer::env::r#macro::prod_type;
 use crate::infer::env::r#macro::sum_type;
 use crate::infer::env::r#macro::unit_type;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 use crate::parser::ast::test::f;
 use crate::parser::define::Define;
@@ -29,7 +29,7 @@ fn test_part2() {
             Expr::EnvRef(None, "x".to_string()).rc(),
             vec![
                 (Expr::Int(None, 1), Expr::Cond(None, Expr::EnvRef(None, "a".to_string()).rc(), Expr::EnvRef(None, "b".to_string()).rc(), Expr::EnvRef(None, "c".to_string()).rc())),
-                (Expr::EnvRef(None, "v".to_string()), Expr::Closure(None, "a".to_string().some(), None, Expr::Closure(None, "b".to_string().some(), None, Expr::Apply(None, Expr::Apply(None, Expr::EnvRef(None, "add".to_string()).rc(), Expr::EnvRef(None, "a".to_string()).rc()).rc(), Expr::EnvRef(None, "b".to_string()).rc()).rc()).rc())),
+                (Expr::EnvRef(None, "v".to_string()), Expr::Closure(None, "a".to_string().wrap_some(), None, Expr::Closure(None, "b".to_string().wrap_some(), None, Expr::Apply(None, Expr::Apply(None, Expr::EnvRef(None, "add".to_string()).rc(), Expr::EnvRef(None, "a".to_string()).rc()).rc(), Expr::EnvRef(None, "b".to_string()).rc()).rc()).rc())),
                 (Expr::Struct(None, vec![("a".to_string(), None, Expr::Discard(None)), ("b".to_string(), None, Expr::Struct(None, vec![("foo".to_string(), None, Expr::Discard(None)), ("bar".to_string(), None, Expr::Discard(None))])), ("c".to_string(), None, Expr::Int(None, 3))]), Expr::Struct(None, vec![("x".to_string(), None, Expr::Int(None, 123)), ("y".to_string(), None, Expr::EnvRef(None, "c".to_string()))])),
                 (
                     Expr::Discard(None),
@@ -42,16 +42,16 @@ fn test_part2() {
                                 Expr::Unit(None),
                                 Expr::Closure(
                                     None,
-                                    "a".to_string().some(),
+                                    "a".to_string().wrap_some(),
                                     None,
                                     Expr::Closure(
                                         None,
-                                        "b".to_string().some(),
+                                        "b".to_string().wrap_some(),
                                         None,
                                         Expr::Match(
                                             None,
                                             Expr::EnvRef(None, "z".to_string()).rc(),
-                                            vec![(Expr::Discard(None), Expr::Int(None, 114514)), (Expr::EnvRef(None, "a".to_string()), Expr::Closure(None, "x".to_string().some(), None, Expr::Closure(None, "y".to_string().some(), None, Expr::Apply(None, Expr::Apply(None, Expr::EnvRef(None, "add".to_string()).rc(), Expr::Unit(None).rc()).rc(), Expr::EnvRef(None, "y".to_string()).rc()).rc()).rc()))],
+                                            vec![(Expr::Discard(None), Expr::Int(None, 114514)), (Expr::EnvRef(None, "a".to_string()), Expr::Closure(None, "x".to_string().wrap_some(), None, Expr::Closure(None, "y".to_string().wrap_some(), None, Expr::Apply(None, Expr::Apply(None, Expr::EnvRef(None, "add".to_string()).rc(), Expr::Unit(None).rc()).rc(), Expr::EnvRef(None, "y".to_string()).rc()).rc()).rc()))],
                                         )
                                         .rc(),
                                     )
@@ -73,12 +73,12 @@ fn test_part2() {
     ]);
     let i1 = Define::ExprDef(
         "i".to_string(),
-        int_type!().some(),
-        Expr::Int(int_type!().some(), 0)
+        int_type!().wrap_some(),
+        Expr::Int(int_type!().wrap_some(), 0)
     );
     let d2 = Define::ExprDef(
         "main".to_string(),
-        closure_type!(unit_type!(), unit_type!()).some(),
+        closure_type!(unit_type!(), unit_type!()).wrap_some(),
         Expr::Let(
             None,
             false,
@@ -97,11 +97,11 @@ fn test_part2() {
                     None,
                     Expr::Closure(
                         None,
-                        "i".to_string().some(),
+                        "i".to_string().wrap_some(),
                         None,
                         Expr::Closure(
                             None,
-                            "j".to_string().some(),
+                            "j".to_string().wrap_some(),
                             None,
                             Expr::EnvRef(None, "k".to_string()).rc()
                         )

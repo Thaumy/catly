@@ -12,7 +12,7 @@ use crate::eval::eval_expr::case::apply::r#fn::{
 use crate::eval::eval_expr::EvalRet;
 use crate::eval::r#type::expr::primitive_op::PrimitiveOp;
 use crate::eval::r#type::expr::Expr;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::result::ResultAnyExt;
 
 pub fn primitive_apply(
@@ -35,27 +35,27 @@ pub fn primitive_apply(
         PrimitiveOp::Neg => int_expr(-rhs_int()?),
         // add
         PrimitiveOp::Add(None) =>
-            PrimitiveOp::Add(rhs_expr.clone().some()).into(),
+            PrimitiveOp::Add(rhs_expr.clone().wrap_some()).into(),
         PrimitiveOp::Add(Some(e)) =>
             int_expr(lhs_int(e)? + rhs_int()?),
         // sub
         PrimitiveOp::Sub(None) =>
-            PrimitiveOp::Sub(rhs_expr.clone().some()).into(),
+            PrimitiveOp::Sub(rhs_expr.clone().wrap_some()).into(),
         PrimitiveOp::Sub(Some(e)) =>
             int_expr(lhs_int(e)? - rhs_int()?),
         // mul
         PrimitiveOp::Mul(None) =>
-            PrimitiveOp::Mul(rhs_expr.clone().some()).into(),
+            PrimitiveOp::Mul(rhs_expr.clone().wrap_some()).into(),
         PrimitiveOp::Mul(Some(e)) =>
             int_expr(lhs_int(e)? * rhs_int()?),
         // div
         PrimitiveOp::Div(None) =>
-            PrimitiveOp::Mul(rhs_expr.clone().some()).into(),
+            PrimitiveOp::Mul(rhs_expr.clone().wrap_some()).into(),
         PrimitiveOp::Div(Some(e)) =>
             int_expr(lhs_int(e)? / rhs_int()?),
         // mod
         PrimitiveOp::Mod(None) =>
-            PrimitiveOp::Mod(rhs_expr.clone().some()).into(),
+            PrimitiveOp::Mod(rhs_expr.clone().wrap_some()).into(),
         PrimitiveOp::Mod(Some(e)) => {
             let u_l = lhs_int(e)? as u64;
             let u_r = rhs_int()? as u64;
@@ -63,23 +63,23 @@ pub fn primitive_apply(
         }
         // rem
         PrimitiveOp::Rem(None) =>
-            PrimitiveOp::Rem(rhs_expr.clone().some()).into(),
+            PrimitiveOp::Rem(rhs_expr.clone().wrap_some()).into(),
         PrimitiveOp::Rem(Some(e)) =>
             int_expr(lhs_int(e)?.rem(rhs_int()?)),
 
         // gt
         PrimitiveOp::Gt(None) =>
-            PrimitiveOp::Gt(rhs_expr.clone().some()).into(),
+            PrimitiveOp::Gt(rhs_expr.clone().wrap_some()).into(),
         PrimitiveOp::Gt(Some(e)) =>
             bool_expr(lhs_int(e)? > rhs_int()?),
         // eq
         PrimitiveOp::Eq(None) =>
-            PrimitiveOp::Eq(rhs_expr.clone().some()).into(),
+            PrimitiveOp::Eq(rhs_expr.clone().wrap_some()).into(),
         PrimitiveOp::Eq(Some(e)) =>
             bool_expr(lhs_int(e)? == rhs_int()?),
         // lt
         PrimitiveOp::Lt(None) =>
-            PrimitiveOp::Lt(rhs_expr.clone().some()).into(),
+            PrimitiveOp::Lt(rhs_expr.clone().wrap_some()).into(),
         PrimitiveOp::Lt(Some(e)) =>
             bool_expr(lhs_int(e)? < rhs_int()?),
 
@@ -87,12 +87,12 @@ pub fn primitive_apply(
         PrimitiveOp::Not => bool_expr(!rhs_bool()?),
         // and
         PrimitiveOp::And(None) =>
-            PrimitiveOp::And(rhs_expr.clone().some()).into(),
+            PrimitiveOp::And(rhs_expr.clone().wrap_some()).into(),
         PrimitiveOp::And(Some(e)) =>
             bool_expr(lhs_bool(e)? && rhs_bool()?),
         // or
         PrimitiveOp::Or(None) =>
-            PrimitiveOp::Or(rhs_expr.clone().some()).into(),
+            PrimitiveOp::Or(rhs_expr.clone().wrap_some()).into(),
         PrimitiveOp::Or(Some(e)) =>
             bool_expr(lhs_bool(e)? || rhs_bool()?),
     }

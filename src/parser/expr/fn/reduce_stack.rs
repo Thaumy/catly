@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 use std::ops::Deref;
 
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 use crate::infra::vec::VecExt;
 use crate::lexer::{FollowExt, Token};
@@ -58,7 +58,7 @@ pub fn reduce_stack(
         Pat::LetName(t, n), Pat::Arrow], _
         ) => {
             let top = Pat::ClosureInput(
-                n.to_string().some(),
+                n.to_string().wrap_some(),
                 t.clone(),
             );
             stack.reduce(2, top)

@@ -1,5 +1,5 @@
 use crate::infra::iter::IteratorExt;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::vec::VecExt;
 use crate::lexer::Token;
 use crate::parser::define::pat::Pat;
@@ -98,7 +98,7 @@ fn reduce_stack(
             [.., Pat::Kw(Keyword::Def), Pat::LetName(None, n), Pat::Mark(':'), Pat::Type(t)],
             _
         ) => {
-            let top = Pat::LetName(t.clone().some(), n.clone());
+            let top = Pat::LetName(t.clone().wrap_some(), n.clone());
             stack.reduce(3, top);
         }
 

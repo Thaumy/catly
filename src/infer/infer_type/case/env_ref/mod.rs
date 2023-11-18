@@ -6,7 +6,7 @@ use std::rc::Rc;
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::OptType;
@@ -30,8 +30,8 @@ pub fn case(
                 type_env,
                 typed_src_expr.unwrap_type_annot(),
                 expect_type,
-                constraint.some(),
-                |t| Expr::EnvRef(t.some(), ref_name.to_string())
+                constraint.wrap_some(),
+                |t| Expr::EnvRef(t.wrap_some(), ref_name.to_string())
             )
         }
         // Triple::R

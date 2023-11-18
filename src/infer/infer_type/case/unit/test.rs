@@ -6,7 +6,7 @@ use crate::infer::env::parse_to_env;
 use crate::infer::env::r#macro::namely_type;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;
 
@@ -30,8 +30,9 @@ fn test_part1() {
         .unwrap()
         .infer_type(&type_env, &expr_env);
 
-    let r =
-        InferTypeRet::has_type(Expr::Unit(namely_type!("A").some()));
+    let r = InferTypeRet::has_type(Expr::Unit(
+        namely_type!("A").wrap_some()
+    ));
 
     assert_eq!(infer_result, r)
 }
@@ -58,7 +59,7 @@ fn test_part3() {
         .infer_type(&type_env, &expr_env);
 
     let r = InferTypeRet::has_type(Expr::Unit(
-        namely_type!("Unit").some()
+        namely_type!("Unit").wrap_some()
     ));
 
     assert_eq!(infer_result, r)

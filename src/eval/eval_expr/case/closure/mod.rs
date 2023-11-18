@@ -4,7 +4,7 @@ use crate::eval::env::expr_env::ExprEnv;
 use crate::eval::eval_expr::EvalRet;
 use crate::eval::r#type::expr::Expr;
 use crate::eval::r#type::r#type::Type;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::result::ResultAnyExt;
 
 #[cfg(test)]
@@ -22,7 +22,7 @@ pub fn case_closure(
         input_name.clone(),
         input_type.clone(),
         output_expr.clone(),
-        eval_env.clone().some()
+        eval_env.clone().wrap_some()
     )
     .ok()
 }

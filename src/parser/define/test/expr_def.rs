@@ -1,6 +1,6 @@
 use crate::infer::env::r#macro::closure_type;
 use crate::infer::env::r#macro::int_type;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 use crate::parser::define::test::f;
 use crate::parser::define::Define;
@@ -23,7 +23,7 @@ fn test_part1() {
 fn test_part2() {
     let r = Define::ExprDef(
         "a".to_string(),
-        int_type!().some(),
+        int_type!().wrap_some(),
         Expr::EnvRef(None, "b".to_string())
     );
     let r = Some(r);
@@ -36,7 +36,7 @@ fn test_part2() {
 fn test_part3() {
     let r = Define::ExprDef(
         "a".to_string(),
-        closure_type!(int_type!(), int_type!()).some(),
+        closure_type!(int_type!(), int_type!()).wrap_some(),
         Expr::EnvRef(None, "b".to_string())
     );
     let r = Some(r);
@@ -65,11 +65,11 @@ fn test_part4() {
                 None,
                 Expr::Closure(
                     None,
-                    "i".to_string().some(),
+                    "i".to_string().wrap_some(),
                     None,
                     Expr::Closure(
                         None,
-                        "j".to_string().some(),
+                        "j".to_string().wrap_some(),
                         None,
                         Expr::EnvRef(None, "k".to_string()).rc()
                     )

@@ -4,7 +4,7 @@ use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::OptType;
@@ -40,7 +40,7 @@ where
                     &lhs_output_type,
                     // Apply 的期望类型也是 lhs_expr 的期望输出类型
                     expect_type,
-                    constraint.some(),
+                    constraint.wrap_some(),
                     |t| typed_expr_cons(t, typed_rhs_expr.clone())
                 )
             } else {

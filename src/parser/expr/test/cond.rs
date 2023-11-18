@@ -1,5 +1,5 @@
 use crate::infer::env::r#macro::int_type;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::expr::test::f;
@@ -139,14 +139,14 @@ fn test_part4() {
 #[test]
 fn test_part5() {
     let a = Expr::Cond(
-        int_type!().some(),
+        int_type!().wrap_some(),
         Expr::Apply(
-            int_type!().some(),
+            int_type!().wrap_some(),
             Expr::Int(None, 123).rc(),
             Expr::Unit(None).rc()
         )
         .rc(),
-        Expr::Int(int_type!().some(), 123).rc(),
+        Expr::Int(int_type!().wrap_some(), 123).rc(),
         Expr::EnvRef(None, "abc".to_string()).rc()
     );
     let b = Expr::Cond(
@@ -156,7 +156,7 @@ fn test_part5() {
         a.clone().rc()
     );
     let r = Expr::Cond(
-        int_type!().some(),
+        int_type!().wrap_some(),
         b.clone().rc(),
         b.clone().rc(),
         b.clone().rc()

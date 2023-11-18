@@ -6,7 +6,7 @@ use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_info::ReqInfo;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::quad::{Quad, QuadAnyExt};
 use crate::infra::rc::RcAnyExt;
 use crate::infra::result::ResultAnyExt;
@@ -136,7 +136,7 @@ where
     };
 
     let match_expr = Expr::Match(
-        final_type.some(),
+        final_type.wrap_some(),
         typed_target_expr.clone().rc(),
         case_vec.to_vec()
     );

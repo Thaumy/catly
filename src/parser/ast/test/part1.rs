@@ -4,7 +4,7 @@ use crate::infer::env::r#macro::namely_type;
 use crate::infer::env::r#macro::prod_type;
 use crate::infer::env::r#macro::sum_type;
 use crate::infer::env::r#macro::unit_type;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::parser::ast::test::f;
 use crate::parser::define::Define;
 use crate::parser::expr::r#type::Expr;
@@ -21,7 +21,7 @@ fn test_part1() {
             namely_type!("B"),
             namely_type!("C"),
         ]
-        .some(),
+        .wrap_some(),
         Expr::Int(None, 1)
     );
     let t2 = Define::TypeDef("C".to_string(), namely_type!("D"));
@@ -32,7 +32,7 @@ fn test_part1() {
             ("x".to_string(), int_type!()),
             ("y".to_string(), unit_type!()),
         ]
-        .some(),
+        .wrap_some(),
         Expr::Unit(None)
     );
     let r = vec![t1, d1, d11, t2, d2, d22];

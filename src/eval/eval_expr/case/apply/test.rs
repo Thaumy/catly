@@ -4,7 +4,7 @@ use crate::eval::eval_expr::eval_expr;
 use crate::eval::r#macro::namely_type;
 use crate::eval::r#type::expr::primitive_op::PrimitiveOp;
 use crate::eval::r#type::expr::Expr;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 use crate::infra::result::ResultAnyExt;
 
@@ -40,7 +40,7 @@ fn test_part2() {
     let r = Expr::from(PrimitiveOp::Add(
         Expr::Int(namely_type!("Int"), 10)
             .rc()
-            .some()
+            .wrap_some()
     ));
 
     assert_eq!(evaluated, r.ok());
@@ -56,7 +56,7 @@ fn test_part3() {
         Expr::from(PrimitiveOp::Add(
             Expr::Int(namely_type!("Int"), 10)
                 .rc()
-                .some()
+                .wrap_some()
         ))
         .rc(),
         Expr::Int(namely_type!("Int"), 10).rc()
@@ -83,7 +83,7 @@ fn test_part4() {
     let r = Expr::from(PrimitiveOp::Add(
         Expr::Int(namely_type!("Int"), 10)
             .rc()
-            .some()
+            .wrap_some()
     ));
 
     assert_eq!(evaluated, r.ok());
@@ -104,7 +104,7 @@ fn test_part5() {
     let r = Expr::from(PrimitiveOp::And(
         Expr::Int(namely_type!("False"), 0)
             .rc()
-            .some()
+            .wrap_some()
     ));
 
     assert_eq!(evaluated, r.ok());
@@ -120,7 +120,7 @@ fn test_part6() {
         Expr::from(PrimitiveOp::And(
             Expr::Int(namely_type!("True"), 1)
                 .rc()
-                .some()
+                .wrap_some()
         ))
         .rc(),
         Expr::Int(namely_type!("False"), 0).rc()

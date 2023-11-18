@@ -6,7 +6,7 @@ use crate::infer::infer_type::case::r#match::r#fn::destruct_match_const_to_expr_
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_info::ReqInfo;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::quad::{Quad, QuadAnyExt};
 use crate::infra::r#fn::id;
 use crate::infra::rc::RcAnyExt;
@@ -103,10 +103,10 @@ pub fn case_ri(
                 Ok(t) => {
                     match acc {
                         // 对于头一个类型, 只需让它成为初始 acc 类型
-                        None => t.some().ok(),
+                        None => t.wrap_some().ok(),
                         // 对于之后的每一个类型, 让它和之前 acc 类型合一
                         Some(acc) => match acc.unify(type_env, &t) {
-                            Some(new_acc) => new_acc.some().ok(),
+                            Some(new_acc) => new_acc.wrap_some().ok(),
                             None => original_err.clone().err()
                         }
                     }

@@ -4,7 +4,7 @@ use std::ops::Deref;
 use std::rc::Rc;
 
 use crate::infra::btree_set::BtreeSetExt;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 use crate::infra::vec::VecExt;
 use crate::parser::r#type::r#type::Type as CtType;
@@ -52,7 +52,8 @@ impl From<CtType> for OptType {
                 .into_iter()
                 .try_fold(BTreeSet::new(), |acc, t| {
                     let t: Self = t.into();
-                    acc.chain_insert(t?).some()
+                    acc.chain_insert(t?)
+                        .wrap_some()
                 })
                 .map(Type::SumType)?,
 
@@ -60,12 +61,13 @@ impl From<CtType> for OptType {
                 .into_iter()
                 .try_fold(vec![], |acc, (n, t)| {
                     let t: Self = t.into();
-                    acc.chain_push((n, t?)).some()
+                    acc.chain_push((n, t?))
+                        .wrap_some()
                 })
                 .map(Type::ProdType)?,
 
             CtType::PartialClosureType(_) => return None
         }
-        .some()
+        .wrap_some()
     }
 }

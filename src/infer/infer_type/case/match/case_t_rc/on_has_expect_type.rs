@@ -7,7 +7,7 @@ use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_constraint::require_constraint;
 use crate::infer::infer_type::r#type::require_info::ReqInfo;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::quad::{Quad, QuadAnyExt};
 use crate::infra::rc::RcAnyExt;
 use crate::infra::result::ResultAnyExt;
@@ -153,7 +153,7 @@ where
 
     require_constraint(
         Expr::Match(
-            expect_type.some(),
+            expect_type.wrap_some(),
             typed_target_expr.clone().rc(),
             typed_cases
         ),

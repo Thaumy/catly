@@ -7,7 +7,7 @@ use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#fn::destruct_namely_type;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::quad::Quad;
 use crate::infra::r#fn::id;
 use crate::infra::rc::RcAnyExt;
@@ -44,7 +44,7 @@ pub fn destruct_match_const_to_expr_env_inject(
                                 HashMap::<String, Type>::from_iter(
                                     vec.into_iter()
                                 )
-                                .some(),
+                                .wrap_some(),
                             _ => None
                         }
                     );
@@ -120,7 +120,7 @@ pub fn is_case_expr_valid<'t>(
                         case_expr_type,
                         &target_expr_type
                             .clone()
-                            .some(),
+                            .wrap_some(),
                         None,
                         |_| typed_case_expr.clone()
                     )
@@ -152,7 +152,7 @@ pub fn is_case_expr_valid<'t>(
                                 .unwrap_type_annot(),
                             &target_expr_type
                                 .clone()
-                                .some(),
+                                .wrap_some(),
                             None,
                             |_| rc.typed_expr.clone()
                         )

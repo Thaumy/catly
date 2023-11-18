@@ -1,4 +1,4 @@
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Mark {
@@ -56,7 +56,7 @@ pub fn parse_mark(x: &char) -> Option<Mark> {
         '>' => Mark::RightAngleBracket,
         _ => return None
     }
-    .some()
+    .wrap_some()
 }
 
 #[test]

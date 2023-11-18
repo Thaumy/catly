@@ -1,5 +1,5 @@
 use crate::infra::iter::IteratorExt;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 
 #[derive(Copy, Debug, Clone, PartialEq)]
 enum Pat {
@@ -46,7 +46,7 @@ fn go(stack: Vec<Pat>, seq: &str) -> Option<i64> {
         }
 
         // Success
-        ([Pat::Int(a)], Pat::End) => return (*a).some(),
+        ([Pat::Int(a)], Pat::End) => return (*a).wrap_some(),
 
         // Can not parse
         (_, Pat::Err) => return None,

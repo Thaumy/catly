@@ -1,5 +1,5 @@
 use crate::infra::iter::IteratorExt;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::parser::alphanum::{parse_alphanum, parse_lower};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -46,7 +46,8 @@ fn go(stack: &Pat, seq: &str) -> Option<String> {
             Pat::LetName(format!("{}{}", n, c)),
 
         // Success
-        (Pat::LetName(n), Pat::End) => return n.to_string().some(),
+        (Pat::LetName(n), Pat::End) =>
+            return n.to_string().wrap_some(),
 
         // Can not parse
         (_, Pat::Err) => return None,

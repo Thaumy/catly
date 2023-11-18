@@ -8,7 +8,7 @@ use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_constraint::require_extended_constraint;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::OptType;
@@ -44,23 +44,23 @@ impl ExprEnv {
                         InferTypeRet::from_auto_lift(
                             type_env,
                             hint,
-                            &ref_type.clone().some(),
+                            &ref_type.clone().wrap_some(),
                             // 需要将不完整类型约束到精确类型
                             EnvRefConstraint::single(
                                 ref_name.clone(),
                                 hint.clone()
                             )
-                            .some(),
+                            .wrap_some(),
                             // 与 infer_type 同理
                             |t| {
                                 Expr::EnvRef(
-                                    t.some(),
+                                    t.wrap_some(),
                                     ref_name.clone()
                                 )
                             }
                         ),
                     _ => InferTypeRet::has_type(Expr::EnvRef(
-                        ref_type.clone().some(),
+                        ref_type.clone().wrap_some(),
                         ref_name
                     ))
                 }
@@ -75,7 +75,7 @@ impl ExprEnv {
                 match tc_and_src {
                     // 环境中不存在引用名
                     None => require_extended_constraint(
-                        Expr::EnvRef(hint.clone().some(), ref_name.clone()),
+                        Expr::EnvRef(hint.clone().wrap_some(), ref_name.clone()),
                         constraint_acc,
                         EnvRefConstraint::single(
                             ref_name,
@@ -87,7 +87,7 @@ impl ExprEnv {
                         TypeConstraint::Free,
                         EnvRefSrc::NoSrc
                     )) => require_extended_constraint(
-                        Expr::EnvRef(hint.clone().some(), ref_name.clone()),
+                        Expr::EnvRef(hint.clone().wrap_some(), ref_name.clone()),
                         constraint_acc,
                         EnvRefConstraint::single(
                             ref_name,
@@ -112,7 +112,7 @@ impl ExprEnv {
                                     typed_expr.unwrap_type_annot();
                                 require_extended_constraint(
                                     Expr::EnvRef(
-                                        t.clone().some(),
+                                        t.clone().wrap_some(),
                                         ref_name.clone()
                                     ),
                                     constraint_acc,

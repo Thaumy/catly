@@ -8,7 +8,7 @@ use crate::eval::env::expr_env::ExprEnv;
 use crate::eval::r#type::expr::primitive_op::PrimitiveOp;
 use crate::eval::r#type::r#type::OptType;
 use crate::eval::r#type::r#type::Type;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 use crate::infra::vec::VecExt;
 use crate::parser::expr::r#type::Expr as CtExpr;
@@ -56,7 +56,7 @@ impl Expr {
             _ => return None
         }
         .clone()
-        .some()
+        .wrap_some()
     }
 }
 
@@ -152,7 +152,7 @@ impl From<CtExpr> for OptExpr {
                         let sf_t = convert_type(sf_t?)?;
                         let sf_e = Self::from(sf_e)?;
                         acc.chain_push((sf_n, sf_t, sf_e.rc()))
-                            .some()
+                            .wrap_some()
                     })
                     .map(|vec| Expr::Struct(t, vec))?
             }
@@ -171,7 +171,7 @@ impl From<CtExpr> for OptExpr {
                         let c_e = OptExpr::from(c_e)?;
                         let t_e = OptExpr::from(t_e)?;
                         acc.chain_push((c_e.rc(), t_e.rc()))
-                            .some()
+                            .wrap_some()
                     })
                     .map(|vec| Expr::Match(t_e.rc(), vec))?
             }
@@ -191,6 +191,6 @@ impl From<CtExpr> for OptExpr {
                 ),
             _ => return None
         }
-        .some()
+        .wrap_some()
     }
 }

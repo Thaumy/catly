@@ -6,7 +6,7 @@ use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::require_info::ReqInfo;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
@@ -133,10 +133,10 @@ pub fn case_ri(
                 rc.typed_expr
                     .unwrap_type_annot(), // rc from infer scope_expr type
                 expect_type,
-                constraint_acc.some(),
+                constraint_acc.wrap_some(),
                 |t| {
                     Expr::Let(
-                        t.some(),
+                        t.wrap_some(),
                         *rec_assign,
                         assign_name.to_string(),
                         // TODO: 运行时是否关注 EnvRef 的类型对此处十分重要(case pattern 除外)

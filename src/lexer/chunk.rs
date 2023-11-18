@@ -1,5 +1,5 @@
 use crate::infra::iter::IteratorExt;
-use crate::infra::option::OptionAnyExt;
+use crate::infra::option::WrapOption;
 use crate::infra::vec::VecExt;
 use crate::parser::alphanum::{
     parse_alphanum,
@@ -181,7 +181,7 @@ impl From<Pat> for Option<Out> {
             Pat::Symbol(s) => Out::Symbol(s),
             _ => return None
         }
-        .some()
+        .wrap_some()
     }
 }
 
@@ -190,7 +190,8 @@ pub fn lexer_chunk(seq: &str) -> Option<Vec<Out>> {
         .into_iter()
         .try_fold(vec![], |acc, p| {
             let it: Option<Out> = p.into();
-            acc.chain_push(it?).some()
+            acc.chain_push(it?)
+                .wrap_some()
         });
 
     #[cfg(feature = "lexer_log")]
@@ -218,7 +219,7 @@ fn test_part1() {
         Out::Symbol('|'),
         Out::LowerStartChunk("foo".to_string()),
     ]
-    .some();
+    .wrap_some();
 
     assert_eq!(lexer_chunk(seq), r);
 }
