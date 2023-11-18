@@ -1,8 +1,6 @@
 use std::collections::HashMap;
 use std::rc::Rc;
 
-use crate::infer::env::expr_env::{ExprEnv, ExprEnvEntry};
-use crate::infer::env::type_env::{TypeEnv, TypeEnvEntry};
 use crate::infra::RcAnyExt;
 use crate::infra::WrapOption;
 use crate::lexer::lexical_analyze;
@@ -12,13 +10,15 @@ use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::{OptType, Type};
 use crate::pp::preprocess;
 
-pub mod expr_env;
+mod expr_env;
 mod r#macro;
 mod r#type;
-pub mod type_env;
+mod type_env;
 
+pub use expr_env::*;
 pub use r#macro::*;
 pub use r#type::*;
+pub use type_env::*;
 
 pub fn def_vec_to_def_map(
     def_vec: Vec<Define>

@@ -5,7 +5,7 @@ use crate::infer::env::int_type;
 use crate::infer::env::namely_type;
 use crate::infer::env::sum_type;
 use crate::infer::env::true_type;
-use crate::infer::env::type_env::TypeEnv;
+use crate::infer::env::TypeEnv;
 use crate::infra::WrapOption;
 use crate::unify::namely::lift_namely;
 

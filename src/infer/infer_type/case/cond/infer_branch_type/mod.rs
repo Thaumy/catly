@@ -2,8 +2,8 @@ mod case_ri;
 mod case_t_rc;
 
 use std::rc::Rc;
-use crate::infer::env::expr_env::ExprEnv;
-use crate::infer::env::type_env::TypeEnv;
+use crate::infer::env::ExprEnv;
+use crate::infer::env::TypeEnv;
 use crate::infer::infer_type::case::cond::infer_branch_type::case_ri::case_ri;
 use crate::infer::infer_type::case::cond::infer_branch_type::case_t_rc::case_t_rc;
 use crate::infer::infer_type::InferTypeRet;

@@ -1,7 +1,7 @@
 use int::lift_int;
 use unit::lift_unit;
 
-use crate::infer::env::type_env::TypeEnv;
+use crate::infer::env::TypeEnv;
 use crate::infra::WrapOption;
 use crate::parser::r#type::Type;
 

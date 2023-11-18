@@ -1,6 +1,6 @@
 use std::ops::{ControlFlow, FromResidual, Try};
 
-use crate::infer::env::type_env::TypeEnv;
+use crate::infer::env::TypeEnv;
 use crate::infer::infer_type::EnvRefConstraint;
 use crate::infer::infer_type::ReqInfo;
 use crate::infer::infer_type::TypeMissMatch;

@@ -1,9 +1,9 @@
 use std::rc::Rc;
 
-use crate::infer::env::expr_env::ExprEnv;
-use crate::infer::env::type_env::TypeEnv;
 use crate::infer::env::EnvRefSrc;
+use crate::infer::env::ExprEnv;
 use crate::infer::env::TypeConstraint;
+use crate::infer::env::TypeEnv;
 use crate::infer::infer_type::require_constraint;
 use crate::infer::infer_type::EnvRefConstraint;
 use crate::infer::infer_type::InferTypeRet;

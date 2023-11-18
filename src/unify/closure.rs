@@ -1,4 +1,4 @@
-use crate::infer::env::type_env::TypeEnv;
+use crate::infer::env::TypeEnv;
 use crate::infra::RcAnyExt;
 use crate::infra::WrapOption;
 use crate::parser::r#type::Type;

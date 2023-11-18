@@ -1,8 +1,8 @@
 #[cfg(test)]
 mod test;
 
-use crate::infer::env::type_env::TypeEnv;
 use crate::infer::env::unit_type;
+use crate::infer::env::TypeEnv;
 use crate::infer::infer_type::InferTypeRet;
 use crate::infra::WrapOption;
 use crate::parser::expr::r#type::Expr;

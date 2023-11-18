@@ -1,10 +1,10 @@
 use std::assert_matches::assert_matches;
 use std::rc::Rc;
 
-use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::int_type;
 use crate::infer::env::parse_to_env;
-use crate::infer::env::type_env::TypeEnv;
+use crate::infer::env::ExprEnv;
+use crate::infer::env::TypeEnv;
 use crate::infer::infer_type::test::{
     check_has_type,
     check_req_constraint

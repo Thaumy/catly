@@ -9,8 +9,8 @@ use std::rc::Rc;
 
 pub use r#type::*;
 
-use crate::infer::env::expr_env::ExprEnv;
-use crate::infer::env::type_env::TypeEnv;
+use crate::infer::env::ExprEnv;
+use crate::infer::env::TypeEnv;
 use crate::infra::Quad;
 use crate::infra::Triple;
 use crate::parser::expr::r#type::Expr;

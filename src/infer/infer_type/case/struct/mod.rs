@@ -6,8 +6,8 @@ use std::rc::Rc;
 
 use r#fn::is_struct_vec_of_type_then_get_prod_vec;
 
-use crate::infer::env::expr_env::ExprEnv;
-use crate::infer::env::type_env::TypeEnv;
+use crate::infer::env::ExprEnv;
+use crate::infer::env::TypeEnv;
 use crate::infer::infer_type::EnvRefConstraint;
 use crate::infer::infer_type::InferTypeRet;
 use crate::infer::infer_type::ReqInfo;

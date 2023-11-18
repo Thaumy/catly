@@ -1,4 +1,4 @@
-use crate::infer::env::type_env::TypeEnv;
+use crate::infer::env::TypeEnv;
 use crate::infer::infer_type::EnvRefConstraint;
 use crate::infer::infer_type::InferTypeRet;
 use crate::infer::infer_type::ReqInfo;

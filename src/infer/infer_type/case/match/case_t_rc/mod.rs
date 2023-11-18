@@ -2,8 +2,8 @@ mod on_has_expect_type;
 mod on_no_expect_type;
 
 use std::rc::Rc;
-use crate::infer::env::expr_env::ExprEnv;
-use crate::infer::env::type_env::TypeEnv;
+use crate::infer::env::ExprEnv;
+use crate::infer::env::TypeEnv;
 use crate::infer::infer_type::case::r#match::case_t_rc::on_has_expect_type::on_has_expect_type;
 use crate::infer::infer_type::case::r#match::case_t_rc::on_no_expect_type::on_no_expect_type;
 use crate::infer::infer_type::case::r#match::r#fn::{destruct_match_const_to_expr_env_inject, is_case_expr_valid};

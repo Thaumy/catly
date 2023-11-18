@@ -1,7 +1,7 @@
 use std::rc::Rc;
 
-use crate::infer::env::expr_env::ExprEnv;
-use crate::infer::env::type_env::TypeEnv;
+use crate::infer::env::ExprEnv;
+use crate::infer::env::TypeEnv;
 use crate::infer::infer_type::InferTypeRet;
 use crate::infer::infer_type::TypeMissMatch;
 use crate::infra::Triple;

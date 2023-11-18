@@ -1,4 +1,4 @@
-use crate::infer::env::type_env::TypeEnv;
+use crate::infer::env::TypeEnv;
 use crate::infer::infer_type::InferTypeRet;
 use crate::infra::RcAnyExt;
 use crate::parser::expr::r#type::Expr;
