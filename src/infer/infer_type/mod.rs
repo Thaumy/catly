@@ -28,52 +28,38 @@ pub fn infer_type(
     }
 
     let result = match expr {
-        Expr::Int(expect_type, i) => {
-            use case::int::case;
-            case(type_env, expect_type, i)
-        }
-        Expr::Unit(expect_type) => {
-            use case::unit::case;
-            case(type_env, expect_type)
-        }
-        Expr::Discard(expect_type) => {
-            use case::discard::case;
-            case(type_env, expect_type)
-        }
+        Expr::Int(expect_type, i) =>
+            case::int(type_env, expect_type, i),
+        Expr::Unit(expect_type) => case::unit(type_env, expect_type),
+        Expr::Discard(expect_type) =>
+            case::discard(type_env, expect_type),
 
-        Expr::EnvRef(expect_type, ref_name) => {
-            use case::env_ref::case;
-            case(type_env, expr_env, expect_type, ref_name)
-        }
+        Expr::EnvRef(expect_type, ref_name) =>
+            case::env_ref(type_env, expr_env, expect_type, ref_name),
 
-        Expr::Cond(expect_type, bool_expr, then_expr, else_expr) => {
-            use case::cond::case;
-            case(
+        Expr::Cond(expect_type, bool_expr, then_expr, else_expr) =>
+            case::cond(
                 type_env,
                 expr_env,
                 expect_type,
                 bool_expr,
                 then_expr,
                 else_expr
-            )
-        }
+            ),
 
         Expr::Closure(
             expect_type,
             input_name,
             input_type,
             output_expr
-        ) => {
-            use case::closure::case;
-            case(
-                type_env,
-                expr_env,
-                expect_type,
-                input_name,
-                input_type,
-                output_expr
-            )
-        }
+        ) => case::closure(
+            type_env,
+            expr_env,
+            expect_type,
+            input_name,
+            input_type,
+            output_expr
+        ),
 
         Expr::Let(
             expect_type,
@@ -82,34 +68,35 @@ pub fn infer_type(
             assign_type,
             assign_expr,
             scope_expr
-        ) => {
-            use case::r#let::case;
-            case(
-                type_env,
-                expr_env,
-                expect_type,
-                rec_assign,
-                assign_name,
-                assign_type,
-                assign_expr,
-                scope_expr
-            )
-        }
+        ) => case::r#let(
+            type_env,
+            expr_env,
+            expect_type,
+            rec_assign,
+            assign_name,
+            assign_type,
+            assign_expr,
+            scope_expr
+        ),
 
-        Expr::Struct(expect_type, vec) => {
-            use case::r#struct::case;
-            case(type_env, expr_env, expect_type, vec)
-        }
+        Expr::Struct(expect_type, vec) =>
+            case::r#struct(type_env, expr_env, expect_type, vec),
 
-        Expr::Apply(expect_type, lhs_expr, rhs_expr) => {
-            use case::apply::case;
-            case(type_env, expr_env, expect_type, lhs_expr, rhs_expr)
-        }
+        Expr::Apply(expect_type, lhs_expr, rhs_expr) => case::apply(
+            type_env,
+            expr_env,
+            expect_type,
+            lhs_expr,
+            rhs_expr
+        ),
 
-        Expr::Match(expect_type, target_expr, vec) => {
-            use case::r#match::case;
-            case(type_env, expr_env, expect_type, target_expr, vec)
-        }
+        Expr::Match(expect_type, target_expr, vec) => case::r#match(
+            type_env,
+            expr_env,
+            expect_type,
+            target_expr,
+            vec
+        )
     };
 
     #[cfg(feature = "infer_log_min")]
