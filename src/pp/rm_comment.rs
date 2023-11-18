@@ -1,8 +1,8 @@
 use crate::infra::either::Either;
 use crate::infra::iter::IteratorExt;
 use crate::infra::vec::VecExt;
-use crate::pp::comment::Either::*;
-use crate::pp::comment::Pat::*;
+use crate::pp::rm_comment::Either::*;
+use crate::pp::rm_comment::Pat::*;
 
 #[derive(Clone)]
 enum Pat {
@@ -53,7 +53,7 @@ fn go(
     go(reduced_stack, tail.as_str())
 }
 
-pub fn pp_comment(seq: &str) -> String {
+pub fn pp_rm_comment(seq: &str) -> String {
     let r = go(vec![], seq)
         .into_iter()
         .fold(vec![], |acc, p| match p {
@@ -74,7 +74,7 @@ pub fn pp_comment(seq: &str) -> String {
 
 #[test]
 fn test_part1() {
-    use crate::pp::comment::pp_comment;
+    use crate::pp::rm_comment;
     let seq = "match x with# Comment 123# Comment 123
 \
              | 1 -> if a then b else c\
@@ -123,12 +123,12 @@ fn test_part1() {
                        )\
                 | _ -> baz";
 
-    assert_eq!(pp_comment(seq), r);
+    assert_eq!(rm_comment(seq), r);
 }
 
 #[test]
 fn test_part2() {
-    use crate::pp::comment::pp_comment;
+    use crate::pp::rm_comment;
 
     let seq = "# Comment 123# Comment 123
 \
@@ -167,5 +167,5 @@ fn test_part2() {
              let m = (), n = 4 in \
              add () 456";
 
-    assert_eq!(pp_comment(seq), r);
+    assert_eq!(rm_comment(seq), r);
 }
