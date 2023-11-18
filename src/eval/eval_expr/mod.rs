@@ -6,17 +6,17 @@ use std::rc::Rc;
 
 use crate::eval::env::expr_env::ExprEnv;
 use crate::eval::env::type_env::TypeEnv;
-use crate::eval::eval_expr::case::apply::case_apply;
-use crate::eval::eval_expr::case::closure::case_closure;
-use crate::eval::eval_expr::case::cond::case_cond;
-use crate::eval::eval_expr::case::discard::case_discard;
-use crate::eval::eval_expr::case::env_ref::case_env_ref;
-use crate::eval::eval_expr::case::int::case_int;
-use crate::eval::eval_expr::case::primitive_op::case_primitive_op;
-use crate::eval::eval_expr::case::r#let::case_let;
-use crate::eval::eval_expr::case::r#match::case_match;
-use crate::eval::eval_expr::case::r#struct::case_struct;
-use crate::eval::eval_expr::case::unit::case_unit;
+use crate::eval::eval_expr::case::case_apply;
+use crate::eval::eval_expr::case::case_closure;
+use crate::eval::eval_expr::case::case_cond;
+use crate::eval::eval_expr::case::case_discard;
+use crate::eval::eval_expr::case::case_env_ref;
+use crate::eval::eval_expr::case::case_int;
+use crate::eval::eval_expr::case::case_let;
+use crate::eval::eval_expr::case::case_match;
+use crate::eval::eval_expr::case::case_primitive_op;
+use crate::eval::eval_expr::case::case_struct;
+use crate::eval::eval_expr::case::case_unit;
 use crate::eval::r#type::eval_err::EvalErr;
 use crate::eval::r#type::expr::Expr;
 

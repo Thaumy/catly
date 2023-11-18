@@ -9,8 +9,11 @@ use crate::eval::r#type::expr::Expr;
 use crate::eval::r#type::r#type::Type;
 use crate::infra::result::WrapResult;
 
-pub mod primitive_apply;
-pub mod source_lhs_to_closure;
+mod primitive_apply;
+mod source_lhs_to_closure;
+
+pub use primitive_apply::*;
+pub use source_lhs_to_closure::*;
 
 pub fn eval_to_bool(
     type_env: &TypeEnv,
@@ -39,10 +42,10 @@ pub fn eval_to_int(
 }
 
 #[inline]
-fn int_expr(i: i64) -> Expr { Expr::Int(namely_type!("Int"), i) }
+pub fn int_expr(i: i64) -> Expr { Expr::Int(namely_type!("Int"), i) }
 
 #[inline]
-fn bool_expr(b: bool) -> Expr {
+pub fn bool_expr(b: bool) -> Expr {
     match b {
         true => Expr::Int(true_type!(), 1),
         false => Expr::Int(false_type!(), 0)

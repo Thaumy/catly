@@ -3,7 +3,7 @@ use std::rc::Rc;
 
 use crate::eval::env::expr_env::ExprEnv;
 use crate::eval::env::type_env::TypeEnv;
-use crate::eval::eval_expr::case::apply::r#fn::{
+use crate::eval::eval_expr::case::apply::{
     bool_expr,
     eval_to_bool,
     eval_to_int,

@@ -1,4 +1,6 @@
 mod r#fn;
+pub use r#fn::*;
+
 #[cfg(test)]
 mod test;
 
@@ -6,7 +8,7 @@ use std::rc::Rc;
 
 use crate::eval::env::expr_env::ExprEnv;
 use crate::eval::env::type_env::TypeEnv;
-use crate::eval::eval_expr::case::r#match::r#fn::is_expr_match_pattern_then_env;
+use crate::eval::eval_expr::case::r#match::is_expr_match_pattern_then_env;
 use crate::eval::eval_expr::{eval_expr, EvalRet};
 use crate::eval::r#type::eval_err::EvalErr;
 use crate::eval::r#type::expr::Expr;

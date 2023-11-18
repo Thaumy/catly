@@ -2,15 +2,17 @@ use std::rc::Rc;
 
 use crate::eval::env::expr_env::ExprEnv;
 use crate::eval::env::type_env::TypeEnv;
+use crate::eval::eval_expr::case::apply::primitive_apply;
+use crate::eval::eval_expr::case::apply::source_lhs_expr_to_closure;
 use crate::eval::eval_expr::{eval_expr, EvalRet};
-use crate::eval::eval_expr::case::apply::r#fn::primitive_apply::primitive_apply;
-use crate::eval::eval_expr::case::apply::r#fn::source_lhs_to_closure::source_lhs_expr_to_closure;
 use crate::eval::r#type::expr::Expr;
 use crate::infra::either::Either;
 use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 
 mod r#fn;
+pub use r#fn::*;
+
 #[cfg(test)]
 mod test;
 
