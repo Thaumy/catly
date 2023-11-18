@@ -6,8 +6,8 @@ use std::rc::Rc;
 use crate::eval::env::expr_env::ExprEnv;
 use crate::eval::env::type_env::TypeEnv;
 use crate::eval::eval_expr::{eval_expr, EvalRet};
-use crate::eval::r#type::expr::Expr;
-use crate::eval::r#type::r#type::Type;
+use crate::eval::r#type::Expr;
+use crate::eval::r#type::Type;
 
 pub fn case_cond(
     type_env: &TypeEnv,

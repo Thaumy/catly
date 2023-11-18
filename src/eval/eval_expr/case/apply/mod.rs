@@ -5,7 +5,7 @@ use crate::eval::env::type_env::TypeEnv;
 use crate::eval::eval_expr::case::apply::primitive_apply;
 use crate::eval::eval_expr::case::apply::source_lhs_expr_to_closure;
 use crate::eval::eval_expr::{eval_expr, EvalRet};
-use crate::eval::r#type::expr::Expr;
+use crate::eval::r#type::Expr;
 use crate::infra::either::Either;
 use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;

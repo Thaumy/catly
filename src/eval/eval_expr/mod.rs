@@ -17,8 +17,8 @@ use crate::eval::eval_expr::case::case_match;
 use crate::eval::eval_expr::case::case_primitive_op;
 use crate::eval::eval_expr::case::case_struct;
 use crate::eval::eval_expr::case::case_unit;
-use crate::eval::r#type::eval_err::EvalErr;
-use crate::eval::r#type::expr::Expr;
+use crate::eval::r#type::EvalErr;
+use crate::eval::r#type::Expr;
 
 pub type EvalRet = Result<Expr, EvalErr>;
 

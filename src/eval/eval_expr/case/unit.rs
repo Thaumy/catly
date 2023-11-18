@@ -1,6 +1,6 @@
 use crate::eval::eval_expr::EvalRet;
-use crate::eval::r#type::expr::Expr;
-use crate::eval::r#type::r#type::Type;
+use crate::eval::r#type::Expr;
+use crate::eval::r#type::Type;
 use crate::infra::result::WrapResult;
 
 pub fn case_unit(type_annot: &Type) -> EvalRet {
@@ -13,7 +13,7 @@ mod test {
     use crate::eval::env::type_env::TypeEnv;
     use crate::eval::eval_expr::eval_expr;
     use crate::eval::r#macro::namely_type;
-    use crate::eval::r#type::expr::Expr;
+    use crate::eval::r#type::Expr;
     use crate::infra::rc::RcAnyExt;
     use crate::infra::result::WrapResult;
 

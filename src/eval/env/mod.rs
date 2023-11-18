@@ -3,8 +3,8 @@ use std::rc::Rc;
 
 use crate::eval::env::expr_env::{ExprEnv, ExprEnvEntry};
 use crate::eval::env::type_env::{TypeEnv, TypeEnvEntry};
-use crate::eval::r#type::expr::OptExpr;
-use crate::eval::r#type::r#type::OptType;
+use crate::eval::r#type::OptExpr;
+use crate::eval::r#type::OptType;
 use crate::infer::env::def_map_to_env_vec as def_map_to_ct_env_vec;
 use crate::infer::env::def_vec_to_def_map;
 use crate::infer::env::expr_env::ExprEnv as CtExprEnv;

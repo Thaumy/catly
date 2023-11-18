@@ -1,9 +1,9 @@
 use std::rc::Rc;
 
 use crate::eval::eval_expr::EvalRet;
-use crate::eval::r#type::expr::Expr;
-use crate::eval::r#type::expr::PrimitiveOp;
-use crate::eval::r#type::r#type::Type;
+use crate::eval::r#type::Expr;
+use crate::eval::r#type::PrimitiveOp;
+use crate::eval::r#type::Type;
 use crate::infra::result::WrapResult;
 
 #[cfg(test)]

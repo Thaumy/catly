@@ -4,9 +4,9 @@ use crate::eval::env::expr_env::ExprEnv;
 use crate::eval::env::type_env::TypeEnv;
 use crate::eval::eval_expr::eval_expr;
 use crate::eval::r#macro::{false_type, namely_type, true_type};
-use crate::eval::r#type::eval_err::EvalErr;
-use crate::eval::r#type::expr::Expr;
-use crate::eval::r#type::r#type::Type;
+use crate::eval::r#type::EvalErr;
+use crate::eval::r#type::Expr;
+use crate::eval::r#type::Type;
 use crate::infra::result::WrapResult;
 
 mod primitive_apply;
