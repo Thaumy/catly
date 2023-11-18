@@ -7,8 +7,8 @@ use crate::infer::env::{ExprEnv, ExprEnvEntry};
 use crate::infer::infer_type::EnvRefConstraint;
 use crate::infer::infer_type::TypeMissMatch;
 use crate::infra::Quad;
-use crate::infra::RcAnyExt;
 use crate::infra::VecExt;
+use crate::infra::WrapRc;
 use crate::infra::WrapResult;
 
 enum EntryAction {
@@ -209,7 +209,7 @@ pub fn infer_type_of_defs(
             .collect();
 
         let new_expr_env = ExprEnv::empty()
-            .rc()
+            .wrap_rc()
             .extend_vec_new(new_expr_env_vec);
 
         // 收集下一轮推导的结果, 与当前轮次的推导结果合并后返回

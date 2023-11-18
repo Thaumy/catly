@@ -1,6 +1,6 @@
 use crate::infer::env::int_type;
-use crate::infra::RcAnyExt;
 use crate::infra::WrapOption;
+use crate::infra::WrapRc;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::expr::test::f;
 
@@ -9,9 +9,9 @@ fn test_part1() {
     // Cond(EnvRef, Int, Unit)
     let r = Expr::Cond(
         None,
-        Expr::EnvRef(None, "abc".to_string()).rc(),
-        Expr::Int(None, 123).rc(),
-        Expr::Unit(None).rc()
+        Expr::EnvRef(None, "abc".to_string()).wrap_rc(),
+        Expr::Int(None, 123).wrap_rc(),
+        Expr::Unit(None).wrap_rc()
     );
     let r = Some(r);
 
@@ -30,20 +30,20 @@ fn test_part2() {
     // while: a = Cond(EnvRef, Apply(Int, Unit), Int)
     let e = Expr::Cond(
         None,
-        Expr::EnvRef(None, "abc".to_string()).rc(),
+        Expr::EnvRef(None, "abc".to_string()).wrap_rc(),
         Expr::Apply(
             None,
-            Expr::Int(None, 123).rc(),
-            Expr::Unit(None).rc()
+            Expr::Int(None, 123).wrap_rc(),
+            Expr::Unit(None).wrap_rc()
         )
-        .rc(),
-        Expr::Int(None, 456).rc()
+        .wrap_rc(),
+        Expr::Int(None, 456).wrap_rc()
     );
     let r = Some(Expr::Cond(
         None,
-        e.clone().rc(),
-        e.clone().rc(),
-        e.clone().rc()
+        e.clone().wrap_rc(),
+        e.clone().wrap_rc(),
+        e.clone().wrap_rc()
     ));
 
     let e = "if abc then 123 () else 456";
@@ -66,24 +66,24 @@ fn test_part3() {
         None,
         Expr::Apply(
             None,
-            Expr::Int(None, 123).rc(),
-            Expr::Unit(None).rc()
+            Expr::Int(None, 123).wrap_rc(),
+            Expr::Unit(None).wrap_rc()
         )
-        .rc(),
-        Expr::Int(None, 123).rc(),
-        Expr::EnvRef(None, "abc".to_string()).rc()
+        .wrap_rc(),
+        Expr::Int(None, 123).wrap_rc(),
+        Expr::EnvRef(None, "abc".to_string()).wrap_rc()
     );
     let b = Expr::Cond(
         None,
-        a.clone().rc(),
-        a.clone().rc(),
-        a.clone().rc()
+        a.clone().wrap_rc(),
+        a.clone().wrap_rc(),
+        a.clone().wrap_rc()
     );
     let r = Expr::Cond(
         None,
-        b.clone().rc(),
-        b.clone().rc(),
-        b.clone().rc()
+        b.clone().wrap_rc(),
+        b.clone().wrap_rc(),
+        b.clone().wrap_rc()
     );
     let r = Some(r);
 
@@ -106,24 +106,24 @@ fn test_part4() {
         None,
         Expr::Apply(
             None,
-            Expr::Int(None, 123).rc(),
-            Expr::Unit(None).rc()
+            Expr::Int(None, 123).wrap_rc(),
+            Expr::Unit(None).wrap_rc()
         )
-        .rc(),
-        Expr::Int(None, 123).rc(),
-        Expr::EnvRef(None, "abc".to_string()).rc()
+        .wrap_rc(),
+        Expr::Int(None, 123).wrap_rc(),
+        Expr::EnvRef(None, "abc".to_string()).wrap_rc()
     );
     let b = Expr::Cond(
         None,
-        a.clone().rc(),
-        a.clone().rc(),
-        a.clone().rc()
+        a.clone().wrap_rc(),
+        a.clone().wrap_rc(),
+        a.clone().wrap_rc()
     );
     let r = Expr::Cond(
         None,
-        b.clone().rc(),
-        b.clone().rc(),
-        b.clone().rc()
+        b.clone().wrap_rc(),
+        b.clone().wrap_rc(),
+        b.clone().wrap_rc()
     );
     let r = Some(r);
 
@@ -142,24 +142,24 @@ fn test_part5() {
         int_type!().wrap_some(),
         Expr::Apply(
             int_type!().wrap_some(),
-            Expr::Int(None, 123).rc(),
-            Expr::Unit(None).rc()
+            Expr::Int(None, 123).wrap_rc(),
+            Expr::Unit(None).wrap_rc()
         )
-        .rc(),
-        Expr::Int(int_type!().wrap_some(), 123).rc(),
-        Expr::EnvRef(None, "abc".to_string()).rc()
+        .wrap_rc(),
+        Expr::Int(int_type!().wrap_some(), 123).wrap_rc(),
+        Expr::EnvRef(None, "abc".to_string()).wrap_rc()
     );
     let b = Expr::Cond(
         None,
-        a.clone().rc(),
-        a.clone().rc(),
-        a.clone().rc()
+        a.clone().wrap_rc(),
+        a.clone().wrap_rc(),
+        a.clone().wrap_rc()
     );
     let r = Expr::Cond(
         int_type!().wrap_some(),
-        b.clone().rc(),
-        b.clone().rc(),
-        b.clone().rc()
+        b.clone().wrap_rc(),
+        b.clone().wrap_rc(),
+        b.clone().wrap_rc()
     );
     let r = Some(r);
 

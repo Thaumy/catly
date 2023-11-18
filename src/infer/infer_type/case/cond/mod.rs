@@ -12,8 +12,8 @@ use crate::infer::infer_type::InferTypeRet;
 use crate::infer::infer_type::ReqConstraint;
 use crate::infer::infer_type::ReqInfo;
 use crate::infer::infer_type::TypeMissMatch;
-use crate::infra::QuadAnyExt;
 use crate::infra::Triple;
+use crate::infra::WrapQuad;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::OptType;
 
@@ -77,7 +77,7 @@ pub fn case(
                 Triple::M(ReqConstraint { constraint, .. }) =>
                     ReqInfo::of(ri.ref_name, constraint).into(),
                 // 未产生约束, 返回原错误
-                Triple::L(_) => ri.quad_mr(),
+                Triple::L(_) => ri.wrap_quad_mr(),
                 // 分支表达式也无非获取类型, 由于约束已经累积, 传播之
                 r => r.into()
             }?

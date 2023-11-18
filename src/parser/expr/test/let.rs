@@ -1,7 +1,7 @@
 use crate::infer::env::int_type;
 use crate::infer::env::unit_type;
-use crate::infra::RcAnyExt;
 use crate::infra::WrapOption;
+use crate::infra::WrapRc;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::expr::test::f;
 
@@ -12,18 +12,18 @@ fn test_part1() {
         false,
         "a".to_string(),
         None,
-        Expr::Int(None, 123).rc(),
+        Expr::Int(None, 123).wrap_rc(),
         Expr::Apply(
             None,
             Expr::Apply(
                 None,
-                Expr::EnvRef(None, "add".to_string()).rc(),
-                Expr::EnvRef(None, "a".to_string()).rc()
+                Expr::EnvRef(None, "add".to_string()).wrap_rc(),
+                Expr::EnvRef(None, "a".to_string()).wrap_rc()
             )
-            .rc(),
-            Expr::Int(None, 456).rc()
+            .wrap_rc(),
+            Expr::Int(None, 456).wrap_rc()
         )
-        .rc()
+        .wrap_rc()
     );
     let r = Some(r);
 
@@ -46,7 +46,7 @@ fn test_part2() {
         false,
         "a".to_string(),
         None,
-        Expr::Int(None, 123).rc(),
+        Expr::Int(None, 123).wrap_rc(),
         Expr::Let(
             None,
             false,
@@ -56,26 +56,26 @@ fn test_part2() {
                 None,
                 Expr::Apply(
                     None,
-                    Expr::EnvRef(None, "add".to_string()).rc(),
-                    Expr::EnvRef(None, "c".to_string()).rc()
+                    Expr::EnvRef(None, "add".to_string()).wrap_rc(),
+                    Expr::EnvRef(None, "c".to_string()).wrap_rc()
                 )
-                .rc(),
-                Expr::EnvRef(None, "d".to_string()).rc()
+                .wrap_rc(),
+                Expr::EnvRef(None, "d".to_string()).wrap_rc()
             )
-            .rc(),
+            .wrap_rc(),
             Expr::Apply(
                 None,
                 Expr::Apply(
                     None,
-                    Expr::EnvRef(None, "add".to_string()).rc(),
-                    Expr::Unit(None).rc()
+                    Expr::EnvRef(None, "add".to_string()).wrap_rc(),
+                    Expr::Unit(None).wrap_rc()
                 )
-                .rc(),
-                Expr::Int(None, 456).rc()
+                .wrap_rc(),
+                Expr::Int(None, 456).wrap_rc()
             )
-            .rc()
+            .wrap_rc()
         )
-        .rc()
+        .wrap_rc()
     );
     let r = Some(r);
 
@@ -90,7 +90,7 @@ fn test_part3() {
         false,
         "a".to_string(),
         None,
-        Expr::Int(None, 123).rc(),
+        Expr::Int(None, 123).wrap_rc(),
         Expr::Let(
             None,
             false,
@@ -109,30 +109,30 @@ fn test_part3() {
                         None,
                         "j".to_string().wrap_some(),
                         None,
-                        Expr::EnvRef(None, "k".to_string()).rc()
+                        Expr::EnvRef(None, "k".to_string()).wrap_rc()
                     )
-                    .rc()
+                    .wrap_rc()
                 )
-                .rc(),
+                .wrap_rc(),
                 Expr::Let(
                     None,
                     false,
                     "y".to_string(),
                     None,
-                    Expr::EnvRef(None, "a".to_string()).rc(),
+                    Expr::EnvRef(None, "a".to_string()).wrap_rc(),
                     Expr::Let(
                         None,
                         false,
                         "z".to_string(),
                         None,
-                        Expr::Unit(None).rc(),
-                        Expr::EnvRef(None, "a".to_string()).rc()
+                        Expr::Unit(None).wrap_rc(),
+                        Expr::EnvRef(None, "a".to_string()).wrap_rc()
                     )
-                    .rc()
+                    .wrap_rc()
                 )
-                .rc()
+                .wrap_rc()
             )
-            .rc(),
+            .wrap_rc(),
             Expr::Let(
                 None,
                 false,
@@ -140,34 +140,34 @@ fn test_part3() {
                 None,
                 Expr::Apply(
                     None,
-                    Expr::EnvRef(None, "neg".to_string()).rc(),
-                    Expr::Int(None, 1).rc()
+                    Expr::EnvRef(None, "neg".to_string()).wrap_rc(),
+                    Expr::Int(None, 1).wrap_rc()
                 )
-                .rc(),
+                .wrap_rc(),
                 Expr::Let(
                     None,
                     false,
                     "e".to_string(),
                     None,
-                    Expr::Int(None, 6).rc(),
+                    Expr::Int(None, 6).wrap_rc(),
                     Expr::Let(
                         None,
                         false,
                         "k".to_string(),
                         None,
-                        Expr::Unit(None).rc(),
+                        Expr::Unit(None).wrap_rc(),
                         Expr::Let(
                             None,
                             false,
                             "m".to_string(),
                             None,
-                            Expr::Unit(None).rc(),
+                            Expr::Unit(None).wrap_rc(),
                             Expr::Let(
                                 None,
                                 false,
                                 "n".to_string(),
                                 None,
-                                Expr::Int(None, 4).rc(),
+                                Expr::Int(None, 4).wrap_rc(),
                                 Expr::Apply(
                                     None,
                                     Expr::Apply(
@@ -176,25 +176,25 @@ fn test_part3() {
                                             None,
                                             "add".to_string()
                                         )
-                                        .rc(),
-                                        Expr::Unit(None).rc()
+                                        .wrap_rc(),
+                                        Expr::Unit(None).wrap_rc()
                                     )
-                                    .rc(),
-                                    Expr::Int(None, 456).rc()
+                                    .wrap_rc(),
+                                    Expr::Int(None, 456).wrap_rc()
                                 )
-                                .rc()
+                                .wrap_rc()
                             )
-                            .rc()
+                            .wrap_rc()
                         )
-                        .rc()
+                        .wrap_rc()
                     )
-                    .rc()
+                    .wrap_rc()
                 )
-                .rc()
+                .wrap_rc()
             )
-            .rc()
+            .wrap_rc()
         )
-        .rc()
+        .wrap_rc()
     );
     let r = Some(r);
 
@@ -242,7 +242,7 @@ fn test_part4() {
         false,
         "a".to_string(),
         int_type!().wrap_some(),
-        Expr::Int(None, 123).rc(),
+        Expr::Int(None, 123).wrap_rc(),
         Expr::Let(
             None,
             false,
@@ -261,30 +261,30 @@ fn test_part4() {
                         None,
                         "j".to_string().wrap_some(),
                         None,
-                        Expr::EnvRef(None, "k".to_string()).rc()
+                        Expr::EnvRef(None, "k".to_string()).wrap_rc()
                     )
-                    .rc()
+                    .wrap_rc()
                 )
-                .rc(),
+                .wrap_rc(),
                 Expr::Let(
                     None,
                     false,
                     "y".to_string(),
                     None,
-                    Expr::EnvRef(None, "a".to_string()).rc(),
+                    Expr::EnvRef(None, "a".to_string()).wrap_rc(),
                     Expr::Let(
                         None,
                         false,
                         "z".to_string(),
                         None,
-                        Expr::Unit(None).rc(),
-                        Expr::EnvRef(None, "a".to_string()).rc()
+                        Expr::Unit(None).wrap_rc(),
+                        Expr::EnvRef(None, "a".to_string()).wrap_rc()
                     )
-                    .rc()
+                    .wrap_rc()
                 )
-                .rc()
+                .wrap_rc()
             )
-            .rc(),
+            .wrap_rc(),
             Expr::Let(
                 None,
                 false,
@@ -292,34 +292,36 @@ fn test_part4() {
                 int_type!().wrap_some(),
                 Expr::Apply(
                     None,
-                    Expr::EnvRef(None, "neg".to_string()).rc(),
-                    Expr::Int(None, 1).rc()
+                    Expr::EnvRef(None, "neg".to_string()).wrap_rc(),
+                    Expr::Int(None, 1).wrap_rc()
                 )
-                .rc(),
+                .wrap_rc(),
                 Expr::Let(
                     int_type!().wrap_some(),
                     false,
                     "e".to_string(),
                     None,
-                    Expr::Int(None, 6).rc(),
+                    Expr::Int(None, 6).wrap_rc(),
                     Expr::Let(
                         None,
                         false,
                         "k".to_string(),
                         None,
-                        Expr::Unit(unit_type!().wrap_some()).rc(),
+                        Expr::Unit(unit_type!().wrap_some())
+                            .wrap_rc(),
                         Expr::Let(
                             None,
                             false,
                             "m".to_string(),
                             unit_type!().wrap_some(),
-                            Expr::Unit(unit_type!().wrap_some()).rc(),
+                            Expr::Unit(unit_type!().wrap_some())
+                                .wrap_rc(),
                             Expr::Let(
                                 None,
                                 false,
                                 "n".to_string(),
                                 None,
-                                Expr::Int(None, 4).rc(),
+                                Expr::Int(None, 4).wrap_rc(),
                                 Expr::Apply(
                                     None,
                                     Expr::Apply(
@@ -328,25 +330,25 @@ fn test_part4() {
                                             None,
                                             "add".to_string()
                                         )
-                                        .rc(),
-                                        Expr::Unit(None).rc()
+                                        .wrap_rc(),
+                                        Expr::Unit(None).wrap_rc()
                                     )
-                                    .rc(),
-                                    Expr::Int(None, 456).rc()
+                                    .wrap_rc(),
+                                    Expr::Int(None, 456).wrap_rc()
                                 )
-                                .rc()
+                                .wrap_rc()
                             )
-                            .rc()
+                            .wrap_rc()
                         )
-                        .rc()
+                        .wrap_rc()
                     )
-                    .rc()
+                    .wrap_rc()
                 )
-                .rc()
+                .wrap_rc()
             )
-            .rc()
+            .wrap_rc()
         )
-        .rc()
+        .wrap_rc()
     );
     let r = Some(r);
 

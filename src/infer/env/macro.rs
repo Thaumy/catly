@@ -31,10 +31,10 @@ pub(crate) use namely_type;
 #[allow(unused_macros)]
 macro_rules! closure_type {
     ($lhs:expr, $rhs:expr) => {{
-        use crate::infra::RcAnyExt;
+        use crate::infra::WrapRc;
         use crate::parser::r#type::Type;
 
-        Type::ClosureType($lhs.rc(), $rhs.rc())
+        Type::ClosureType($lhs.wrap_rc(), $rhs.wrap_rc())
     }};
 }
 #[allow(unused_imports)]

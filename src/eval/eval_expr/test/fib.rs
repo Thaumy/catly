@@ -5,7 +5,7 @@ use crate::eval::env::ExprEnv;
 use crate::eval::env::TypeEnv;
 use crate::eval::eval_expr::eval_expr;
 use crate::eval::std::std_code;
-use crate::infra::RcAnyExt;
+use crate::infra::WrapRc;
 
 fn gen_env<'t>() -> (TypeEnv<'t>, Rc<ExprEnv>) {
     let seq = std_code().to_owned() +
@@ -67,12 +67,13 @@ fn test_part1() {
     let (ref_expr, eval_env) = expr_env
         .get_ref_expr_and_env("evalFib1")
         .unwrap();
-    let evaluated = eval_expr(&type_env, &eval_env, &ref_expr.rc());
+    let evaluated =
+        eval_expr(&type_env, &eval_env, &ref_expr.wrap_rc());
 
     let (ref_expr, eval_env) = expr_env
         .get_ref_expr_and_env("r1")
         .unwrap();
-    let r = eval_expr(&type_env, &eval_env, &ref_expr.rc());
+    let r = eval_expr(&type_env, &eval_env, &ref_expr.wrap_rc());
 
     assert_eq!(evaluated, r);
 }
@@ -84,12 +85,13 @@ fn test_part2() {
     let (ref_expr, eval_env) = expr_env
         .get_ref_expr_and_env("evalFib2")
         .unwrap();
-    let evaluated = eval_expr(&type_env, &eval_env, &ref_expr.rc());
+    let evaluated =
+        eval_expr(&type_env, &eval_env, &ref_expr.wrap_rc());
 
     let (ref_expr, eval_env) = expr_env
         .get_ref_expr_and_env("r2")
         .unwrap();
-    let r = eval_expr(&type_env, &eval_env, &ref_expr.rc());
+    let r = eval_expr(&type_env, &eval_env, &ref_expr.wrap_rc());
 
     assert_eq!(evaluated, r);
 }
@@ -101,12 +103,13 @@ fn test_part3() {
     let (ref_expr, eval_env) = expr_env
         .get_ref_expr_and_env("evalFib3")
         .unwrap();
-    let evaluated = eval_expr(&type_env, &eval_env, &ref_expr.rc());
+    let evaluated =
+        eval_expr(&type_env, &eval_env, &ref_expr.wrap_rc());
 
     let (ref_expr, eval_env) = expr_env
         .get_ref_expr_and_env("r3")
         .unwrap();
-    let r = eval_expr(&type_env, &eval_env, &ref_expr.rc());
+    let r = eval_expr(&type_env, &eval_env, &ref_expr.wrap_rc());
 
     assert_eq!(evaluated, r);
 }
@@ -118,12 +121,13 @@ fn test_part4() {
     let (ref_expr, eval_env) = expr_env
         .get_ref_expr_and_env("evalFib4")
         .unwrap();
-    let evaluated = eval_expr(&type_env, &eval_env, &ref_expr.rc());
+    let evaluated =
+        eval_expr(&type_env, &eval_env, &ref_expr.wrap_rc());
 
     let (ref_expr, eval_env) = expr_env
         .get_ref_expr_and_env("r4")
         .unwrap();
-    let r = eval_expr(&type_env, &eval_env, &ref_expr.rc());
+    let r = eval_expr(&type_env, &eval_env, &ref_expr.wrap_rc());
 
     assert_eq!(evaluated, r);
 }

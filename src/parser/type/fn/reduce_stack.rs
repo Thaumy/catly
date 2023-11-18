@@ -1,9 +1,9 @@
 use std::collections::BTreeSet;
 use std::ops::Deref;
 
-use crate::infra::RcAnyExt;
 use crate::infra::VecExt;
 use crate::infra::WrapOption;
+use crate::infra::WrapRc;
 use crate::lexer::{FollowExt, Token};
 use crate::parser::r#type::pat::Pat;
 
@@ -21,7 +21,9 @@ pub fn reduce_stack(
             if follow.is_type_end_pat() && p.is_type() =>
         {
             let top = Pat::LetName(
-                p.clone().rc().wrap_some(),
+                p.clone()
+                    .wrap_rc()
+                    .wrap_some(),
                 n.to_string()
             );
             stack.reduce(3, top)
@@ -38,14 +40,15 @@ pub fn reduce_stack(
 
         // Type Arrow -> ClosureTypeHead
         ([.., p, Pat::Arrow], _) if p.is_type() => {
-            let top = Pat::ClosureTypeHead(p.clone().rc());
+            let top = Pat::ClosureTypeHead(p.clone().wrap_rc());
             stack.reduce(2, top)
         }
         // ClosureTypeHead Type :TypeEndPat -> ClosureType
         ([.., Pat::ClosureTypeHead(t), p], follow)
             if follow.is_type_end_pat() && p.is_type() =>
         {
-            let top = Pat::ClosureType(t.clone(), p.clone().rc());
+            let top =
+                Pat::ClosureType(t.clone(), p.clone().wrap_rc());
             stack.reduce(2, top)
         }
 

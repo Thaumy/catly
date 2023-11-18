@@ -4,9 +4,9 @@ use std::rc::Rc;
 
 use crate::btree_set;
 use crate::infra::BtreeSetExt;
-use crate::infra::RcAnyExt;
 use crate::infra::VecExt;
 use crate::infra::WrapOption;
+use crate::infra::WrapRc;
 use crate::parser::r#type::OptType;
 use crate::parser::r#type::Type;
 
@@ -52,8 +52,8 @@ impl From<Pat> for OptType {
             Pat::TypeName(t_n) => Type::NamelyType(t_n),
 
             Pat::ClosureType(i_t, o_t) => Type::ClosureType(
-                Self::from(i_t.deref().clone())?.rc(),
-                Self::from(o_t.deref().clone())?.rc()
+                Self::from(i_t.deref().clone())?.wrap_rc(),
+                Self::from(o_t.deref().clone())?.wrap_rc()
             ),
 
             Pat::SumType(s_s) => s_s

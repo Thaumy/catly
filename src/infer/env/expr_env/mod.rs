@@ -6,8 +6,8 @@ use std::rc::Rc;
 use crate::infer::env::EnvRefSrc;
 use crate::infer::env::TypeConstraint;
 use crate::infer::infer_type::EnvRefConstraint;
-use crate::infra::RcAnyExt;
 use crate::infra::WrapOption;
+use crate::infra::WrapRc;
 use crate::parser::expr::r#type::{Expr, OptExpr};
 use crate::parser::r#type::OptType;
 
@@ -75,7 +75,7 @@ impl ExprEnv {
                         .wrap_some(),
                     entry: (r_n, tc, src).wrap_some()
                 }
-                .rc()
+                .wrap_rc()
             }
         );
 

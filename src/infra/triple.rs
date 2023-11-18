@@ -5,16 +5,22 @@ pub enum Triple<L, M, R> {
     R(R)
 }
 
-pub trait TripleAnyExt
+pub trait WrapTriple
 where
     Self: Sized
 {
     #[inline]
-    fn tri_l<M, R>(self) -> Triple<Self, M, R> { Triple::L(self) }
+    fn wrap_tri_l<M, R>(self) -> Triple<Self, M, R> {
+        Triple::L(self)
+    }
     #[inline]
-    fn tri_m<L, R>(self) -> Triple<L, Self, R> { Triple::M(self) }
+    fn wrap_tri_m<L, R>(self) -> Triple<L, Self, R> {
+        Triple::M(self)
+    }
     #[inline]
-    fn tri_r<L, M>(self) -> Triple<L, M, Self> { Triple::R(self) }
+    fn wrap_tri_r<L, M>(self) -> Triple<L, M, Self> {
+        Triple::R(self)
+    }
 }
 
-impl<T> TripleAnyExt for T {}
+impl<T> WrapTriple for T {}

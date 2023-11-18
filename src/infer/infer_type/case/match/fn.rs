@@ -9,10 +9,10 @@ use crate::infer::infer_type::InferTypeRet;
 use crate::infer::infer_type::TypeMissMatch;
 use crate::infra::id;
 use crate::infra::Quad;
-use crate::infra::RcAnyExt;
 use crate::infra::Triple;
 use crate::infra::VecExt;
 use crate::infra::WrapOption;
+use crate::infra::WrapRc;
 use crate::infra::WrapResult;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::Type;
@@ -110,7 +110,7 @@ pub fn is_case_expr_valid<'t>(
         .map(|(case_expr, env_inject)| {
             // 使用空表达式环境提取 case_expr_type, 这样能让所有对外界的约束得以暴露
             match case_expr
-                .infer_type(type_env, &ExprEnv::empty().rc())?
+                .infer_type(type_env, &ExprEnv::empty().wrap_rc())?
             {
                 Triple::L(typed_case_expr) => {
                     let case_expr_type =

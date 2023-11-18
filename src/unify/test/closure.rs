@@ -6,8 +6,8 @@ use crate::infer::env::int_type;
 use crate::infer::env::namely_type;
 use crate::infer::env::sum_type;
 use crate::infer::env::TypeEnv;
-use crate::infra::RcAnyExt;
 use crate::infra::WrapOption;
+use crate::infra::WrapRc;
 use crate::parser::r#type::Type;
 use crate::unify::closure::lift_closure;
 
@@ -128,8 +128,9 @@ fn test_part6() {
     let env = &env();
     let a = &namely_type!("A");
     let b = &namely_type!("B");
-    let derive = &Type::PartialClosureType(a.clone().rc());
-    let r = &Type::ClosureType(a.clone().rc(), b.clone().rc());
+    let derive = &Type::PartialClosureType(a.clone().wrap_rc());
+    let r =
+        &Type::ClosureType(a.clone().wrap_rc(), b.clone().wrap_rc());
     assert_eq!(
         lift_closure(env, a, b.deref(), derive),
         r.clone().wrap_some()
@@ -145,8 +146,9 @@ fn test_part7() {
     let env = &env();
     let a = &namely_type!("A");
     let b = &namely_type!("B");
-    let base = &Type::PartialClosureType(a.clone().rc());
-    let derive = &Type::ClosureType(a.clone().rc(), b.clone().rc());
+    let base = &Type::PartialClosureType(a.clone().wrap_rc());
+    let derive =
+        &Type::ClosureType(a.clone().wrap_rc(), b.clone().wrap_rc());
 
     assert_eq!(base.lift_to(env, derive), None);
     assert_eq!(base.unify(env, derive), derive.clone().wrap_some());

@@ -9,7 +9,7 @@ use crate::infer::infer_type::case::r#match::case_t_rc::on_no_expect_type::on_no
 use crate::infer::infer_type::case::r#match::r#fn::{destruct_match_const_to_expr_env_inject, is_case_expr_valid};
 use crate::infer::infer_type::InferTypeRet;
 use crate::infer::infer_type::TypeMissMatch;
-use crate::infra::QuadAnyExt;
+use crate::infra::WrapQuad;
 use crate::infra::WrapResult;
 use crate::infra::VecExt;
 use crate::parser::r#type::OptType;
@@ -44,7 +44,7 @@ pub fn case_t_rc(
                         (case_expr, env_inject, then_expr).wrap_ok(),
                     Err((new, old)) =>
                         TypeMissMatch::of_dup_capture(old, new)
-                            .quad_r()
+                            .wrap_quad_r()
                             .wrap_err(),
                 }
             })

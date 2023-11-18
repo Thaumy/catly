@@ -1,8 +1,8 @@
 use std::rc::Rc;
 
-pub trait RcAnyExt<T> {
+pub trait WrapRc<T> {
     #[inline]
-    fn rc(self) -> Rc<Self>
+    fn wrap_rc(self) -> Rc<Self>
     where
         Self: Sized
     {
@@ -10,4 +10,4 @@ pub trait RcAnyExt<T> {
     }
 }
 
-impl<T> RcAnyExt<T> for T where T: Sized {}
+impl<T> WrapRc<T> for T where T: Sized {}

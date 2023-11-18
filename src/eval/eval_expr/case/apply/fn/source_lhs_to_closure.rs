@@ -8,9 +8,9 @@ use crate::eval::EvalErr;
 use crate::eval::Expr;
 use crate::eval::PrimitiveOp;
 use crate::eval::Type;
-use crate::infra::RcAnyExt;
+use crate::infra::WrapRc;
 use crate::infra::WrapResult;
-use crate::infra::{Either, EitherAnyExt};
+use crate::infra::{Either, WrapEither};
 
 pub fn source_lhs_expr_to_closure(
     type_env: &'_ TypeEnv,
@@ -41,7 +41,7 @@ pub fn source_lhs_expr_to_closure(
                 .clone()
                 .unwrap_or(expr_env.clone())
         )
-            .l()
+            .wrap_l()
             .wrap_ok(),
 
         Expr::PrimitiveOp(_, op, lhs_eval_env) => (
@@ -52,7 +52,7 @@ pub fn source_lhs_expr_to_closure(
                 .clone()
                 .unwrap_or(expr_env.clone())
         )
-            .r()
+            .wrap_r()
             .wrap_ok(),
 
         // 由于现在 Closure 和 PrimitiveOp 会捕获环境
@@ -60,7 +60,7 @@ pub fn source_lhs_expr_to_closure(
         _ => source_lhs_expr_to_closure(
             type_env,
             expr_env,
-            &eval_expr(type_env, expr_env, lhs_expr)?.rc()
+            &eval_expr(type_env, expr_env, lhs_expr)?.wrap_rc()
         )
     }
 }

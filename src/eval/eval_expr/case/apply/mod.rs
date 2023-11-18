@@ -7,8 +7,8 @@ use crate::eval::eval_expr::case::apply::source_lhs_expr_to_closure;
 use crate::eval::eval_expr::{eval_expr, EvalRet};
 use crate::eval::Expr;
 use crate::infra::Either;
-use crate::infra::RcAnyExt;
 use crate::infra::WrapOption;
+use crate::infra::WrapRc;
 
 mod r#fn;
 pub use r#fn::*;
@@ -37,7 +37,7 @@ pub fn case_apply(
                         rhs_expr.clone().wrap_some(),
                         expr_env.clone().wrap_some()
                     )
-                    .rc(),
+                    .wrap_rc(),
                 None => output_eval_env
             };
 

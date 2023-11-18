@@ -2,8 +2,8 @@ use crate::infer::env::TypeEnv;
 use crate::infer::infer_type::EnvRefConstraint;
 use crate::infer::infer_type::InferTypeRet;
 use crate::infer::infer_type::ReqInfo;
-use crate::infra::RcAnyExt;
 use crate::infra::WrapOption;
+use crate::infra::WrapRc;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::OptType;
 use crate::parser::r#type::Type;
@@ -40,8 +40,10 @@ where
             let base = Type::ClosureType(
                 input_type_constraint
                     .clone()
-                    .rc(),
-                output_expr_type.clone().rc()
+                    .wrap_rc(),
+                output_expr_type
+                    .clone()
+                    .wrap_rc()
             );
 
             InferTypeRet::from_auto_lift(

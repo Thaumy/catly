@@ -7,10 +7,10 @@ use crate::infer::infer_type::EnvRefConstraint;
 use crate::infer::infer_type::InferTypeRet;
 use crate::infer::infer_type::ReqInfo;
 use crate::infer::infer_type::TypeMissMatch;
-use crate::infra::RcAnyExt;
 use crate::infra::WrapOption;
+use crate::infra::WrapRc;
 use crate::infra::WrapResult;
-use crate::infra::{Quad, QuadAnyExt};
+use crate::infra::{Quad, WrapQuad};
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::Type;
 
@@ -72,7 +72,7 @@ where
                                 then_expr_type,
                                 &expect_type
                             )
-                            .quad_r()
+                            .wrap_quad_r()
                             .wrap_err()
                         }
                     }
@@ -88,7 +88,7 @@ where
                                 )
                             })
                     )
-                    .quad_mr()
+                    .wrap_quad_mr()
                     .wrap_err(),
 
                     // 获取 then_expr_type 时类型不匹配
@@ -156,7 +156,9 @@ where
     require_constraint(
         Expr::Match(
             expect_type.wrap_some(),
-            typed_target_expr.clone().rc(),
+            typed_target_expr
+                .clone()
+                .wrap_rc(),
             typed_cases
         ),
         outer_constraint

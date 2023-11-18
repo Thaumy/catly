@@ -1,6 +1,6 @@
 use crate::infer::env::TypeEnv;
-use crate::infra::RcAnyExt;
 use crate::infra::WrapOption;
+use crate::infra::WrapRc;
 use crate::parser::r#type::Type;
 
 pub fn lift_closure(
@@ -17,9 +17,9 @@ pub fn lift_closure(
         // Base
         Type::ClosureType(d_i_t, d_o_t) => Type::ClosureType(
             i_t.lift_to(type_env, d_i_t)?
-                .rc(),
+                .wrap_rc(),
             o_t.lift_to(type_env, d_o_t)?
-                .rc()
+                .wrap_rc()
         )
         .wrap_some(),
 
@@ -29,16 +29,18 @@ pub fn lift_closure(
         // 此提升将会使 ClosureType 顶替掉 PartialClosureType, 这是安全行为, 因为后者的输出类型不可知
         Type::PartialClosureType(d_i_t) => Type::ClosureType(
             i_t.lift_to(type_env, d_i_t)?
-                .rc(),
-            o_t.clone().rc()
+                .wrap_rc(),
+            o_t.clone().wrap_rc()
         )
         .wrap_some(),
 
         // T
         // where Base can be lifted to T
         Type::NamelyType(type_name) => {
-            let base =
-                Type::ClosureType(i_t.clone().rc(), o_t.clone().rc());
+            let base = Type::ClosureType(
+                i_t.clone().wrap_rc(),
+                o_t.clone().wrap_rc()
+            );
             type_env
                 .find_type(type_name.as_str())
                 .and_then(|type_base| {
@@ -48,15 +50,15 @@ pub fn lift_closure(
         }
 
         // .. | Base | ..
-        Type::SumType(s) =>
-            s.iter()
-                .any(|t| {
-                    &Type::ClosureType(
-                        i_t.clone().rc(),
-                        o_t.clone().rc()
-                    ) == t
-                })
-                .then(|| derive.clone()),
+        Type::SumType(s) => s
+            .iter()
+            .any(|t| {
+                &Type::ClosureType(
+                    i_t.clone().wrap_rc(),
+                    o_t.clone().wrap_rc()
+                ) == t
+            })
+            .then(|| derive.clone()),
 
         // 与 int case 同理
         // // .. | T | ..
@@ -65,8 +67,8 @@ pub fn lift_closure(
         //     .iter()
         //     .any(|t| {
         //         Type::ClosureType(
-        //             i_t.clone().rc(),
-        //             o_t.clone().rc()
+        //             i_t.clone().wrap_rc(),
+        //             o_t.clone().wrap_rc()
         //         )
         //         .can_lift_to(type_env, t)
         //     })

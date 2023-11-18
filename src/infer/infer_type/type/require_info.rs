@@ -3,7 +3,7 @@ use std::fmt::{Debug, Formatter};
 use crate::infer::infer_type::EnvRefConstraint;
 use crate::infer::infer_type::InferTypeRet;
 use crate::infer::infer_type::TypeMissMatch;
-use crate::infra::QuadAnyExt;
+use crate::infra::WrapQuad;
 
 // 需要类型信息
 // 此情况由 namely case 产生时表明缺乏 ref_name 的类型信息
@@ -49,7 +49,7 @@ impl ReqInfo {
 }
 
 impl From<ReqInfo> for InferTypeRet {
-    fn from(value: ReqInfo) -> Self { value.quad_mr() }
+    fn from(value: ReqInfo) -> Self { value.wrap_quad_mr() }
 }
 
 impl Debug for ReqInfo {

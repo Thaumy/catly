@@ -1,6 +1,6 @@
-pub trait BoxAnyExt<T> {
+pub trait WrapBox<T> {
     #[inline]
-    fn boxed(self) -> Box<Self>
+    fn wrap_box(self) -> Box<Self>
     where
         Self: Sized
     {
@@ -8,4 +8,4 @@ pub trait BoxAnyExt<T> {
     }
 }
 
-impl<T> BoxAnyExt<T> for T where T: Sized {}
+impl<T> WrapBox<T> for T where T: Sized {}

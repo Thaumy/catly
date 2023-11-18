@@ -17,16 +17,17 @@ mod test {
     use crate::eval::eval_expr::eval_expr;
     use crate::eval::namely_type;
     use crate::eval::Expr;
-    use crate::infra::RcAnyExt;
+    use crate::infra::WrapRc;
 
     // _: Int
     #[test]
     fn test_part1() {
         let type_env = TypeEnv::new(vec![]);
-        let expr_env = ExprEnv::empty().rc();
+        let expr_env = ExprEnv::empty().wrap_rc();
 
         let expr = Expr::Discard(namely_type!("Int"));
-        let evaluated = eval_expr(&type_env, &expr_env, &expr.rc());
+        let evaluated =
+            eval_expr(&type_env, &expr_env, &expr.wrap_rc());
 
         assert_matches!(evaluated, Result::Err(..))
     }

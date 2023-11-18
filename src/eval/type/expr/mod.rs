@@ -9,9 +9,9 @@ pub use primitive_op::*;
 use crate::eval::env::ExprEnv;
 use crate::eval::OptType;
 use crate::eval::Type;
-use crate::infra::RcAnyExt;
 use crate::infra::VecExt;
 use crate::infra::WrapOption;
+use crate::infra::WrapRc;
 use crate::parser::expr::r#type::Expr as CtExpr;
 use crate::parser::r#type::Type as CtType;
 
@@ -131,7 +131,8 @@ impl From<CtExpr> for OptExpr {
 
                 match PrimitiveOp::from_env_ref(r_n.clone().as_str())
                 {
-                    Some(op) => Expr::PrimitiveOp(t, op.rc(), None),
+                    Some(op) =>
+                        Expr::PrimitiveOp(t, op.wrap_rc(), None),
                     None => Expr::EnvRef(t, r_n)
                 }
             }
@@ -141,7 +142,7 @@ impl From<CtExpr> for OptExpr {
                     convert_type(t)?,
                     i_n,
                     convert_type(i_t)?,
-                    Self::from(o_e.deref().clone())?.rc(),
+                    Self::from(o_e.deref().clone())?.wrap_rc(),
                     None
                 ),
 
@@ -152,16 +153,16 @@ impl From<CtExpr> for OptExpr {
                     .try_fold(vec![], |acc, (sf_n, sf_t, sf_e)| {
                         let sf_t = convert_type(sf_t?)?;
                         let sf_e = Self::from(sf_e)?;
-                        acc.chain_push((sf_n, sf_t, sf_e.rc()))
+                        acc.chain_push((sf_n, sf_t, sf_e.wrap_rc()))
                             .wrap_some()
                     })
                     .map(|vec| Expr::Struct(t, vec))?
             }
 
             CtExpr::Cond(Some(_), b_e, t_e, e_e) => Expr::Cond(
-                Self::from(b_e.deref().clone())?.rc(),
-                Self::from(t_e.deref().clone())?.rc(),
-                Self::from(e_e.deref().clone())?.rc()
+                Self::from(b_e.deref().clone())?.wrap_rc(),
+                Self::from(t_e.deref().clone())?.wrap_rc(),
+                Self::from(e_e.deref().clone())?.wrap_rc()
             ),
 
             CtExpr::Match(Some(_), t_e, c_v) => {
@@ -171,15 +172,15 @@ impl From<CtExpr> for OptExpr {
                     .try_fold(vec![], |acc, (c_e, t_e)| {
                         let c_e = OptExpr::from(c_e)?;
                         let t_e = OptExpr::from(t_e)?;
-                        acc.chain_push((c_e.rc(), t_e.rc()))
+                        acc.chain_push((c_e.wrap_rc(), t_e.wrap_rc()))
                             .wrap_some()
                     })
-                    .map(|vec| Expr::Match(t_e.rc(), vec))?
+                    .map(|vec| Expr::Match(t_e.wrap_rc(), vec))?
             }
 
             CtExpr::Apply(Some(_), l_e, r_e) => Expr::Apply(
-                Self::from(l_e.deref().clone())?.rc(),
-                Self::from(r_e.deref().clone())?.rc()
+                Self::from(l_e.deref().clone())?.wrap_rc(),
+                Self::from(r_e.deref().clone())?.wrap_rc()
             ),
 
             CtExpr::Let(Some(_), r_a, a_n, Some(a_t), a_e, o_e) =>
@@ -187,8 +188,8 @@ impl From<CtExpr> for OptExpr {
                     a_n,
                     r_a,
                     convert_type(a_t)?,
-                    Self::from(a_e.deref().clone())?.rc(),
-                    Self::from(o_e.deref().clone())?.rc()
+                    Self::from(a_e.deref().clone())?.wrap_rc(),
+                    Self::from(o_e.deref().clone())?.wrap_rc()
                 ),
             _ => return None
         }

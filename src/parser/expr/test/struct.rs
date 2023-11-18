@@ -5,8 +5,8 @@ use crate::infer::env::namely_type;
 use crate::infer::env::prod_type;
 use crate::infer::env::sum_type;
 use crate::infer::env::unit_type;
-use crate::infra::RcAnyExt;
 use crate::infra::WrapOption;
+use crate::infra::WrapRc;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::expr::test::f;
 
@@ -44,9 +44,9 @@ fn test_part2() {
                 None,
                 Expr::Cond(
                     None,
-                    Expr::Int(None, 123).rc(),
-                    Expr::Unit(None).rc(),
-                    Expr::Int(None, 0).rc()
+                    Expr::Int(None, 123).wrap_rc(),
+                    Expr::Unit(None).wrap_rc(),
+                    Expr::Int(None, 0).wrap_rc()
                 )
             )])
         ),
@@ -64,15 +64,15 @@ fn test_part2() {
                 None,
                 Expr::Apply(
                     None,
-                    Expr::EnvRef(None, "add".to_string()).rc(),
-                    Expr::EnvRef(None, "x".to_string()).rc()
+                    Expr::EnvRef(None, "add".to_string()).wrap_rc(),
+                    Expr::EnvRef(None, "x".to_string()).wrap_rc()
                 )
-                .rc(),
-                Expr::EnvRef(None, "y".to_string()).rc()
+                .wrap_rc(),
+                Expr::EnvRef(None, "y".to_string()).wrap_rc()
             )
-            .rc()
+            .wrap_rc()
         )
-        .rc()
+        .wrap_rc()
     );
     let r = Expr::Struct(None, vec![
         ("a".to_string(), None, a),
@@ -81,8 +81,8 @@ fn test_part2() {
             None,
             Expr::Apply(
                 None,
-                Expr::EnvRef(None, "neg".to_string()).rc(),
-                Expr::Int(None, 1).rc()
+                Expr::EnvRef(None, "neg".to_string()).wrap_rc(),
+                Expr::Int(None, 1).wrap_rc()
             )
         ),
         ("fun".to_string(), None, fun),
@@ -120,9 +120,9 @@ fn test_part3() {
                 None,
                 Expr::Cond(
                     None,
-                    Expr::Int(None, 123).rc(),
-                    Expr::Unit(None).rc(),
-                    Expr::Int(None, 0).rc()
+                    Expr::Int(None, 123).wrap_rc(),
+                    Expr::Unit(None).wrap_rc(),
+                    Expr::Int(None, 0).wrap_rc()
                 )
             )])
         ),
@@ -140,15 +140,15 @@ fn test_part3() {
                 None,
                 Expr::Apply(
                     None,
-                    Expr::EnvRef(None, "add".to_string()).rc(),
-                    Expr::EnvRef(None, "x".to_string()).rc()
+                    Expr::EnvRef(None, "add".to_string()).wrap_rc(),
+                    Expr::EnvRef(None, "x".to_string()).wrap_rc()
                 )
-                .rc(),
-                Expr::EnvRef(None, "y".to_string()).rc()
+                .wrap_rc(),
+                Expr::EnvRef(None, "y".to_string()).wrap_rc()
             )
-            .rc()
+            .wrap_rc()
         )
-        .rc()
+        .wrap_rc()
     );
     let r = Expr::Struct(int_type!().wrap_some(), vec![
         ("a".to_string(), int_type!().wrap_some(), a),
@@ -157,8 +157,8 @@ fn test_part3() {
             closure_type!(int_type!(), int_type!()).wrap_some(),
             Expr::Apply(
                 None,
-                Expr::EnvRef(None, "neg".to_string()).rc(),
-                Expr::Int(None, 1).rc()
+                Expr::EnvRef(None, "neg".to_string()).wrap_rc(),
+                Expr::Int(None, 1).wrap_rc()
             )
         ),
         (

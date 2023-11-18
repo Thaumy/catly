@@ -2,8 +2,8 @@ use std::rc::Rc;
 
 use crate::eval::Expr;
 use crate::eval::Type;
-use crate::infra::RcAnyExt;
 use crate::infra::WrapOption;
+use crate::infra::WrapRc;
 
 // 某些表达式可能是递归定义的(常见于顶层环境和 Let)
 // 对于这样的表达式, 其求值环境将具具备自引用结构
@@ -138,7 +138,7 @@ impl ExprEnv {
             self.clone(),
             |acc, (r_n, t, src, src_env)| {
                 acc.extend_new(r_n.as_str(), t, src, src_env)
-                    .rc()
+                    .wrap_rc()
             }
         )
     }

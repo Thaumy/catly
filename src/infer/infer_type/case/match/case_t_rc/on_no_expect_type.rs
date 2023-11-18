@@ -6,10 +6,10 @@ use crate::infer::infer_type::EnvRefConstraint;
 use crate::infer::infer_type::InferTypeRet;
 use crate::infer::infer_type::ReqInfo;
 use crate::infer::infer_type::TypeMissMatch;
-use crate::infra::RcAnyExt;
 use crate::infra::WrapOption;
+use crate::infra::WrapRc;
 use crate::infra::WrapResult;
-use crate::infra::{Quad, QuadAnyExt};
+use crate::infra::{Quad, WrapQuad};
 use crate::parser::expr::r#type::Expr;
 
 pub fn on_no_expect_type<T>(
@@ -66,7 +66,7 @@ where
                                 )
                             })
                     )
-                    .quad_mr()
+                    .wrap_quad_mr()
                     .wrap_err(),
 
                     // 获取 then_expr_type 时类型不匹配
@@ -119,7 +119,7 @@ where
         .try_reduce(|acc, t| match acc.unify(type_env, &t) {
             Some(acc) => acc.wrap_ok(),
             None => TypeMissMatch::of_type(&acc, &t)
-                .quad_r()
+                .wrap_quad_r()
                 .wrap_err()
         });
 
@@ -133,12 +133,14 @@ where
         // 所有 then_expr 都缺乏信息
         Ok(None) =>
             return ReqInfo::of("(then expr)", outer_constraint)
-                .quad_mr(),
+                .wrap_quad_mr(),
     };
 
     let match_expr = Expr::Match(
         final_type.wrap_some(),
-        typed_target_expr.clone().rc(),
+        typed_target_expr
+            .clone()
+            .wrap_rc(),
         case_vec.to_vec()
     );
 

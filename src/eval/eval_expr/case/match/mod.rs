@@ -12,8 +12,8 @@ use crate::eval::eval_expr::case::r#match::is_expr_match_pattern_then_env;
 use crate::eval::eval_expr::{eval_expr, EvalRet};
 use crate::eval::EvalErr;
 use crate::eval::Expr;
-use crate::infra::RcAnyExt;
 use crate::infra::WrapOption;
+use crate::infra::WrapRc;
 use crate::infra::WrapResult;
 
 pub fn case_match(
@@ -23,7 +23,7 @@ pub fn case_match(
     case_vec: &Vec<(Rc<Expr>, Rc<Expr>)>
 ) -> EvalRet {
     let evaluated_target_expr =
-        eval_expr(type_env, expr_env, target_expr)?.rc();
+        eval_expr(type_env, expr_env, target_expr)?.wrap_rc();
 
     case_vec
         .iter()

@@ -12,9 +12,9 @@ use crate::infer::infer_type::case::apply::case_ri::case_ri;
 use crate::infer::infer_type::case::apply::case_t_rc::case_t_rc;
 use crate::infer::infer_type::InferTypeRet;
 use crate::infer::infer_type::TypeMissMatch;
-use crate::infra::RcAnyExt;
 use crate::infra::Triple;
 use crate::infra::WrapOption;
+use crate::infra::WrapRc;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::OptType;
 use crate::parser::r#type::Type;
@@ -64,8 +64,10 @@ pub fn case(
                 |type_annot, typed_rhs_expr| {
                     Expr::Apply(
                         type_annot.wrap_some(),
-                        typed_lhs_expr.clone().rc(),
-                        typed_rhs_expr.rc()
+                        typed_lhs_expr
+                            .clone()
+                            .wrap_rc(),
+                        typed_rhs_expr.wrap_rc()
                     )
                 }
             )?

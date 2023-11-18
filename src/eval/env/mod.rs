@@ -13,9 +13,9 @@ use crate::infer::infer_type_of_defs::{
     infer_type_of_defs,
     InferErr
 };
-use crate::infra::RcAnyExt;
 use crate::infra::VecExt;
 use crate::infra::WrapOption;
+use crate::infra::WrapRc;
 use crate::infra::WrapResult;
 use crate::lexer::lexical_analyze;
 use crate::parser::ast::parse_ast;
@@ -38,7 +38,7 @@ fn ct_expr_env_vec_to_rt_expr_env_vec(
 ) -> Result<Vec<ExprEnvEntry>, InferErr> {
     let inferred_defs = infer_type_of_defs(
         ct_type_env,
-        &CtExprEnv::empty().rc(),
+        &CtExprEnv::empty().wrap_rc(),
         ct_expr_env_vec
     )?;
 
@@ -54,7 +54,7 @@ fn ct_expr_env_vec_to_rt_expr_env_vec(
                         "Impossible env ref src: {src:?}"
                     ))
                     .into();
-                let src = src.map(|x| x.rc());
+                let src = src.map(|x| x.wrap_rc());
 
                 (n, t, src, None)
             }
@@ -104,7 +104,7 @@ pub fn parse_to_env<'t>(
 
     let type_env = TypeEnv::new(type_env_vec);
     let expr_env = ExprEnv::empty()
-        .rc()
+        .wrap_rc()
         .extend_vec_new(expr_env_vec);
 
     (type_env, expr_env).wrap_some()

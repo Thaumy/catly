@@ -1,9 +1,9 @@
 use std::collections::BTreeSet;
 use std::ops::Deref;
 
-use crate::infra::RcAnyExt;
 use crate::infra::VecExt;
 use crate::infra::WrapOption;
+use crate::infra::WrapRc;
 use crate::lexer::{FollowExt, Token};
 use crate::parser::expr::pat::{OptRcPat, Pat};
 use crate::parser::keyword::Keyword;
@@ -35,9 +35,9 @@ pub fn reduce_stack(
             && c.is_expr()
         => stack.reduce(6, Pat::Cond(
             None,
-            a.clone().rc(),
-            b.clone().rc(),
-            c.clone().rc(),
+            a.clone().wrap_rc(),
+            b.clone().wrap_rc(),
+            c.clone().wrap_rc(),
         )),
 
         // `-` `>` -> Arrow
@@ -73,7 +73,7 @@ pub fn reduce_stack(
                 None,
                 n.clone(),
                 t.clone(),
-                p.clone().rc(),
+                p.clone().wrap_rc(),
             );
             stack.reduce(2, top)
         }
@@ -89,7 +89,7 @@ pub fn reduce_stack(
                 true,
                 n.clone(),
                 t.clone(),
-                p.clone().rc(),
+                p.clone().wrap_rc(),
             );
             stack.reduce(5, top)
         }
@@ -103,7 +103,7 @@ pub fn reduce_stack(
                 false,
                 n.clone(),
                 t.clone(),
-                p.clone().rc(),
+                p.clone().wrap_rc(),
             );
             stack.reduce(4, top)
         }
@@ -117,7 +117,7 @@ pub fn reduce_stack(
                 false,
                 n.clone(),
                 t.clone(),
-                p.clone().rc(),
+                p.clone().wrap_rc(),
             );
             stack.reduce(3, top)
         }
@@ -179,7 +179,7 @@ pub fn reduce_stack(
         p, Pat::Kw(Keyword::With)], _
         )
         if p.is_expr() => {
-            let top = Pat::MatchHead(p.clone().rc());
+            let top = Pat::MatchHead(p.clone().wrap_rc());
             stack.reduce(3, top)
         }
         // `|` Expr :`-` -> CaseHead
@@ -188,7 +188,7 @@ pub fn reduce_stack(
         p], Some(Token::Symbol('-'))
         )
         if p.is_expr() => {
-            let top = Pat::CaseHead(p.clone().rc());
+            let top = Pat::CaseHead(p.clone().wrap_rc());
             stack.reduce(2, top)
         }
         // CaseHead Arrow Expr :ExprEndPat -> Case
@@ -200,7 +200,7 @@ pub fn reduce_stack(
         if follow.is_expr_end_pat() && p.is_expr() => {
             let top = Pat::Case(
                 e.clone(),
-                p.clone().rc(),
+                p.clone().wrap_rc(),
             );
             stack.reduce(3, top)
         }
@@ -265,8 +265,8 @@ pub fn reduce_stack(
         if lhs.is_expr() && rhs.is_expr() => {
             let top = Pat::Apply(
                 None,
-                lhs.clone().rc(),
-                rhs.clone().rc(),
+                lhs.clone().wrap_rc(),
+                rhs.clone().wrap_rc(),
             );
             stack.reduce(2, top)
         }
@@ -282,7 +282,7 @@ pub fn reduce_stack(
                 true,
                 n.clone(),
                 t.clone(),
-                p.clone().rc(),
+                p.clone().wrap_rc(),
             );
             stack.reduce(4, top)
         }
@@ -296,7 +296,7 @@ pub fn reduce_stack(
                 false,
                 n.clone(),
                 t.clone(),
-                p.clone().rc(),
+                p.clone().wrap_rc(),
             );
             stack.reduce(3, top)
         }
@@ -312,8 +312,8 @@ pub fn reduce_stack(
                     r_a,
                     n,
                     t,
-                    e.rc(),
-                    acc.rc(),
+                    e.wrap_rc(),
+                    acc.wrap_rc(),
                 );
             let top = seq
                 .clone()
@@ -333,7 +333,7 @@ pub fn reduce_stack(
                 n.to_string(),
                 t.clone(),
                 e.clone(),
-                p.clone().rc(),
+                p.clone().wrap_rc(),
             );
             stack.reduce(4, top)
         }
@@ -376,7 +376,7 @@ pub fn reduce_stack(
 
         // Expr `:` -> TypedExprHead
         ([.., p, Pat::Mark(':')], _) if p.is_expr() =>
-            stack.reduce(2, Pat::TypedExprHead(p.clone().rc())),
+            stack.reduce(2, Pat::TypedExprHead(p.clone().wrap_rc())),
 
         // TypedExprHead Type :TypeEndPat -> Expr
         ([.., Pat::TypedExprHead(e), p], follow)
@@ -394,7 +394,7 @@ pub fn reduce_stack(
         // Type Arrow -> ClosureTypeHead
         ([.., p, Pat::Arrow, ], _)
         if p.is_type() => {
-            let top = Pat::ClosureTypeHead(p.clone().rc());
+            let top = Pat::ClosureTypeHead(p.clone().wrap_rc());
             stack.reduce(2, top)
         }
         // ClosureTypeHead Type :TypeEndPat -> ClosureType
@@ -402,7 +402,7 @@ pub fn reduce_stack(
         if follow.is_type_end_pat() && p.is_type() => {
             let top = Pat::ClosureType(
                 t.clone(),
-                p.clone().rc(),
+                p.clone().wrap_rc(),
             );
             stack.reduce(2, top)
         }

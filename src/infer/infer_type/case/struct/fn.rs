@@ -3,8 +3,8 @@ use crate::infer::infer_type::r#fn::destruct_namely_type;
 use crate::infer::infer_type::InferTypeRet;
 use crate::infer::infer_type::TypeMissMatch;
 use crate::infra::id;
-use crate::infra::QuadAnyExt;
 use crate::infra::WrapOption;
+use crate::infra::WrapQuad;
 use crate::infra::WrapResult;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::Type;
@@ -62,18 +62,18 @@ pub fn is_struct_vec_of_type_then_get_prod_vec(
                     TypeMissMatch::of(
                         format!(
                             "{expect_type:?} <> type of Struct{struct_vec:?}"
-                        )).quad_r()
+                        )).wrap_quad_r()
                         .wrap_err()
                 ),
 
             Some(t) => TypeMissMatch::of(format!(
                 "{t:?} <> type of Struct{struct_vec:?}"
-            )).quad_r()
+            )).wrap_quad_r()
                 .wrap_err(),
 
             None => TypeMissMatch::of(format!(
                 "{expect_type:?} not found in type env"
-            )).quad_r()
+            )).wrap_quad_r()
                 .wrap_err()
         }
     } else {

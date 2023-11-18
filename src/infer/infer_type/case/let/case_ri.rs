@@ -6,9 +6,9 @@ use crate::infer::infer_type::EnvRefConstraint;
 use crate::infer::infer_type::InferTypeRet;
 use crate::infer::infer_type::ReqInfo;
 use crate::infer::infer_type::TypeMissMatch;
-use crate::infra::RcAnyExt;
 use crate::infra::Triple;
 use crate::infra::WrapOption;
+use crate::infra::WrapRc;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::OptType;
 
@@ -145,8 +145,12 @@ pub fn case_ri(
                         typed_assign_expr
                             .get_type_annot()
                             .cloned(),
-                        typed_assign_expr.clone().rc(),
-                        rc.typed_expr.clone().rc()
+                        typed_assign_expr
+                            .clone()
+                            .wrap_rc(),
+                        rc.typed_expr
+                            .clone()
+                            .wrap_rc()
                     )
                 }
             )

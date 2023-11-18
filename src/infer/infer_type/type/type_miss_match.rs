@@ -2,7 +2,7 @@ use std::fmt::{Debug, Formatter};
 
 use crate::infer::infer_type::EnvRefConstraint;
 use crate::infer::infer_type::InferTypeRet;
-use crate::infra::QuadAnyExt;
+use crate::infra::WrapQuad;
 use crate::parser::r#type::Type;
 
 #[derive(PartialEq, Clone)]
@@ -41,7 +41,7 @@ impl TypeMissMatch {
 }
 
 impl From<TypeMissMatch> for InferTypeRet {
-    fn from(value: TypeMissMatch) -> Self { value.quad_r() }
+    fn from(value: TypeMissMatch) -> Self { value.wrap_quad_r() }
 }
 
 impl Debug for TypeMissMatch {

@@ -8,8 +8,8 @@ use crate::eval::env::TypeEnv;
 use crate::eval::eval_expr::{eval_expr, EvalRet};
 use crate::eval::Expr;
 use crate::eval::Type;
-use crate::infra::RcAnyExt;
 use crate::infra::WrapOption;
+use crate::infra::WrapRc;
 
 pub fn case_let(
     type_env: &TypeEnv,
@@ -39,7 +39,7 @@ pub fn case_let(
             expr_env.clone().wrap_some()
         )
     }
-    .rc();
+    .wrap_rc();
 
     eval_expr(type_env, &new_expr_env, scope_expr)
 }

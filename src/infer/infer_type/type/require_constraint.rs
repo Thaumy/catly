@@ -3,7 +3,7 @@ use std::fmt::{Debug, Formatter};
 use crate::infer::infer_type::EnvRefConstraint;
 use crate::infer::infer_type::InferTypeRet;
 use crate::infer::infer_type::TypeMissMatch;
-use crate::infra::QuadAnyExt;
+use crate::infra::WrapQuad;
 use crate::parser::expr::r#type::Expr;
 
 // 经由约束才能使用的类型
@@ -56,7 +56,7 @@ pub fn require_extended_constraint(
 }
 
 impl From<ReqConstraint> for InferTypeRet {
-    fn from(value: ReqConstraint) -> Self { value.quad_ml() }
+    fn from(value: ReqConstraint) -> Self { value.wrap_quad_ml() }
 }
 
 impl Debug for ReqConstraint {

@@ -7,11 +7,11 @@ use crate::infer::infer_type::InferTypeRet;
 use crate::infer::infer_type::ReqInfo;
 use crate::infer::infer_type::TypeMissMatch;
 use crate::infra::id;
-use crate::infra::RcAnyExt;
 use crate::infra::VecExt;
 use crate::infra::WrapOption;
+use crate::infra::WrapRc;
 use crate::infra::WrapResult;
-use crate::infra::{Quad, QuadAnyExt};
+use crate::infra::{Quad, WrapQuad};
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::{OptType, Type};
 
@@ -24,7 +24,7 @@ pub fn case_ri(
     case_vec: &[(Expr, Expr)]
 ) -> InferTypeRet {
     // 由于以下推导可能产生错误, 而这些错误没有很好的语义对应已有的错误类型, 所以需要返回原错误
-    let original_err = require_info.quad_mr();
+    let original_err = require_info.wrap_quad_mr();
 
     // 当 case_expr_type 能够合一为某个类型时, 这个类型与 target_expr 将直接相关
     // 此时以该类型为 hint 求 match 表达式类型
@@ -41,7 +41,7 @@ pub fn case_ri(
                         (case_expr, env_inject, then_expr).wrap_ok(),
                     Err((new, old)) =>
                         TypeMissMatch::of_dup_capture(old, new)
-                            .quad_r()
+                            .wrap_quad_r()
                             .wrap_err(),
                 }
             })
@@ -132,7 +132,7 @@ pub fn case_ri(
                 target_expr.with_fallback_type(&hint);
             let match_expr = Expr::Match(
                 expect_type.clone(),
-                hinted_target_expr.rc(),
+                hinted_target_expr.wrap_rc(),
                 case_vec.to_vec(),
             );
             match_expr.infer_type(type_env, expr_env)
@@ -181,7 +181,7 @@ pub fn case_ri(
                         target_expr.with_fallback_type(&hint);
                     let match_expr = Expr::Match(
                         expect_type.clone(),
-                        hinted_target_expr.rc(),
+                        hinted_target_expr.wrap_rc(),
                         case_vec.to_vec(),
                     );
                     match_expr.infer_type(type_env, expr_env)

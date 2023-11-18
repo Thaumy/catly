@@ -3,8 +3,8 @@ use std::rc::Rc;
 use crate::infer::env::ExprEnv;
 use crate::infer::env::TypeEnv;
 use crate::infer::infer_type::InferTypeRet;
-use crate::infra::RcAnyExt;
 use crate::infra::Triple;
+use crate::infra::WrapRc;
 use crate::parser::expr::r#type::Expr;
 
 pub fn case_ri(
@@ -24,9 +24,9 @@ pub fn case_ri(
                 typed_else_expr
                     .get_type_annot()
                     .cloned(),
-                bool_expr.clone().rc(),
-                then_expr.clone().rc(),
-                typed_else_expr.rc()
+                bool_expr.clone().wrap_rc(),
+                then_expr.clone().wrap_rc(),
+                typed_else_expr.wrap_rc()
             );
 
             let new_expr_env = expr_env

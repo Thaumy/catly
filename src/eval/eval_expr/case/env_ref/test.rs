@@ -3,8 +3,8 @@ use crate::eval::env::TypeEnv;
 use crate::eval::eval_expr::eval_expr;
 use crate::eval::namely_type;
 use crate::eval::Expr;
-use crate::infra::RcAnyExt;
 use crate::infra::WrapOption;
+use crate::infra::WrapRc;
 use crate::infra::WrapResult;
 
 // def a = 10
@@ -15,14 +15,14 @@ fn test_part1() {
         "a".to_string(),
         namely_type!("Int"),
         Expr::Int(namely_type!("Int"), 10)
-            .rc()
+            .wrap_rc()
             .wrap_some(),
         None
     )
-    .rc();
+    .wrap_rc();
 
     let expr = Expr::EnvRef(namely_type!("Int"), "a".to_string());
-    let evaluated = eval_expr(&type_env, &expr_env, &expr.rc());
+    let evaluated = eval_expr(&type_env, &expr_env, &expr.wrap_rc());
 
     let r = Expr::Int(namely_type!("Int"), 10);
 
@@ -38,7 +38,7 @@ fn test_part2() {
         "a".to_string(),
         namely_type!("Int"),
         Expr::Int(namely_type!("Int"), 10)
-            .rc()
+            .wrap_rc()
             .wrap_some(),
         None
     );
@@ -46,14 +46,14 @@ fn test_part2() {
         "a".to_string(),
         namely_type!("Int"),
         Expr::Int(namely_type!("Int"), 5)
-            .rc()
+            .wrap_rc()
             .wrap_some(),
-        expr_env.rc().wrap_some()
+        expr_env.wrap_rc().wrap_some()
     )
-    .rc();
+    .wrap_rc();
 
     let expr = Expr::EnvRef(namely_type!("Int"), "a".to_string());
-    let evaluated = eval_expr(&type_env, &expr_env, &expr.rc());
+    let evaluated = eval_expr(&type_env, &expr_env, &expr.wrap_rc());
 
     let r = Expr::Int(namely_type!("Int"), 5);
 
@@ -70,32 +70,32 @@ fn test_part3() {
         "b".to_string(),
         namely_type!("Int"),
         Expr::Int(namely_type!("Int"), 10)
-            .rc()
+            .wrap_rc()
             .wrap_some(),
         None
     )
-    .rc();
+    .wrap_rc();
     let expr_env = ExprEnv::new(
         "a".to_string(),
         namely_type!("Int"),
         Expr::EnvRef(namely_type!("Int"), "b".to_string())
-            .rc()
+            .wrap_rc()
             .wrap_some(),
         expr_env.wrap_some()
     )
-    .rc();
+    .wrap_rc();
     let expr_env = ExprEnv::new(
         "a".to_string(),
         namely_type!("Int"),
         Expr::EnvRef(namely_type!("Int"), "a".to_string())
-            .rc()
+            .wrap_rc()
             .wrap_some(),
         expr_env.wrap_some()
     )
-    .rc();
+    .wrap_rc();
 
     let expr = Expr::EnvRef(namely_type!("Int"), "a".to_string());
-    let evaluated = eval_expr(&type_env, &expr_env, &expr.rc());
+    let evaluated = eval_expr(&type_env, &expr_env, &expr.wrap_rc());
 
     let r = Expr::Int(namely_type!("Int"), 10);
 

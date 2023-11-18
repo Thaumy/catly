@@ -3,8 +3,8 @@ use std::rc::Rc;
 use crate::eval::env::TypeEnv;
 use crate::eval::env::{ExprEnv, ExprEnvEntry};
 use crate::eval::{Expr, StructField};
-use crate::infra::RcAnyExt;
 use crate::infra::WrapOption;
+use crate::infra::WrapRc;
 
 fn is_struct_match_pattern_then_env_vec(
     type_env: &TypeEnv,
@@ -24,7 +24,7 @@ fn is_struct_match_pattern_then_env_vec(
                 is_expr_match_pattern_then_env_vec(
                     type_env,
                     expr_env,
-                    &s_e.clone().rc(),
+                    &s_e.clone().wrap_rc(),
                     p_e
                 )
             } else {

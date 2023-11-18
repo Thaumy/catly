@@ -3,9 +3,9 @@ use std::ops::Deref;
 use std::rc::Rc;
 
 use crate::infra::BtreeSetExt;
-use crate::infra::RcAnyExt;
 use crate::infra::VecExt;
 use crate::infra::WrapOption;
+use crate::infra::WrapRc;
 use crate::parser::expr::r#type::{Expr, OptExpr};
 use crate::parser::keyword::Keyword;
 use crate::parser::r#type::{OptType, Type};
@@ -87,23 +87,29 @@ impl Pat {
     }
     pub fn with_type(self, r#type: Pat) -> Option<Self> {
         match self {
-            Pat::Discard(_) => Pat::Discard(r#type.rc().wrap_some()),
-            Pat::Unit(_) => Pat::Unit(r#type.rc().wrap_some()),
-            Pat::Int(_, i) => Pat::Int(r#type.rc().wrap_some(), i),
+            Pat::Discard(_) =>
+                Pat::Discard(r#type.wrap_rc().wrap_some()),
+            Pat::Unit(_) => Pat::Unit(r#type.wrap_rc().wrap_some()),
+            Pat::Int(_, i) =>
+                Pat::Int(r#type.wrap_rc().wrap_some(), i),
             Pat::LetName(_, n) =>
-                Pat::LetName(r#type.rc().wrap_some(), n),
+                Pat::LetName(r#type.wrap_rc().wrap_some(), n),
             Pat::Apply(_, lhs, rhs) =>
-                Pat::Apply(r#type.rc().wrap_some(), lhs, rhs),
+                Pat::Apply(r#type.wrap_rc().wrap_some(), lhs, rhs),
             Pat::Cond(_, e, t, f) =>
-                Pat::Cond(r#type.rc().wrap_some(), e, t, f),
-            Pat::Closure(_, i_n, i_t, o) =>
-                Pat::Closure(r#type.rc().wrap_some(), i_n, i_t, o),
+                Pat::Cond(r#type.wrap_rc().wrap_some(), e, t, f),
+            Pat::Closure(_, i_n, i_t, o) => Pat::Closure(
+                r#type.wrap_rc().wrap_some(),
+                i_n,
+                i_t,
+                o
+            ),
             Pat::Struct(_, vec) =>
-                Pat::Struct(r#type.rc().wrap_some(), vec),
+                Pat::Struct(r#type.wrap_rc().wrap_some(), vec),
             Pat::Match(_, e, vec) =>
-                Pat::Match(r#type.rc().wrap_some(), e, vec),
+                Pat::Match(r#type.wrap_rc().wrap_some(), e, vec),
             Pat::Let(_, r_a, a_n, a_t, a_e, e) => Pat::Let(
-                r#type.rc().wrap_some(),
+                r#type.wrap_rc().wrap_some(),
                 r_a,
                 a_n,
                 a_t,
@@ -154,8 +160,11 @@ impl From<Pat> for OptExpr {
                     Self::from(l.deref().clone()),
                     Self::from(r.deref().clone())
                 ) {
-                    (Some(l), Some(r)) =>
-                        Expr::Apply(t.map_into(), l.rc(), r.rc()),
+                    (Some(l), Some(r)) => Expr::Apply(
+                        t.map_into(),
+                        l.wrap_rc(),
+                        r.wrap_rc()
+                    ),
                     _ => return None
                 }
             }
@@ -167,9 +176,9 @@ impl From<Pat> for OptExpr {
                 ) {
                     (Some(a), Some(b), Some(c)) => Expr::Cond(
                         t.map_into(),
-                        a.rc(),
-                        b.rc(),
-                        c.rc()
+                        a.wrap_rc(),
+                        b.wrap_rc(),
+                        c.wrap_rc()
                     ),
                     _ => return None
                 }
@@ -180,7 +189,7 @@ impl From<Pat> for OptExpr {
                         t.map_into(),
                         i_n,
                         i_t.map_into(),
-                        o.rc()
+                        o.wrap_rc()
                     ),
                     _ => return None
                 },
@@ -212,7 +221,7 @@ impl From<Pat> for OptExpr {
 
                 match (Self::from(p.deref().clone()), vec) {
                     (Some(p), Some(vec)) =>
-                        Expr::Match(t.map_into(), p.rc(), vec),
+                        Expr::Match(t.map_into(), p.wrap_rc(), vec),
                     _ => return None
                 }
             }
@@ -226,8 +235,8 @@ impl From<Pat> for OptExpr {
                         r_a,
                         a_n,
                         a_t.map_into(),
-                        a_e.rc(),
-                        e.rc()
+                        a_e.wrap_rc(),
+                        e.wrap_rc()
                     ),
                     _ => return None
                 }
@@ -245,8 +254,8 @@ impl From<Pat> for OptType {
             Pat::TypeName(n) => Type::NamelyType(n),
 
             Pat::ClosureType(i, o) => Type::ClosureType(
-                Self::from(i.deref().clone())?.rc(),
-                Self::from(o.deref().clone())?.rc()
+                Self::from(i.deref().clone())?.wrap_rc(),
+                Self::from(o.deref().clone())?.wrap_rc()
             ),
 
             Pat::SumType(s_s) => s_s

@@ -4,14 +4,14 @@ pub enum Either<L, R> {
     R(R)
 }
 
-pub trait EitherAnyExt
+pub trait WrapEither
 where
     Self: Sized
 {
     #[inline]
-    fn l<R>(self) -> Either<Self, R> { Either::L(self) }
+    fn wrap_l<R>(self) -> Either<Self, R> { Either::L(self) }
     #[inline]
-    fn r<L>(self) -> Either<L, Self> { Either::R(self) }
+    fn wrap_r<L>(self) -> Either<L, Self> { Either::R(self) }
 }
 
-impl<T> EitherAnyExt for T {}
+impl<T> WrapEither for T {}

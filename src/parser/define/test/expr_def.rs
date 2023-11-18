@@ -1,7 +1,7 @@
 use crate::infer::env::closure_type;
 use crate::infer::env::int_type;
-use crate::infra::RcAnyExt;
 use crate::infra::WrapOption;
+use crate::infra::WrapRc;
 use crate::parser::define::test::f;
 use crate::parser::define::Define;
 use crate::parser::expr::r#type::Expr;
@@ -52,7 +52,7 @@ fn test_part4() {
         false,
         "a".to_string(),
         None,
-        Expr::Int(None, 123).rc(),
+        Expr::Int(None, 123).wrap_rc(),
         Expr::Let(
             None,
             false,
@@ -71,30 +71,30 @@ fn test_part4() {
                         None,
                         "j".to_string().wrap_some(),
                         None,
-                        Expr::EnvRef(None, "k".to_string()).rc()
+                        Expr::EnvRef(None, "k".to_string()).wrap_rc()
                     )
-                    .rc()
+                    .wrap_rc()
                 )
-                .rc(),
+                .wrap_rc(),
                 Expr::Let(
                     None,
                     false,
                     "y".to_string(),
                     None,
-                    Expr::EnvRef(None, "a".to_string()).rc(),
+                    Expr::EnvRef(None, "a".to_string()).wrap_rc(),
                     Expr::Let(
                         None,
                         false,
                         "z".to_string(),
                         None,
-                        Expr::Unit(None).rc(),
-                        Expr::EnvRef(None, "a".to_string()).rc()
+                        Expr::Unit(None).wrap_rc(),
+                        Expr::EnvRef(None, "a".to_string()).wrap_rc()
                     )
-                    .rc()
+                    .wrap_rc()
                 )
-                .rc()
+                .wrap_rc()
             )
-            .rc(),
+            .wrap_rc(),
             Expr::Let(
                 None,
                 false,
@@ -102,34 +102,34 @@ fn test_part4() {
                 None,
                 Expr::Apply(
                     None,
-                    Expr::EnvRef(None, "neg".to_string()).rc(),
-                    Expr::Int(None, 1).rc()
+                    Expr::EnvRef(None, "neg".to_string()).wrap_rc(),
+                    Expr::Int(None, 1).wrap_rc()
                 )
-                .rc(),
+                .wrap_rc(),
                 Expr::Let(
                     None,
                     false,
                     "e".to_string(),
                     None,
-                    Expr::Int(None, 6).rc(),
+                    Expr::Int(None, 6).wrap_rc(),
                     Expr::Let(
                         None,
                         false,
                         "k".to_string(),
                         None,
-                        Expr::Unit(None).rc(),
+                        Expr::Unit(None).wrap_rc(),
                         Expr::Let(
                             None,
                             false,
                             "m".to_string(),
                             None,
-                            Expr::Unit(None).rc(),
+                            Expr::Unit(None).wrap_rc(),
                             Expr::Let(
                                 None,
                                 false,
                                 "n".to_string(),
                                 None,
-                                Expr::Int(None, 4).rc(),
+                                Expr::Int(None, 4).wrap_rc(),
                                 Expr::Apply(
                                     None,
                                     Expr::Apply(
@@ -138,25 +138,25 @@ fn test_part4() {
                                             None,
                                             "add".to_string()
                                         )
-                                        .rc(),
-                                        Expr::Unit(None).rc()
+                                        .wrap_rc(),
+                                        Expr::Unit(None).wrap_rc()
                                     )
-                                    .rc(),
-                                    Expr::Int(None, 456).rc()
+                                    .wrap_rc(),
+                                    Expr::Int(None, 456).wrap_rc()
                                 )
-                                .rc()
+                                .wrap_rc()
                             )
-                            .rc()
+                            .wrap_rc()
                         )
-                        .rc()
+                        .wrap_rc()
                     )
-                    .rc()
+                    .wrap_rc()
                 )
-                .rc()
+                .wrap_rc()
             )
-            .rc()
+            .wrap_rc()
         )
-        .rc()
+        .wrap_rc()
     );
 
     let r = Define::ExprDef("a".to_string(), None, e);

@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 use std::rc::Rc;
 
-use crate::infra::RcAnyExt;
 use crate::infra::WrapOption;
+use crate::infra::WrapRc;
 use crate::lexer::lexical_analyze;
 use crate::parser::ast::parse_ast;
 use crate::parser::define::Define;
@@ -70,7 +70,7 @@ pub fn parse_to_env<'t>(
 
     let type_env = TypeEnv::new(type_env_vec);
     let expr_env = ExprEnv::empty()
-        .rc()
+        .wrap_rc()
         .extend_vec_new(expr_env_vec);
 
     (type_env, expr_env).wrap_some()
