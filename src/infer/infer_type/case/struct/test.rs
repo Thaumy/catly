@@ -2,17 +2,17 @@ use std::assert_matches::assert_matches;
 use std::rc::Rc;
 
 use crate::infer::env::expr_env::ExprEnv;
+use crate::infer::env::int_type;
+use crate::infer::env::namely_type;
 use crate::infer::env::parse_to_env;
-use crate::infer::env::r#macro::int_type;
-use crate::infer::env::r#macro::namely_type;
-use crate::infer::env::r#macro::prod_type;
-use crate::infer::env::r#macro::unit_type;
+use crate::infer::env::prod_type;
 use crate::infer::env::type_env::TypeEnv;
-use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
+use crate::infer::env::unit_type;
 use crate::infer::infer_type::test::{
     check_has_type,
     check_req_constraint
 };
+use crate::infer::infer_type::EnvRefConstraint;
 use crate::infra::quad::Quad;
 
 fn gen_env<'t>() -> (TypeEnv<'t>, Rc<ExprEnv>) {

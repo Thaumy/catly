@@ -3,9 +3,9 @@ mod infer_type_with_hint;
 
 use std::rc::Rc;
 
-use crate::infer::env::r#type::env_ref_src::EnvRefSrc;
-use crate::infer::env::r#type::type_constraint::TypeConstraint;
-use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
+use crate::infer::env::EnvRefSrc;
+use crate::infer::env::TypeConstraint;
+use crate::infer::infer_type::EnvRefConstraint;
 use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 use crate::parser::expr::r#type::{Expr, OptExpr};

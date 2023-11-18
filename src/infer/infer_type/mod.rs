@@ -3,14 +3,14 @@ pub mod r#fn;
 #[cfg(test)]
 mod test;
 
-pub mod r#type;
+mod r#type;
 
 use std::rc::Rc;
 
+pub use r#type::*;
+
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
-use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infer::infer_type::r#type::require_constraint::require_constraint;
 use crate::infra::quad::Quad;
 use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;

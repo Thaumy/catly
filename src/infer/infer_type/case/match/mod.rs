@@ -10,7 +10,7 @@ use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::case::r#match::case_ri::case_ri;
 use crate::infer::infer_type::case::r#match::case_t_rc::case_t_rc;
-use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
+use crate::infer::infer_type::InferTypeRet;
 use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::OptType;

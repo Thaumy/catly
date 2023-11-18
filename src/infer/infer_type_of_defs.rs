@@ -1,11 +1,11 @@
 use std::rc::Rc;
 
 use crate::infer::env::expr_env::{ExprEnv, ExprEnvEntry};
-use crate::infer::env::r#type::env_ref_src::EnvRefSrc;
-use crate::infer::env::r#type::type_constraint::TypeConstraint;
 use crate::infer::env::type_env::TypeEnv;
-use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
-use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
+use crate::infer::env::EnvRefSrc;
+use crate::infer::env::TypeConstraint;
+use crate::infer::infer_type::EnvRefConstraint;
+use crate::infer::infer_type::TypeMissMatch;
 use crate::infra::quad::Quad;
 use crate::infra::rc::RcAnyExt;
 use crate::infra::result::WrapResult;

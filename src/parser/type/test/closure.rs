@@ -1,5 +1,5 @@
-use crate::infer::env::r#macro::closure_type;
-use crate::infer::env::r#macro::namely_type;
+use crate::infer::env::closure_type;
+use crate::infer::env::namely_type;
 use crate::parser::r#type::test::f;
 
 #[test]

@@ -1,7 +1,7 @@
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::r#fn::destruct_namely_type;
-use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
+use crate::infer::infer_type::InferTypeRet;
+use crate::infer::infer_type::TypeMissMatch;
 use crate::infra::option::WrapOption;
 use crate::infra::quad::QuadAnyExt;
 use crate::infra::r#fn::id;

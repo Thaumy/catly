@@ -1,7 +1,7 @@
 use crate::btree_set;
-use crate::infer::env::r#macro::int_type;
-use crate::infer::env::r#macro::namely_type;
-use crate::infer::env::r#macro::sum_type;
+use crate::infer::env::int_type;
+use crate::infer::env::namely_type;
+use crate::infer::env::sum_type;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infra::option::WrapOption;
 use crate::parser::r#type::r#type::Type;

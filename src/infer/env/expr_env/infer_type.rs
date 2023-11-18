@@ -1,13 +1,13 @@
 use std::rc::Rc;
 
 use crate::infer::env::expr_env::ExprEnv;
-use crate::infer::env::r#type::env_ref_src::EnvRefSrc;
-use crate::infer::env::r#type::type_constraint::TypeConstraint;
 use crate::infer::env::type_env::TypeEnv;
-use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
-use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infer::infer_type::r#type::require_constraint::require_constraint;
-use crate::infer::infer_type::r#type::require_info::ReqInfo;
+use crate::infer::env::EnvRefSrc;
+use crate::infer::env::TypeConstraint;
+use crate::infer::infer_type::require_constraint;
+use crate::infer::infer_type::EnvRefConstraint;
+use crate::infer::infer_type::InferTypeRet;
+use crate::infer::infer_type::ReqInfo;
 use crate::infra::option::WrapOption;
 use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;

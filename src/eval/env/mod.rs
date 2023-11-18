@@ -7,8 +7,8 @@ use crate::infer::env::def_map_to_env_vec as def_map_to_ct_env_vec;
 use crate::infer::env::def_vec_to_def_map;
 use crate::infer::env::expr_env::ExprEnv as CtExprEnv;
 use crate::infer::env::expr_env::ExprEnvEntry as CtExprEnvEntry;
-use crate::infer::env::r#type::type_constraint::TypeConstraint;
 use crate::infer::env::type_env::TypeEnv as CtTypeEnv;
+use crate::infer::env::TypeConstraint;
 use crate::infer::infer_type_of_defs::{
     infer_type_of_defs,
     InferErr

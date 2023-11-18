@@ -1,4 +1,4 @@
-use crate::infer::env::r#macro::unit_type;
+use crate::infer::env::unit_type;
 use crate::infra::option::WrapOption;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::expr::test::f;

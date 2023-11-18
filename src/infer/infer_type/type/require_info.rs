@@ -1,8 +1,8 @@
 use std::fmt::{Debug, Formatter};
 
-use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
-use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
-use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
+use crate::infer::infer_type::EnvRefConstraint;
+use crate::infer::infer_type::InferTypeRet;
+use crate::infer::infer_type::TypeMissMatch;
 use crate::infra::quad::QuadAnyExt;
 
 // 需要类型信息

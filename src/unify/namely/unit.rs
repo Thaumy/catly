@@ -1,5 +1,5 @@
-use crate::infer::env::r#macro::unit_type;
 use crate::infer::env::type_env::TypeEnv;
+use crate::infer::env::unit_type;
 use crate::infra::option::WrapOption;
 use crate::parser::r#type::r#type::Type;
 

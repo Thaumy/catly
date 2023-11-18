@@ -2,7 +2,7 @@ use std::rc::Rc;
 
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
-use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
+use crate::infer::infer_type::InferTypeRet;
 use crate::infra::rc::RcAnyExt;
 use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;

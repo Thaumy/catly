@@ -1,10 +1,10 @@
 use crate::btree_set;
-use crate::infer::env::r#macro::bool_type;
-use crate::infer::env::r#macro::false_type;
-use crate::infer::env::r#macro::int_type;
-use crate::infer::env::r#macro::namely_type;
-use crate::infer::env::r#macro::sum_type;
-use crate::infer::env::r#macro::true_type;
+use crate::infer::env::bool_type;
+use crate::infer::env::false_type;
+use crate::infer::env::int_type;
+use crate::infer::env::namely_type;
+use crate::infer::env::sum_type;
+use crate::infer::env::true_type;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infra::option::WrapOption;
 use crate::unify::namely::lift_namely;

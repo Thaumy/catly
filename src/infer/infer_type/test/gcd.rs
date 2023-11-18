@@ -1,10 +1,10 @@
 use std::rc::Rc;
 
 use crate::eval::std::std_code;
+use crate::infer::env::closure_type;
 use crate::infer::env::expr_env::ExprEnv;
+use crate::infer::env::int_type;
 use crate::infer::env::parse_to_env;
-use crate::infer::env::r#macro::closure_type;
-use crate::infer::env::r#macro::int_type;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::test::check_has_type;
 

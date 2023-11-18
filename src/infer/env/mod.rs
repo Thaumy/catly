@@ -13,9 +13,12 @@ use crate::parser::r#type::r#type::{OptType, Type};
 use crate::pp::preprocess;
 
 pub mod expr_env;
-pub mod r#macro;
-pub mod r#type;
+mod r#macro;
+mod r#type;
 pub mod type_env;
+
+pub use r#macro::*;
+pub use r#type::*;
 
 pub fn def_vec_to_def_map(
     def_vec: Vec<Define>

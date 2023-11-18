@@ -2,11 +2,11 @@ use std::assert_matches::assert_matches;
 use std::rc::Rc;
 
 use crate::infer::env::expr_env::ExprEnv;
+use crate::infer::env::int_type;
+use crate::infer::env::namely_type;
 use crate::infer::env::parse_to_env;
-use crate::infer::env::r#macro::int_type;
-use crate::infer::env::r#macro::namely_type;
 use crate::infer::env::type_env::TypeEnv;
-use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
+use crate::infer::infer_type::InferTypeRet;
 use crate::infra::option::WrapOption;
 use crate::infra::quad::Quad;
 use crate::parser::expr::r#type::Expr;

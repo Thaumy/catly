@@ -1,10 +1,10 @@
 use crate::btree_set;
-use crate::infer::env::r#macro::closure_type;
-use crate::infer::env::r#macro::int_type;
-use crate::infer::env::r#macro::namely_type;
-use crate::infer::env::r#macro::prod_type;
-use crate::infer::env::r#macro::sum_type;
-use crate::infer::env::r#macro::unit_type;
+use crate::infer::env::closure_type;
+use crate::infer::env::int_type;
+use crate::infer::env::namely_type;
+use crate::infer::env::prod_type;
+use crate::infer::env::sum_type;
+use crate::infer::env::unit_type;
 use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 use crate::parser::expr::r#type::Expr;

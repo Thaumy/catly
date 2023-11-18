@@ -1,13 +1,10 @@
 use std::ops::{ControlFlow, FromResidual, Try};
 
 use crate::infer::env::type_env::TypeEnv;
-use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
-use crate::infer::infer_type::r#type::require_constraint::{
-    require_constraint,
-    ReqConstraint
-};
-use crate::infer::infer_type::r#type::require_info::ReqInfo;
-use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
+use crate::infer::infer_type::EnvRefConstraint;
+use crate::infer::infer_type::ReqInfo;
+use crate::infer::infer_type::TypeMissMatch;
+use crate::infer::infer_type::{require_constraint, ReqConstraint};
 use crate::infra::quad::{Quad, QuadAnyExt};
 use crate::infra::triple::Triple;
 use crate::parser::expr::r#type::Expr;

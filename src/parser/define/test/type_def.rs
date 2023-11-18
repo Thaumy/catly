@@ -1,6 +1,6 @@
-use crate::infer::env::r#macro::namely_type;
-use crate::infer::env::r#macro::prod_type;
-use crate::infer::env::r#macro::unit_type;
+use crate::infer::env::namely_type;
+use crate::infer::env::prod_type;
+use crate::infer::env::unit_type;
 use crate::parser::define::test::f;
 use crate::parser::define::Define;
 
