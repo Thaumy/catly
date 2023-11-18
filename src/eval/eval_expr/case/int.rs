@@ -1,6 +1,6 @@
 use crate::eval::eval_expr::EvalRet;
-use crate::eval::r#type::Expr;
-use crate::eval::r#type::Type;
+use crate::eval::Expr;
+use crate::eval::Type;
 use crate::infra::result::WrapResult;
 
 pub fn case_int(type_annot: &Type, int_value: &i64) -> EvalRet {
@@ -9,11 +9,11 @@ pub fn case_int(type_annot: &Type, int_value: &i64) -> EvalRet {
 
 #[cfg(test)]
 mod test {
-    use crate::eval::env::expr_env::ExprEnv;
-    use crate::eval::env::type_env::TypeEnv;
+    use crate::eval::env::ExprEnv;
+    use crate::eval::env::TypeEnv;
     use crate::eval::eval_expr::eval_expr;
     use crate::eval::namely_type;
-    use crate::eval::r#type::Expr;
+    use crate::eval::Expr;
     use crate::infra::rc::RcAnyExt;
     use crate::infra::result::WrapResult;
 

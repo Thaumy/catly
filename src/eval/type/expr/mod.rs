@@ -6,9 +6,9 @@ use std::rc::Rc;
 
 pub use primitive_op::*;
 
-use crate::eval::env::expr_env::ExprEnv;
-use crate::eval::r#type::r#type::OptType;
-use crate::eval::r#type::Type;
+use crate::eval::env::ExprEnv;
+use crate::eval::OptType;
+use crate::eval::Type;
 use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 use crate::infra::vec::VecExt;

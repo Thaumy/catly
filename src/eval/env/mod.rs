@@ -1,10 +1,8 @@
 use std::collections::HashMap;
 use std::rc::Rc;
 
-use crate::eval::env::expr_env::{ExprEnv, ExprEnvEntry};
-use crate::eval::env::type_env::{TypeEnv, TypeEnvEntry};
-use crate::eval::r#type::OptExpr;
-use crate::eval::r#type::OptType;
+use crate::eval::OptExpr;
+use crate::eval::OptType;
 use crate::infer::env::def_map_to_env_vec as def_map_to_ct_env_vec;
 use crate::infer::env::def_vec_to_def_map;
 use crate::infer::env::expr_env::ExprEnv as CtExprEnv;
@@ -31,8 +29,11 @@ use crate::parser::r#type::r#type::{
 };
 use crate::pp::preprocess;
 
-pub mod expr_env;
-pub mod type_env;
+mod expr_env;
+mod type_env;
+
+pub use expr_env::*;
+pub use type_env::*;
 
 fn ct_expr_env_vec_to_rt_expr_env_vec(
     ct_type_env: CtTypeEnv,

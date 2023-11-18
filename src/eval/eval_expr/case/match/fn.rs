@@ -1,8 +1,8 @@
 use std::rc::Rc;
 
-use crate::eval::env::expr_env::{ExprEnv, ExprEnvEntry};
-use crate::eval::env::type_env::TypeEnv;
-use crate::eval::r#type::{Expr, StructField};
+use crate::eval::env::TypeEnv;
+use crate::eval::env::{ExprEnv, ExprEnvEntry};
+use crate::eval::{Expr, StructField};
 use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 

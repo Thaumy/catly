@@ -1,8 +1,8 @@
 use std::rc::Rc;
 
-use crate::eval::env::expr_env::ExprEnv;
 use crate::eval::env::parse_to_env;
-use crate::eval::env::type_env::TypeEnv;
+use crate::eval::env::ExprEnv;
+use crate::eval::env::TypeEnv;
 use crate::eval::eval_expr::eval_expr;
 use crate::eval::std::std_code;
 use crate::infra::rc::RcAnyExt;

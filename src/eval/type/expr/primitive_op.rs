@@ -3,7 +3,7 @@ use std::rc::Rc;
 use crate::eval::bool_type;
 use crate::eval::closure_type;
 use crate::eval::int_type;
-use crate::eval::r#type::Expr;
+use crate::eval::Expr;
 use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 

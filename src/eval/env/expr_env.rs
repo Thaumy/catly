@@ -1,7 +1,7 @@
 use std::rc::Rc;
 
-use crate::eval::r#type::Expr;
-use crate::eval::r#type::Type;
+use crate::eval::Expr;
+use crate::eval::Type;
 use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 

@@ -1,13 +1,13 @@
 use std::ops::Deref;
 use std::rc::Rc;
 
-use crate::eval::env::expr_env::ExprEnv;
-use crate::eval::env::type_env::TypeEnv;
+use crate::eval::env::ExprEnv;
+use crate::eval::env::TypeEnv;
 use crate::eval::eval_expr::eval_expr;
-use crate::eval::r#type::EvalErr;
-use crate::eval::r#type::Expr;
-use crate::eval::r#type::PrimitiveOp;
-use crate::eval::r#type::Type;
+use crate::eval::EvalErr;
+use crate::eval::Expr;
+use crate::eval::PrimitiveOp;
+use crate::eval::Type;
 use crate::infra::either::{Either, EitherAnyExt};
 use crate::infra::rc::RcAnyExt;
 use crate::infra::result::WrapResult;

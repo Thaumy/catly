@@ -5,3 +5,4 @@ pub mod std;
 pub mod r#type;
 
 pub use r#macro::*;
+pub use r#type::*;

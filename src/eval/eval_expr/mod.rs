@@ -4,8 +4,8 @@ mod test;
 
 use std::rc::Rc;
 
-use crate::eval::env::expr_env::ExprEnv;
-use crate::eval::env::type_env::TypeEnv;
+use crate::eval::env::ExprEnv;
+use crate::eval::env::TypeEnv;
 use crate::eval::eval_expr::case::case_apply;
 use crate::eval::eval_expr::case::case_closure;
 use crate::eval::eval_expr::case::case_cond;
@@ -17,8 +17,8 @@ use crate::eval::eval_expr::case::case_match;
 use crate::eval::eval_expr::case::case_primitive_op;
 use crate::eval::eval_expr::case::case_struct;
 use crate::eval::eval_expr::case::case_unit;
-use crate::eval::r#type::EvalErr;
-use crate::eval::r#type::Expr;
+use crate::eval::EvalErr;
+use crate::eval::Expr;
 
 pub type EvalRet = Result<Expr, EvalErr>;
 

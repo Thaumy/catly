@@ -3,10 +3,10 @@ mod test;
 
 use std::rc::Rc;
 
-use crate::eval::env::expr_env::ExprEnv;
-use crate::eval::env::type_env::TypeEnv;
+use crate::eval::env::ExprEnv;
+use crate::eval::env::TypeEnv;
 use crate::eval::eval_expr::{eval_expr, EvalRet};
-use crate::eval::r#type::EvalErr;
+use crate::eval::EvalErr;
 use crate::infra::result::WrapResult;
 
 pub fn case_env_ref(

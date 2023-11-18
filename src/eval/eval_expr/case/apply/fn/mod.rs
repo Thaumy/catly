@@ -1,11 +1,11 @@
 use std::rc::Rc;
 
-use crate::eval::env::expr_env::ExprEnv;
-use crate::eval::env::type_env::TypeEnv;
+use crate::eval::env::ExprEnv;
+use crate::eval::env::TypeEnv;
 use crate::eval::eval_expr::eval_expr;
-use crate::eval::r#type::EvalErr;
-use crate::eval::r#type::Expr;
-use crate::eval::r#type::Type;
+use crate::eval::EvalErr;
+use crate::eval::Expr;
+use crate::eval::Type;
 use crate::eval::{false_type, namely_type, true_type};
 use crate::infra::result::WrapResult;
 
