@@ -1,9 +1,9 @@
 use crate::eval::env::expr_env::ExprEnv;
 use crate::eval::env::type_env::TypeEnv;
 use crate::eval::eval_expr::eval_expr;
-use crate::eval::r#macro::{closure_type, namely_type};
 use crate::eval::r#type::Expr;
 use crate::eval::r#type::PrimitiveOp;
+use crate::eval::{closure_type, namely_type};
 use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
 use crate::infra::result::WrapResult;
