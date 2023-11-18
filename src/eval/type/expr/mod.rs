@@ -4,8 +4,9 @@ use std::fmt::{Debug, Formatter};
 use std::ops::Deref;
 use std::rc::Rc;
 
+pub use primitive_op::*;
+
 use crate::eval::env::expr_env::ExprEnv;
-use crate::eval::r#type::expr::primitive_op::PrimitiveOp;
 use crate::eval::r#type::r#type::OptType;
 use crate::eval::r#type::r#type::Type;
 use crate::infra::option::WrapOption;

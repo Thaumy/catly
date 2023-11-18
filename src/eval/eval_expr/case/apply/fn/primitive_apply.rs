@@ -10,8 +10,8 @@ use crate::eval::eval_expr::case::apply::{
     int_expr
 };
 use crate::eval::eval_expr::EvalRet;
-use crate::eval::r#type::expr::primitive_op::PrimitiveOp;
 use crate::eval::r#type::expr::Expr;
+use crate::eval::r#type::expr::PrimitiveOp;
 use crate::infra::option::WrapOption;
 use crate::infra::result::WrapResult;
 
