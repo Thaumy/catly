@@ -10,7 +10,7 @@ use crate::infra::option::WrapOption;
 use crate::infra::quad::{Quad, QuadAnyExt};
 use crate::infra::r#fn::id;
 use crate::infra::rc::RcAnyExt;
-use crate::infra::result::ResultAnyExt;
+use crate::infra::result::WrapResult;
 use crate::infra::vec::VecExt;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::{OptType, Type};
@@ -38,14 +38,14 @@ pub fn case_ri(
                     type_env, case_expr
                 ) {
                     Ok(env_inject) =>
-                        (case_expr, env_inject, then_expr).ok(),
+                        (case_expr, env_inject, then_expr).wrap_ok(),
                     Err((new, old)) =>
                         TypeMissMatch::of_dup_capture(old, new)
                             .quad_r()
-                            .err(),
+                            .wrap_err(),
                 }
             })
-            .try_fold(vec![], |acc, x| acc.chain_push(x?).ok());
+            .try_fold(vec![], |acc, x| acc.chain_push(x?).wrap_ok());
 
         match vec {
             Ok(vec) => vec,
@@ -64,7 +64,7 @@ pub fn case_ri(
                 Quad::L(typed_case_expr) => typed_case_expr
                     .unwrap_type_annot()
                     .clone()
-                    .ok(),
+                    .wrap_ok(),
                 Quad::ML(rc) =>
                 // 确保 case_expr 是模式匹配意义上的常量, 原理与 case_t_rc 相同
                     if rc
@@ -85,13 +85,17 @@ pub fn case_ri(
                         rc.typed_expr
                             .unwrap_type_annot()
                             .clone()
-                            .ok()
+                            .wrap_ok()
                     } else {
                         // 虽然本质上是 case_expr 非模式匹配常量
                         // 但是实际上还是 target_expr 信息不足所致, 原错误返回之
-                        original_err.clone().err()
+                        original_err
+                            .clone()
+                            .wrap_err()
                     },
-                _ => original_err.clone().err() // 原理同上
+                _ => original_err
+                    .clone()
+                    .wrap_err() // 原理同上
             }
         })
         // 采用激进的类型推导策略
@@ -103,15 +107,20 @@ pub fn case_ri(
                 Ok(t) => {
                     match acc {
                         // 对于头一个类型, 只需让它成为初始 acc 类型
-                        None => t.wrap_some().ok(),
+                        None => t.wrap_some().wrap_ok(),
                         // 对于之后的每一个类型, 让它和之前 acc 类型合一
                         Some(acc) => match acc.unify(type_env, &t) {
-                            Some(new_acc) => new_acc.wrap_some().ok(),
-                            None => original_err.clone().err()
+                            Some(new_acc) =>
+                                new_acc.wrap_some().wrap_ok(),
+                            None => original_err
+                                .clone()
+                                .wrap_err()
                         }
                     }
                 }
-                Err(_) => original_err.clone().err()
+                Err(_) => original_err
+                    .clone()
+                    .wrap_err()
             }
         });
 

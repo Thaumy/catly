@@ -4,7 +4,7 @@ use crate::eval::eval_expr::eval_expr;
 use crate::eval::r#macro::namely_type;
 use crate::eval::r#type::expr::Expr;
 use crate::infra::rc::RcAnyExt;
-use crate::infra::result::ResultAnyExt;
+use crate::infra::result::WrapResult;
 
 // let a = 10 in a
 #[test]
@@ -23,7 +23,7 @@ fn test_part1() {
 
     let r = Expr::Int(namely_type!("Int"), 10);
 
-    assert_eq!(evaluated, r.ok());
+    assert_eq!(evaluated, r.wrap_ok());
 }
 
 // let a = 20, b = 10 in a
@@ -50,7 +50,7 @@ fn test_part2() {
 
     let r = Expr::Int(namely_type!("Int"), 20);
 
-    assert_eq!(evaluated, r.ok());
+    assert_eq!(evaluated, r.wrap_ok());
 }
 
 // let a = 20, b = 10, a = 5 in a
@@ -85,5 +85,5 @@ fn test_part3() {
 
     let r = Expr::Int(namely_type!("Int"), 5);
 
-    assert_eq!(evaluated, r.ok());
+    assert_eq!(evaluated, r.wrap_ok());
 }

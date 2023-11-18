@@ -5,7 +5,7 @@ use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::WrapOption;
 use crate::infra::quad::QuadAnyExt;
 use crate::infra::r#fn::id;
-use crate::infra::result::ResultAnyExt;
+use crate::infra::result::WrapResult;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::Type;
 use crate::parser::r#type::r#type::{OptType, ProdField};
@@ -46,7 +46,7 @@ pub fn is_struct_vec_of_type_then_get_prod_vec(
                     })
                     .all(id))
                 .then_some(prod_vec)
-                .ok(),
+                .wrap_ok(),
 
             Some(Type::SumType(sum_vec)) => sum_vec
                 .into_iter()
@@ -63,20 +63,20 @@ pub fn is_struct_vec_of_type_then_get_prod_vec(
                         format!(
                             "{expect_type:?} <> type of Struct{struct_vec:?}"
                         )).quad_r()
-                        .err()
+                        .wrap_err()
                 ),
 
             Some(t) => TypeMissMatch::of(format!(
                 "{t:?} <> type of Struct{struct_vec:?}"
             )).quad_r()
-                .err(),
+                .wrap_err(),
 
             None => TypeMissMatch::of(format!(
                 "{expect_type:?} not found in type env"
             )).quad_r()
-                .err()
+                .wrap_err()
         }
     } else {
-        None.ok()
+        None.wrap_ok()
     }
 }

@@ -1,11 +1,11 @@
-pub trait ResultAnyExt
+pub trait WrapResult
 where
     Self: Sized
 {
     #[inline]
-    fn ok<E>(self) -> Result<Self, E> { Ok(self) }
+    fn wrap_ok<E>(self) -> Result<Self, E> { Ok(self) }
     #[inline]
-    fn err<O>(self) -> Result<O, Self> { Err(self) }
+    fn wrap_err<O>(self) -> Result<O, Self> { Err(self) }
 }
 
-impl<T> ResultAnyExt for T {}
+impl<T> WrapResult for T {}

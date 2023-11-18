@@ -13,7 +13,7 @@ use crate::eval::eval_expr::EvalRet;
 use crate::eval::r#type::expr::primitive_op::PrimitiveOp;
 use crate::eval::r#type::expr::Expr;
 use crate::infra::option::WrapOption;
-use crate::infra::result::ResultAnyExt;
+use crate::infra::result::WrapResult;
 
 pub fn primitive_apply(
     type_env: &TypeEnv,
@@ -96,5 +96,5 @@ pub fn primitive_apply(
         PrimitiveOp::Or(Some(e)) =>
             bool_expr(lhs_bool(e)? || rhs_bool()?),
     }
-    .ok()
+    .wrap_ok()
 }

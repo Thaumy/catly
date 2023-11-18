@@ -7,7 +7,7 @@ use crate::eval::r#macro::{false_type, namely_type, true_type};
 use crate::eval::r#type::eval_err::EvalErr;
 use crate::eval::r#type::expr::Expr;
 use crate::eval::r#type::r#type::Type;
-use crate::infra::result::ResultAnyExt;
+use crate::infra::result::WrapResult;
 
 pub mod primitive_apply;
 pub mod source_lhs_to_closure;
@@ -18,9 +18,10 @@ pub fn eval_to_bool(
     expr: &Rc<Expr>
 ) -> Result<bool, EvalErr> {
     match eval_expr(type_env, expr_env, expr)? {
-        Expr::Int(Type::NamelyType(n), 1) if n == "True" => true.ok(),
+        Expr::Int(Type::NamelyType(n), 1) if n == "True" =>
+            true.wrap_ok(),
         Expr::Int(Type::NamelyType(n), 0) if n == "False" =>
-            false.ok(),
+            false.wrap_ok(),
         _ => unreachable!()
     }
 }
@@ -31,7 +32,8 @@ pub fn eval_to_int(
     expr: &Rc<Expr>
 ) -> Result<i64, EvalErr> {
     match eval_expr(type_env, expr_env, expr)? {
-        Expr::Int(Type::NamelyType(n), i) if n == "Int" => i.ok(),
+        Expr::Int(Type::NamelyType(n), i) if n == "Int" =>
+            i.wrap_ok(),
         _ => unreachable!()
     }
 }

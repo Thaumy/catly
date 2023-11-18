@@ -17,7 +17,7 @@ use crate::infer::infer_type_of_defs::{
 };
 use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
-use crate::infra::result::ResultAnyExt;
+use crate::infra::result::WrapResult;
 use crate::infra::vec::VecExt;
 use crate::lexer::lexical_analyze;
 use crate::parser::ast::parse_ast;
@@ -63,7 +63,7 @@ fn ct_expr_env_vec_to_rt_expr_env_vec(
             _ => unreachable!()
         })
         .collect::<Vec<ExprEnvEntry>>()
-        .ok()
+        .wrap_ok()
 }
 
 fn def_map_to_env_vec(
@@ -73,23 +73,24 @@ fn def_map_to_env_vec(
     let (ct_type_env_vec, ct_expr_env_vec) =
         def_map_to_ct_env_vec(type_def_map, expr_def_map);
 
-    let rt_type_env_vec: Vec<TypeEnvEntry> =
-        ct_type_env_vec
-            .clone()
-            .into_iter()
-            .map(|(n, t)| (n, t.into()))
-            .try_fold(vec![], |acc, x| match x {
-                (n, Some(t)) => acc.chain_push((n, t)).ok(),
-                x => InferErr::of(format!("Invalid type def: {x:?}"))
-                    .err()
-            })?;
+    let rt_type_env_vec: Vec<TypeEnvEntry> = ct_type_env_vec
+        .clone()
+        .into_iter()
+        .map(|(n, t)| (n, t.into()))
+        .try_fold(vec![], |acc, x| match x {
+            (n, Some(t)) => acc
+                .chain_push((n, t))
+                .wrap_ok(),
+            x => InferErr::of(format!("Invalid type def: {x:?}"))
+                .wrap_err()
+        })?;
 
     let rt_expr_env_vec = ct_expr_env_vec_to_rt_expr_env_vec(
         CtTypeEnv::new(ct_type_env_vec),
         ct_expr_env_vec
     )?;
 
-    (rt_type_env_vec, rt_expr_env_vec).ok()
+    (rt_type_env_vec, rt_expr_env_vec).wrap_ok()
 }
 
 pub fn parse_to_env<'t>(

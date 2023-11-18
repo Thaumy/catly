@@ -10,7 +10,7 @@ use crate::eval::r#type::expr::Expr;
 use crate::eval::r#type::r#type::Type;
 use crate::infra::either::{Either, EitherAnyExt};
 use crate::infra::rc::RcAnyExt;
-use crate::infra::result::ResultAnyExt;
+use crate::infra::result::WrapResult;
 
 pub fn source_lhs_expr_to_closure(
     type_env: &'_ TypeEnv,
@@ -42,7 +42,7 @@ pub fn source_lhs_expr_to_closure(
                 .unwrap_or(expr_env.clone())
         )
             .l()
-            .ok(),
+            .wrap_ok(),
 
         Expr::PrimitiveOp(_, op, lhs_eval_env) => (
             op.deref().clone(),
@@ -53,7 +53,7 @@ pub fn source_lhs_expr_to_closure(
                 .unwrap_or(expr_env.clone())
         )
             .r()
-            .ok(),
+            .wrap_ok(),
 
         // 由于现在 Closure 和 PrimitiveOp 会捕获环境
         // 所以可以对 lhs_expr 进行自由求值

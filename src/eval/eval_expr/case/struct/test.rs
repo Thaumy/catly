@@ -4,7 +4,7 @@ use crate::eval::eval_expr::eval_expr;
 use crate::eval::r#macro::{namely_type, prod_type};
 use crate::eval::r#type::expr::Expr;
 use crate::infra::rc::RcAnyExt;
-use crate::infra::result::ResultAnyExt;
+use crate::infra::result::WrapResult;
 
 // { a: Int = 10, b: Bool = true, c: Unit = ()}
 #[test]
@@ -39,5 +39,5 @@ fn test_part1() {
     let evaluated =
         eval_expr(&type_env, &expr_env, &expr.clone().rc());
 
-    assert_eq!(evaluated, expr.ok());
+    assert_eq!(evaluated, expr.wrap_ok());
 }

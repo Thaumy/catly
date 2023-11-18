@@ -6,7 +6,7 @@ use crate::eval::r#type::expr::primitive_op::PrimitiveOp;
 use crate::eval::r#type::expr::Expr;
 use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
-use crate::infra::result::ResultAnyExt;
+use crate::infra::result::WrapResult;
 
 // neg 10
 #[test]
@@ -22,7 +22,7 @@ fn test_part1() {
 
     let r = Expr::Int(namely_type!("Int"), -10);
 
-    assert_eq!(evaluated, r.ok());
+    assert_eq!(evaluated, r.wrap_ok());
 }
 
 // add 10
@@ -43,7 +43,7 @@ fn test_part2() {
             .wrap_some()
     ));
 
-    assert_eq!(evaluated, r.ok());
+    assert_eq!(evaluated, r.wrap_ok());
 }
 
 // add 10 10
@@ -65,7 +65,7 @@ fn test_part3() {
 
     let r = Expr::Int(namely_type!("Int"), 20);
 
-    assert_eq!(evaluated, r.ok());
+    assert_eq!(evaluated, r.wrap_ok());
 }
 
 // not false
@@ -86,7 +86,7 @@ fn test_part4() {
             .wrap_some()
     ));
 
-    assert_eq!(evaluated, r.ok());
+    assert_eq!(evaluated, r.wrap_ok());
 }
 
 // and false
@@ -107,7 +107,7 @@ fn test_part5() {
             .wrap_some()
     ));
 
-    assert_eq!(evaluated, r.ok());
+    assert_eq!(evaluated, r.wrap_ok());
 }
 
 // and true false
@@ -129,5 +129,5 @@ fn test_part6() {
 
     let r = Expr::Int(namely_type!("False"), 0);
 
-    assert_eq!(evaluated, r.ok());
+    assert_eq!(evaluated, r.wrap_ok());
 }

@@ -10,7 +10,7 @@ use crate::eval::r#type::eval_err::EvalErr;
 use crate::eval::r#type::expr::{Expr, StructField};
 use crate::eval::r#type::r#type::Type;
 use crate::infra::rc::RcAnyExt;
-use crate::infra::result::ResultAnyExt;
+use crate::infra::result::WrapResult;
 use crate::infra::vec::VecExt;
 
 pub fn case_struct(
@@ -27,15 +27,15 @@ pub fn case_struct(
                 sf_t.clone(),
                 eval_expr(type_env, expr_env, sf_e)?.rc()
             )
-                .ok()
+                .wrap_ok()
         })
         .try_fold(vec![], |acc, x| {
             acc.chain_push(x?)
-                .ok::<EvalErr>()
+                .wrap_ok::<EvalErr>()
         });
 
     match struct_vec {
-        Ok(vec) => Expr::Struct(type_annot.clone(), vec).ok(),
-        Err(e) => e.err()
+        Ok(vec) => Expr::Struct(type_annot.clone(), vec).wrap_ok(),
+        Err(e) => e.wrap_err()
     }
 }

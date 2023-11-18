@@ -7,7 +7,7 @@ use crate::eval::env::expr_env::ExprEnv;
 use crate::eval::env::type_env::TypeEnv;
 use crate::eval::eval_expr::{eval_expr, EvalRet};
 use crate::eval::r#type::eval_err::EvalErr;
-use crate::infra::result::ResultAnyExt;
+use crate::infra::result::WrapResult;
 
 pub fn case_env_ref(
     type_env: &TypeEnv,
@@ -24,6 +24,6 @@ pub fn case_env_ref(
         None => EvalErr::EnvRefNotFound(format!(
             "EnvRef::{ref_name:?} not found in expr env"
         ))
-        .err()
+        .wrap_err()
     }
 }

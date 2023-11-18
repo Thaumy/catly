@@ -8,7 +8,7 @@ use crate::infer::infer_type::r#type::env_ref_constraint::EnvRefConstraint;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::quad::Quad;
 use crate::infra::rc::RcAnyExt;
-use crate::infra::result::ResultAnyExt;
+use crate::infra::result::WrapResult;
 use crate::infra::vec::VecExt;
 
 enum EntryAction {
@@ -62,7 +62,7 @@ pub fn infer_type_of_defs(
                         entry,
                         EnvRefConstraint::empty()
                     )
-                    .ok()
+                    .wrap_ok()
                 }
                 Quad::ML(rc) => {
                     let entry = {
@@ -79,13 +79,14 @@ pub fn infer_type_of_defs(
                         (n, tc, EnvRefSrc::Src(rc.typed_expr))
                     };
 
-                    EntryAction::Remove(entry, rc.constraint).ok()
+                    EntryAction::Remove(entry, rc.constraint)
+                        .wrap_ok()
                 }
                 Quad::MR(ri) => {
                     let entry = (n, tc, src);
-                    EntryAction::Keep(entry, ri.constraint).ok()
+                    EntryAction::Keep(entry, ri.constraint).wrap_ok()
                 }
-                Quad::R(e) => InferErr::of(e.info).err()
+                Quad::R(e) => InferErr::of(e.info).wrap_err()
             },
             EnvRefSrc::NoSrc => match tc {
                 TypeConstraint::Constraint(_) => {
@@ -94,7 +95,7 @@ pub fn infer_type_of_defs(
                         entry,
                         EnvRefConstraint::empty()
                     )
-                    .ok()
+                    .wrap_ok()
                 }
                 TypeConstraint::Free => {
                     let entry = (n, tc, src);
@@ -102,7 +103,7 @@ pub fn infer_type_of_defs(
                         entry,
                         EnvRefConstraint::empty()
                     )
-                    .ok()
+                    .wrap_ok()
                 }
             }
         })
@@ -114,7 +115,7 @@ pub fn infer_type_of_defs(
                         let constraint_acc = match constraint_acc
                             .extend_new(c.clone())
                         {
-                            Some(c) => c.ok(),
+                            Some(c) => c.wrap_ok(),
                             None => InferErr::of(
                                 TypeMissMatch::of_constraint(
                                     &constraint_acc,
@@ -122,7 +123,7 @@ pub fn infer_type_of_defs(
                                 )
                                 .info
                             )
-                            .err()
+                            .wrap_err()
                         }?;
 
                         (
@@ -130,13 +131,13 @@ pub fn infer_type_of_defs(
                             inferred,
                             constraint_acc
                         )
-                            .ok()
+                            .wrap_ok()
                     }
                     EntryAction::Remove(entry, c) => {
                         let constraint_acc = match constraint_acc
                             .extend_new(c.clone())
                         {
-                            Some(c) => c.ok(),
+                            Some(c) => c.wrap_ok(),
                             None => InferErr::of(
                                 TypeMissMatch::of_constraint(
                                     &constraint_acc,
@@ -144,7 +145,7 @@ pub fn infer_type_of_defs(
                                 )
                                 .info
                             )
-                            .err()
+                            .wrap_err()
                         }?;
 
                         (
@@ -152,20 +153,20 @@ pub fn infer_type_of_defs(
                             inferred.chain_push(entry),
                             constraint_acc
                         )
-                            .ok()
+                            .wrap_ok()
                     }
                 },
-                Err(e) => e.err()
+                Err(e) => e.wrap_err()
             }
         )?;
 
     if need_to_infer.is_empty() {
         // 当没有 def 需要推导时
         // 此时 constraint_acc 一定为空, 因为不存在类型不确定的 def 可供约束
-        inferred.ok()
+        inferred.wrap_ok()
     } else if constraint_acc.is_empty() {
         // 仍有 def 需要推导, 但本轮次并未产生新的约束
-        InferErr::of("Need info to infer defs").err()
+        InferErr::of("Need info to infer defs").wrap_err()
     } else {
         // 仍有 def 需要推导, 且本轮次产生了新的约束
         // 将已推导出类型的 def 和约束合并到环境, 进行下一轮推导
@@ -220,6 +221,6 @@ pub fn infer_type_of_defs(
 
         vec![inferred, inferred_from_next_round]
             .concat()
-            .ok()
+            .wrap_ok()
     }
 }

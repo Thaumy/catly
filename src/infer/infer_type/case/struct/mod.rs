@@ -13,7 +13,7 @@ use crate::infer::infer_type::r#type::require_info::ReqInfo;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::WrapOption;
 use crate::infra::quad::Quad;
-use crate::infra::result::ResultAnyExt;
+use crate::infra::result::WrapResult;
 use crate::parser::expr::r#type::{Expr, StructField};
 use crate::parser::r#type::r#type::OptType;
 use crate::parser::r#type::r#type::Type;
@@ -86,27 +86,28 @@ pub fn case(
                 let sf_t = typed_sf_e
                     .unwrap_type_annot()
                     .clone();
-                (sf_n, sf_t, constraint, typed_sf_e).ok()
+                (sf_n, sf_t, constraint, typed_sf_e).wrap_ok()
             }
-            mr => mr.err()
+            mr => mr.wrap_err()
         });
 
     let outer_constraint = sf_n_and_sf_t_with_constraint_and_expr
         .clone()
         .try_fold(EnvRefConstraint::empty(), |acc, x| match x {
             Ok((.., c, _)) => match acc.extend_new(c.clone()) {
-                Some(acc) => acc.ok(),
-                None => TypeMissMatch::of_constraint(&acc, &c).err()
+                Some(acc) => acc.wrap_ok(),
+                None =>
+                    TypeMissMatch::of_constraint(&acc, &c).wrap_err(),
             },
             Err(Quad::MR(ri)) => match acc
                 .extend_new(ri.constraint.clone())
             {
-                Some(acc) => acc.ok(),
+                Some(acc) => acc.wrap_ok(),
                 None =>
                     TypeMissMatch::of_constraint(&acc, &ri.constraint)
-                        .err(),
+                        .wrap_err(),
             },
-            _ => acc.ok()
+            _ => acc.wrap_ok()
         });
 
     // 如果合并约束时发生冲突, 立即返回

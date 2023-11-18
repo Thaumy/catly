@@ -10,7 +10,7 @@ use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::option::WrapOption;
 use crate::infra::quad::{Quad, QuadAnyExt};
 use crate::infra::rc::RcAnyExt;
-use crate::infra::result::ResultAnyExt;
+use crate::infra::result::WrapResult;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::r#type::Type;
 
@@ -65,14 +65,15 @@ where
                         if then_expr_type
                             .can_lift_to(type_env, &expect_type)
                         {
-                            (typed_then_expr, outer_constraint).ok()
+                            (typed_then_expr, outer_constraint)
+                                .wrap_ok()
                         } else {
                             TypeMissMatch::of_type(
                                 then_expr_type,
                                 &expect_type
                             )
                             .quad_r()
-                            .err()
+                            .wrap_err()
                         }
                     }
                     // 同样需要去除对常量环境的约束
@@ -88,10 +89,10 @@ where
                             })
                     )
                     .quad_mr()
-                    .err(),
+                    .wrap_err(),
 
                     // 获取 then_expr_type 时类型不匹配
-                    r => r.err()
+                    r => r.wrap_err()
                 }
             }
         );
@@ -111,18 +112,19 @@ where
         // 与累积约束合并
         .try_fold(EnvRefConstraint::empty(), |acc, x| match x {
             Ok((_, c)) => match acc.extend_new(c.clone()) {
-                Some(acc) => acc.ok(),
-                None => TypeMissMatch::of_constraint(&acc, &c).err()
+                Some(acc) => acc.wrap_ok(),
+                None =>
+                    TypeMissMatch::of_constraint(&acc, &c).wrap_err(),
             },
             Err(Quad::MR(ri)) => match acc
                 .extend_new(ri.constraint.clone())
             {
-                Some(acc) => acc.ok(),
+                Some(acc) => acc.wrap_ok(),
                 None =>
                     TypeMissMatch::of_constraint(&acc, &ri.constraint)
-                        .err(),
+                        .wrap_err(),
             },
-            _ => acc.ok()
+            _ => acc.wrap_ok()
         });
 
     // 如果合并约束时发生冲突, 立即返回

@@ -10,7 +10,7 @@ use crate::infer::infer_type::case::r#match::r#fn::{destruct_match_const_to_expr
 use crate::infer::infer_type::r#type::infer_type_ret::InferTypeRet;
 use crate::infer::infer_type::r#type::type_miss_match::TypeMissMatch;
 use crate::infra::quad::QuadAnyExt;
-use crate::infra::result::ResultAnyExt;
+use crate::infra::result::WrapResult;
 use crate::infra::vec::VecExt;
 use crate::parser::r#type::r#type::OptType;
 use crate::parser::expr::r#type::Expr;
@@ -41,14 +41,14 @@ pub fn case_t_rc(
                     type_env, &case_expr
                 ) {
                     Ok(env_inject) =>
-                        (case_expr, env_inject, then_expr).ok(),
+                        (case_expr, env_inject, then_expr).wrap_ok(),
                     Err((new, old)) =>
                         TypeMissMatch::of_dup_capture(old, new)
                             .quad_r()
-                            .err(),
+                            .wrap_err(),
                 }
             })
-            .try_fold(vec![], |acc, x| acc.chain_push(x?).ok());
+            .try_fold(vec![], |acc, x| acc.chain_push(x?).wrap_ok());
 
         match vec {
             Ok(vec) => vec,

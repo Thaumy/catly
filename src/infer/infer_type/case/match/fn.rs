@@ -11,7 +11,7 @@ use crate::infra::option::WrapOption;
 use crate::infra::quad::Quad;
 use crate::infra::r#fn::id;
 use crate::infra::rc::RcAnyExt;
-use crate::infra::result::ResultAnyExt;
+use crate::infra::result::WrapResult;
 use crate::infra::triple::Triple;
 use crate::infra::vec::VecExt;
 use crate::parser::expr::r#type::Expr;
@@ -82,8 +82,8 @@ pub fn destruct_match_const_to_expr_env_inject(
                     (capture_name.clone(), tc, src),
                     (capture_name, old_tc, old_src)
                 )
-                    .err(),
-                None => acc.ok()
+                    .wrap_err(),
+                None => acc.wrap_ok()
             }
         )
         .map(|hash_map| {
@@ -173,11 +173,11 @@ pub fn is_case_expr_valid<'t>(
             }
         })
         .try_fold(vec![], |acc, x| match x {
-            Quad::L(e) => acc.chain_push(e).ok(),
+            Quad::L(e) => acc.chain_push(e).wrap_ok(),
             Quad::ML(rc) => acc
                 .chain_push(rc.typed_expr)
-                .ok(),
+                .wrap_ok(),
             Quad::MR(_) => unreachable!(),
-            Quad::R(err) => err.err()
+            Quad::R(err) => err.wrap_err()
         })
 }

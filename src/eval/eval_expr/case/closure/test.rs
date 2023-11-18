@@ -5,7 +5,7 @@ use crate::eval::r#macro::{closure_type, namely_type};
 use crate::eval::r#type::expr::Expr;
 use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
-use crate::infra::result::ResultAnyExt;
+use crate::infra::result::WrapResult;
 
 // (a: Int) -> 1
 #[test]
@@ -23,7 +23,7 @@ fn test_part1() {
     let evaluated =
         eval_expr(&type_env, &expr_env, &expr.clone().rc());
 
-    assert_ne!(evaluated, expr.ok());
+    assert_ne!(evaluated, expr.wrap_ok());
 }
 
 // (_: Int) -> 1
@@ -42,7 +42,7 @@ fn test_part2() {
     let evaluated =
         eval_expr(&type_env, &expr_env, &expr.clone().rc());
 
-    assert_ne!(evaluated, expr.ok());
+    assert_ne!(evaluated, expr.wrap_ok());
 }
 
 // (a: Int) -> 1
@@ -68,7 +68,7 @@ fn test_part3() {
         expr_env.wrap_some()
     );
 
-    assert_eq!(evaluated, r.ok());
+    assert_eq!(evaluated, r.wrap_ok());
 }
 
 // (_: Int) -> 1
@@ -94,5 +94,5 @@ fn test_part4() {
         expr_env.wrap_some()
     );
 
-    assert_eq!(evaluated, r.ok());
+    assert_eq!(evaluated, r.wrap_ok());
 }

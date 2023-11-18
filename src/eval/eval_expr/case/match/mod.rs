@@ -12,7 +12,7 @@ use crate::eval::r#type::eval_err::EvalErr;
 use crate::eval::r#type::expr::Expr;
 use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
-use crate::infra::result::ResultAnyExt;
+use crate::infra::result::WrapResult;
 
 pub fn case_match(
     type_env: &TypeEnv,
@@ -44,6 +44,6 @@ pub fn case_match(
             EvalErr::NonExhaustiveMatch(format!(
                 "Non-exhaustive match expr cases: {case_vec:?}"
             ))
-            .err()
+            .wrap_err()
         })
 }

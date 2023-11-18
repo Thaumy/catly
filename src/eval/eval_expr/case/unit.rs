@@ -1,10 +1,10 @@
 use crate::eval::eval_expr::EvalRet;
 use crate::eval::r#type::expr::Expr;
 use crate::eval::r#type::r#type::Type;
-use crate::infra::result::ResultAnyExt;
+use crate::infra::result::WrapResult;
 
 pub fn case_unit(type_annot: &Type) -> EvalRet {
-    Expr::Unit(type_annot.clone()).ok()
+    Expr::Unit(type_annot.clone()).wrap_ok()
 }
 
 #[cfg(test)]
@@ -15,7 +15,7 @@ mod test {
     use crate::eval::r#macro::namely_type;
     use crate::eval::r#type::expr::Expr;
     use crate::infra::rc::RcAnyExt;
-    use crate::infra::result::ResultAnyExt;
+    use crate::infra::result::WrapResult;
 
     // (): Unit
     #[test]
@@ -27,6 +27,6 @@ mod test {
         let evaluated =
             eval_expr(&type_env, &expr_env, &expr.clone().rc());
 
-        assert_eq!(evaluated, expr.ok());
+        assert_eq!(evaluated, expr.wrap_ok());
     }
 }

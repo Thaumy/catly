@@ -6,7 +6,7 @@ use crate::eval::r#type::expr::primitive_op::PrimitiveOp;
 use crate::eval::r#type::expr::Expr;
 use crate::infra::option::WrapOption;
 use crate::infra::rc::RcAnyExt;
-use crate::infra::result::ResultAnyExt;
+use crate::infra::result::WrapResult;
 
 // add
 #[test]
@@ -22,7 +22,7 @@ fn test_part1() {
     let evaluated =
         eval_expr(&type_env, &expr_env, &expr.clone().rc());
 
-    assert_eq!(evaluated, expr.ok());
+    assert_eq!(evaluated, expr.wrap_ok());
 }
 
 // add 1
@@ -44,7 +44,7 @@ fn test_part2() {
     let evaluated =
         eval_expr(&type_env, &expr_env, &expr.clone().rc());
 
-    assert_eq!(evaluated, expr.ok());
+    assert_eq!(evaluated, expr.wrap_ok());
 }
 
 // add
@@ -66,7 +66,7 @@ fn test_part3() {
         expr_env.wrap_some()
     );
 
-    assert_ne!(evaluated, r.ok());
+    assert_ne!(evaluated, r.wrap_ok());
 }
 
 // add 1
@@ -98,5 +98,5 @@ fn test_part4() {
         expr_env.wrap_some()
     );
 
-    assert_ne!(evaluated, r.ok());
+    assert_ne!(evaluated, r.wrap_ok());
 }
