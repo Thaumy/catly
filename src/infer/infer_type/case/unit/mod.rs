@@ -4,9 +4,9 @@ mod test;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::env::unit_type;
 use crate::infer::infer_type::InferTypeRet;
-use crate::infra::option::WrapOption;
+use crate::infra::WrapOption;
 use crate::parser::expr::r#type::Expr;
-use crate::parser::r#type::r#type::OptType;
+use crate::parser::r#type::OptType;
 
 pub fn case(
     type_env: &TypeEnv,

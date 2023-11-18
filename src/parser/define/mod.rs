@@ -2,8 +2,8 @@ use crate::lexer::Token;
 use crate::parser::define::pat::Pat;
 use crate::parser::define::r#fn::go;
 use crate::parser::expr::r#type::Expr;
-use crate::parser::r#type::r#type::OptType;
-use crate::parser::r#type::r#type::Type;
+use crate::parser::r#type::OptType;
+use crate::parser::r#type::Type;
 
 mod r#fn;
 mod pat;

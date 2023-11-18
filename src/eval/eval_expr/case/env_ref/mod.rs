@@ -7,7 +7,7 @@ use crate::eval::env::ExprEnv;
 use crate::eval::env::TypeEnv;
 use crate::eval::eval_expr::{eval_expr, EvalRet};
 use crate::eval::EvalErr;
-use crate::infra::result::WrapResult;
+use crate::infra::WrapResult;
 
 pub fn case_env_ref(
     type_env: &TypeEnv,

@@ -9,11 +9,11 @@ pub use primitive_op::*;
 use crate::eval::env::ExprEnv;
 use crate::eval::OptType;
 use crate::eval::Type;
-use crate::infra::option::WrapOption;
-use crate::infra::rc::RcAnyExt;
-use crate::infra::vec::VecExt;
+use crate::infra::RcAnyExt;
+use crate::infra::VecExt;
+use crate::infra::WrapOption;
 use crate::parser::expr::r#type::Expr as CtExpr;
-use crate::parser::r#type::r#type::Type as CtType;
+use crate::parser::r#type::Type as CtType;
 
 pub type OptExpr = Option<Expr>;
 

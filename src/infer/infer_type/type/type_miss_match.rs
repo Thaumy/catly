@@ -2,8 +2,8 @@ use std::fmt::{Debug, Formatter};
 
 use crate::infer::infer_type::EnvRefConstraint;
 use crate::infer::infer_type::InferTypeRet;
-use crate::infra::quad::QuadAnyExt;
-use crate::parser::r#type::r#type::Type;
+use crate::infra::QuadAnyExt;
+use crate::parser::r#type::Type;
 
 #[derive(PartialEq, Clone)]
 pub struct TypeMissMatch {

@@ -1,5 +1,5 @@
-use crate::infra::iter::IteratorExt;
-use crate::infra::vec::VecExt;
+use crate::infra::IteratorExt;
+use crate::infra::VecExt;
 
 fn any(c: char) -> AnyOrBlank { Some(c) }
 

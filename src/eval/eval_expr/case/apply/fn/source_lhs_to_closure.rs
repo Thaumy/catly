@@ -8,9 +8,9 @@ use crate::eval::EvalErr;
 use crate::eval::Expr;
 use crate::eval::PrimitiveOp;
 use crate::eval::Type;
-use crate::infra::either::{Either, EitherAnyExt};
-use crate::infra::rc::RcAnyExt;
-use crate::infra::result::WrapResult;
+use crate::infra::RcAnyExt;
+use crate::infra::WrapResult;
+use crate::infra::{Either, EitherAnyExt};
 
 pub fn source_lhs_expr_to_closure(
     type_env: &'_ TypeEnv,

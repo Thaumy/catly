@@ -8,8 +8,8 @@ use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::EnvRefConstraint;
 use crate::infer::infer_type::InferTypeRet;
 use crate::infer::infer_type::ReqInfo;
-use crate::infra::option::WrapOption;
-use crate::infra::quad::Quad;
+use crate::infra::Quad;
+use crate::infra::WrapOption;
 use crate::parser::expr::r#type::Expr;
 
 fn gen_env<'t>() -> (TypeEnv<'t>, Rc<ExprEnv>) {

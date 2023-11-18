@@ -2,8 +2,8 @@ use int::lift_int;
 use unit::lift_unit;
 
 use crate::infer::env::type_env::TypeEnv;
-use crate::infra::option::WrapOption;
-use crate::parser::r#type::r#type::Type;
+use crate::infra::WrapOption;
+use crate::parser::r#type::Type;
 
 mod int;
 mod unit;

@@ -1,7 +1,7 @@
 #[allow(unused_macros)]
 macro_rules! int_type {
     () => {{
-        use crate::parser::r#type::r#type::Type;
+        use crate::parser::r#type::Type;
         Type::NamelyType("Int".to_string())
     }};
 }
@@ -11,7 +11,7 @@ pub(crate) use int_type;
 #[allow(unused_macros)]
 macro_rules! unit_type {
     () => {{
-        use crate::parser::r#type::r#type::Type;
+        use crate::parser::r#type::Type;
         Type::NamelyType("Unit".to_string())
     }};
 }
@@ -21,7 +21,7 @@ pub(crate) use unit_type;
 #[allow(unused_macros)]
 macro_rules! namely_type {
     ($str:expr) => {{
-        use crate::parser::r#type::r#type::Type;
+        use crate::parser::r#type::Type;
         Type::NamelyType($str.to_string())
     }};
 }
@@ -31,8 +31,8 @@ pub(crate) use namely_type;
 #[allow(unused_macros)]
 macro_rules! closure_type {
     ($lhs:expr, $rhs:expr) => {{
-        use crate::infra::rc::RcAnyExt;
-        use crate::parser::r#type::r#type::Type;
+        use crate::infra::RcAnyExt;
+        use crate::parser::r#type::Type;
 
         Type::ClosureType($lhs.rc(), $rhs.rc())
     }};
@@ -43,7 +43,7 @@ pub(crate) use closure_type;
 #[allow(unused_macros)]
 macro_rules! prod_type {
     ($($types:expr),* $(,)?) => ({
-        use crate::parser::r#type::r#type::Type;
+        use crate::parser::r#type::Type;
 
         Type::ProdType(vec![
             $(($types),)*
@@ -57,7 +57,7 @@ pub(crate) use prod_type;
 macro_rules! sum_type {
     ($($types:expr),* $(,)?) => ({
         use crate::{btree_set};
-        use crate::parser::r#type::r#type::Type;
+        use crate::parser::r#type::Type;
 
         Type::SumType(btree_set![
             $(($types),)*
@@ -70,7 +70,7 @@ pub(crate) use sum_type;
 #[allow(unused_macros)]
 macro_rules! true_type {
     () => {{
-        use crate::parser::r#type::r#type::Type;
+        use crate::parser::r#type::Type;
         Type::NamelyType("True".to_string())
     }};
 }
@@ -80,7 +80,7 @@ pub(crate) use true_type;
 #[allow(unused_macros)]
 macro_rules! false_type {
     () => {{
-        use crate::parser::r#type::r#type::Type;
+        use crate::parser::r#type::Type;
         Type::NamelyType("False".to_string())
     }};
 }
@@ -90,7 +90,7 @@ pub(crate) use false_type;
 #[allow(unused_macros)]
 macro_rules! bool_type {
     () => {{
-        use crate::parser::r#type::r#type::Type;
+        use crate::parser::r#type::Type;
         Type::NamelyType("Bool".to_string())
     }};
 }

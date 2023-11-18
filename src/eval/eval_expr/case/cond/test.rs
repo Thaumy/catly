@@ -3,8 +3,8 @@ use crate::eval::env::TypeEnv;
 use crate::eval::eval_expr::eval_expr;
 use crate::eval::namely_type;
 use crate::eval::Expr;
-use crate::infra::rc::RcAnyExt;
-use crate::infra::result::WrapResult;
+use crate::infra::RcAnyExt;
+use crate::infra::WrapResult;
 
 // if false then 10 else 20
 #[test]

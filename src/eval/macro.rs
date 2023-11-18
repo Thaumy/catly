@@ -32,7 +32,7 @@ pub(crate) use namely_type;
 macro_rules! closure_type {
     ($lhs:expr, $rhs:expr) => {{
         use crate::eval::Type;
-        use crate::infra::rc::RcAnyExt;
+        use crate::infra::RcAnyExt;
 
         Type::ClosureType($lhs.rc(), $rhs.rc())
     }};

@@ -1,5 +1,5 @@
-use crate::infra::option::WrapOption;
-use crate::infra::vec::VecExt;
+use crate::infra::VecExt;
+use crate::infra::WrapOption;
 use crate::lexer::Token;
 use crate::parser::define::{parse_define, Define};
 

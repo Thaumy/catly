@@ -2,13 +2,13 @@ use std::collections::BTreeSet;
 use std::ops::Deref;
 use std::rc::Rc;
 
-use crate::infra::btree_set::BtreeSetExt;
-use crate::infra::option::WrapOption;
-use crate::infra::rc::RcAnyExt;
-use crate::infra::vec::VecExt;
+use crate::infra::BtreeSetExt;
+use crate::infra::RcAnyExt;
+use crate::infra::VecExt;
+use crate::infra::WrapOption;
 use crate::parser::expr::r#type::{Expr, OptExpr};
 use crate::parser::keyword::Keyword;
-use crate::parser::r#type::r#type::{OptType, Type};
+use crate::parser::r#type::{OptType, Type};
 
 pub type OptRcPat = Option<Rc<Pat>>;
 

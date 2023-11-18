@@ -12,11 +12,11 @@ use crate::infer::infer_type::case::r#let::case_ri::case_ri;
 use crate::infer::infer_type::case::r#let::case_t_rc::case_t_rc;
 use crate::infer::infer_type::InferTypeRet;
 use crate::infer::infer_type::TypeMissMatch;
-use crate::infra::option::WrapOption;
-use crate::infra::rc::RcAnyExt;
-use crate::infra::triple::Triple;
+use crate::infra::RcAnyExt;
+use crate::infra::Triple;
+use crate::infra::WrapOption;
 use crate::parser::expr::r#type::Expr;
-use crate::parser::r#type::r#type::OptType;
+use crate::parser::r#type::OptType;
 
 pub fn case(
     type_env: &TypeEnv,

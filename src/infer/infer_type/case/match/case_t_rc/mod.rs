@@ -9,10 +9,10 @@ use crate::infer::infer_type::case::r#match::case_t_rc::on_no_expect_type::on_no
 use crate::infer::infer_type::case::r#match::r#fn::{destruct_match_const_to_expr_env_inject, is_case_expr_valid};
 use crate::infer::infer_type::InferTypeRet;
 use crate::infer::infer_type::TypeMissMatch;
-use crate::infra::quad::QuadAnyExt;
-use crate::infra::result::WrapResult;
-use crate::infra::vec::VecExt;
-use crate::parser::r#type::r#type::OptType;
+use crate::infra::QuadAnyExt;
+use crate::infra::WrapResult;
+use crate::infra::VecExt;
+use crate::parser::r#type::OptType;
 use crate::parser::expr::r#type::Expr;
 
 pub fn case_t_rc(

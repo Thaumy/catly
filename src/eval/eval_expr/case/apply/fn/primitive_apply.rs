@@ -12,8 +12,8 @@ use crate::eval::eval_expr::case::apply::{
 use crate::eval::eval_expr::EvalRet;
 use crate::eval::Expr;
 use crate::eval::PrimitiveOp;
-use crate::infra::option::WrapOption;
-use crate::infra::result::WrapResult;
+use crate::infra::WrapOption;
+use crate::infra::WrapResult;
 
 pub fn primitive_apply(
     type_env: &TypeEnv,

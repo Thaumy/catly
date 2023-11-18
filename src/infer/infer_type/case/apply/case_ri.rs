@@ -3,11 +3,11 @@ use std::rc::Rc;
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::InferTypeRet;
-use crate::infra::rc::RcAnyExt;
-use crate::infra::triple::Triple;
+use crate::infra::RcAnyExt;
+use crate::infra::Triple;
 use crate::parser::expr::r#type::Expr;
-use crate::parser::r#type::r#type::OptType;
-use crate::parser::r#type::r#type::Type;
+use crate::parser::r#type::OptType;
+use crate::parser::r#type::Type;
 
 pub fn case_ri(
     type_env: &TypeEnv,

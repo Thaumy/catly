@@ -13,7 +13,7 @@ use crate::infer::infer_type::test::{
     check_req_constraint
 };
 use crate::infer::infer_type::EnvRefConstraint;
-use crate::infra::quad::Quad;
+use crate::infra::Quad;
 
 fn gen_env<'t>() -> (TypeEnv<'t>, Rc<ExprEnv>) {
     let seq = "

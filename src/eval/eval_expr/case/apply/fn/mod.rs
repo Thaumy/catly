@@ -7,7 +7,7 @@ use crate::eval::EvalErr;
 use crate::eval::Expr;
 use crate::eval::Type;
 use crate::eval::{false_type, namely_type, true_type};
-use crate::infra::result::WrapResult;
+use crate::infra::WrapResult;
 
 mod primitive_apply;
 mod source_lhs_to_closure;

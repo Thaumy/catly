@@ -7,11 +7,11 @@ use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::case::cond::infer_branch_type::case_ri::case_ri;
 use crate::infer::infer_type::case::cond::infer_branch_type::case_t_rc::case_t_rc;
 use crate::infer::infer_type::InferTypeRet;
-use crate::infra::option::WrapOption;
-use crate::infra::rc::RcAnyExt;
-use crate::infra::triple::Triple;
+use crate::infra::WrapOption;
+use crate::infra::RcAnyExt;
+use crate::infra::Triple;
 use crate::parser::expr::r#type::Expr;
-use crate::parser::r#type::r#type::OptType;
+use crate::parser::r#type::OptType;
 
 pub fn infer_branch_type(
     type_env: &TypeEnv,

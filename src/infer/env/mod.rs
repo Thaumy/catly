@@ -3,13 +3,13 @@ use std::rc::Rc;
 
 use crate::infer::env::expr_env::{ExprEnv, ExprEnvEntry};
 use crate::infer::env::type_env::{TypeEnv, TypeEnvEntry};
-use crate::infra::option::WrapOption;
-use crate::infra::rc::RcAnyExt;
+use crate::infra::RcAnyExt;
+use crate::infra::WrapOption;
 use crate::lexer::lexical_analyze;
 use crate::parser::ast::parse_ast;
 use crate::parser::define::Define;
 use crate::parser::expr::r#type::Expr;
-use crate::parser::r#type::r#type::{OptType, Type};
+use crate::parser::r#type::{OptType, Type};
 use crate::pp::preprocess;
 
 pub mod expr_env;

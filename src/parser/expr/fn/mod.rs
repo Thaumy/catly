@@ -1,7 +1,7 @@
 mod move_in;
 mod reduce_stack;
 
-use crate::infra::iter::IteratorExt;
+use crate::infra::IteratorExt;
 use crate::lexer::Token;
 use crate::parser::expr::pat::Pat;
 use crate::parser::expr::r#fn::move_in::move_in;

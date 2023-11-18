@@ -3,11 +3,11 @@ use std::fmt::{Debug, Formatter};
 use std::ops::Deref;
 use std::rc::Rc;
 
-use crate::infra::btree_set::BtreeSetExt;
-use crate::infra::option::WrapOption;
-use crate::infra::rc::RcAnyExt;
-use crate::infra::vec::VecExt;
-use crate::parser::r#type::r#type::Type as CtType;
+use crate::infra::BtreeSetExt;
+use crate::infra::RcAnyExt;
+use crate::infra::VecExt;
+use crate::infra::WrapOption;
+use crate::parser::r#type::Type as CtType;
 
 pub type OptType = Option<Type>;
 

@@ -2,8 +2,8 @@ use std::rc::Rc;
 
 use crate::eval::Expr;
 use crate::eval::Type;
-use crate::infra::option::WrapOption;
-use crate::infra::rc::RcAnyExt;
+use crate::infra::RcAnyExt;
+use crate::infra::WrapOption;
 
 // 某些表达式可能是递归定义的(常见于顶层环境和 Let)
 // 对于这样的表达式, 其求值环境将具具备自引用结构

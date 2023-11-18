@@ -1,4 +1,4 @@
-use crate::infra::option::WrapOption;
+use crate::infra::WrapOption;
 use crate::lexer::chunk::lexer_chunk;
 use crate::lexer::keyword::lexer_keyword;
 use crate::lexer::literal::lexer_literal;

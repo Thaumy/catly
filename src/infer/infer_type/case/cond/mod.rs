@@ -12,10 +12,10 @@ use crate::infer::infer_type::InferTypeRet;
 use crate::infer::infer_type::ReqConstraint;
 use crate::infer::infer_type::ReqInfo;
 use crate::infer::infer_type::TypeMissMatch;
-use crate::infra::quad::QuadAnyExt;
-use crate::infra::triple::Triple;
+use crate::infra::QuadAnyExt;
+use crate::infra::Triple;
 use crate::parser::expr::r#type::Expr;
-use crate::parser::r#type::r#type::OptType;
+use crate::parser::r#type::OptType;
 
 pub fn case(
     type_env: &TypeEnv,

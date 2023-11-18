@@ -1,13 +1,14 @@
 use crate::lexer::Token;
 use crate::parser::r#type::pat::Pat;
 use crate::parser::r#type::r#fn::go;
-use crate::parser::r#type::r#type::OptType;
 
 mod r#fn;
 mod pat;
 #[cfg(test)]
 mod test;
-pub mod r#type;
+mod r#type;
+
+pub use r#type::*;
 
 pub fn parse_type<S>(seq: S) -> OptType
 where

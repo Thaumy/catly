@@ -9,9 +9,9 @@ use crate::eval::eval_expr::{eval_expr, EvalRet};
 use crate::eval::EvalErr;
 use crate::eval::Type;
 use crate::eval::{Expr, StructField};
-use crate::infra::rc::RcAnyExt;
-use crate::infra::result::WrapResult;
-use crate::infra::vec::VecExt;
+use crate::infra::RcAnyExt;
+use crate::infra::VecExt;
+use crate::infra::WrapResult;
 
 pub fn case_struct(
     type_env: &TypeEnv,

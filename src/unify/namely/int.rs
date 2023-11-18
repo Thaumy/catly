@@ -1,7 +1,7 @@
 use crate::infer::env::int_type;
 use crate::infer::env::type_env::TypeEnv;
-use crate::infra::option::WrapOption;
-use crate::parser::r#type::r#type::Type;
+use crate::infra::WrapOption;
+use crate::parser::r#type::Type;
 
 pub fn lift_int(type_env: &TypeEnv, derive: &Type) -> Option<Type> {
     match derive {

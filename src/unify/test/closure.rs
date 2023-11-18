@@ -6,9 +6,9 @@ use crate::infer::env::int_type;
 use crate::infer::env::namely_type;
 use crate::infer::env::sum_type;
 use crate::infer::env::type_env::TypeEnv;
-use crate::infra::option::WrapOption;
-use crate::infra::rc::RcAnyExt;
-use crate::parser::r#type::r#type::Type;
+use crate::infra::RcAnyExt;
+use crate::infra::WrapOption;
+use crate::parser::r#type::Type;
 use crate::unify::closure::lift_closure;
 
 fn env<'t>() -> TypeEnv<'t> {

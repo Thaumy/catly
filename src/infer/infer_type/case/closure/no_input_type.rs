@@ -2,11 +2,11 @@ use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::EnvRefConstraint;
 use crate::infer::infer_type::InferTypeRet;
 use crate::infer::infer_type::ReqInfo;
-use crate::infra::option::WrapOption;
-use crate::infra::rc::RcAnyExt;
+use crate::infra::RcAnyExt;
+use crate::infra::WrapOption;
 use crate::parser::expr::r#type::Expr;
-use crate::parser::r#type::r#type::OptType;
-use crate::parser::r#type::r#type::Type;
+use crate::parser::r#type::OptType;
+use crate::parser::r#type::Type;
 
 pub fn no_input_type<F>(
     type_env: &TypeEnv,

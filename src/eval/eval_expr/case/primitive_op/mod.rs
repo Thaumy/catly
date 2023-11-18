@@ -4,7 +4,7 @@ use crate::eval::eval_expr::EvalRet;
 use crate::eval::Expr;
 use crate::eval::PrimitiveOp;
 use crate::eval::Type;
-use crate::infra::result::WrapResult;
+use crate::infra::WrapResult;
 
 #[cfg(test)]
 mod test;

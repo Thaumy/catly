@@ -7,12 +7,12 @@ use crate::infer::infer_type::EnvRefConstraint;
 use crate::infer::infer_type::InferTypeRet;
 use crate::infer::infer_type::ReqInfo;
 use crate::infer::infer_type::TypeMissMatch;
-use crate::infra::option::WrapOption;
-use crate::infra::quad::{Quad, QuadAnyExt};
-use crate::infra::rc::RcAnyExt;
-use crate::infra::result::WrapResult;
+use crate::infra::RcAnyExt;
+use crate::infra::WrapOption;
+use crate::infra::WrapResult;
+use crate::infra::{Quad, QuadAnyExt};
 use crate::parser::expr::r#type::Expr;
-use crate::parser::r#type::r#type::Type;
+use crate::parser::r#type::Type;
 
 pub fn on_has_expect_type<T>(
     type_env: &TypeEnv,

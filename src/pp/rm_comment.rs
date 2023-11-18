@@ -1,6 +1,6 @@
-use crate::infra::either::Either;
-use crate::infra::iter::IteratorExt;
-use crate::infra::vec::VecExt;
+use crate::infra::Either;
+use crate::infra::IteratorExt;
+use crate::infra::VecExt;
 use crate::pp::rm_comment::Either::*;
 use crate::pp::rm_comment::Pat::*;
 

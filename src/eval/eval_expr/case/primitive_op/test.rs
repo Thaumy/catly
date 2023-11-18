@@ -4,9 +4,9 @@ use crate::eval::eval_expr::eval_expr;
 use crate::eval::Expr;
 use crate::eval::PrimitiveOp;
 use crate::eval::{closure_type, namely_type};
-use crate::infra::option::WrapOption;
-use crate::infra::rc::RcAnyExt;
-use crate::infra::result::WrapResult;
+use crate::infra::RcAnyExt;
+use crate::infra::WrapOption;
+use crate::infra::WrapResult;
 
 // add
 #[test]

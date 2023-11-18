@@ -6,7 +6,7 @@ use prod::lift_prod;
 use sum::lift_sum;
 
 use crate::infer::env::type_env::TypeEnv;
-use crate::parser::r#type::r#type::Type;
+use crate::parser::r#type::Type;
 
 mod closure;
 mod namely;

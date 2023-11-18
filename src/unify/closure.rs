@@ -1,7 +1,7 @@
 use crate::infer::env::type_env::TypeEnv;
-use crate::infra::option::WrapOption;
-use crate::infra::rc::RcAnyExt;
-use crate::parser::r#type::r#type::Type;
+use crate::infra::RcAnyExt;
+use crate::infra::WrapOption;
+use crate::parser::r#type::Type;
 
 pub fn lift_closure(
     type_env: &TypeEnv,

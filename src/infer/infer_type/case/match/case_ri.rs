@@ -6,14 +6,14 @@ use crate::infer::infer_type::case::r#match::r#fn::destruct_match_const_to_expr_
 use crate::infer::infer_type::InferTypeRet;
 use crate::infer::infer_type::ReqInfo;
 use crate::infer::infer_type::TypeMissMatch;
-use crate::infra::option::WrapOption;
-use crate::infra::quad::{Quad, QuadAnyExt};
-use crate::infra::r#fn::id;
-use crate::infra::rc::RcAnyExt;
-use crate::infra::result::WrapResult;
-use crate::infra::vec::VecExt;
+use crate::infra::id;
+use crate::infra::RcAnyExt;
+use crate::infra::VecExt;
+use crate::infra::WrapOption;
+use crate::infra::WrapResult;
+use crate::infra::{Quad, QuadAnyExt};
 use crate::parser::expr::r#type::Expr;
-use crate::parser::r#type::r#type::{OptType, Type};
+use crate::parser::r#type::{OptType, Type};
 
 pub fn case_ri(
     type_env: &TypeEnv,

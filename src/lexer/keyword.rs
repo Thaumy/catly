@@ -1,4 +1,4 @@
-use crate::infra::vec::VecExt;
+use crate::infra::VecExt;
 use crate::parser::keyword::Keyword;
 
 #[derive(Debug, Clone, PartialEq)]

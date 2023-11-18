@@ -8,8 +8,8 @@ use crate::infer::infer_type::require_constraint;
 use crate::infer::infer_type::EnvRefConstraint;
 use crate::infer::infer_type::InferTypeRet;
 use crate::infer::infer_type::ReqInfo;
-use crate::infra::option::WrapOption;
-use crate::infra::triple::Triple;
+use crate::infra::Triple;
+use crate::infra::WrapOption;
 use crate::parser::expr::r#type::Expr;
 
 impl ExprEnv {

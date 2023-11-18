@@ -11,8 +11,8 @@ pub use r#type::*;
 
 use crate::infer::env::expr_env::ExprEnv;
 use crate::infer::env::type_env::TypeEnv;
-use crate::infra::quad::Quad;
-use crate::infra::triple::Triple;
+use crate::infra::Quad;
+use crate::infra::Triple;
 use crate::parser::expr::r#type::Expr;
 
 pub fn infer_type(

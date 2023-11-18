@@ -5,11 +5,11 @@ use crate::infer::infer_type::EnvRefConstraint;
 use crate::infer::infer_type::ReqInfo;
 use crate::infer::infer_type::TypeMissMatch;
 use crate::infer::infer_type::{require_constraint, ReqConstraint};
-use crate::infra::quad::{Quad, QuadAnyExt};
-use crate::infra::triple::Triple;
+use crate::infra::Triple;
+use crate::infra::{Quad, QuadAnyExt};
 use crate::parser::expr::r#type::Expr;
-use crate::parser::r#type::r#type::OptType;
-use crate::parser::r#type::r#type::Type;
+use crate::parser::r#type::OptType;
+use crate::parser::r#type::Type;
 
 pub type InferTypeRet =
     Quad<Expr, ReqConstraint, ReqInfo, TypeMissMatch>;

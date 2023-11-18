@@ -3,7 +3,7 @@ use std::fmt::{Debug, Formatter};
 use crate::infer::infer_type::EnvRefConstraint;
 use crate::infer::infer_type::InferTypeRet;
 use crate::infer::infer_type::TypeMissMatch;
-use crate::infra::quad::QuadAnyExt;
+use crate::infra::QuadAnyExt;
 
 // 需要类型信息
 // 此情况由 namely case 产生时表明缺乏 ref_name 的类型信息

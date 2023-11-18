@@ -1,7 +1,7 @@
 use crate::eval::eval_expr::EvalRet;
 use crate::eval::EvalErr;
 use crate::eval::Type;
-use crate::infra::result::WrapResult;
+use crate::infra::WrapResult;
 
 pub fn case_discard(type_annot: &Type) -> EvalRet {
     EvalErr::EvalDiscard(format!("Trying to eval _:{type_annot:?}"))
@@ -17,7 +17,7 @@ mod test {
     use crate::eval::eval_expr::eval_expr;
     use crate::eval::namely_type;
     use crate::eval::Expr;
-    use crate::infra::rc::RcAnyExt;
+    use crate::infra::RcAnyExt;
 
     // _: Int
     #[test]

@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 
 use crate::eval::Type;
-use crate::infra::option::WrapOption;
+use crate::infra::WrapOption;
 
 pub type TypeEnvEntry = (String, Type);
 

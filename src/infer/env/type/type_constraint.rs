@@ -1,5 +1,5 @@
-use crate::parser::r#type::r#type::OptType;
-use crate::parser::r#type::r#type::Type;
+use crate::parser::r#type::OptType;
+use crate::parser::r#type::Type;
 
 #[derive(Clone, Debug)]
 pub enum TypeConstraint {

@@ -1,10 +1,10 @@
-use crate::infra::option::WrapOption;
+use crate::infra::WrapOption;
 use crate::lexer::Token;
 use crate::parser::define::Define;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::keyword::Keyword;
-use crate::parser::r#type::r#type::OptType;
-use crate::parser::r#type::r#type::Type;
+use crate::parser::r#type::OptType;
+use crate::parser::r#type::Type;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Pat {

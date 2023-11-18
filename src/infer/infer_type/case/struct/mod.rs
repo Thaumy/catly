@@ -12,12 +12,12 @@ use crate::infer::infer_type::EnvRefConstraint;
 use crate::infer::infer_type::InferTypeRet;
 use crate::infer::infer_type::ReqInfo;
 use crate::infer::infer_type::TypeMissMatch;
-use crate::infra::option::WrapOption;
-use crate::infra::quad::Quad;
-use crate::infra::result::WrapResult;
+use crate::infra::Quad;
+use crate::infra::WrapOption;
+use crate::infra::WrapResult;
 use crate::parser::expr::r#type::{Expr, StructField};
-use crate::parser::r#type::r#type::OptType;
-use crate::parser::r#type::r#type::Type;
+use crate::parser::r#type::OptType;
+use crate::parser::r#type::Type;
 
 pub fn case(
     type_env: &TypeEnv,

@@ -1,6 +1,6 @@
 use crate::lexer::lexical_analyze;
 use crate::parser::r#type::parse_type;
-use crate::parser::r#type::r#type::OptType;
+use crate::parser::r#type::OptType;
 use crate::pp::preprocess;
 
 fn f(seq: &str) -> OptType {

@@ -2,9 +2,9 @@ use std::collections::hash_map::{IntoIter, Iter};
 use std::collections::HashMap;
 use std::fmt::{Debug, Formatter};
 
-use crate::infra::option::WrapOption;
-use crate::infra::r#fn::id;
-use crate::parser::r#type::r#type::Type;
+use crate::infra::id;
+use crate::infra::WrapOption;
+use crate::parser::r#type::Type;
 
 #[derive(PartialEq, Clone)]
 pub struct EnvRefConstraint {

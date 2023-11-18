@@ -12,9 +12,9 @@ use crate::eval::eval_expr::case::r#match::is_expr_match_pattern_then_env;
 use crate::eval::eval_expr::{eval_expr, EvalRet};
 use crate::eval::EvalErr;
 use crate::eval::Expr;
-use crate::infra::option::WrapOption;
-use crate::infra::rc::RcAnyExt;
-use crate::infra::result::WrapResult;
+use crate::infra::RcAnyExt;
+use crate::infra::WrapOption;
+use crate::infra::WrapResult;
 
 pub fn case_match(
     type_env: &TypeEnv,

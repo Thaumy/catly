@@ -1,7 +1,7 @@
 use crate::infer::env::closure_type;
 use crate::infer::env::int_type;
-use crate::infra::option::WrapOption;
-use crate::infra::rc::RcAnyExt;
+use crate::infra::RcAnyExt;
+use crate::infra::WrapOption;
 use crate::parser::define::test::f;
 use crate::parser::define::Define;
 use crate::parser::expr::r#type::Expr;

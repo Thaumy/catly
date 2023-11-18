@@ -4,8 +4,8 @@ use crate::eval::bool_type;
 use crate::eval::closure_type;
 use crate::eval::int_type;
 use crate::eval::Expr;
-use crate::infra::option::WrapOption;
-use crate::infra::rc::RcAnyExt;
+use crate::infra::RcAnyExt;
+use crate::infra::WrapOption;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum PrimitiveOp {

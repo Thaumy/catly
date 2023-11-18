@@ -1,9 +1,9 @@
 use std::collections::BTreeSet;
 use std::ops::Deref;
 
-use crate::infra::option::WrapOption;
-use crate::infra::rc::RcAnyExt;
-use crate::infra::vec::VecExt;
+use crate::infra::RcAnyExt;
+use crate::infra::VecExt;
+use crate::infra::WrapOption;
 use crate::lexer::{FollowExt, Token};
 use crate::parser::expr::pat::{OptRcPat, Pat};
 use crate::parser::keyword::Keyword;

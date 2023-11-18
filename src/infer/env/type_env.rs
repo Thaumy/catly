@@ -1,7 +1,7 @@
 use crate::infer::env::int_type;
 use crate::infer::env::unit_type;
-use crate::infra::option::WrapOption;
-use crate::parser::r#type::r#type::Type;
+use crate::infra::WrapOption;
+use crate::parser::r#type::Type;
 
 pub type TypeEnvEntry = (String, Type);
 

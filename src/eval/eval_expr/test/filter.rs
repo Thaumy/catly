@@ -5,7 +5,7 @@ use crate::eval::env::ExprEnv;
 use crate::eval::env::TypeEnv;
 use crate::eval::eval_expr::eval_expr;
 use crate::eval::std::std_code;
-use crate::infra::rc::RcAnyExt;
+use crate::infra::RcAnyExt;
 
 fn gen_env<'t>() -> (TypeEnv<'t>, Rc<ExprEnv>) {
     let seq = std_code().to_owned() +

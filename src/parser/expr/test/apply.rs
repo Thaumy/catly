@@ -1,6 +1,6 @@
 use crate::infer::env::int_type;
-use crate::infra::option::WrapOption;
-use crate::infra::rc::RcAnyExt;
+use crate::infra::RcAnyExt;
+use crate::infra::WrapOption;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::expr::test::f;
 

@@ -3,7 +3,7 @@ use crate::infer::env::namely_type;
 use crate::infer::env::sum_type;
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::env::unit_type;
-use crate::infra::option::WrapOption;
+use crate::infra::WrapOption;
 use crate::unify::namely::lift_namely;
 
 fn env<'t>() -> TypeEnv<'t> {

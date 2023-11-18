@@ -9,7 +9,7 @@ mod pi;
 #[allow(unused_macros)]
 macro_rules! check_has_type {
     ($ret:expr, $t:expr) => {{
-        use crate::infra::quad::Quad;
+        use crate::infra::Quad;
         match $ret {
             Quad::L(e) => {
                 assert!(e.is_fully_typed());
@@ -27,7 +27,7 @@ pub(super) use check_has_type;
 #[allow(unused_macros)]
 macro_rules! check_req_constraint {
     ($ret:expr, $t:expr, $erc:expr) => {{
-        use crate::infra::quad::Quad;
+        use crate::infra::Quad;
         match $ret {
             Quad::ML(rc) => {
                 assert!(rc.typed_expr.is_fully_typed());

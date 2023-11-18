@@ -1,4 +1,4 @@
-use crate::infra::option::WrapOption;
+use crate::infra::WrapOption;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Mark {

@@ -6,9 +6,9 @@ use crate::eval::eval_expr::case::apply::primitive_apply;
 use crate::eval::eval_expr::case::apply::source_lhs_expr_to_closure;
 use crate::eval::eval_expr::{eval_expr, EvalRet};
 use crate::eval::Expr;
-use crate::infra::either::Either;
-use crate::infra::option::WrapOption;
-use crate::infra::rc::RcAnyExt;
+use crate::infra::Either;
+use crate::infra::RcAnyExt;
+use crate::infra::WrapOption;
 
 mod r#fn;
 pub use r#fn::*;

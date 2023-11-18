@@ -6,10 +6,10 @@ use crate::infer::env::EnvRefSrc;
 use crate::infer::env::TypeConstraint;
 use crate::infer::infer_type::EnvRefConstraint;
 use crate::infer::infer_type::TypeMissMatch;
-use crate::infra::quad::Quad;
-use crate::infra::rc::RcAnyExt;
-use crate::infra::result::WrapResult;
-use crate::infra::vec::VecExt;
+use crate::infra::Quad;
+use crate::infra::RcAnyExt;
+use crate::infra::VecExt;
+use crate::infra::WrapResult;
 
 enum EntryAction {
     // 表示已经推导完成的 def, 需要从待推导 def 列表中移出

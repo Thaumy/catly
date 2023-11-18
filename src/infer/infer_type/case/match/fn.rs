@@ -7,15 +7,15 @@ use crate::infer::env::TypeConstraint;
 use crate::infer::infer_type::r#fn::destruct_namely_type;
 use crate::infer::infer_type::InferTypeRet;
 use crate::infer::infer_type::TypeMissMatch;
-use crate::infra::option::WrapOption;
-use crate::infra::quad::Quad;
-use crate::infra::r#fn::id;
-use crate::infra::rc::RcAnyExt;
-use crate::infra::result::WrapResult;
-use crate::infra::triple::Triple;
-use crate::infra::vec::VecExt;
+use crate::infra::id;
+use crate::infra::Quad;
+use crate::infra::RcAnyExt;
+use crate::infra::Triple;
+use crate::infra::VecExt;
+use crate::infra::WrapOption;
+use crate::infra::WrapResult;
 use crate::parser::expr::r#type::Expr;
-use crate::parser::r#type::r#type::Type;
+use crate::parser::r#type::Type;
 
 // 将模式匹配意义上的常量表达式解构为表达式环境注入
 // 返回环境注入 Vec 或注入冲突项

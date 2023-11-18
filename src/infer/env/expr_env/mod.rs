@@ -6,10 +6,10 @@ use std::rc::Rc;
 use crate::infer::env::EnvRefSrc;
 use crate::infer::env::TypeConstraint;
 use crate::infer::infer_type::EnvRefConstraint;
-use crate::infra::option::WrapOption;
-use crate::infra::rc::RcAnyExt;
+use crate::infra::RcAnyExt;
+use crate::infra::WrapOption;
 use crate::parser::expr::r#type::{Expr, OptExpr};
-use crate::parser::r#type::r#type::OptType;
+use crate::parser::r#type::OptType;
 
 pub type ExprEnvEntry = (String, TypeConstraint, EnvRefSrc);
 

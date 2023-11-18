@@ -1,5 +1,5 @@
-use crate::infra::option::WrapOption;
-use crate::infra::vec::VecExt;
+use crate::infra::VecExt;
+use crate::infra::WrapOption;
 use crate::parser::keyword::Keyword;
 use crate::parser::name::let_name::parse_let_name;
 use crate::parser::name::type_name::parse_type_name;

@@ -1,9 +1,9 @@
 use crate::infer::env::type_env::TypeEnv;
 use crate::infer::infer_type::InferTypeRet;
-use crate::infra::rc::RcAnyExt;
+use crate::infra::RcAnyExt;
 use crate::parser::expr::r#type::Expr;
-use crate::parser::r#type::r#type::OptType;
-use crate::parser::r#type::r#type::Type;
+use crate::parser::r#type::OptType;
+use crate::parser::r#type::Type;
 
 pub fn has_input_type<F>(
     type_env: &TypeEnv,

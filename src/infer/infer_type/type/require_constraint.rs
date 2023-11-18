@@ -3,7 +3,7 @@ use std::fmt::{Debug, Formatter};
 use crate::infer::infer_type::EnvRefConstraint;
 use crate::infer::infer_type::InferTypeRet;
 use crate::infer::infer_type::TypeMissMatch;
-use crate::infra::quad::QuadAnyExt;
+use crate::infra::QuadAnyExt;
 use crate::parser::expr::r#type::Expr;
 
 // 经由约束才能使用的类型

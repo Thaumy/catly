@@ -8,10 +8,10 @@ use crate::infer::infer_type::require_extended_constraint;
 use crate::infer::infer_type::EnvRefConstraint;
 use crate::infer::infer_type::InferTypeRet;
 use crate::infer::infer_type::TypeMissMatch;
-use crate::infra::option::WrapOption;
-use crate::infra::triple::Triple;
+use crate::infra::Triple;
+use crate::infra::WrapOption;
 use crate::parser::expr::r#type::Expr;
-use crate::parser::r#type::r#type::OptType;
+use crate::parser::r#type::OptType;
 
 impl ExprEnv {
     // 由于表达式对环境中的 ref_name 的使用是一种间接使用, 可能存在多处引用对于 ref_name 的类型要求不一致的情况

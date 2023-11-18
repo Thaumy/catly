@@ -13,20 +13,17 @@ use crate::infer::infer_type_of_defs::{
     infer_type_of_defs,
     InferErr
 };
-use crate::infra::option::WrapOption;
-use crate::infra::rc::RcAnyExt;
-use crate::infra::result::WrapResult;
-use crate::infra::vec::VecExt;
+use crate::infra::RcAnyExt;
+use crate::infra::VecExt;
+use crate::infra::WrapOption;
+use crate::infra::WrapResult;
 use crate::lexer::lexical_analyze;
 use crate::parser::ast::parse_ast;
 use crate::parser::expr::r#type::{
     Expr as CtExpr,
     OptExpr as OptCtExpr
 };
-use crate::parser::r#type::r#type::{
-    OptType as OptCtType,
-    Type as CtType
-};
+use crate::parser::r#type::{OptType as OptCtType, Type as CtType};
 use crate::pp::preprocess;
 
 mod expr_env;
