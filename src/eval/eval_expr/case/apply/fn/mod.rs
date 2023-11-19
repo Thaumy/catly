@@ -2,7 +2,7 @@ use std::rc::Rc;
 
 use crate::eval::env::ExprEnv;
 use crate::eval::env::TypeEnv;
-use crate::eval::eval_expr::eval_expr;
+use crate::eval::eval_expr;
 use crate::eval::EvalErr;
 use crate::eval::Expr;
 use crate::eval::Type;

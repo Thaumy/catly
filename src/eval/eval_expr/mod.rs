@@ -4,19 +4,20 @@ mod test;
 
 use std::rc::Rc;
 
+use case::case_apply;
+use case::case_closure;
+use case::case_cond;
+use case::case_discard;
+use case::case_env_ref;
+use case::case_int;
+use case::case_let;
+use case::case_match;
+use case::case_primitive_op;
+use case::case_struct;
+use case::case_unit;
+
 use crate::eval::env::ExprEnv;
 use crate::eval::env::TypeEnv;
-use crate::eval::eval_expr::case::case_apply;
-use crate::eval::eval_expr::case::case_closure;
-use crate::eval::eval_expr::case::case_cond;
-use crate::eval::eval_expr::case::case_discard;
-use crate::eval::eval_expr::case::case_env_ref;
-use crate::eval::eval_expr::case::case_int;
-use crate::eval::eval_expr::case::case_let;
-use crate::eval::eval_expr::case::case_match;
-use crate::eval::eval_expr::case::case_primitive_op;
-use crate::eval::eval_expr::case::case_struct;
-use crate::eval::eval_expr::case::case_unit;
 use crate::eval::EvalErr;
 use crate::eval::Expr;
 

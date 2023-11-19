@@ -1,15 +1,10 @@
 use std::ops::Rem;
 use std::rc::Rc;
 
+use super::{bool_expr, eval_to_bool, eval_to_int, int_expr};
 use crate::eval::env::ExprEnv;
 use crate::eval::env::TypeEnv;
-use crate::eval::eval_expr::case::apply::{
-    bool_expr,
-    eval_to_bool,
-    eval_to_int,
-    int_expr
-};
-use crate::eval::eval_expr::EvalRet;
+use crate::eval::EvalRet;
 use crate::eval::Expr;
 use crate::eval::PrimitiveOp;
 use crate::infra::WrapOption;

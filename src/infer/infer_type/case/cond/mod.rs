@@ -4,10 +4,11 @@ mod test;
 
 use std::rc::Rc;
 
+use infer_branch_type::infer_branch_type;
+
 use crate::infer::env::bool_type;
 use crate::infer::env::ExprEnv;
 use crate::infer::env::TypeEnv;
-use crate::infer::infer_type::case::cond::infer_branch_type::infer_branch_type;
 use crate::infer::infer_type::InferTypeRet;
 use crate::infer::infer_type::ReqConstraint;
 use crate::infer::infer_type::ReqInfo;

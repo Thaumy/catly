@@ -2,14 +2,16 @@ mod case_ri;
 mod case_t_rc;
 
 use std::rc::Rc;
+
+use case_ri::case_ri;
+use case_t_rc::case_t_rc;
+
 use crate::infer::env::ExprEnv;
 use crate::infer::env::TypeEnv;
-use crate::infer::infer_type::case::cond::infer_branch_type::case_ri::case_ri;
-use crate::infer::infer_type::case::cond::infer_branch_type::case_t_rc::case_t_rc;
 use crate::infer::infer_type::InferTypeRet;
+use crate::infra::Triple;
 use crate::infra::WrapOption;
 use crate::infra::WrapRc;
-use crate::infra::Triple;
 use crate::parser::expr::r#type::Expr;
 use crate::parser::r#type::OptType;
 

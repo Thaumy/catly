@@ -1,8 +1,8 @@
 use std::rc::Rc;
 
+use super::r#fn::destruct_match_const_to_expr_env_inject;
 use crate::infer::env::ExprEnv;
 use crate::infer::env::TypeEnv;
-use crate::infer::infer_type::case::r#match::r#fn::destruct_match_const_to_expr_env_inject;
 use crate::infer::infer_type::InferTypeRet;
 use crate::infer::infer_type::ReqInfo;
 use crate::infer::infer_type::TypeMissMatch;

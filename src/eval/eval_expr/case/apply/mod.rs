@@ -2,8 +2,6 @@ use std::rc::Rc;
 
 use crate::eval::env::ExprEnv;
 use crate::eval::env::TypeEnv;
-use crate::eval::eval_expr::case::apply::primitive_apply;
-use crate::eval::eval_expr::case::apply::source_lhs_expr_to_closure;
 use crate::eval::eval_expr::{eval_expr, EvalRet};
 use crate::eval::Expr;
 use crate::infra::Either;
@@ -11,7 +9,7 @@ use crate::infra::WrapOption;
 use crate::infra::WrapRc;
 
 mod r#fn;
-pub use r#fn::*;
+use r#fn::*;
 
 #[cfg(test)]
 mod test;

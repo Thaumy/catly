@@ -11,7 +11,7 @@ pub fn case_int(type_annot: &Type, int_value: &i64) -> EvalRet {
 mod test {
     use crate::eval::env::ExprEnv;
     use crate::eval::env::TypeEnv;
-    use crate::eval::eval_expr::eval_expr;
+    use crate::eval::eval_expr;
     use crate::eval::namely_type;
     use crate::eval::Expr;
     use crate::infra::WrapRc;

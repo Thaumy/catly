@@ -1,5 +1,5 @@
 mod case;
-pub mod r#fn;
+mod r#fn;
 #[cfg(test)]
 mod test;
 

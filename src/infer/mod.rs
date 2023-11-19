@@ -1,3 +1,5 @@
 pub mod env;
 pub mod infer_type;
-pub mod infer_type_of_defs;
+mod infer_type_of_defs;
+
+pub use infer_type_of_defs::*;

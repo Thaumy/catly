@@ -6,10 +6,11 @@ mod test;
 
 use std::rc::Rc;
 
+use case_ri::case_ri;
+use case_t_rc::case_t_rc;
+
 use crate::infer::env::ExprEnv;
 use crate::infer::env::TypeEnv;
-use crate::infer::infer_type::case::r#match::case_ri::case_ri;
-use crate::infer::infer_type::case::r#match::case_t_rc::case_t_rc;
 use crate::infer::infer_type::InferTypeRet;
 use crate::infra::Triple;
 use crate::parser::expr::r#type::Expr;

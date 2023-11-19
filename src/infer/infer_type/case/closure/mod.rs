@@ -6,10 +6,11 @@ mod test;
 use std::ops::Deref;
 use std::rc::Rc;
 
+use has_input_type::has_input_type;
+use no_input_type::no_input_type;
+
 use crate::infer::env::ExprEnv;
 use crate::infer::env::TypeEnv;
-use crate::infer::infer_type::case::closure::has_input_type::has_input_type;
-use crate::infer::infer_type::case::closure::no_input_type::no_input_type;
 use crate::infer::infer_type::r#fn::destruct_namely_type;
 use crate::infer::infer_type::InferTypeRet;
 use crate::infer::infer_type::ReqInfo;

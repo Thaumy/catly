@@ -9,10 +9,7 @@ use crate::infer::env::ExprEnv as CtExprEnv;
 use crate::infer::env::ExprEnvEntry as CtExprEnvEntry;
 use crate::infer::env::TypeConstraint;
 use crate::infer::env::TypeEnv as CtTypeEnv;
-use crate::infer::infer_type_of_defs::{
-    infer_type_of_defs,
-    InferErr
-};
+use crate::infer::{infer_type_of_defs, InferErr};
 use crate::infra::VecExt;
 use crate::infra::WrapOption;
 use crate::infra::WrapRc;
